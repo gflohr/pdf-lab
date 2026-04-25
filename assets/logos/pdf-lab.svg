@@ -8,10 +8,10 @@
 	id="pdf-lab-lab"
 	xmlns="http://www.w3.org/2000/svg"
 	xmlns:svg="http://www.w3.org/2000/svg">
-	<g id="test-tube">
-		<g id="document">
+	<g id="logo">
+		<g id="document" transform="translate(488 -163) rotate(33.1)">
 			<path d="M 400,400 l 60.75,0 l 0,35.52 l 35.52,0 l 0,107.34 l -96.27,0 z"
-				style="fill:#c02c28" />
+				fill="#c02c28" />
 			<path d="M 468.75,400 l 0,27.52 l 27.52,0 z"
 				style="fill:#c02c28" />
 			<line x1="418.18" x2="457.38" y1="447.80" y2="447.80"
@@ -23,6 +23,53 @@
 			<line x1="418.18" x2="457.38" y1="517.76" y2="517.76"
 				stroke="white" stroke-width="8" stroke-linecap="round" />
 		</g>
+		<g id="man">
+			<circle cx="715" cy="478" r="26.5"
+				fill="#30414c"/>
+			<line x1="590" y1="550" x2="637" y2="525"
+				stroke="#30414c" stroke-width="24" stroke-linecap="round" />
+			<line x1="637" y1="525" x2="682" y2="510"
+				stroke="#30414c" stroke-width="24" stroke-linecap="round" />
+			<line x1="682" y1="510" x2="614" y2="578"
+				stroke="#30414c" stroke-width="30" stroke-linecap="round" />
+			<line x1="614" y1="578" x2="553" y2="681"
+				stroke="#30414c" stroke-width="24" stroke-linecap="round" />
+			<line x1="614" y1="578" x2="664" y2="579"
+				stroke="#30414c" stroke-width="24" stroke-linecap="round" />
+			<line x1="664" y1="584" x2="645" y2="626"
+				stroke="#30414c" stroke-width="30" stroke-linecap="round" />
+		</g>
+		<g id="test-tube" transform="rotate(33.1)">
+			<line x1="692" y1="-295" x2="692" y2="430"
+				stroke="#30414c" stroke-width="24" stroke-linecap="round" />
+			<line x1="907" y1="-295" x2="907" y2="430"
+				stroke="#30414c" stroke-width="24" stroke-linecap="round" />
+			<path d="M 692 430 A 107.5 107.5 0 0 0 907 430"
+				fill="none"
+				stroke="#30414c"
+				stroke-width="24"
+				stroke-linecap="round" />
+			<path d="M 692 -295 A 20 20 0 0 1 692 -335"
+				fill="none"
+				stroke="#30414c"
+				stroke-width="24"
+				stroke-linecap="round" />
+			<path d="M 907 -295 A 20 20 0 0 0 907 -335"
+				fill="none"
+				stroke="#30414c"
+				stroke-width="24"
+				stroke-linecap="round" />
+			<line x1="692" y1="-335" x2="907" y2="-335"
+				stroke="#30414c" stroke-width="24" stroke-linecap="round" />
+			<path d="
+					M 738 489 A 107.5 107.5 0 0 0 905 439
+					l 10 -305
+					z
+				"
+				fill="#30414c"
+				stroke="#30414c"
+				stroke-width="1" />-->
+	  </g>
 	</g>
 	<g id="pdf-lab-text">
 		<path
@@ -54,4 +101,6 @@
 			id="pdf-lab-b"
 			style="fill:#30414c" />
 	</g>
+
+	<defs xmlns="http://www.w3.org/2000/svg" id="defs22"/>
 </svg>
