@@ -20,6 +20,13 @@ import {
 	StandardEncodings,
 } from './types.js';
 
+/**
+ * Collect all font contained in a PDF document.
+ *
+ * @param pdfDoc the input PDF
+ * @param resources the used font resources as returned by `collectResources`
+ * @returns a map of stringified references to font information objects
+ */
 export default function collectFonts(
 	pdfDoc: PDFDocument,
 	resources: FontUsage[],
