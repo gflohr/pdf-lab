@@ -1,10 +1,10 @@
+import { afterEach } from 'node:test';
 import { PDFDocument, PDFRef } from '@cantoo/pdf-lib';
 import { describe, expect, it, vi } from 'vitest';
 import { SingleByteEncodingMapper } from './encoding/mappers/single-byte-encoding-mapper.js';
 import * as collectFont from './font/collect-fonts.js';
 import type { FontInfo } from './font/types.js';
 import { PDFLab } from './pdf-lab.js';
-import { afterEach } from 'node:test';
 
 async function makePDFLab(): Promise<PDFLab> {
 	const doc = await PDFDocument.create();
@@ -86,7 +86,7 @@ describe('PDFLab', () => {
 		it('should call the collectFont() implementation', async () => {
 			const lab = await makePDFLab();
 			const collectMock = vi
-				.spyOn(collectFont, 'collectFonts')
+				.spyOn(collectFont, 'default')
 				.mockReturnValue(new Map<string, FontInfo>());
 
 			lab.collectFonts();
@@ -98,7 +98,7 @@ describe('PDFLab', () => {
 			const lab = await makePDFLab();
 			const fonts = new Map<string, FontInfo>();
 
-			fonts.set('F1', {
+			fonts.set('42 0 R', {
 				ref: PDFRef.of(42),
 				baseFont: 'Helvetica-1234',
 				fontName: 'Helvetica',
@@ -107,7 +107,7 @@ describe('PDFLab', () => {
 				subtype: 'Type1',
 				glyphMapper: new SingleByteEncodingMapper('MacRomanEncoding'),
 			});
-			fonts.set('F2', {
+			fonts.set('43 0 R', {
 				ref: PDFRef.of(43),
 				baseFont: 'Times-Roman-5678',
 				fontName: 'Times-Roman',
@@ -117,7 +117,7 @@ describe('PDFLab', () => {
 				glyphMapper: new SingleByteEncodingMapper('WinAnsiEncoding'),
 			});
 			const collectMock = vi
-				.spyOn(collectFont, 'collectFonts')
+				.spyOn(collectFont, 'default')
 				.mockReturnValue(fonts);
 
 			const result1 = lab.collectFonts();

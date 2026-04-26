@@ -119,7 +119,6 @@ describe('Text Command', () => {
 		textBlocksDto.forEach((block) => {
 			block.font.ref = block.font.ref.tag as unknown as PDFRef;
 		});
-		textBlocksDto[1]!.font.encoding = '[custom]' as unknown as undefined;
 
 		it('should output text only', async () => {
 			const extractMock = vi

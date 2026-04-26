@@ -33,18 +33,6 @@ export type FontSubtype =
  */
 export type FontInfo = {
 	/**
-	 * The BaseFont. This often contains subset identifiers or a numbered
-	 * suffix.
-	 */
-	baseFont: string;
-
-	/**
-	 * The normalised font name without the subset identifier or numbered
-	 * suffix.
-	 */
-	fontName: string;
-
-	/**
 	 * The reference to the font dictionary.
 	 */
 	ref: PDFRef;
@@ -55,6 +43,23 @@ export type FontInfo = {
 	embedded: boolean;
 
 	/**
+	 * The font subtype.
+	 */
+	subtype: FontSubtype;
+
+	/**
+	 * The BaseFont. This often contains subset identifiers or a numbered
+	 * suffix.
+	 */
+	baseFont?: string;
+
+	/**
+	 * The normalised font name without the subset identifier or numbered
+	 * suffix.
+	 */
+	fontName?: string;
+
+	/**
 	 * The optional encoding.
 	 */
 	encoding?: Encoding;
@@ -63,9 +68,4 @@ export type FontInfo = {
 	 * The optional glyph mapper.
 	 */
 	glyphMapper?: GlyphMapper;
-
-	/**
-	 * The font subtype.
-	 */
-	subtype: FontSubtype;
 };

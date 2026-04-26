@@ -13,6 +13,7 @@ import { Lexer, type Token } from '../parser/lexer.js';
 type GlyphBlock = {
 	glyphs: number[];
 	fontResource: string;
+	page: PDFPage;
 	pageNumber: number;
 };
 
@@ -30,20 +31,21 @@ export class GlyphExtractor {
 	private parseRecursively(
 		collector: GlyphBlock[],
 		obj: PDFObject,
+		page: PDFPage,
 		pageNumber: number,
 		pdfDoc: PDFDocument,
 	) {
 		if (obj instanceof PDFRawStream) {
-			this.parseStream(collector, pageNumber, obj);
-			this.parseDictionary(collector, obj.dict, pageNumber, pdfDoc);
+			this.parseStream(collector, page, pageNumber, obj);
+			this.parseDictionary(collector, obj.dict, page, pageNumber, pdfDoc);
 		} else if (obj instanceof PDFDict) {
-			this.parseDictionary(collector, obj, pageNumber, pdfDoc);
+			this.parseDictionary(collector, obj, page, pageNumber, pdfDoc);
 		} else if (obj instanceof PDFArray) {
 			for (let i = 0; i < obj.size(); ++i) {
 				const item = obj.get(i);
 				const resolved = pdfDoc.context.lookup(item);
 				if (resolved) {
-					this.parseRecursively(collector, resolved, pageNumber, pdfDoc);
+					this.parseRecursively(collector, resolved, page, pageNumber, pdfDoc);
 				}
 			}
 		}
@@ -52,6 +54,7 @@ export class GlyphExtractor {
 	private parseDictionary(
 		collector: GlyphBlock[],
 		dict: PDFDict,
+		page: PDFPage,
 		pageNumber: number,
 		pdfDoc: PDFDocument,
 	) {
@@ -71,7 +74,7 @@ export class GlyphExtractor {
 			const ref = xo.get(key);
 			const resolved = pdfDoc.context.lookup(ref);
 			if (resolved instanceof PDFRawStream) {
-				this.parseStream(collector, pageNumber, resolved);
+				this.parseStream(collector, page, pageNumber, resolved);
 			}
 		});
 	}
@@ -87,11 +90,12 @@ export class GlyphExtractor {
 		const contents = node.get(PDFName.of('Contents'));
 		if (!contents) return;
 
-		this.parseRecursively(collector, contents, pageNumber, pdfDoc);
+		this.parseRecursively(collector, contents, page, pageNumber, pdfDoc);
 	}
 
 	private parseStream(
 		collector: GlyphBlock[],
+		page: PDFPage,
 		pageNumber: number,
 		stream: PDFRawStream,
 	) {
@@ -133,6 +137,7 @@ export class GlyphExtractor {
 							collector.push({
 								glyphs: tokens[i - 1]!.value,
 								fontResource,
+								page,
 								pageNumber,
 							});
 						}
@@ -151,6 +156,7 @@ export class GlyphExtractor {
 								collector.push({
 									glyphs: textToken.value,
 									fontResource,
+									page,
 									pageNumber,
 								});
 							}

@@ -6,6 +6,7 @@ import type { Command } from '../command.js';
 import { defaultOptions } from '../default-options.js';
 import { coerceOptions, type OptSpec } from '../optspec.js';
 import { Package } from '../package.js';
+import { FontInfoDto, toFontInfoDto } from '../util/font-info-dto.js';
 
 const gtx = Textdomain.getInstance('pdf-lab');
 
@@ -27,15 +28,7 @@ export type ConfigOptions = InferredOptionTypes<typeof allOptions>;
 
 type OutputTextBlock = {
 	text: string;
-	// FIXME! This must be turned into a FontInfoDto.
-	font: {
-		ref: string;
-		embedded: boolean;
-		baseFont: string;
-		fontName: string;
-		subtype: string;
-		encoding: string;
-	};
+	font: FontInfoDto,
 	pageNumber: number;
 };
 
@@ -61,18 +54,15 @@ export class TextCommand implements Command {
 			return;
 		}
 
-		const textBlocksDto: OutputTextBlock[] = blocks.map((block) => ({
-			text: block.text,
-			font: {
-				ref: block.font.ref.tag,
-				baseFont: block.font.baseFont,
-				fontName: block.font.fontName,
-				embedded: block.font.embedded,
-				subtype: block.font.subtype,
-				encoding: block.font.encoding ?? '[custom]',
-			},
-			pageNumber: block.pageNumber,
-		}));
+		const textBlocksDto: OutputTextBlock[] = blocks.map((block) => {
+			const textBlockDto = {
+				text: block.text,
+				font: toFontInfoDto(block.font),
+				pageNumber: block.pageNumber,
+			} as OutputTextBlock;
+
+			return textBlockDto;
+		});
 
 		if (configOptions.format === 'yaml') {
 			console.log(yaml.dump(textBlocksDto));

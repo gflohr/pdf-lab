@@ -1,9 +1,11 @@
 import { PDFDocument } from '@cantoo/pdf-lib';
-import * as fontCollector from './font/collect-fonts.js';
+import collectFonts from './font/collect-fonts.js';
+import { collectResources, type FontUsage } from './font/collect-resources.js';
 import type { FontInfo } from './font/types.js';
 
 export class PDFLab {
 	private fonts: Map<string, FontInfo> | undefined;
+	private fontUsage: FontUsage[] | undefined;
 
 	private constructor(private readonly pdfDoc: PDFDocument) {}
 
@@ -82,8 +84,12 @@ export class PDFLab {
 	}
 
 	public collectFonts(): Map<string, FontInfo> {
+		if (!this.fontUsage) {
+			this.fontUsage = collectResources(this.pdfDoc);
+		}
+
 		if (!this.fonts) {
-			this.fonts = fontCollector.collectFonts(this.pdfDoc);
+			this.fonts = collectFonts(this.pdfDoc, this.fontUsage);
 		}
 
 		return this.fonts;

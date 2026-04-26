@@ -10,6 +10,7 @@ import {
 import { CMapMapper } from '../encoding/mappers/cmap-mapper.js';
 import type { GlyphMapper } from '../encoding/mappers/glyph-mapper.js';
 import { SingleByteEncodingMapper } from '../encoding/mappers/single-byte-encoding-mapper.js';
+import type { FontUsage } from './collect-resources.js';
 import {
 	type Encoding,
 	type FontInfo,
@@ -17,39 +18,31 @@ import {
 	StandardEncodings,
 } from './types.js';
 
-export function collectFonts(pdfDoc: PDFDocument): Map<string, FontInfo> {
+export default function collectFonts(
+	pdfDoc: PDFDocument,
+	resources: FontUsage[],
+): Map<string, FontInfo> {
 	const fonts: Map<string, FontInfo> = new Map<string, FontInfo>();
 
-	for (const page of pdfDoc.getPages()) {
-		const { Font } = page.node.normalizedEntries();
-		for (const [fontName, fontRef] of Font.entries()) {
-			const fontDict = pdfDoc.context.lookupMaybe(fontRef, PDFDict);
-			if (!fontDict) continue;
+	const refs = [...new Set<PDFRef>(resources.flatMap(Object.values))];
+	for (let i = 0; i < refs.length; ++i) {
+		const fontRef = refs[i]!;
+		const fontDict = pdfDoc.context.lookup(fontRef) as PDFDict;
+		if (!fontDict) continue;
 
-			const subtype = fontDict.lookupMaybe(PDFName.of('Subtype'), PDFName);
-			if (!subtype) continue;
+		const subtype = fontDict.lookupMaybe(PDFName.of('Subtype'), PDFName);
+		if (!subtype) continue;
 
-			const subtypeName = subtype.decodeText();
-			if (subtypeName === 'Type0') {
-				const info = getFontType0Info(
-					pdfDoc,
-					fontName,
-					fontDict,
-					fontRef as PDFRef,
-				);
-				if (info) {
-					fonts.set((fontRef as PDFRef).toString(), info);
-				}
-			} else {
-				const info = getFontInfo(
-					subtypeName,
-					fontName,
-					fontDict,
-					fontRef as PDFRef,
-				);
-				if (info) {
-					fonts.set((fontRef as PDFRef).toString(), info);
-				}
+		const subtypeName = subtype.decodeText();
+		if (subtypeName === 'Type0') {
+			const info = getFontType0Info(pdfDoc, fontDict, fontRef as PDFRef);
+			if (info) {
+				fonts.set((fontRef as PDFRef).toString(), info);
+			}
+		} else {
+			const info = getFontInfo(subtypeName, fontDict, fontRef as PDFRef);
+			if (info) {
+				fonts.set((fontRef as PDFRef).toString(), info);
 			}
 		}
 	}
@@ -69,7 +62,6 @@ function getFontName(baseName: string): string {
 
 function getFontInfo(
 	subtypeName: string,
-	fontName: PDFName,
 	fontDict: PDFDict,
 	fontRef: PDFRef,
 ): FontInfo | undefined {
@@ -121,17 +113,19 @@ function getFontInfo(
 		}
 	}
 
-	const baseFont =
-		fontDict.lookupMaybe(PDFName.of('BaseFont'), PDFName)?.decodeText() ??
-		fontName.decodeText();
+	const baseFont = fontDict
+		.lookupMaybe(PDFName.of('BaseFont'), PDFName)
+		?.decodeText();
 	const fontInfo: FontInfo = {
 		ref: fontRef,
 		embedded,
-		baseFont,
-		fontName: getFontName(baseFont),
 		subtype: subtypeName as FontSubtype,
 		glyphMapper,
 	};
+	if (typeof baseFont !== 'undefined') {
+		fontInfo.baseFont = baseFont;
+		fontInfo.fontName = getFontName(baseFont);
+	}
 	if (typeof encoding !== 'undefined') {
 		fontInfo.encoding = encoding as Encoding;
 	}
@@ -140,7 +134,6 @@ function getFontInfo(
 
 function getFontType0Info(
 	pdfDoc: PDFDocument,
-	fontName: PDFName,
 	fontDict: PDFDict,
 	fontRef: PDFRef,
 ): FontInfo | undefined {
@@ -164,16 +157,19 @@ function getFontType0Info(
 		descendantFontDescriptor.has(PDFName.of('FontFile2')) ||
 		descendantFontDescriptor.has(PDFName.of('FontFile3'));
 
-	const baseFont =
-		fontDict.lookupMaybe(PDFName.of('BaseFont'), PDFName)?.decodeText() ??
-		fontName.decodeText();
 	const fontInfo: FontInfo = {
 		ref: fontRef,
 		embedded,
-		baseFont,
-		fontName: getFontName(baseFont),
 		subtype: 'Type0',
 	};
+
+	const baseFont = fontDict
+		.lookupMaybe(PDFName.of('BaseFont'), PDFName)
+		?.decodeText();
+	if (typeof baseFont !== 'undefined') {
+		fontInfo.baseFont = baseFont;
+		fontInfo.fontName = getFontName(baseFont);
+	}
 
 	const toUnicodeStream = fontDict.lookup(PDFName.of('ToUnicode'));
 	if (toUnicodeStream && toUnicodeStream instanceof PDFRawStream) {
