@@ -4,6 +4,7 @@ import { SingleByteEncodingMapper } from './encoding/mappers/single-byte-encodin
 import * as collectFont from './font/collect-fonts.js';
 import type { FontInfo } from './font/types.js';
 import { PDFLab } from './pdf-lab.js';
+import { afterEach } from 'node:test';
 
 async function makePDFLab(): Promise<PDFLab> {
 	const doc = await PDFDocument.create();
@@ -17,6 +18,10 @@ async function makePDFLab(): Promise<PDFLab> {
 }
 
 describe('PDFLab', () => {
+	afterEach(() => {
+		vi.restoreAllMocks();
+	});
+
 	describe('from', () => {
 		it('returns the same instance if given a real PDFDocument', async () => {
 			const doc = await PDFDocument.create();
