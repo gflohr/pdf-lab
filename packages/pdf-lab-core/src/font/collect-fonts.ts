@@ -1,4 +1,5 @@
 import {
+	decodePDFRawStream,
 	isStandardFont,
 	PDFArray,
 	PDFDict,
@@ -6,6 +7,7 @@ import {
 	PDFName,
 	PDFRawStream,
 	type PDFRef,
+	PDFStream,
 } from '@cantoo/pdf-lib';
 import { CMapMapper } from '../encoding/mappers/cmap-mapper.js';
 import type { GlyphMapper } from '../encoding/mappers/glyph-mapper.js';
@@ -80,8 +82,10 @@ function getFontInfo(
 	let glyphMapper: GlyphMapper | undefined;
 	const toUnicodeStream = fontDict.lookup(PDFName.of('ToUnicode'));
 	if (toUnicodeStream && toUnicodeStream instanceof PDFRawStream) {
-		const stream = (toUnicodeStream as PDFRawStream).contents;
-		glyphMapper = new CMapMapper(stream);
+		const data = decodePDFRawStream(toUnicodeStream).decode();
+		glyphMapper = new CMapMapper(data);
+	} else if (toUnicodeStream && toUnicodeStream instanceof PDFStream) {
+		glyphMapper = new CMapMapper(toUnicodeStream.getContents());
 	}
 
 	let encoding: string | undefined;
@@ -173,8 +177,10 @@ function getFontType0Info(
 
 	const toUnicodeStream = fontDict.lookup(PDFName.of('ToUnicode'));
 	if (toUnicodeStream && toUnicodeStream instanceof PDFRawStream) {
-		const stream = toUnicodeStream.contents;
-		fontInfo.glyphMapper = new CMapMapper(stream);
+		const data = decodePDFRawStream(toUnicodeStream).decode();
+		fontInfo.glyphMapper = new CMapMapper(data);
+	} else if (toUnicodeStream && toUnicodeStream instanceof PDFStream) {
+		fontInfo.glyphMapper = new CMapMapper(toUnicodeStream.getContents());
 	}
 
 	return fontInfo;
