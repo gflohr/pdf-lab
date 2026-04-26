@@ -150,7 +150,7 @@ function getFontType0Info(
 	);
 	if (!descendantFontDict) return;
 
-	const descendantFontDescriptor = descendantFontDict.lookup(
+	const descendantFontDescriptor = descendantFontDict.lookupMaybe(
 		PDFName.of('FontDescriptor'),
 		PDFDict,
 	);
