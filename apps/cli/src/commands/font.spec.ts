@@ -37,7 +37,7 @@ const fontInfos: FontInfo[] = [
 		glyphMapper: new SingleByteEncodingMapper('MacRomanEncoding'),
 	},
 	{
-		ref: PDFRef.of(42),
+		ref: PDFRef.of(43),
 		baseFont: 'Helvetica-Oblique-1234',
 		fontName: 'Helvetica-Oblique',
 		embedded: false,
@@ -49,18 +49,20 @@ const fontInfos: FontInfo[] = [
 const fontInfoMap: Map<string, FontInfo> = new Map<string, FontInfo>();
 const fontInfoDtos: FontInfoDto[] = [];
 fontInfos.forEach((f) => {
-	fontInfoMap.set(f.baseFont, f);
+	fontInfoMap.set(f.ref.tag, f);
 	fontInfoDtos.push(toFontInfoDto(f));
 });
 
 describe('Font command', () => {
 	let fontCommand: FontCommand;
 	let consoleLogSpy: ReturnType<typeof vi.spyOn>;
+	let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
 
 	beforeEach(() => {
 		fontCommand = new FontCommand();
 		(coerceOptions as Mock).mockReturnValue(true);
 		consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+		consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 	});
 
 	it('description() should return a valid description', () => {
@@ -82,6 +84,13 @@ describe('Font command', () => {
 		const result = await fontCommand.run(Buffer.from(''), {} as Arguments);
 
 		expect(result).toBe(1);
+	});
+
+	it('should throw an error if nothing to do', async () => {
+		const result = await fontCommand.run(Buffer.from(''), {} as Arguments);
+
+		expect(result).toBe(1);
+		expect(consoleErrorSpy).toHaveBeenCalledExactlyOnceWith(expect.stringContaining('nothing to do'));
 	});
 
 	it('run() should call collectFonts and return 0 on success', async () => {
@@ -171,6 +180,38 @@ Helvetica-Oblique`;
 
 			const output = yaml.load(consoleLogSpy.mock.calls[0][0]);
 			expect(output).toStrictEqual(fontInfoDtos);
+		});
+	});
+
+	describe('output shape', () => {
+		it('should omit baseFont and fontName if not present', async () => {
+			const partialFontInfos = structuredClone(fontInfos);
+			partialFontInfos.forEach(i => {
+				delete i.baseFont;
+				delete i.fontName;
+			});
+			const partialFontInfoMap: Map<string, FontInfo> = new Map<string, FontInfo>();
+			const partialFontInfoDtos: FontInfoDto[] = [];
+			partialFontInfos.forEach((f) => {
+				partialFontInfoMap.set(f.ref.tag, f);
+				partialFontInfoDtos.push(toFontInfoDto(f));
+			});
+
+			const collectFontsMock = vi.fn().mockReturnValue(partialFontInfoMap);
+
+			(PDFLab.from as Mock).mockResolvedValue({
+				collectFonts: collectFontsMock,
+			});
+
+			const options = { list: true, format: 'yaml' } as unknown as Arguments;
+			const pdfBytes = Buffer.from('');
+			await fontCommand.run(pdfBytes, options);
+
+			expect(collectFontsMock).toHaveBeenCalledTimes(1);
+			expect(consoleLogSpy).toHaveBeenCalledTimes(1);
+
+			const output = yaml.load(consoleLogSpy.mock.calls[0][0]);
+			expect(output).toStrictEqual(partialFontInfoDtos);
 		});
 	});
 });
