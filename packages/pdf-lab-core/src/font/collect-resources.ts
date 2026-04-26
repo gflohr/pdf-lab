@@ -6,6 +6,13 @@ import { PDFDict, type PDFDocument, PDFRef } from '@cantoo/pdf-lib';
  */
 export type FontUsage = Record<string, PDFRef>;
 
+/**
+ * Collect per-page font resource references from a PDF document.
+ *
+ * @param pdfDoc the document to inspect
+ * @returns an array (one entry per page, in page order) mapping each
+ *   resource name (for example `F1`) to its font `PDFRef`
+ */
 export function collectResources(pdfDoc: PDFDocument): FontUsage[] {
 	const usages: FontUsage[] = [];
 
@@ -17,9 +24,9 @@ export function collectResources(pdfDoc: PDFDocument): FontUsage[] {
 		if (!Font) continue;
 
 		for (const [fontName, fontRef] of Font.entries()) {
+			if (!(fontRef instanceof PDFRef)) continue;
 			const fontDict = pdfDoc.context.lookupMaybe(fontRef, PDFDict);
 			if (!fontDict) continue; // Useless for our purposes.
-			if (!(fontRef instanceof PDFRef)) continue;
 
 			usage[fontName.decodeText()] = fontRef;
 		}
