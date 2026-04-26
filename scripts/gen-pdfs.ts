@@ -1,5 +1,3 @@
-// scripts/generate-font-zoo.ts
-
 import fs from 'node:fs/promises';
 import { PDFDocument, rgb, StandardFonts } from '@cantoo/pdf-lib';
 import fontkit from '@pdf-lib/fontkit';
