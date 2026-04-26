@@ -28,7 +28,7 @@ async function genStandardFonts(): Promise<void> {
 		y -= 25;
 	};
 
-	await draw('Helvetica Bold', StandardFonts.Helvetica);
+	await draw('Helvetica', StandardFonts.Helvetica);
 	await draw('Helvetica Bold', StandardFonts.HelveticaBold);
 	await draw('Helvetica Oblique', StandardFonts.HelveticaOblique);
 	await draw('Helvetica Bold Oblique', StandardFonts.HelveticaBoldOblique);
@@ -40,7 +40,7 @@ async function genStandardFonts(): Promise<void> {
 
 	await draw('Courier', StandardFonts.Courier);
 	await draw('Courier Bold', StandardFonts.CourierBold);
-	await draw('Courier Oblique', StandardFonts.Courier);
+	await draw('Courier Oblique', StandardFonts.CourierOblique);
 	await draw('Courier Bold Oblique', StandardFonts.CourierBoldOblique);
 
 	await draw('Σψμβολ', StandardFonts.Symbol);
@@ -56,4 +56,7 @@ async function genAll() {
 	await genStandardFonts();
 }
 
-genAll().catch(console.error);
+genAll().catch((e) => {
+	console.error(e);
+	process.exitCode = 1;
+});
