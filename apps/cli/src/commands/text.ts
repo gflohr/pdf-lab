@@ -59,7 +59,7 @@ export class TextCommand implements Command {
 				text: block.text,
 				font: toFontInfoDto(block.font),
 				pageNumber: block.pageNumber,
-			} as OutputTextBlock;
+			};
 
 			return textBlockDto;
 		});
