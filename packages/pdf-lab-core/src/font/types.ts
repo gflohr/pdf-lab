@@ -39,7 +39,7 @@ export type FontInfo = {
 	baseFont: string;
 
 	/**
-	 * The normalized font name without the subset identifier or numbered
+	 * The normalised font name without the subset identifier or numbered
 	 * suffix.
 	 */
 	fontName: string;
