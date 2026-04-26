@@ -52,10 +52,10 @@ export class TextExtractor {
 				resources[glyphBlock.pageNumber]?.[glyphBlock.fontResource];
 			if (!fontRef) continue;
 
-			const font = fonts.get(fontRef.tag);
+			const font = fonts.get(fontRef.toString());
 
 			// This should be verified. Will a PDF viewer fall back to a
-			// default font (Helvetica), if the font informatin is missing?
+			// default font (Helvetica), if the font information is missing?
 			//
 			// On the other hand, working around such a broken document is
 			// probably not worth the hassle. Making the font optional in the
@@ -63,9 +63,7 @@ export class TextExtractor {
 			if (!font) continue;
 
 			let text: string;
-			if (typeof font === 'undefined') {
-				text = glyphBlock.glyphs.map(() => '\uFFFD').join('');
-			} else if (font.glyphMapper) {
+			if (font.glyphMapper) {
 				const mapper = font.glyphMapper;
 				text = glyphBlock.glyphs
 					.map((glyph) => mapper.lookup(glyph))
