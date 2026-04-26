@@ -73,7 +73,7 @@ export class PDFLab {
 			}
 		} else {
 			throw new Error(
-				'input must be the raw data bytes of a PDF or' +
+				'input must be the raw data bytes of a PDF or ' +
 					'a base64 encoded string (or data URI) containing a PDF',
 			);
 		}
