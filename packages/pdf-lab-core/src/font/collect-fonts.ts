@@ -36,7 +36,7 @@ export default function collectFonts(
 	const refs = [...new Set<PDFRef>(resources.flatMap(Object.values))];
 	for (let i = 0; i < refs.length; ++i) {
 		const fontRef = refs[i]!;
-		const fontDict = pdfDoc.context.lookup(fontRef) as PDFDict;
+		const fontDict = pdfDoc.context.lookupMaybe(fontRef, PDFDict);
 		if (!fontDict) continue;
 
 		const subtype = fontDict.lookupMaybe(PDFName.of('Subtype'), PDFName);
@@ -98,9 +98,12 @@ function getFontInfo(
 	let encoding: string | undefined;
 	const encodingPDFName = fontDict.lookupMaybe(PDFName.of('Encoding'), PDFName);
 	if (encodingPDFName) {
-		const encodingName = encodingPDFName.decodeText();
-		if (isStandardEncoding(encodingName)) {
-			encoding = encodingName as Encoding;
+		const decoded = encodingPDFName.decodeText();
+		const canonical = StandardEncodings.find(
+			(e) => e.toLowerCase() === decoded.toLowerCase(),
+		);
+		if (canonical) {
+			encoding = canonical;
 		}
 	} else {
 		const baseFont = fontDict.lookupMaybe(PDFName.of('BaseFont'), PDFName);
