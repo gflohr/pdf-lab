@@ -37,28 +37,33 @@ export type FontInfo = {
 	 * suffix.
 	 */
 	baseFont: string;
+
 	/**
 	 * The normalized font name without the subset identifier or numbered
 	 * suffix.
 	 */
 	fontName: string;
+
 	/**
 	 * The reference to the font dictionary.
 	 */
 	ref: PDFRef;
+
 	/**
 	 * The indicator for embedded fonts.
 	 */
 	embedded: boolean;
+
 	/**
 	 * The optional encoding.
 	 */
 	encoding?: Encoding;
-	// FIXME! This should become a type GlyphMapper.
+
 	/**
 	 * The optional glyph mapper.
 	 */
-	glyphMapper: GlyphMapper;
+	glyphMapper?: GlyphMapper;
+
 	/**
 	 * The font subtype.
 	 */

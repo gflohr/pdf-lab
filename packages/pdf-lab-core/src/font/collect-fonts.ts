@@ -164,23 +164,24 @@ function getFontType0Info(
 		descendantFontDescriptor.has(PDFName.of('FontFile2')) ||
 		descendantFontDescriptor.has(PDFName.of('FontFile3'));
 
-	const toUnicodeStream = fontDict.lookup(PDFName.of('ToUnicode'));
-	if (!(toUnicodeStream && toUnicodeStream instanceof PDFRawStream)) return;
-
-	const stream = toUnicodeStream.contents;
-	const glyphMapper = new CMapMapper(stream);
-
 	const baseFont =
 		fontDict.lookupMaybe(PDFName.of('BaseFont'), PDFName)?.decodeText() ??
 		fontName.decodeText();
-	return {
+	const fontInfo: FontInfo = {
 		ref: fontRef,
 		embedded,
 		baseFont,
 		fontName: getFontName(baseFont),
-		glyphMapper,
 		subtype: 'Type0',
 	};
+
+	const toUnicodeStream = fontDict.lookup(PDFName.of('ToUnicode'));
+	if (toUnicodeStream && toUnicodeStream instanceof PDFRawStream) {
+		const stream = toUnicodeStream.contents;
+		fontInfo.glyphMapper = new CMapMapper(stream);
+	}
+
+	return fontInfo;
 }
 
 function isStandardEncoding(encoding: string): boolean {
