@@ -29,10 +29,10 @@ export class PDFLab {
 	 *
 	 * - "Expected instance of PDFDict but got instance of PDFDict"
 	 *
-	 * To prevent this, the document is **always** serialized and reloaded.
+	 * To prevent this, the document is **always** serialised and reloaded.
 	 * This forces all internal objects to be reconstructed using
 	 * the active `@cantoo/pdf-lib` runtime, ensuring consistent prototype
-	 * chains and reliable `instanceof` behavior.
+	 * chains and reliable `instanceof` behaviour.
 	 *
 	 * ## Behaviour
 	 *
