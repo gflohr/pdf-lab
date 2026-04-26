@@ -8,8 +8,10 @@ vi.mock('./load-input.js', () => ({
 }));
 
 vi.mock('../optspec.js');
-vi.mock('pdf-lab-core', () => {
+vi.mock('pdf-lab-core', async (importActual) => {
+	const actual = await importActual<typeof import('pdf-lab-core')>();
 	return {
+		...actual,
 		PDFLab: {
 			from: vi.fn(),
 		},
@@ -18,6 +20,8 @@ vi.mock('pdf-lab-core', () => {
 
 import { PDFRef } from '@cantoo/pdf-lib';
 import { type FontInfo, PDFLab } from 'pdf-lab-core';
+// Currently, this is not exported. The deep import is therefore needed
+// in the tests.
 import { SingleByteEncodingMapper } from '../../../../packages/pdf-lab-core/src/encoding/mappers/single-byte-encoding-mapper.js';
 import { type FontInfoDto, toFontInfoDto } from '../util/font-info-dto.js';
 import { FontCommand } from './font.js';
