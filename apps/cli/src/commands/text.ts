@@ -6,7 +6,7 @@ import type { Command } from '../command.js';
 import { defaultOptions } from '../default-options.js';
 import { coerceOptions, type OptSpec } from '../optspec.js';
 import { Package } from '../package.js';
-import { FontInfoDto, toFontInfoDto } from '../util/font-info-dto.js';
+import { type FontInfoDto, toFontInfoDto } from '../util/font-info-dto.js';
 
 const gtx = Textdomain.getInstance('pdf-lab');
 
