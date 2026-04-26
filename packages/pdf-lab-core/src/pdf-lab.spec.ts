@@ -52,17 +52,13 @@ describe('PDFLab', () => {
 
 		it('recreates a "foreign" PDFDocument (same shape, different prototype)', async () => {
 			const doc = await PDFDocument.create();
-
-			// Simulate foreign instance:.
-			// Clone into plain object but keep shape
-			const foreignDoc = {
-				context: doc.context,
-				save: doc.save.bind(doc),
-			};
+			const saveSpy = vi.fn(() => doc.save());
+			const foreignDoc = { context: doc.context, save: saveSpy };
 
 			const result = await PDFLab.from(foreignDoc as unknown as PDFDocument);
 
-			expect(result).not.toBe(foreignDoc);
+			expect(result).toBeInstanceOf(PDFLab);
+			expect(saveSpy).toHaveBeenCalledTimes(1);
 		});
 
 		it('throws for invalid input', async () => {
