@@ -91,7 +91,7 @@ describe('PDFLab', () => {
 			const lab = await makePDFLab();
 			const collectMock = vi
 				.spyOn(collectFont, 'collectFonts')
-				.mockReturnValue([]);
+				.mockReturnValue(new Map<string, FontInfo>());
 
 			lab.collectFonts();
 
