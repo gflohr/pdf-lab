@@ -38,7 +38,7 @@ export function collectFonts(pdfDoc: PDFDocument): Map<string, FontInfo> {
 					fontRef as PDFRef,
 				);
 				if (info) {
-					fonts.set(fontName.decodeText(), info);
+					fonts.set((fontRef as PDFRef).toString(), info);
 				}
 			} else {
 				const info = getFontInfo(
@@ -48,7 +48,7 @@ export function collectFonts(pdfDoc: PDFDocument): Map<string, FontInfo> {
 					fontRef as PDFRef,
 				);
 				if (info) {
-					fonts.set(fontName.decodeText(), info);
+					fonts.set((fontRef as PDFRef).toString(), info);
 				}
 			}
 		}
@@ -93,9 +93,9 @@ function getFontInfo(
 	}
 
 	let encoding: string | undefined;
-	const encodingPDFName = fontDict.lookup(PDFName.of('Encoding'));
+	const encodingPDFName = fontDict.lookupMaybe(PDFName.of('Encoding'), PDFName);
 	if (encodingPDFName) {
-		const encodingName = (encodingPDFName as PDFName).decodeText();
+		const encodingName = encodingPDFName.decodeText();
 		if (isStandardEncoding(encodingName)) {
 			encoding = encodingName as Encoding;
 		}
@@ -121,7 +121,9 @@ function getFontInfo(
 		}
 	}
 
-	const baseFont = fontName.decodeText();
+	const baseFont =
+		fontDict.lookupMaybe(PDFName.of('BaseFont'), PDFName)?.decodeText() ??
+		fontName.decodeText();
 	const fontInfo: FontInfo = {
 		ref: fontRef,
 		embedded,
@@ -131,7 +133,7 @@ function getFontInfo(
 		glyphMapper,
 	};
 	if (typeof encoding !== 'undefined') {
-		fontInfo.encoding;
+		fontInfo.encoding = encoding as Encoding;
 	}
 	return fontInfo;
 }
@@ -168,7 +170,9 @@ function getFontType0Info(
 	const stream = toUnicodeStream.contents;
 	const glyphMapper = new CMapMapper(stream);
 
-	const baseFont = fontName.decodeText();
+	const baseFont =
+		fontDict.lookupMaybe(PDFName.of('BaseFont'), PDFName)?.decodeText() ??
+		fontName.decodeText();
 	return {
 		ref: fontRef,
 		embedded,
