@@ -1,6 +1,5 @@
-import { afterEach } from 'node:test';
 import { PDFDocument, PDFRef } from '@cantoo/pdf-lib';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { SingleByteEncodingMapper } from './encoding/mappers/single-byte-encoding-mapper.js';
 import * as collectFont from './font/collect-fonts.js';
 import type { FontInfo } from './font/types.js';
