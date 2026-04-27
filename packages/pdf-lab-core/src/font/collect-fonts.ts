@@ -195,9 +195,3 @@ function getFontType0Info(
 
 	return fontInfo;
 }
-
-function isStandardEncoding(encoding: string): boolean {
-	return StandardEncodings.map((e) => e.toLocaleLowerCase()).includes(
-		encoding.toLowerCase(),
-	);
-}
