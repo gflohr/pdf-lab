@@ -63,7 +63,7 @@ describe('Font command', () => {
 		fontInfoMap = new Map<string, FontInfo>();
 		fontInfoDtos = [];
 		fontInfos.forEach((f) => {
-			fontInfoMap.set(f.ref.tag, f);
+			fontInfoMap.set(f.ref.toString(), f);
 			fontInfoDtos.push(toFontInfoDto(f));
 		});
 	});

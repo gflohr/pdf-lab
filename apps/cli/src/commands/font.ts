@@ -11,15 +11,24 @@ import { toFontInfoDto } from '../util/font-info-dto.js';
 const gtx = Textdomain.getInstance('pdf-lab');
 
 const options: {
+	embed: OptSpec,
 	list: OptSpec;
 	'base-font': OptSpec;
 	font: OptSpec;
 	format: OptSpec;
 } = {
+	embed: {
+		group: gtx._('Mode of Operation'),
+		alias: ['e'],
+		type: 'boolean',
+		conflicts: ['embed'],
+		describe: gtx._('embed fonts'),
+	},
 	list: {
 		group: gtx._('Mode of Operation'),
 		alias: ['l'],
 		type: 'boolean',
+		conflicts: ['embed'],
 		describe: gtx._('list fonts'),
 	},
 	'base-font': {
@@ -84,6 +93,12 @@ export class FontCommand implements Command {
 		return fonts;
 	}
 
+	private embedFonts(lab: PDFLab, configOptions: ConfigOptions) {
+		const fonts = this.getFonts(lab, configOptions);
+
+
+	}
+
 	private listFonts(lab: PDFLab, configOptions: ConfigOptions) {
 		const fonts = this.getFonts(lab, configOptions);
 
@@ -111,6 +126,8 @@ export class FontCommand implements Command {
 
 		if (configOptions.list) {
 			this.listFonts(lab, configOptions);
+		} else if (configOptions.embed) {
+			this.embedFonts(lab, configOption);
 		} else {
 			throw new Error(gtx._('nothing to do'));
 		}

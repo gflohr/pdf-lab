@@ -1,5 +1,6 @@
-import { PDFDocument } from '@cantoo/pdf-lib';
+import { PDFDocument, PDFRef } from '@cantoo/pdf-lib';
 import collectFonts from './font/collect-fonts.js';
+import embedFont from './font/embed-font.js';
 import { collectResources, type FontUsage } from './font/collect-resources.js';
 import type { FontInfo } from './font/types.js';
 
@@ -7,7 +8,34 @@ export class PDFLab {
 	private fonts: Map<string, FontInfo> | undefined;
 	private fontUsage: FontUsage[] | undefined;
 
-	private constructor(private readonly pdfDoc: PDFDocument) {}
+	private constructor(private readonly _pdfDoc: PDFDocument) {}
+
+	/**
+	 * Returns the internally used `PDFDocument`. Changing the structure of
+	 * this document, and then calling other `PDFLab` methods, may result in
+	 * undefined behaviour and is strongly discouraged.
+	 *
+	 * @return the internally used `PDFDocument`
+	 */
+	public get pdfDocument(): PDFDocument {
+		return this._pdfDoc;
+	}
+
+	/**
+	 * Serialises the internally used PDF into a sequence of bytes. As a side
+	 * effect, it also updates internal structures of the `PDFDocument` into
+	 * a stable version.
+	 *
+	 * The method is a thin wrapper around the `save()` method of `PDFDocument`.
+	 * Fine-tuning the saving process can be achieved by getting the
+	 * `pdfDocument`, and then calling the `save()` method with the desired
+	 * options.
+	 *
+	 * @returns
+	 */
+	public async save(): Promise<Uint8Array> {
+		return this.pdfDocument.save();
+	}
 
 	/**
 	 * Creates a `PDFLab` instance from a variety of PDF-like inputs and
@@ -83,13 +111,54 @@ export class PDFLab {
 		return new PDFLab(pdfDoc);
 	}
 
+	/**
+	 * Embed one single font. The method does nothing, if the font is already
+	 * embedded.
+	 *
+	 * @param ref the reference to the font descriptor
+	 */
+	public async embedFont(ref: string | PDFRef) {
+		this.collectFonts();
+
+		if (typeof ref !== 'string') ref = ref.toString();
+
+		if (!this.fonts?.has(ref)) {
+			throw new Error(`no object '${ref}' present in PDF'`)
+		}
+
+		//embedFont(this.pdfDocument, this.fonts.get(ref));
+		embedFont();
+	}
+
+	/**
+	 * Embed all fonts that are currently not embedded.
+	 */
+	public async embedFonts() {
+		this.collectFonts();
+
+		this.fonts?.forEach(() => {
+			embedFont();
+		});
+
+		/*
+		this.fonts?.forEach((fontInfo) => {
+			embedFont(this.pdfDocument, fontInfo);
+		});
+		*/
+	}
+
+	/**
+	 * Collects all fonts used in the PDF.
+	 *
+	 * @returns a `Map` with keys as `PDFRef` (reference of the font) and values as `FontInfo`
+	 */
 	public collectFonts(): Map<string, FontInfo> {
 		if (!this.fontUsage) {
-			this.fontUsage = collectResources(this.pdfDoc);
+			this.fontUsage = collectResources(this.pdfDocument);
 		}
 
 		if (!this.fonts) {
-			this.fonts = collectFonts(this.pdfDoc, this.fontUsage);
+			this.fonts = collectFonts(this.pdfDocument, this.fontUsage);
 		}
 
 		return this.fonts;

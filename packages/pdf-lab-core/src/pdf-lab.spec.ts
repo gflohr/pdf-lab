@@ -1,6 +1,7 @@
 import { PDFDocument, PDFRef } from '@cantoo/pdf-lib';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { SingleByteEncodingMapper } from './encoding/mappers/single-byte-encoding-mapper.js';
+import * as embedFont from './font/embed-font.js';
 import * as collectFont from './font/collect-fonts.js';
 import type { FontInfo } from './font/types.js';
 import { PDFLab } from './pdf-lab.js';
@@ -78,6 +79,87 @@ describe('PDFLab', () => {
 			}
 
 			expect(spy).toHaveBeenCalled();
+		});
+	});
+
+	describe('embed fonts', () => {
+		const fontInfos: FontInfo[] = [
+			{
+				ref: PDFRef.of(7),
+				baseFont: 'Helvetica',
+				fontName: 'Helvetica',
+				embedded: false,
+				subtype: 'Type0',
+			},
+			{
+				ref: PDFRef.of(8),
+				baseFont: 'Helvetica-Oblique',
+				fontName: 'Helvetica-Oblique',
+				embedded: false,
+				subtype: 'Type0',
+			},
+			{
+				ref: PDFRef.of(9),
+				baseFont: 'Roboto',
+				fontName: 'Roboto',
+				embedded: true,
+				subtype: 'TrueType',
+			},
+		];
+		const fontInfoMap = new Map<string, FontInfo>();
+		fontInfos.forEach((f) => {
+			fontInfoMap.set(f.ref.toString(), f);
+		});
+
+		it('should embed all fonts', async () => {
+			const lab = await makePDFLab();
+			const embedMock = vi.spyOn(embedFont, 'default').mockImplementation(async () => {});
+			const collectMock = vi
+				.spyOn(collectFont, 'default')
+				.mockReturnValue(fontInfoMap);
+
+			await lab.embedFonts();
+
+			expect(collectMock).toHaveBeenCalledTimes(1);
+			expect(embedMock).toHaveBeenCalledTimes(3);
+		});
+
+		it('should embed a single font', async () => {
+			const lab = await makePDFLab();
+			const embedMock = vi.spyOn(embedFont, 'default').mockImplementation(async () => {});
+			const collectMock = vi
+				.spyOn(collectFont, 'default')
+				.mockReturnValue(fontInfoMap);
+
+			await lab.embedFont(PDFRef.of(8).toString());
+
+			expect(collectMock).toHaveBeenCalledTimes(1);
+			expect(embedMock).toHaveBeenCalledTimes(1);
+		});
+
+		it('should embed a single font referenced by PDFRef object', async () => {
+			const lab = await makePDFLab();
+			const embedMock = vi.spyOn(embedFont, 'default').mockImplementation(async () => {});
+			const collectMock = vi
+				.spyOn(collectFont, 'default')
+				.mockReturnValue(fontInfoMap);
+
+			await lab.embedFont(PDFRef.of(8));
+
+			expect(collectMock).toHaveBeenCalledTimes(1);
+			expect(embedMock).toHaveBeenCalledTimes(1);
+		});
+
+		it('should throw an exception if a non-existing font should be embedded', async () => {
+			const lab = await makePDFLab();
+			const collectMock = vi
+				.spyOn(collectFont, 'default')
+				.mockReturnValue(fontInfoMap);
+
+			const ref = PDFRef.of(2).toString();
+			await expect(lab.embedFont(ref)).rejects.toThrow("no object '2 0 R' present in PDF");
+
+			expect(collectMock).toHaveBeenCalledTimes(1);
 		});
 	});
 
