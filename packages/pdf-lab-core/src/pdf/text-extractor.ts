@@ -3,7 +3,7 @@ import { SingleByteEncodingMapper } from '../encoding/mappers/single-byte-encodi
 import collectFonts from '../font/collect-fonts.js';
 import { collectResources } from '../font/collect-resources.js';
 import type { FontInfo } from '../font/types.js';
-import { GlyphExtractor } from '../pdf/glyph-extractor.js';
+import { extractGlyphs } from '../text/extract-glyphs.js';
 import { makePDFDocument } from './make-pdf-document.js';
 
 /**
@@ -43,9 +43,8 @@ export class TextExtractor {
 		const pdfDoc = await makePDFDocument(input);
 		const resources = collectResources(pdfDoc);
 		const fonts = collectFonts(pdfDoc, resources);
-		const extractor = new GlyphExtractor();
 
-		const glyphBlocks = extractor.parseDocument(pdfDoc);
+		const glyphBlocks = extractGlyphs(pdfDoc);
 		const textBlocks: TextBlock[] = [];
 		for (const glyphBlock of glyphBlocks) {
 			const fontRef =

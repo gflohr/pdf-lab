@@ -1,7 +1,7 @@
-import { PDFDocument, PDFRef } from '@cantoo/pdf-lib';
+import { PDFDocument, type PDFRef } from '@cantoo/pdf-lib';
 import collectFonts from './font/collect-fonts.js';
-import embedFont from './font/embed-font.js';
 import { collectResources, type FontUsage } from './font/collect-resources.js';
+import embedFont from './font/embed-font.js';
 import type { FontInfo } from './font/types.js';
 
 export class PDFLab {
@@ -123,7 +123,7 @@ export class PDFLab {
 		if (typeof ref !== 'string') ref = ref.toString();
 
 		if (!this.fonts?.has(ref)) {
-			throw new Error(`no object '${ref}' present in PDF'`)
+			throw new Error(`no object '${ref}' present in PDF'`);
 		}
 
 		//embedFont(this.pdfDocument, this.fonts.get(ref));

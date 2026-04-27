@@ -1,8 +1,8 @@
 import { PDFDocument, PDFRef } from '@cantoo/pdf-lib';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { SingleByteEncodingMapper } from './encoding/mappers/single-byte-encoding-mapper.js';
-import * as embedFont from './font/embed-font.js';
 import * as collectFont from './font/collect-fonts.js';
+import * as embedFont from './font/embed-font.js';
 import type { FontInfo } from './font/types.js';
 import { PDFLab } from './pdf-lab.js';
 
@@ -113,7 +113,9 @@ describe('PDFLab', () => {
 
 		it('should embed all fonts', async () => {
 			const lab = await makePDFLab();
-			const embedMock = vi.spyOn(embedFont, 'default').mockImplementation(async () => {});
+			const embedMock = vi
+				.spyOn(embedFont, 'default')
+				.mockImplementation(async () => {});
 			const collectMock = vi
 				.spyOn(collectFont, 'default')
 				.mockReturnValue(fontInfoMap);
@@ -126,7 +128,9 @@ describe('PDFLab', () => {
 
 		it('should embed a single font', async () => {
 			const lab = await makePDFLab();
-			const embedMock = vi.spyOn(embedFont, 'default').mockImplementation(async () => {});
+			const embedMock = vi
+				.spyOn(embedFont, 'default')
+				.mockImplementation(async () => {});
 			const collectMock = vi
 				.spyOn(collectFont, 'default')
 				.mockReturnValue(fontInfoMap);
@@ -139,7 +143,9 @@ describe('PDFLab', () => {
 
 		it('should embed a single font referenced by PDFRef object', async () => {
 			const lab = await makePDFLab();
-			const embedMock = vi.spyOn(embedFont, 'default').mockImplementation(async () => {});
+			const embedMock = vi
+				.spyOn(embedFont, 'default')
+				.mockImplementation(async () => {});
 			const collectMock = vi
 				.spyOn(collectFont, 'default')
 				.mockReturnValue(fontInfoMap);
@@ -157,7 +163,9 @@ describe('PDFLab', () => {
 				.mockReturnValue(fontInfoMap);
 
 			const ref = PDFRef.of(2).toString();
-			await expect(lab.embedFont(ref)).rejects.toThrow("no object '2 0 R' present in PDF");
+			await expect(lab.embedFont(ref)).rejects.toThrow(
+				"no object '2 0 R' present in PDF",
+			);
 
 			expect(collectMock).toHaveBeenCalledTimes(1);
 		});
