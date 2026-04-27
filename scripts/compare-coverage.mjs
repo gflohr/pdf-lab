@@ -1,6 +1,6 @@
 #! /usr/bin/env node
 
-import * as fs from 'fs';
+import * as fs from 'node:fs';
 
 const pr = JSON.parse(fs.readFileSync('pr-coverage.json'));
 const base = JSON.parse(fs.readFileSync('coverage-summary.json'));

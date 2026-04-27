@@ -10,7 +10,7 @@ under the hood.
 
 | Directory                  | Purpose                                         |
 | -------------------------- | ----------------------------------------------- |
-| `packages/core/`           | The core functionality                          |
+| `packages/pdf-lab-core/`   | The core functionality                          |
 | `apps/cli/`                | The command-line interface                      |
 
 ## Essential Commands

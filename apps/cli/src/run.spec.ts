@@ -16,7 +16,7 @@ vi.mock('./load-input.js', () => ({
 	loadInput: vi.fn().mockResolvedValue(new Uint8Array()),
 }));
 
-import { Text } from './commands/text.js';
+import { TextCommand } from './commands/text.js';
 import { run } from './run.js';
 
 describe('pdf-lab-cli', () => {
@@ -32,7 +32,7 @@ describe('pdf-lab-cli', () => {
 
 			const doRunSpy = vi
 				.spyOn(
-					Text.prototype as unknown as { doRun: () => Promise<void> },
+					TextCommand.prototype as unknown as { doRun: () => Promise<void> },
 					'doRun',
 				)
 				.mockResolvedValue(undefined);
@@ -47,7 +47,7 @@ describe('pdf-lab-cli', () => {
 
 			const doRunSpy = vi
 				.spyOn(
-					Text.prototype as unknown as { doRun: () => Promise<void> },
+					TextCommand.prototype as unknown as { doRun: () => Promise<void> },
 					'doRun',
 				)
 				.mockRejectedValue('boum');
@@ -63,7 +63,7 @@ describe('pdf-lab-cli', () => {
 		it('should use defaults', async () => {
 			const doRunSpy = vi
 				.spyOn(
-					Text.prototype as unknown as { doRun: () => Promise<void> },
+					TextCommand.prototype as unknown as { doRun: () => Promise<void> },
 					'doRun',
 				)
 				.mockResolvedValue(undefined);
@@ -86,7 +86,7 @@ describe('pdf-lab-cli', () => {
 					throw new Error('exit');
 				});
 			const synopsisSpy = vi.fn().mockReturnValueOnce('help yourself');
-			Object.defineProperty(Text.prototype, 'synopsis', {
+			Object.defineProperty(TextCommand.prototype, 'synopsis', {
 				value: synopsisSpy,
 				configurable: true,
 			});
@@ -99,14 +99,14 @@ describe('pdf-lab-cli', () => {
 				expect.stringMatching(/help yourself/),
 			);
 
-			delete (Text.prototype as { synopsis?: unknown }).synopsis;
+			delete (TextCommand.prototype as { synopsis?: unknown }).synopsis;
 			processExitSpy.mockRestore();
 		});
 
 		it('should honour command-line options', async () => {
 			const doRunSpy = vi
 				.spyOn(
-					Text.prototype as unknown as { doRun: () => Promise<void> },
+					TextCommand.prototype as unknown as { doRun: () => Promise<void> },
 					'doRun',
 				)
 				.mockResolvedValue(undefined);
@@ -121,7 +121,7 @@ describe('pdf-lab-cli', () => {
 		it('should fix a lone hyphen as a positional argument', async () => {
 			const doRunSpy = vi
 				.spyOn(
-					Text.prototype as unknown as { doRun: () => Promise<void> },
+					TextCommand.prototype as unknown as { doRun: () => Promise<void> },
 					'doRun',
 				)
 				.mockResolvedValue(undefined);
@@ -135,7 +135,7 @@ describe('pdf-lab-cli', () => {
 
 		it('should re-throw exceptions', async () => {
 			const optionsSpy = vi
-				.spyOn(Text.prototype, 'options')
+				.spyOn(TextCommand.prototype, 'options')
 				.mockImplementation(() => {
 					throw new Error('boum');
 				});

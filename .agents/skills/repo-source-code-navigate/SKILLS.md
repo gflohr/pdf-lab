@@ -13,12 +13,11 @@ pdf-lab/
 ├── apps/               # Applications.
 │   └── cli/            # The command-line interfaace
 ├── packages/           # Other.
-│   ├── core/           # The pdf-lab-core library.
-│   └── documentation/  # Documentation using qgoda static site generator.
+│   └── pdf-lab-core/   # The pdf-lab-core library.
 └   scripts/            # Various helper scripts.
 ```
 
-## Core Library (`/packages/core/src/`)
+## Core Library (`/packages/pdf-lab-core/src/`)
 
 ### Directory Structure
 

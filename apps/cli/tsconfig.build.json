@@ -4,7 +4,7 @@
 		"sourceMap": true,
 		"outDir": "dist",
 		"paths": {
-			"pdf-lab-core": ["../../packages/core/dist/index.js"]
+			"pdf-lab-core": ["../../packages/pdf-lab-core/dist"]
 		}
 	},
 	"include": ["src"],

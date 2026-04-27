@@ -14,11 +14,11 @@
 		"rootDir": ".",
 		"outDir": "dist",
 		"paths": {
-			"pdf-lab-core": ["./packages/pdf-lab/src"]
+			"pdf-lab-core": ["./packages/pdf-lab-core/src"],
+			"pdf-lab-core/*": ["./packages/pdf-lab-core/src/*"]
 		},
 		"types": ["node"]
 	},
 	"include": [],
-	"exclude": ["node_modules", "dist"],
-	"references": [{ "path": "packages/core" }, { "path": "apps/cli" }]
+	"exclude": ["node_modules", "dist"]
 }

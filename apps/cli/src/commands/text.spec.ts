@@ -1,6 +1,5 @@
 import { PDFRef } from '@cantoo/pdf-lib';
 import * as yaml from 'js-yaml';
-// biome-ignore lint/correctness/useImportExtensions: false positive.
 import { type TextBlock, TextExtractor } from 'pdf-lab-core';
 import {
 	afterEach,
@@ -13,20 +12,19 @@ import {
 } from 'vitest';
 import type { Arguments } from 'yargs';
 import { coerceOptions } from '../optspec.js';
+import { TextCommand } from './text.js';
 
 vi.mock('../optspec.js');
 vi.mock('./load-input.js', () => ({
 	loadInput: vi.fn().mockResolvedValue(new Uint8Array()),
 }));
 
-import { Text } from './text.js';
-
 describe('Text Command', () => {
 	let consoleLogSpy: ReturnType<typeof vi.spyOn>;
-	let text: Text;
+	let textCommand: TextCommand;
 
 	beforeEach(() => {
-		text = new Text();
+		textCommand = new TextCommand();
 		(coerceOptions as Mock).mockReturnValue(true);
 		consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 	});
@@ -36,28 +34,27 @@ describe('Text Command', () => {
 	});
 
 	it('description() should return a valid description', () => {
-		expect(text.description()).toBe('Extract text from a PDF document.');
+		expect(textCommand.description()).toBe('Extract text from a PDF document.');
 	});
 
 	it('aliases() should return an empty array', () => {
-		expect(text.aliases()).toEqual([]);
+		expect(textCommand.aliases()).toEqual([]);
 	});
 
 	it('options() should return options', () => {
-		const options = text.options();
+		const options = textCommand.options();
 
 		expect(options).toBeDefined();
 	});
 
 	it('run() should return 1 if coerceOptions fails', async () => {
 		(coerceOptions as Mock).mockReturnValue(false);
-		const result = await text.run(Buffer.from(''), {} as Arguments);
+		const result = await textCommand.run(Buffer.from(''), {} as Arguments);
 
 		expect(result).toBe(1);
 	});
 
 	it('run() should call extract and return 0 on success', async () => {
-		(coerceOptions as Mock).mockReturnValue(true);
 		const extractMock = vi
 			.spyOn(
 				TextExtractor.prototype as unknown as {
@@ -67,17 +64,16 @@ describe('Text Command', () => {
 			)
 			.mockResolvedValue([]);
 
-		const result = await new Text().run(Buffer.from(''), {} as Arguments);
+		const result = await textCommand.run(Buffer.from(''), {} as Arguments);
 
 		expect(extractMock).toHaveBeenCalledTimes(1);
 		expect(result).toBe(0);
 	});
 
 	it('run() should return 1 and log an error if doRun throws', async () => {
-		(coerceOptions as Mock).mockReturnValue(true);
 		const error = new Error('test error');
 		vi.spyOn(
-			text as unknown as { doRun: () => Promise<void> },
+			textCommand as unknown as { doRun: () => Promise<void> },
 			'doRun',
 		).mockRejectedValue(error);
 
@@ -85,7 +81,7 @@ describe('Text Command', () => {
 			.spyOn(console, 'error')
 			.mockImplementation(() => {});
 
-		const result = await text.run(Buffer.from(''), {} as Arguments);
+		const result = await textCommand.run(Buffer.from(''), {} as Arguments);
 
 		expect(consoleErrorSpy).toHaveBeenCalledWith('pdf-lab: Error: test error');
 		expect(result).toBe(1);
@@ -123,7 +119,6 @@ describe('Text Command', () => {
 		textBlocksDto.forEach((block) => {
 			block.font.ref = block.font.ref.tag as unknown as PDFRef;
 		});
-		textBlocksDto[1].font.encoding = '[custom]' as unknown as undefined;
 
 		it('should output text only', async () => {
 			const extractMock = vi
@@ -137,7 +132,7 @@ describe('Text Command', () => {
 
 			const options = { format: 'text' } as unknown as Arguments;
 			const pdfBytes = Buffer.from('');
-			await text.run(pdfBytes, options);
+			await textCommand.run(pdfBytes, options);
 
 			expect(extractMock).toHaveBeenCalledTimes(1);
 			expect(extractMock).toHaveBeenCalledWith(pdfBytes);
@@ -161,7 +156,7 @@ describe('Text Command', () => {
 			const options = { format: 'yaml' } as unknown as Arguments;
 
 			const pdfBytes = Buffer.from('');
-			await text.run(pdfBytes, options);
+			await textCommand.run(pdfBytes, options);
 
 			expect(extractMock).toHaveBeenCalledTimes(1);
 			expect(extractMock).toHaveBeenCalledWith(pdfBytes);
@@ -184,7 +179,7 @@ describe('Text Command', () => {
 			const options = { format: 'json' } as unknown as Arguments;
 
 			const pdfBytes = Buffer.from('');
-			await text.run(pdfBytes, options);
+			await textCommand.run(pdfBytes, options);
 
 			expect(extractMock).toHaveBeenCalledTimes(1);
 			expect(extractMock).toHaveBeenCalledWith(pdfBytes);

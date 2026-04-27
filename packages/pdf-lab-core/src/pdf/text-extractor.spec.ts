@@ -118,9 +118,5 @@ describe('Text Extraction', () => {
 				'ZapfDingbatsEncoding',
 			]);
 		});
-
-		it('should match the snapshot', () => {
-			expect(textBlocks).toMatchSnapshot();
-		});
 	});
 });

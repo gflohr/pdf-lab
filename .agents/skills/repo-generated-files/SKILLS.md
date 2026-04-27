@@ -9,7 +9,7 @@ description: >
 # PDF-Lab Generated Files
 
 This skill documents **how generated files are handled** in the e-invoice-eu repo.
-Generated files appear in `packages/core/src`.
+Generated files appear in `packages/pdf-lab-core/src`.
 
 ## General Rules
 

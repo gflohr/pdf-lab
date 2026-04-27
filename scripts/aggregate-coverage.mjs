@@ -1,11 +1,10 @@
 #! /usr/bin/env node
 
 import * as fs from 'node:fs';
+import * as path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { globSync } from 'glob';
 import yaml from 'js-yaml';
-import * as path from 'node:path';
-
-import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -59,5 +58,5 @@ const pct = (total.lines.covered / total.lines.total) * 100;
 
 fs.writeFileSync(
 	'coverage-summary.json',
-	JSON.stringify({ total: { lines: { pct } } }, null, 2) + '\n',
+	`${JSON.stringify({ total: { lines: { pct } } }, null, 2)}\n`,
 );
