@@ -1,10 +1,10 @@
 import type { PDFDocument } from '@cantoo/pdf-lib';
+import { SingleByteEncodingMapper } from '../encoding/mappers/single-byte-encoding-mapper.js';
 import collectFonts from '../font/collect-fonts.js';
 import { collectResources } from '../font/collect-resources.js';
+import type { FontInfo } from '../font/types.js';
 import { GlyphExtractor } from '../pdf/glyph-extractor.js';
 import { makePDFDocument } from './make-pdf-document.js';
-import { SingleByteEncodingMapper } from '../encoding/mappers/single-byte-encoding-mapper.js';
-import type { FontInfo } from '../font/types.js';
 
 /**
  * A block of text extracted from a `PDFDocument`.
@@ -65,9 +65,7 @@ export class TextExtractor {
 			let text: string;
 			if (font.glyphMapper) {
 				const mapper = font.glyphMapper;
-				text = glyphBlock.glyphs
-					.map((glyph) => mapper.lookup(glyph))
-					.join('');
+				text = glyphBlock.glyphs.map((glyph) => mapper.lookup(glyph)).join('');
 			} else if (font.encoding) {
 				const mapper = new SingleByteEncodingMapper(font.encoding);
 				text = glyphBlock.glyphs.map((glyph) => mapper.lookup(glyph)).join('');

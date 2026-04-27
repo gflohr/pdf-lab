@@ -66,10 +66,6 @@ The only other global option is `--version` respectively `-V` (case matters,
 * extracts textual information for a PDF
 * optionally shows the page number and the font used for each text snippet
 
-#### Prerequisites
-
-None.
-
 #### Command-Specific Options
 
 | Option                     | Type    |Description                            |
@@ -113,11 +109,33 @@ This is not necessarily the same as the reading order.
 
 --- End of documentation for command `text`. ---
 
+### The Command `font`
+
+#### Purpose / General Mode of Operation
+
+The command gives information about the font used and allows to embed
+a particular font or all fonts.
+
+The scope of the command can be limited to individual fonts.
+
+#### Command-Specific Options
+
+| Option                     | Type     |Description                           |
+| -------------------------- | -------- | ------------------------------------ |
+| `-l, --list`               | boolean  | list fonts                           |
+| `-e, --embed`              | boolean  | embed fonts                          |
+| `-b, --base-font`          | string[] | limit to base font                   |
+| `-f, --font, --font-name`  | string[] | limit to font                        |
+| `--format`                 | string   | output format for `--list`.          |
+
+The allowed output formats are 'text' (default), 'yaml', or 'json'.
+
+--- End of documentation for command `font`. ---
+
 ### Future Commands
 
 More commands will be implemented soon:
 
-* `font` list, embed, remove, extract fonts
 * `xmp` list, patch, remove extract XMP metadata
 * `pdfa` upgrade to PDF/A-1b, PDF/A-2b, or PDF/A-3b
 * `colourscheme` (alias `colorscheme`) operations for colour schemes

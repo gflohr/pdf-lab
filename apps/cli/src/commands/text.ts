@@ -28,7 +28,7 @@ export type ConfigOptions = InferredOptionTypes<typeof allOptions>;
 
 type OutputTextBlock = {
 	text: string;
-	font: FontInfoDto,
+	font: FontInfoDto;
 	pageNumber: number;
 };
 

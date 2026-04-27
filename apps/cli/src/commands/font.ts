@@ -1,6 +1,6 @@
 import { Textdomain } from '@esgettext/runtime';
 import * as yaml from 'js-yaml';
-import { PDFLab } from 'pdf-lab-core';
+import { type FontInfo, PDFLab } from 'pdf-lab-core';
 import type { Arguments, InferredOptionTypes } from 'yargs';
 import type { Command } from '../command.js';
 import { defaultOptions } from '../default-options.js';
@@ -12,6 +12,8 @@ const gtx = Textdomain.getInstance('pdf-lab');
 
 const options: {
 	list: OptSpec;
+	'base-font': OptSpec;
+	font: OptSpec;
 	format: OptSpec;
 } = {
 	list: {
@@ -20,9 +22,22 @@ const options: {
 		type: 'boolean',
 		describe: gtx._('list fonts'),
 	},
+	'base-font': {
+		group: gtx._('Selection of Fonts'),
+		alias: ['b'],
+		type: 'string',
+		multi: true,
+		describe: gtx._('limit to base-font(s)'),
+	},
+	font: {
+		group: gtx._('Selection of Fonts'),
+		alias: ['b', 'font-name'],
+		type: 'string',
+		multi: true,
+		describe: gtx._('limit to font-name'),
+	},
 	format: {
 		group: gtx._('Listing Output Format'),
-		alias: ['f'],
 		type: 'string',
 		choices: ['text', 'json', 'yaml'],
 		default: 'text',
@@ -46,10 +61,33 @@ export class FontCommand implements Command {
 		return options;
 	}
 
-	private listFonts(lab: PDFLab, format: string) {
+	private getFonts(
+		lab: PDFLab,
+		configOptions: ConfigOptions,
+	): Map<string, FontInfo> {
 		const fonts = lab.collectFonts();
 
-		if (format === 'text') {
+		const fontNames = configOptions.font as string[] | undefined;
+		const baseFonts = configOptions['base-font'] as string[] | undefined;
+
+		if (baseFonts || fontNames) {
+			return new Map(
+				[...fonts.entries()].filter(
+					([, font]) =>
+						(font.fontName !== undefined && fontNames?.includes(font.fontName)) ??
+						(font.baseFont !== undefined &&
+							baseFonts?.includes(font.baseFont)),
+				),
+			);
+		}
+
+		return fonts;
+	}
+
+	private listFonts(lab: PDFLab, configOptions: ConfigOptions) {
+		const fonts = this.getFonts(lab, configOptions);
+
+		if (configOptions.format === 'text') {
 			const uniqueFontNames = new Set(
 				[...fonts.values()].map((v) => v.fontName),
 			);
@@ -61,7 +99,7 @@ export class FontCommand implements Command {
 
 		const fontsDto = [...fonts.values()].map(toFontInfoDto);
 
-		if (format === 'yaml') {
+		if (configOptions.format === 'yaml') {
 			console.log(yaml.dump(fontsDto));
 		} else {
 			console.log(JSON.stringify(fontsDto));
@@ -72,7 +110,7 @@ export class FontCommand implements Command {
 		const lab = await PDFLab.from(input);
 
 		if (configOptions.list) {
-			this.listFonts(lab, configOptions.format as string);
+			this.listFonts(lab, configOptions);
 		} else {
 			throw new Error(gtx._('nothing to do'));
 		}
