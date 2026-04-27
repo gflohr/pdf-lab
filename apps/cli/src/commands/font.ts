@@ -127,7 +127,7 @@ export class FontCommand implements Command {
 		if (configOptions.list) {
 			this.listFonts(lab, configOptions);
 		} else if (configOptions.embed) {
-			this.embedFonts(lab, configOption);
+			this.embedFonts(lab, configOptions);
 		} else {
 			throw new Error(gtx._('nothing to do'));
 		}
