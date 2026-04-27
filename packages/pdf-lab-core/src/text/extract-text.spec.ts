@@ -1,7 +1,8 @@
 import * as fs from 'node:fs/promises';
 import { PDFDocument } from '@cantoo/pdf-lib';
 import { beforeAll, describe, expect, it } from 'vitest';
-import { type TextBlock, TextExtractor } from './text-extractor.js';
+import { type TextBlock, extractText } from './extract-text.js';
+import { PDFLab } from '../pdf-lab.js';
 
 describe('Text Extraction', () => {
 	describe('standard fonts', () => {
@@ -11,8 +12,11 @@ describe('Text Extraction', () => {
 			const pdfBytes = await fs.readFile(
 				'../../assets/pdfs/standard-fonts-demo.pdf',
 			);
-			const pdfDoc = await PDFDocument.load(pdfBytes);
-			textBlocks = await new TextExtractor().extract(pdfDoc);
+			const pdfLab = await PDFLab.from(pdfBytes);
+			const fonts = pdfLab.collectFonts();
+			// biome-ignore lint/complexity/useLiteralKeys: false positive.
+			const fontResources = pdfLab['fontUsage']!;
+			textBlocks = await extractText(pdfLab.pdfDocument, fonts, fontResources);
 		});
 
 		it('should extract text', () => {

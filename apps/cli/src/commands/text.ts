@@ -1,6 +1,6 @@
 import { Textdomain } from '@esgettext/runtime';
 import * as yaml from 'js-yaml';
-import { TextExtractor } from 'pdf-lab-core';
+import { extractText, PDFLab } from 'pdf-lab-core';
 import type { Arguments, InferredOptionTypes } from 'yargs';
 import type { Command } from '../command.js';
 import { defaultOptions } from '../default-options.js';
@@ -46,9 +46,9 @@ export class TextCommand implements Command {
 	}
 
 	private async doRun(input: Buffer, configOptions: ConfigOptions) {
-		const extractor = new TextExtractor();
+		const lab = await PDFLab.from(input);
 
-		const blocks = await extractor.extract(input);
+		const blocks = await lab.extractText();
 		if (configOptions.format === 'text') {
 			console.log(blocks.map((b) => b.text).join('\n'));
 			return;

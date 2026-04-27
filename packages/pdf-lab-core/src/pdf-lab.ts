@@ -3,6 +3,7 @@ import collectFonts from './font/collect-fonts.js';
 import { collectResources, type FontUsage } from './font/collect-resources.js';
 import embedFont from './font/embed-font.js';
 import type { FontInfo } from './font/types.js';
+import { extractText, TextBlock } from './text/extract-text.js';
 
 export class PDFLab {
 	private fonts: Map<string, FontInfo> | undefined;
@@ -162,5 +163,22 @@ export class PDFLab {
 		}
 
 		return this.fonts;
+	}
+
+	/**
+	 * Collects all fonts used in the PDF.
+	 *
+	 * @returns a `Map` with keys as `PDFRef` (reference of the font) and values as `FontInfo`
+	 */
+	public async extractText(): Promise<TextBlock[]> {
+		if (!this.fontUsage) {
+			this.fontUsage = collectResources(this.pdfDocument);
+		}
+
+		if (!this.fonts) {
+			this.fonts = collectFonts(this.pdfDocument, this.fontUsage);
+		}
+
+		return await extractText(this.pdfDocument, this.fonts, this.fontUsage);
 	}
 }

@@ -1,3 +1,3 @@
 export * from './font/types.js';
-export * from './pdf/text-extractor.js';
+export * from './text/extract-text.js';
 export * from './pdf-lab.js';

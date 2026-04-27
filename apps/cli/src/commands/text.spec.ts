@@ -1,6 +1,6 @@
 import { PDFRef } from '@cantoo/pdf-lib';
 import * as yaml from 'js-yaml';
-import { type TextBlock, TextExtractor } from 'pdf-lab-core';
+import { PDFLab, type TextBlock } from 'pdf-lab-core';
 import {
 	afterEach,
 	beforeEach,
@@ -18,6 +18,15 @@ vi.mock('../optspec.js');
 vi.mock('./load-input.js', () => ({
 	loadInput: vi.fn().mockResolvedValue(new Uint8Array()),
 }));
+vi.mock('pdf-lab-core', async (importActual) => {
+	const actual = await importActual<typeof import('pdf-lab-core')>();
+	return {
+		...actual,
+		PDFLab: {
+			from: vi.fn(),
+		},
+	};
+});
 
 describe('Text Command', () => {
 	let consoleLogSpy: ReturnType<typeof vi.spyOn>;
@@ -55,18 +64,14 @@ describe('Text Command', () => {
 	});
 
 	it('run() should call extract and return 0 on success', async () => {
-		const extractMock = vi
-			.spyOn(
-				TextExtractor.prototype as unknown as {
-					extract: () => Promise<TextBlock[]>;
-				},
-				'extract',
-			)
-			.mockResolvedValue([]);
+		const extractTextMock = vi.fn().mockReturnValue([]);
+		(PDFLab.from as Mock).mockResolvedValue({
+			extractText: extractTextMock,
+		});
 
 		const result = await textCommand.run(Buffer.from(''), {} as Arguments);
 
-		expect(extractMock).toHaveBeenCalledTimes(1);
+		expect(extractTextMock).toHaveBeenCalledTimes(1);
 		expect(result).toBe(0);
 	});
 
@@ -121,21 +126,16 @@ describe('Text Command', () => {
 		});
 
 		it('should output text only', async () => {
-			const extractMock = vi
-				.spyOn(
-					TextExtractor.prototype as unknown as {
-						extract: () => Promise<TextBlock[]>;
-					},
-					'extract',
-				)
-				.mockResolvedValue(textBlocks);
+			const extractTextMock = vi.fn().mockReturnValue(textBlocks);
+			(PDFLab.from as Mock).mockResolvedValue({
+				extractText: extractTextMock,
+			});
 
 			const options = { format: 'text' } as unknown as Arguments;
 			const pdfBytes = Buffer.from('');
 			await textCommand.run(pdfBytes, options);
 
-			expect(extractMock).toHaveBeenCalledTimes(1);
-			expect(extractMock).toHaveBeenCalledWith(pdfBytes);
+			expect(extractTextMock).toHaveBeenCalledTimes(1);
 			expect(consoleLogSpy).toHaveBeenCalledTimes(1);
 
 			const expected = `The quick brown fox jumps over 13 lazy dogs.
@@ -144,22 +144,17 @@ describe('Text Command', () => {
 		});
 
 		it('should output yaml', async () => {
-			const extractMock = vi
-				.spyOn(
-					TextExtractor.prototype as unknown as {
-						extract: () => Promise<TextBlock[]>;
-					},
-					'extract',
-				)
-				.mockResolvedValue(textBlocks);
+			const extractTextMock = vi.fn().mockReturnValue(textBlocks);
+			(PDFLab.from as Mock).mockResolvedValue({
+				extractText: extractTextMock,
+			});
 
 			const options = { format: 'yaml' } as unknown as Arguments;
 
 			const pdfBytes = Buffer.from('');
 			await textCommand.run(pdfBytes, options);
 
-			expect(extractMock).toHaveBeenCalledTimes(1);
-			expect(extractMock).toHaveBeenCalledWith(pdfBytes);
+			expect(extractTextMock).toHaveBeenCalledTimes(1);
 			expect(consoleLogSpy).toHaveBeenCalledTimes(1);
 
 			const output = yaml.load(consoleLogSpy.mock.calls[0][0]);
@@ -167,22 +162,17 @@ describe('Text Command', () => {
 		});
 
 		it('should output json', async () => {
-			const extractMock = vi
-				.spyOn(
-					TextExtractor.prototype as unknown as {
-						extract: () => Promise<TextBlock[]>;
-					},
-					'extract',
-				)
-				.mockResolvedValue(textBlocks);
+			const extractTextMock = vi.fn().mockReturnValue(textBlocks);
+			(PDFLab.from as Mock).mockResolvedValue({
+				extractText: extractTextMock,
+			});
 
 			const options = { format: 'json' } as unknown as Arguments;
 
 			const pdfBytes = Buffer.from('');
 			await textCommand.run(pdfBytes, options);
 
-			expect(extractMock).toHaveBeenCalledTimes(1);
-			expect(extractMock).toHaveBeenCalledWith(pdfBytes);
+			expect(extractTextMock).toHaveBeenCalledTimes(1);
 			expect(consoleLogSpy).toHaveBeenCalledTimes(1);
 
 			const output = JSON.parse(consoleLogSpy.mock.calls[0][0]);
