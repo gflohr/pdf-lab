@@ -103,7 +103,10 @@ export class FontCommand implements Command {
 	}
 
 	private async embedFonts(lab: PDFLab, configOptions: ConfigOptions) {
-		lab.embedFonts();
+		const fonts = this.getFonts(lab, configOptions);
+		const refs = [...fonts.values()].map(f => f.ref);
+
+		await lab.embedFonts(refs);
 
 		await writeOutput(configOptions.output as string, lab);
 	}

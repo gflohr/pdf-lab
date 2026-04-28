@@ -1,4 +1,4 @@
-import { PDFDocument, type PDFRef } from '@cantoo/pdf-lib';
+import { EmbedFontOptions, PDFDocument, type PDFRef } from '@cantoo/pdf-lib';
 import collectFonts from './font/collect-fonts.js';
 import { collectResources, type FontUsage } from './font/collect-resources.js';
 import embedFont from './font/embed-font.js';
@@ -113,39 +113,41 @@ export class PDFLab {
 	}
 
 	/**
-	 * Embed one single font. The method does nothing, if the font is already
+	 * Embed multiple fonts, but only if the are not already embedded.
+	 * If no references were passed, all currently missing fonts are
 	 * embedded.
 	 *
-	 * @param ref the reference to the font descriptor
+	 * @param references font references (try `collectFonts()`)
+	 * @param subset embed only a subset of each font
 	 */
-	public async embedFont(ref: string | PDFRef) {
-		this.collectFonts();
-
-		if (typeof ref !== 'string') ref = ref.toString();
-
-		if (!this.fonts?.has(ref)) {
-			throw new Error(`no object '${ref}' present in PDF'`);
+	public async embedFonts(references?: PDFRef[], subset = true ) {
+		if (!this.fontUsage) {
+			this.fontUsage = collectResources(this.pdfDocument);
 		}
 
-		//embedFont(this.pdfDocument, this.fonts.get(ref));
-		embedFont();
-	}
+		if (!this.fonts) {
+			this.fonts = collectFonts(this.pdfDocument, this.fontUsage);
+		}
 
-	/**
-	 * Embed all fonts that are currently not embedded.
-	 */
-	public async embedFonts() {
-		this.collectFonts();
+		const refs = new Set<string>(references?.map(ref => ref.toString()) ?? this.fonts.keys());
 
-		this.fonts?.forEach(() => {
-			embedFont();
-		});
+		const textBlocks = await extractText(this.pdfDocument, this.fonts, this.fontUsage);
+		const characterUsage: Record<string, Set<string>> = {};
 
-		/*
-		this.fonts?.forEach((fontInfo) => {
-			embedFont(this.pdfDocument, fontInfo);
-		});
-		*/
+		// Make sure that there is an entry for every font.
+		for (const ref of this.fonts.keys()) {
+			if (refs.has(ref)) characterUsage[ref] = new Set<string>();
+		}
+
+		// Aggregate all characters used.
+		for (const block of textBlocks.filter(block => !block.font.embedded && refs.has(block.font.ref.toString()))) {
+			const ref = block.font.ref.toString();
+			for (const character of block.text) {
+				characterUsage[ref]!.add(character);
+			}
+		}
+
+		console.dir(characterUsage, { depth: null });
 	}
 
 	/**

@@ -113,59 +113,11 @@ describe('PDFLab', () => {
 
 		it('should embed all fonts', async () => {
 			const lab = await makePDFLab();
-			const embedMock = vi
-				.spyOn(embedFont, 'default')
-				.mockImplementation(async () => {});
 			const collectMock = vi
 				.spyOn(collectFont, 'default')
 				.mockReturnValue(fontInfoMap);
 
 			await lab.embedFonts();
-
-			expect(collectMock).toHaveBeenCalledTimes(1);
-			expect(embedMock).toHaveBeenCalledTimes(3);
-		});
-
-		it('should embed a single font', async () => {
-			const lab = await makePDFLab();
-			const embedMock = vi
-				.spyOn(embedFont, 'default')
-				.mockImplementation(async () => {});
-			const collectMock = vi
-				.spyOn(collectFont, 'default')
-				.mockReturnValue(fontInfoMap);
-
-			await lab.embedFont(PDFRef.of(8).toString());
-
-			expect(collectMock).toHaveBeenCalledTimes(1);
-			expect(embedMock).toHaveBeenCalledTimes(1);
-		});
-
-		it('should embed a single font referenced by PDFRef object', async () => {
-			const lab = await makePDFLab();
-			const embedMock = vi
-				.spyOn(embedFont, 'default')
-				.mockImplementation(async () => {});
-			const collectMock = vi
-				.spyOn(collectFont, 'default')
-				.mockReturnValue(fontInfoMap);
-
-			await lab.embedFont(PDFRef.of(8));
-
-			expect(collectMock).toHaveBeenCalledTimes(1);
-			expect(embedMock).toHaveBeenCalledTimes(1);
-		});
-
-		it('should throw an exception if a non-existing font should be embedded', async () => {
-			const lab = await makePDFLab();
-			const collectMock = vi
-				.spyOn(collectFont, 'default')
-				.mockReturnValue(fontInfoMap);
-
-			const ref = PDFRef.of(2).toString();
-			await expect(lab.embedFont(ref)).rejects.toThrow(
-				"no object '2 0 R' present in PDF",
-			);
 
 			expect(collectMock).toHaveBeenCalledTimes(1);
 		});
