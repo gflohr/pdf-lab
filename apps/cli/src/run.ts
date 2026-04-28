@@ -10,8 +10,8 @@ import type { Command } from './command.js';
 import { FontCommand } from './commands/font.js';
 import { TextCommand } from './commands/text.js';
 import { defaultOptions } from './default-options.js';
-import { loadInput } from './load-input.js';
 import { Package } from './package.js';
+import { loadInput } from './util/load-input.js';
 
 const commandNames = ['font', 'text'];
 

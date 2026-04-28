@@ -1,13 +1,13 @@
 import * as yaml from 'js-yaml';
 import { beforeEach, describe, expect, it, type Mock, vi } from 'vitest';
 import type { Arguments } from 'yargs';
-import { coerceOptions } from '../optspec.js';
+import { coerceOptions } from '../util/optspec.js';
 
 vi.mock('./load-input.js', () => ({
 	loadInput: vi.fn().mockResolvedValue(new Uint8Array()),
 }));
 
-vi.mock('../optspec.js');
+vi.mock('../util/optspec.js');
 vi.mock('pdf-lab-core', async (importActual) => {
 	const actual = await importActual<typeof import('pdf-lab-core')>();
 	return {
@@ -194,7 +194,7 @@ Helvetica-Oblique`;
 				delete i.baseFont;
 				delete i.fontName;
 			});
-			fontInfoDtos.forEach(dto => {
+			fontInfoDtos.forEach((dto) => {
 				delete dto.baseFont;
 				delete dto.fontName;
 			});
@@ -224,7 +224,11 @@ Helvetica-Oblique`;
 				collectFonts: collectFontsMock,
 			});
 
-			const options = { list: true, format: 'text', 'base-font': ['ABCDEF+Helvetica'] } as unknown as Arguments;
+			const options = {
+				list: true,
+				format: 'text',
+				'base-font': ['ABCDEF+Helvetica'],
+			} as unknown as Arguments;
 			const pdfBytes = Buffer.from('');
 			await fontCommand.run(pdfBytes, options);
 
@@ -242,7 +246,11 @@ Helvetica-Oblique`;
 				collectFonts: collectFontsMock,
 			});
 
-			const options = { list: true, format: 'text', 'font': ['Helvetica-Oblique'] } as unknown as Arguments;
+			const options = {
+				list: true,
+				format: 'text',
+				font: ['Helvetica-Oblique'],
+			} as unknown as Arguments;
 			const pdfBytes = Buffer.from('');
 			await fontCommand.run(pdfBytes, options);
 

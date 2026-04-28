@@ -6,13 +6,13 @@ import {
 	type MockInstance,
 	vi,
 } from 'vitest';
-import { loadInput } from './load-input.js';
 import { Package } from './package.js';
+import { loadInput } from './util/load-input.js';
 
 vi.mock('node:fs/promises', () => ({
 	readFile: vi.fn().mockResolvedValue(new Uint8Array([1, 2, 3])),
 }));
-vi.mock('./load-input.js', () => ({
+vi.mock('./util/load-input.js', () => ({
 	loadInput: vi.fn().mockResolvedValue(new Uint8Array()),
 }));
 

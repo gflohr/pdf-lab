@@ -4,14 +4,14 @@ import { type FontInfo, PDFLab } from 'pdf-lab-core';
 import type { Arguments, InferredOptionTypes } from 'yargs';
 import type { Command } from '../command.js';
 import { defaultOptions } from '../default-options.js';
-import { coerceOptions, type OptSpec } from '../optspec.js';
+import { coerceOptions, type OptSpec } from '../util/optspec.js';
 import { Package } from '../package.js';
 import { toFontInfoDto } from '../util/font-info-dto.js';
 
 const gtx = Textdomain.getInstance('pdf-lab');
 
 const options: {
-	embed: OptSpec,
+	embed: OptSpec;
 	list: OptSpec;
 	'base-font': OptSpec;
 	font: OptSpec;
@@ -83,9 +83,9 @@ export class FontCommand implements Command {
 			return new Map(
 				[...fonts.entries()].filter(
 					([, font]) =>
-						(font.fontName !== undefined && fontNames?.includes(font.fontName)) ??
-						(font.baseFont !== undefined &&
-							baseFonts?.includes(font.baseFont)),
+						(font.fontName !== undefined &&
+							fontNames?.includes(font.fontName)) ??
+						(font.baseFont !== undefined && baseFonts?.includes(font.baseFont)),
 				),
 			);
 		}
@@ -95,8 +95,6 @@ export class FontCommand implements Command {
 
 	private embedFonts(lab: PDFLab, configOptions: ConfigOptions) {
 		const fonts = this.getFonts(lab, configOptions);
-
-
 	}
 
 	private listFonts(lab: PDFLab, configOptions: ConfigOptions) {

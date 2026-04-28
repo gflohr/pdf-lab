@@ -11,10 +11,10 @@ import {
 	vi,
 } from 'vitest';
 import type { Arguments } from 'yargs';
-import { coerceOptions } from '../optspec.js';
+import { coerceOptions } from '../util/optspec.js';
 import { TextCommand } from './text.js';
 
-vi.mock('../optspec.js');
+vi.mock('../util/optspec.js');
 vi.mock('./load-input.js', () => ({
 	loadInput: vi.fn().mockResolvedValue(new Uint8Array()),
 }));

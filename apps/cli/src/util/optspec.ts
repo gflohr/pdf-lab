@@ -1,7 +1,7 @@
 import { Textdomain } from '@esgettext/runtime';
 import type { Arguments, Options } from 'yargs';
 
-import { Package } from './package.js';
+import { Package } from '../package.js';
 
 const gtx = Textdomain.getInstance('pdf-lab');
 

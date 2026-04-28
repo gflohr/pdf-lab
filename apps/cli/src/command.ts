@@ -1,5 +1,5 @@
 import type { Arguments } from 'yargs';
-import type { OptSpec } from './optspec.js';
+import type { OptSpec } from './util/optspec.js';
 export interface Command {
 	synopsis?(): string;
 	description(): string;
