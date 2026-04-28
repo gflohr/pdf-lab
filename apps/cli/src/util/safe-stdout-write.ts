@@ -20,25 +20,6 @@ const CHUNK_SIZE = 16 * 1024;
 
 const finished = util.promisify(stream.finished);
 
-export const safeStdoutWrite = async (output: string) => {
-	let offset = 0;
-
-	while (offset < output.length) {
-		const chunk = output.slice(offset, offset + CHUNK_SIZE);
-		const canContinue = process.stdout.write(chunk);
-
-		if (!canContinue) {
-			await once(process.stdout, 'drain');
-		}
-
-		offset += CHUNK_SIZE;
-	}
-
-	process.stdout.end();
-
-	await finished(process.stdout);
-};
-
 export const safeStdoutBufferWrite = async (output: Uint8Array) => {
 	let offset = 0;
 

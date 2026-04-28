@@ -4,9 +4,9 @@ import { PDFLab } from 'pdf-lab-core';
 import type { Arguments, InferredOptionTypes } from 'yargs';
 import type { Command } from '../command.js';
 import { defaultOptions } from '../default-options.js';
-import { coerceOptions, type OptSpec } from '../util/optspec.js';
 import { Package } from '../package.js';
 import { type FontInfoDto, toFontInfoDto } from '../util/font-info-dto.js';
+import { coerceOptions, type OptSpec } from '../util/optspec.js';
 
 const gtx = Textdomain.getInstance('pdf-lab');
 
