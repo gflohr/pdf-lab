@@ -1,6 +1,7 @@
 import { isStandardFont, type PDFRef, StandardFonts } from '@cantoo/pdf-lib';
 import type { CMapMapper } from '../encoding/mappers/cmap-mapper.js';
-import { FontLoader, type OsType } from './font-loader.js';
+import { loadFont, loadFontFromPath, type OsType } from './font-loader.js';
+import { Encoding, StandardEncodings } from './types.js';
 
 export type FontCategory =
 	| 'sans'
@@ -11,27 +12,19 @@ export type FontCategory =
 export type FontWeight = 'normal' | 'bold';
 export type FontStyle = 'roman' | 'italic';
 export type FontDescription = {
+	fontName?: string;
 	category: FontCategory;
 	weight: FontWeight;
 	style: FontStyle;
 	standardName?: StandardFonts;
 };
 
-export type FontMap = Record<
-	string,
-	string | ArrayBuffer | Uint8Array<ArrayBufferLike>
->;
+type FontData = {
+	source: string | ArrayBuffer | Uint8Array<ArrayBufferLike>,
+	postscriptname?: string,
+};
 
-// FIXME! That does not fit here!
-const encodings = [
-	'StandardEncoding',
-	'MacRomanEncoding',
-	'WinAnsiEncoding',
-	'MacExpertEncoding',
-	'SymbolEncoding',
-	'ZapfDingbatsEncoding',
-] as const;
-export type Encoding = (typeof encodings)[number];
+export type FontMap = Record<string, FontData>;
 
 export type FontSubtype =
 	| 'Type0'
@@ -264,18 +257,15 @@ const FontFamilyAliases: Record<string, FontCategory> = {
 
 export class FontResolver {
 	private readonly fontMap: FontMap = {};
-	private readonly fontLoader: FontLoader;
 
-	constructor(platform: string | undefined, fontMap: FontMap) {
-		this.fontLoader = new FontLoader(platform as OsType);
-
+	constructor(private readonly platform: OsType | undefined, fontMap: FontMap) {
 		for (const name in fontMap) {
 			this.fontMap[name.toLowerCase()] = fontMap[name]!;
 		}
 	}
 
 	static isStandardEncoding(encoding: string): boolean {
-		return encodings
+		return StandardEncodings
 			.map((e) => e.toLocaleLowerCase())
 			.includes(encoding.toLowerCase());
 	}
@@ -286,7 +276,7 @@ export class FontResolver {
 			const data = this.fontMap[canonicalName.toLowerCase()];
 			if (typeof data === 'string') {
 				this.fontMap[canonicalName.toLowerCase()] =
-					await this.fontLoader.loadFromPath(canonicalName, data);
+					await loadFontFromPath(canonicalName, data, this.platform);
 			}
 
 			return this.fontMap[canonicalName.toLowerCase()]!;
@@ -301,16 +291,17 @@ export class FontResolver {
 			if (Object.hasOwn(this.fontMap, tryName)) {
 				const data = this.fontMap[tryName];
 				if (typeof data === 'string') {
-					this.fontMap[tryName] = await this.fontLoader.loadFromPath(
+					this.fontMap[tryName] = await loadFontFromPath(
 						fontName,
 						data,
+						this.platform,
 					);
 				}
 
-				return this.fontMap[tryName]!;
+				return this.fontMap[tryName]!.source;
 			}
 
-			const fontBytes = await this.fontLoader.load(desc, fontName);
+			const fontBytes = await loadFont(desc, fontName, this.platform);
 			if (typeof fontBytes !== 'undefined') return fontBytes;
 		}
 

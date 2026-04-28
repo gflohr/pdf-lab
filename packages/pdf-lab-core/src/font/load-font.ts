@@ -255,57 +255,55 @@ const fontFiles: Record<
 	},
 };
 
-export class FontLoader {
-	constructor(private readonly platform: OsType | undefined) {}
-
-	public async load(
-		font: FontDescription,
-		fontName: string,
-	): Promise<Uint8Array | undefined> {
-		const isNode =
-			Object.prototype.toString.call(
-				typeof process !== 'undefined' ? process : 0,
-			) === '[object process]';
-		if (!isNode || !this.platform) {
-			throw new Error(
-				`The font '${fontName}' is not embedded, and no replacement font has been specified.`,
-			);
-		} else {
-			const fs = await import('node:fs/promises');
-			const map = fontFiles[this.platform] ?? fontFiles.unix;
-			const locations = fontLocations[this.platform] ?? fontLocations.unix;
-			const candidates = map[font.category][font.weight][font.style];
-			const extensions = ['ttf', 'otf'];
-			for (let i = 0; i < candidates.length; ++i) {
-				for (let j = 0; j < locations.length; ++j) {
-					for (let k = 0; k < extensions.length; ++k) {
-						const fullname = `${locations[j]}/${candidates[i]}.${extensions[k]}`;
-						try {
-							const fontBytes = await fs.readFile(fullname);
-							if (fontBytes) return fontBytes;
-						} catch {}
-					}
+export async function loadFont(
+	font: FontDescription,
+	fontName: string,
+	platform?: OsType,
+): Promise<Uint8Array | undefined> {
+	const isNode =
+		Object.prototype.toString.call(
+			typeof process !== 'undefined' ? process : 0,
+		) === '[object process]';
+	if (!isNode || !platform) {
+		throw new Error(
+			`The font '${fontName}' is not embedded, and no replacement font has been specified.`,
+		);
+	} else {
+		const fs = await import('node:fs/promises');
+		const map = fontFiles[platform] ?? fontFiles.unix;
+		const locations = fontLocations[platform] ?? fontLocations.unix;
+		const candidates = map[font.category][font.weight][font.style];
+		const extensions = ['ttf', 'otf'];
+		for (let i = 0; i < candidates.length; ++i) {
+			for (let j = 0; j < locations.length; ++j) {
+				for (let k = 0; k < extensions.length; ++k) {
+					const fullname = `${locations[j]}/${candidates[i]}.${extensions[k]}`;
+					try {
+						const fontBytes = await fs.readFile(fullname);
+						if (fontBytes) return fontBytes;
+					} catch {}
 				}
 			}
 		}
 	}
+}
 
-	public async loadFromPath(
-		fontName: string,
-		path: string,
-	): Promise<Uint8Array> {
-		const isNode =
-			Object.prototype.toString.call(
-				typeof process !== 'undefined' ? process : 0,
-			) === '[object process]';
-		if (!isNode || !this.platform) {
-			throw new Error(
-				`The font '${fontName}' is not embedded, and cannot be loaded from the file system.`,
-			);
-		} else {
-			const fs = await import('node:fs/promises');
+export async function loadFontFromPath(
+	fontName: string,
+	path: string,
+	platform?: OsType,
+): Promise<Uint8Array> {
+	const isNode =
+		Object.prototype.toString.call(
+			typeof process !== 'undefined' ? process : 0,
+		) === '[object process]';
+	if (!isNode || !platform) {
+		throw new Error(
+			`The font '${fontName}' is not embedded, and cannot be loaded from the file system.`,
+		);
+	} else {
+		const fs = await import('node:fs/promises');
 
-			return await fs.readFile(path);
-		}
+		return await fs.readFile(path);
 	}
 }

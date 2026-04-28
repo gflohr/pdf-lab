@@ -19,6 +19,7 @@ import {
 	type FontSubtype,
 	StandardEncodings,
 } from './types.js';
+import { fontName } from './util/font-name.js';
 
 /**
  * Collect all font contained in a PDF document.
@@ -57,16 +58,6 @@ export default function collectFonts(
 	}
 
 	return fonts;
-}
-
-function getFontName(baseName: string): string {
-	// Strip subset prefix (ABCDEF+).
-	let fontName = baseName.replace(/^[A-Z]{6}\+/, '');
-
-	// Strip numerical suffix.
-	fontName = fontName.replace(/-[0-9]+$/, '');
-
-	return fontName;
 }
 
 function getFontInfo(
@@ -138,7 +129,7 @@ function getFontInfo(
 	};
 	if (typeof baseFont !== 'undefined') {
 		fontInfo.baseFont = baseFont;
-		fontInfo.fontName = getFontName(baseFont);
+		fontInfo.fontName = fontName(baseFont);
 	}
 	if (typeof encoding !== 'undefined') {
 		fontInfo.encoding = encoding as Encoding;
@@ -182,7 +173,7 @@ function getFontType0Info(
 		?.decodeText();
 	if (typeof baseFont !== 'undefined') {
 		fontInfo.baseFont = baseFont;
-		fontInfo.fontName = getFontName(baseFont);
+		fontInfo.fontName = fontName(baseFont);
 	}
 
 	const toUnicodeStream = fontDict.lookup(PDFName.of('ToUnicode'));
