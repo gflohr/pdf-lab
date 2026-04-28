@@ -7,12 +7,14 @@ import { defaultOptions } from '../default-options.js';
 import { Package } from '../package.js';
 import { toFontInfoDto } from '../util/font-info-dto.js';
 import { coerceOptions, type OptSpec } from '../util/optspec.js';
+import { writeOutput } from '../util/write-output.js';
 
 const gtx = Textdomain.getInstance('pdf-lab');
 
 const options: {
 	embed: OptSpec;
 	list: OptSpec;
+	output: OptSpec;
 	'base-font': OptSpec;
 	font: OptSpec;
 	format: OptSpec;
@@ -21,7 +23,7 @@ const options: {
 		group: gtx._('Mode of Operation'),
 		alias: ['e'],
 		type: 'boolean',
-		conflicts: ['embed'],
+		conflicts: ['list'],
 		describe: gtx._('embed fonts'),
 	},
 	list: {
@@ -30,6 +32,13 @@ const options: {
 		type: 'boolean',
 		conflicts: ['embed'],
 		describe: gtx._('list fonts'),
+	},
+	'output': {
+		group: gtx._('Output location'),
+		alias: ['o'],
+		type: 'string',
+		default: '-',
+		describe: gtx._("output file location ('-' for standard output)"),
 	},
 	'base-font': {
 		group: gtx._('Selection of Fonts'),
@@ -93,8 +102,10 @@ export class FontCommand implements Command {
 		return fonts;
 	}
 
-	private embedFonts(lab: PDFLab, configOptions: ConfigOptions) {
-		const fonts = this.getFonts(lab, configOptions);
+	private async embedFonts(lab: PDFLab, configOptions: ConfigOptions) {
+		lab.embedFonts();
+
+		await writeOutput(configOptions.output as string, lab);
 	}
 
 	private listFonts(lab: PDFLab, configOptions: ConfigOptions) {
@@ -125,7 +136,7 @@ export class FontCommand implements Command {
 		if (configOptions.list) {
 			this.listFonts(lab, configOptions);
 		} else if (configOptions.embed) {
-			this.embedFonts(lab, configOptions);
+			await this.embedFonts(lab, configOptions);
 		} else {
 			throw new Error(gtx._('nothing to do'));
 		}
