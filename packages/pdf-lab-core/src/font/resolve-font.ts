@@ -308,16 +308,17 @@ export async function resolve(
 ): Promise<FontData> {
 	const canonicalName = fontName(pdfFontName);
 	if (Object.hasOwn(fontMap, canonicalName.toLowerCase())) {
-		const data = fontMap[canonicalName.toLowerCase()]?.source;
+		const key = canonicalName.toLowerCase();
+		const data = fontMap[key]?.source;
 		if (typeof data === 'string') {
-			fontMap[canonicalName.toLowerCase()] = await loadFontFromPath(
+			fontMap[key] = await loadFontFromPath(
 				canonicalName,
 				data,
 				platform,
 			);
 		}
 
-		return fontMap[canonicalName.toLowerCase()]!;
+		return fontMap[key]!;
 	}
 
 	const description = parseName(pdfFontName);
