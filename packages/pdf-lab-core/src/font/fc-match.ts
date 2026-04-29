@@ -1,7 +1,10 @@
 import type { FontDescription } from './resolve-font.js';
 import type { FontData } from './types.js';
 
-export async function fcMatch(desc: FontDescription, fcMatchPath: string): Promise<FontData | undefined> {
+export async function fcMatch(
+	desc: FontDescription,
+	fcMatchPath: string,
+): Promise<FontData | undefined> {
 	const isNode =
 		Object.prototype.toString.call(
 			typeof process !== 'undefined' ? process : 0,
@@ -17,11 +20,12 @@ export async function fcMatch(desc: FontDescription, fcMatchPath: string): Promi
 	try {
 		const query = `${desc.fontName}:slant=${desc.style}:weight=${desc.weight}:width=${desc.width}`;
 		const { stdout } = await execFileAsync(fcMatchPath, [
-			'--format', '%{file} : %{postscriptname}',
+			'--format',
+			'%{file} : %{postscriptname}',
 			query,
 		]);
 
-		const [ filename, postScriptName ] = stdout.split(' : ', 2);
+		const [filename, postScriptName] = stdout.split(' : ', 2);
 		if (typeof postScriptName === 'undefined') return;
 
 		const source = await readFile(filename!);

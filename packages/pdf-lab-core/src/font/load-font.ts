@@ -4,7 +4,7 @@ import type {
 	FontStyle,
 	FontWeight,
 } from './resolve-font.js';
-import { FontData } from './types.js';
+import type { FontData } from './types.js';
 
 export type OsType = 'unix' | 'darwin' | 'win32';
 
@@ -280,7 +280,9 @@ export async function loadFont(
 		directoryMap ??= await getDirectoryMap(locations);
 		if (Object.hasOwn(directoryMap, fontName.toLowerCase())) {
 			try {
-				const fontBytes = await fs.readFile(directoryMap[fontName.toLowerCase()]!);
+				const fontBytes = await fs.readFile(
+					directoryMap[fontName.toLowerCase()]!,
+				);
 				if (fontBytes) return { source: fontBytes };
 			} catch {}
 		}
@@ -330,7 +332,9 @@ export async function loadFontFromPath(
 	}
 }
 
-async function getDirectoryMap(directories: string[]): Promise<Record<string, string>> {
+async function getDirectoryMap(
+	directories: string[],
+): Promise<Record<string, string>> {
 	const fs = await import('node:fs/promises');
 	const path = await import('node:path');
 

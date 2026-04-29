@@ -1,8 +1,7 @@
-import { EmbedFontOptions, PDFDocument, type PDFRef } from '@cantoo/pdf-lib';
+import { PDFDocument, type PDFRef } from '@cantoo/pdf-lib';
 import collectFonts from './font/collect-fonts.js';
 import { collectResources, type FontUsage } from './font/collect-resources.js';
-import embedFont from './font/embed-font.js';
-import type { FontInfo } from './font/types.js';
+import type { FontInfo } from './font/types-internal.js';
 import { extractText, type TextBlock } from './text/extract-text.js';
 
 export class PDFLab {

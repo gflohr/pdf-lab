@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fcMatch } from './fc-match.js';
 import type { FontDescription } from './resolve-font.js';
 import type { FontData } from './types.js';
@@ -57,9 +57,13 @@ describe('fcMatch', () => {
 
 		// biome-ignore lint/suspicious/noExplicitAny: this is just a mock.
 		execFileMock.mockImplementation((_cmd, _args, cb: any) => {
-			cb(null, {
-				stdout: '/user/share/fonts/helvetica.ttf : Helvetica-Bold',
-			}, '');
+			cb(
+				null,
+				{
+					stdout: '/user/share/fonts/helvetica.ttf : Helvetica-Bold',
+				},
+				'',
+			);
 		});
 
 		readFileMock.mockResolvedValue(fileBuffer as unknown as Buffer);
@@ -82,9 +86,13 @@ describe('fcMatch', () => {
 	it('returns undefined, when fc-match fails', async () => {
 		// biome-ignore lint/suspicious/noExplicitAny: this is just a mock.
 		execFileMock.mockImplementation((_cmd, _args, cb: any) => {
-			cb(null, {
-				stdout: 'configuration mising',
-			}, '');
+			cb(
+				null,
+				{
+					stdout: 'configuration mising',
+				},
+				'',
+			);
 		});
 
 		const result = await fcMatch(desc, fcMatchPath);
