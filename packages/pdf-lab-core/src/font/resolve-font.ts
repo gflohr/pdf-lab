@@ -281,12 +281,6 @@ const FontFamilyAliases: Record<string, FontCategory> = {
 	notomono: 'mono',
 } as const;
 
-function isStandardEncoding(encoding: string): boolean {
-	return StandardEncodings.map((e) => e.toLocaleLowerCase()).includes(
-		encoding.toLowerCase(),
-	);
-}
-
 /**
  * Resolve a font identified by name and return the raw bytes. The
  * resolving performs the following steps:
