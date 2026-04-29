@@ -426,7 +426,7 @@ function createSearchList(desc: FontDescription): FontDescription[] {
 			if (desc.style === style) continue;
 			for (const category of ['sans', 'serif', 'mono']) {
 				if (desc.category === category) continue;
-				searchList.push({ category, weight, style } as FontDescription);
+				searchList.push({ fontName: desc.fontName, category, weight, style } as FontDescription);
 			}
 		}
 	}
