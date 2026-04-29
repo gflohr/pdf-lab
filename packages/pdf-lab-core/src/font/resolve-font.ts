@@ -335,17 +335,18 @@ export async function resolve(
 	for (let i = 0; i < searchList.length; ++i) {
 		const desc = searchList[i]!;
 		const tryName = FontMatrix[desc.category][desc.weight][desc.style];
-		if (Object.hasOwn(fontMap, tryName)) {
-			const data = fontMap[tryName];
+		const key = tryName.toLowerCase();
+		if (Object.hasOwn(fontMap, key)) {
+			const data = fontMap[key];
 			if (typeof data?.source === 'string') {
-				fontMap[tryName] = await loadFontFromPath(
+				fontMap[key] = await loadFontFromPath(
 					pdfFontName,
 					data.source,
 					platform,
 				);
 			}
 
-			return fontMap[tryName]!;
+			return fontMap[key]!;
 		}
 
 		const fontData = await loadFont(desc, pdfFontName, platform);
