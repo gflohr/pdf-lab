@@ -1,8 +1,8 @@
 import * as fs from 'node:fs/promises';
 import { PDFDocument } from '@cantoo/pdf-lib';
 import { beforeAll, describe, expect, it } from 'vitest';
-import { type TextBlock, extractText } from './extract-text.js';
 import { PDFLab } from '../pdf-lab.js';
+import { extractText, type TextBlock } from './extract-text.js';
 
 describe('Text Extraction', () => {
 	describe('standard fonts', () => {

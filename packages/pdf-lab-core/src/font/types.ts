@@ -1,71 +1,22 @@
-import type { PDFRef } from '@cantoo/pdf-lib';
-import type { GlyphMapper } from '../encoding/mappers/glyph-mapper.js';
-
-// FIXME! That does not fit here!
-export const StandardEncodings = [
-	'StandardEncoding',
-	'MacRomanEncoding',
-	'WinAnsiEncoding',
-	'MacExpertEncoding',
-	'SymbolEncoding',
-	'ZapfDingbatsEncoding',
-] as const;
-
 /**
- * The pre-defined PDF encodings.
+ * The type for font data reference.
  */
-export type Encoding = (typeof StandardEncodings)[number];
-
-/**
- * The possible font subtypes.
- */
-export type FontSubtype =
-	| 'Type0'
-	| 'Type1'
-	| 'MMType1'
-	| 'Type3'
-	| 'TrueType'
-	| 'CIDFontType0'
-	| 'CIDFontType2';
-
-/**
- * Information about a font.
- */
-export type FontInfo = {
+export type FontData = {
 	/**
-	 * The reference to the font dictionary.
+	 * The source of the font data. This can either be a file system path
+	 * from where the font data gets loaded or the raw data bytes.
 	 */
-	ref: PDFRef;
+	source: string | ArrayBuffer | Uint8Array<ArrayBufferLike>;
 
 	/**
-	 * The indicator for embedded fonts.
+	 * The optional PostScript name. This is only relevant, if the font
+	 * is a TrueType collection (`.ttc`) file.
 	 */
-	embedded: boolean;
-
-	/**
-	 * The font subtype.
-	 */
-	subtype: FontSubtype;
-
-	/**
-	 * The BaseFont. This often contains subset identifiers or a numbered
-	 * suffix.
-	 */
-	baseFont?: string;
-
-	/**
-	 * The normalised font name without the subset identifier or numbered
-	 * suffix.
-	 */
-	fontName?: string;
-
-	/**
-	 * The optional encoding.
-	 */
-	encoding?: Encoding;
-
-	/**
-	 * The optional glyph mapper.
-	 */
-	glyphMapper?: GlyphMapper;
+	postScriptName?: string;
 };
+
+/**
+ * The font mapping data. This maps font names (with a subset prefix and a
+ * producer suffix stripped off) to font data.
+ */
+export type FontMap = Record<string, FontData>;

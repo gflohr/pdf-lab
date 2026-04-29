@@ -3,7 +3,8 @@ import type {
 	FontDescription,
 	FontStyle,
 	FontWeight,
-} from './font-resolver.js';
+} from './resolve-font.js';
+import { FontData } from './types.js';
 
 export type OsType = 'unix' | 'darwin' | 'win32';
 
@@ -255,11 +256,13 @@ const fontFiles: Record<
 	},
 };
 
+let directoryMap: Record<string, string> | undefined;
+
 export async function loadFont(
 	font: FontDescription,
 	fontName: string,
 	platform?: OsType,
-): Promise<Uint8Array | undefined> {
+): Promise<FontData | undefined> {
 	const isNode =
 		Object.prototype.toString.call(
 			typeof process !== 'undefined' ? process : 0,
@@ -272,6 +275,16 @@ export async function loadFont(
 		const fs = await import('node:fs/promises');
 		const map = fontFiles[platform] ?? fontFiles.unix;
 		const locations = fontLocations[platform] ?? fontLocations.unix;
+
+		// Try an exact match first.
+		directoryMap ??= await getDirectoryMap(locations);
+		if (Object.hasOwn(directoryMap, fontName.toLowerCase())) {
+			try {
+				const fontBytes = await fs.readFile(directoryMap[fontName.toLowerCase()]!);
+				if (fontBytes) return { source: fontBytes };
+			} catch {}
+		}
+
 		const candidates = map[font.category][font.weight][font.style];
 		const extensions = ['ttf', 'otf'];
 		for (let i = 0; i < candidates.length; ++i) {
@@ -280,7 +293,7 @@ export async function loadFont(
 					const fullname = `${locations[j]}/${candidates[i]}.${extensions[k]}`;
 					try {
 						const fontBytes = await fs.readFile(fullname);
-						if (fontBytes) return fontBytes;
+						if (fontBytes) return { source: fontBytes };
 					} catch {}
 				}
 			}
@@ -288,11 +301,20 @@ export async function loadFont(
 	}
 }
 
+/**
+ * Load a font from the file system. This function will alway fail in the
+ * browser.
+ *
+ * @param fontName the name of the font
+ * @param path the path to the font program file
+ * @param platform the platform (`os.platform()`) or undefined for the browser
+ * @returns the raw font data
+ */
 export async function loadFontFromPath(
 	fontName: string,
 	path: string,
 	platform?: OsType,
-): Promise<Uint8Array> {
+): Promise<FontData> {
 	const isNode =
 		Object.prototype.toString.call(
 			typeof process !== 'undefined' ? process : 0,
@@ -304,6 +326,43 @@ export async function loadFontFromPath(
 	} else {
 		const fs = await import('node:fs/promises');
 
-		return await fs.readFile(path);
+		return { source: await fs.readFile(path) };
 	}
+}
+
+async function getDirectoryMap(directories: string[]): Promise<Record<string, string>> {
+	const fs = await import('node:fs/promises');
+	const path = await import('node:path');
+
+	const entries: Record<string, string> = {};
+	for (const directory of directories) {
+		const dirEntries = await fs.readdir(directory);
+		for (const filename of dirEntries) {
+			if (filename.match(/\.(?:ttf|ttc|otf)$/)) {
+				const basename = filename
+					.substring(0, filename.length - 4)
+					.toLowerCase();
+				const fullPath = path.join(directory, filename);
+				entries[basename] = fullPath;
+				entries[basename.replaceAll(' ', '-')] = fullPath;
+				const noMtName = basename.replace(/mt$/, '');
+				if (noMtName !== basename) {
+					entries[noMtName] = fullPath;
+					entries[noMtName.replaceAll(' ', '-')] = fullPath;
+				}
+				const noMnName = basename.replace(/mn$/, '');
+				if (noMnName !== basename) {
+					entries[noMnName] = fullPath;
+					entries[noMnName.replaceAll(' ', '-')] = fullPath;
+				}
+				const noPsmtName = basename.replace(/psmt$/, '');
+				if (noPsmtName !== basename) {
+					entries[noPsmtName] = fullPath;
+					entries[noPsmtName.replaceAll(' ', '-')] = fullPath;
+				}
+			}
+		}
+	}
+
+	return entries;
 }

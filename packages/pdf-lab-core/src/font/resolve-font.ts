@@ -1,7 +1,10 @@
 import { isStandardFont, type PDFRef, StandardFonts } from '@cantoo/pdf-lib';
 import type { CMapMapper } from '../encoding/mappers/cmap-mapper.js';
-import { loadFont, loadFontFromPath, type OsType } from './font-loader.js';
-import { Encoding, StandardEncodings } from './types.js';
+import { loadFont, loadFontFromPath, type OsType } from './load-font.js';
+import type { FontData, FontMap } from './types.js';
+import { type Encoding, StandardEncodings } from './types-internal.js';
+import { fontName } from './util/font-name.js';
+import { fcMatch } from './fc-match.js';
 
 export type FontCategory =
 	| 'sans'
@@ -11,20 +14,15 @@ export type FontCategory =
 	| 'zapfdingbats';
 export type FontWeight = 'normal' | 'bold';
 export type FontStyle = 'roman' | 'italic';
+export type FontWidth = 'condensed' | 'normal' | 'expanded';
 export type FontDescription = {
-	fontName?: string;
+	fontName: string;
 	category: FontCategory;
 	weight: FontWeight;
 	style: FontStyle;
+	width: FontWidth;
 	standardName?: StandardFonts;
 };
-
-type FontData = {
-	source: string | ArrayBuffer | Uint8Array<ArrayBufferLike>,
-	postscriptname?: string,
-};
-
-export type FontMap = Record<string, FontData>;
 
 export type FontSubtype =
 	| 'Type0'
@@ -77,84 +75,112 @@ const FontDescriptionByName: Record<string, FontDescription> = {
 		category: 'sans',
 		weight: 'normal',
 		style: 'roman',
+		width: 'normal',
+		fontName: StandardFonts.Helvetica,
 		standardName: StandardFonts.Helvetica,
 	},
 	'helvetica-oblique': {
 		category: 'sans',
 		weight: 'normal',
 		style: 'italic',
+		width: 'normal',
+		fontName: StandardFonts.HelveticaOblique,
 		standardName: StandardFonts.HelveticaOblique,
 	},
 	'helvetica-bold': {
 		category: 'sans',
 		weight: 'bold',
 		style: 'roman',
+		width: 'normal',
+		fontName: StandardFonts.HelveticaBold,
 		standardName: StandardFonts.HelveticaBold,
 	},
 	'helvetica-boldoblique': {
 		category: 'sans',
 		weight: 'bold',
 		style: 'italic',
+		width: 'normal',
+		fontName: StandardFonts.HelveticaBoldOblique,
 		standardName: StandardFonts.HelveticaBoldOblique,
 	},
 	times: {
 		category: 'serif',
 		weight: 'normal',
 		style: 'roman',
+		width: 'normal',
+		fontName: StandardFonts.TimesRoman,
 		standardName: StandardFonts.TimesRoman,
 	},
 	'times-italic': {
 		category: 'serif',
 		weight: 'normal',
 		style: 'italic',
+		width: 'normal',
+		fontName: StandardFonts.TimesRomanItalic,
 		standardName: StandardFonts.TimesRomanItalic,
 	},
 	'times-bold': {
 		category: 'serif',
 		weight: 'bold',
 		style: 'roman',
+		width: 'normal',
+		fontName: StandardFonts.TimesRomanBold,
 		standardName: StandardFonts.TimesRomanBold,
 	},
 	'times-bolditalic': {
 		category: 'serif',
 		weight: 'bold',
 		style: 'italic',
+		width: 'normal',
+		fontName: StandardFonts.TimesRomanBoldItalic,
 		standardName: StandardFonts.TimesRomanBoldItalic,
 	},
 	courier: {
 		category: 'mono',
 		weight: 'normal',
 		style: 'roman',
+		width: 'normal',
+		fontName: StandardFonts.Courier,
 		standardName: StandardFonts.Courier,
 	},
 	'courier-oblique': {
 		category: 'mono',
 		weight: 'normal',
 		style: 'italic',
+		width: 'normal',
+		fontName: StandardFonts.CourierOblique,
 		standardName: StandardFonts.CourierOblique,
 	},
 	'courier-bold': {
 		category: 'mono',
 		weight: 'bold',
 		style: 'roman',
+		width: 'normal',
+		fontName: StandardFonts.CourierBold,
 		standardName: StandardFonts.CourierBold,
 	},
 	'courier-boldoblique': {
 		category: 'mono',
 		weight: 'bold',
 		style: 'italic',
+		width: 'normal',
+		fontName: StandardFonts.CourierBoldOblique,
 		standardName: StandardFonts.CourierBoldOblique,
 	},
 	symbol: {
 		category: 'symbol',
 		weight: 'normal',
 		style: 'roman',
+		width: 'normal',
+		fontName: StandardFonts.Symbol,
 		standardName: StandardFonts.Symbol,
 	},
 	zapfdingbats: {
 		category: 'zapfdingbats',
 		weight: 'normal',
 		style: 'roman',
+		width: 'normal',
+		fontName: StandardFonts.ZapfDingbats,
 		standardName: StandardFonts.ZapfDingbats,
 	},
 };
@@ -256,72 +282,79 @@ const FontFamilyAliases: Record<string, FontCategory> = {
 } as const;
 
 export class FontResolver {
-	private readonly fontMap: FontMap = {};
-
-	constructor(private readonly platform: OsType | undefined, fontMap: FontMap) {
-		for (const name in fontMap) {
-			this.fontMap[name.toLowerCase()] = fontMap[name]!;
-		}
-	}
-
 	static isStandardEncoding(encoding: string): boolean {
-		return StandardEncodings
-			.map((e) => e.toLocaleLowerCase())
-			.includes(encoding.toLowerCase());
+		return StandardEncodings.map((e) => e.toLocaleLowerCase()).includes(
+			encoding.toLowerCase(),
+		);
 	}
 
-	async resolve(fontName: string): Promise<string | Uint8Array | ArrayBuffer> {
-		const canonicalName = this.canonicalName(fontName);
-		if (Object.hasOwn(this.fontMap, canonicalName.toLowerCase())) {
-			const data = this.fontMap[canonicalName.toLowerCase()];
+	/**
+	 * Resolve a font identified by name and return the raw bytes. The
+	 * resolving performs the following steps:
+	 *
+	 * 1. Try to lookup the font data in the font map provided. This uses an exact match.
+	 * 2. Check if the system has `fc-match` and try to find a suitable font.
+	 * 3. Try to find a suitable font file in the file system that matches the name.
+	 * 4. Try to find a suitable font file in the file system that matches the font style and weight (ignore width).
+	 *
+	 * Only the first step works in the browser.
+	 *
+	 * The returned object has the raw data bytes in the `source` property. The
+	 * optional `postScriptName` property is only relevant for TrueType
+	 * collections (`.ttc` fonts).
+	 *
+	 * @param fontName the font name (with subset prefix or producer suffix stripped off)
+	 * @param fontMap the font mapping (maps font names to file names or pre-loaded raw data bytes)
+	 * @returns the raw font data
+	 */
+	async resolve(pdfFontName: string, fontMap: FontMap = {}, fcMatchPath = 'fc-match', platform?: OsType): Promise<FontData> {
+		const canonicalName = fontName(pdfFontName);
+		if (Object.hasOwn(fontMap, canonicalName.toLowerCase())) {
+			const data = fontMap[canonicalName.toLowerCase()]?.source;
 			if (typeof data === 'string') {
-				this.fontMap[canonicalName.toLowerCase()] =
-					await loadFontFromPath(canonicalName, data, this.platform);
+				fontMap[canonicalName.toLowerCase()] = await loadFontFromPath(
+					canonicalName,
+					data,
+					platform,
+				);
 			}
 
-			return this.fontMap[canonicalName.toLowerCase()]!;
+			return fontMap[canonicalName.toLowerCase()]!;
 		}
 
-		const description = this.parseName(fontName);
+		const description = this.parseName(pdfFontName);
+		const fcMatchHit = await fcMatch(description, fcMatchPath);
+		if (fcMatchHit) return fcMatchHit;
+
 		const searchList = this.createSearchList(description);
 
 		for (let i = 0; i < searchList.length; ++i) {
 			const desc = searchList[i]!;
 			const tryName = FontMatrix[desc.category][desc.weight][desc.style];
-			if (Object.hasOwn(this.fontMap, tryName)) {
-				const data = this.fontMap[tryName];
-				if (typeof data === 'string') {
-					this.fontMap[tryName] = await loadFontFromPath(
-						fontName,
-						data,
-						this.platform,
+			if (Object.hasOwn(fontMap, tryName)) {
+				const data = fontMap[tryName];
+				if (typeof data?.source === 'string') {
+					fontMap[tryName] = await loadFontFromPath(
+						pdfFontName,
+						data.source,
+						platform,
 					);
 				}
 
-				return this.fontMap[tryName]!.source;
+				return fontMap[tryName]!;
 			}
 
-			const fontBytes = await loadFont(desc, fontName, this.platform);
-			if (typeof fontBytes !== 'undefined') return fontBytes;
+			const fontData = await loadFont(desc, pdfFontName, platform);
+			if (typeof fontData !== 'undefined') return fontData;
 		}
 
 		throw new Error(
-			`The font '${fontName}' is not embedded, no replacement font has been specified, and no fallback font has been found.`,
+			`The font '${pdfFontName}' is not embedded, no replacement font has been specified, and no fallback font has been found.`,
 		);
 	}
 
-	private canonicalName(name: string): string {
-		// Strip subset prefix (ABCDEF+).
-		name = name.replace(/^[A-Z]{6}\+/, '');
-
-		// Strip numerical suffix.
-		name = name.replace(/-[0-9]+$/, '');
-
-		return name;
-	}
-
-	private parseName(name: string): FontDescription {
-		name = this.canonicalName(name);
+	private parseName(pdfFontName: string): FontDescription {
+		const name = fontName(pdfFontName);
 
 		if (isStandardFont(name)) {
 			return FontDescriptionByName[name.toLowerCase()]!;
@@ -334,6 +367,8 @@ export class FontResolver {
 			lname.includes('italic') || lname.includes('oblique')
 				? 'italic'
 				: 'roman';
+
+		const width = lname.includes('condensed') ? 'condensed' : lname.includes('expanded') ? 'expanded' : 'normal';
 
 		// Strip weight/style tokens to isolate family
 		let family = name.replace(
@@ -355,7 +390,7 @@ export class FontResolver {
 			category = 'sans';
 		}
 
-		return { category, weight, style };
+		return { fontName: family, category, weight, style, width };
 	}
 
 	private createSearchList(desc: FontDescription): FontDescription[] {
@@ -373,6 +408,7 @@ export class FontResolver {
 					weight: 'normal',
 					style: 'roman',
 					standardName,
+					width: 'normal',
 				},
 			];
 		}

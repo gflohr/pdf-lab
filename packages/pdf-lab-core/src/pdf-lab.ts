@@ -3,7 +3,7 @@ import collectFonts from './font/collect-fonts.js';
 import { collectResources, type FontUsage } from './font/collect-resources.js';
 import embedFont from './font/embed-font.js';
 import type { FontInfo } from './font/types.js';
-import { extractText, TextBlock } from './text/extract-text.js';
+import { extractText, type TextBlock } from './text/extract-text.js';
 
 export class PDFLab {
 	private fonts: Map<string, FontInfo> | undefined;
@@ -120,7 +120,7 @@ export class PDFLab {
 	 * @param references font references (try `collectFonts()`)
 	 * @param subset embed only a subset of each font
 	 */
-	public async embedFonts(references?: PDFRef[], subset = true ) {
+	public async embedFonts(references?: PDFRef[], subset = true) {
 		if (!this.fontUsage) {
 			this.fontUsage = collectResources(this.pdfDocument);
 		}
@@ -129,9 +129,15 @@ export class PDFLab {
 			this.fonts = collectFonts(this.pdfDocument, this.fontUsage);
 		}
 
-		const refs = new Set<string>(references?.map(ref => ref.toString()) ?? this.fonts.keys());
+		const refs = new Set<string>(
+			references?.map((ref) => ref.toString()) ?? this.fonts.keys(),
+		);
 
-		const textBlocks = await extractText(this.pdfDocument, this.fonts, this.fontUsage);
+		const textBlocks = await extractText(
+			this.pdfDocument,
+			this.fonts,
+			this.fontUsage,
+		);
 		const characterUsage: Record<string, Set<string>> = {};
 
 		// Make sure that there is an entry for every font.
@@ -140,14 +146,14 @@ export class PDFLab {
 		}
 
 		// Aggregate all characters used.
-		for (const block of textBlocks.filter(block => !block.font.embedded && refs.has(block.font.ref.toString()))) {
+		for (const block of textBlocks.filter(
+			(block) => !block.font.embedded && refs.has(block.font.ref.toString()),
+		)) {
 			const ref = block.font.ref.toString();
 			for (const character of block.text) {
 				characterUsage[ref]!.add(character);
 			}
 		}
-
-		console.dir(characterUsage, { depth: null });
 	}
 
 	/**

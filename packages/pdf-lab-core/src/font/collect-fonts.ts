@@ -18,7 +18,7 @@ import {
 	type FontInfo,
 	type FontSubtype,
 	StandardEncodings,
-} from './types.js';
+} from './types-internal.js';
 import { fontName } from './util/font-name.js';
 
 /**
