@@ -1,7 +1,9 @@
 import { Textdomain } from '@esgettext/runtime';
 import type { FontMap } from 'pdf-lab-core';
 
-function parseSpec(spec: string): [string, string] | [string, string, string] | undefined {
+function parseSpec(
+	spec: string,
+): [string, string] | [string, string, string] | undefined {
 	const result: string[] = [];
 	let current = '';
 
@@ -37,7 +39,9 @@ export function fontMapSpec(specArgs: string[] | string): FontMap {
 		if (!entry) {
 			const gtx = Textdomain.getInstance('pdf-lab');
 
-			throw new Error(gtx._x("invalid font map specification '{spec}'", { spec }));
+			throw new Error(
+				gtx._x("invalid font map specification '{spec}'", { spec }),
+			);
 		}
 
 		fontMap[entry[0]] = {

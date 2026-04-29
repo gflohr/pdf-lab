@@ -1,11 +1,12 @@
 import { Textdomain } from '@esgettext/runtime';
 import * as yaml from 'js-yaml';
-import { type FontInfo, PDFLab } from 'pdf-lab-core';
+import { type FontInfo, FontMap, PDFLab } from 'pdf-lab-core';
 import type { Arguments, InferredOptionTypes } from 'yargs';
 import type { Command } from '../command.js';
 import { defaultOptions } from '../default-options.js';
 import { Package } from '../package.js';
 import { toFontInfoDto } from '../util/font-info-dto.js';
+import { fontMapSpec } from '../util/font-map-spec.js';
 import { coerceOptions, type OptSpec } from '../util/optspec.js';
 import { writeOutput } from '../util/write-output.js';
 
@@ -20,6 +21,7 @@ const options: {
 	format: OptSpec;
 	'font-map': OptSpec;
 	'fc-match': OptSpec;
+	subset: OptSpec;
 } = {
 	embed: {
 		group: gtx._('Mode of Operation'),
@@ -35,7 +37,7 @@ const options: {
 		conflicts: ['embed'],
 		describe: gtx._('list fonts'),
 	},
-	'output': {
+	output: {
 		group: gtx._('Output location'),
 		alias: ['o'],
 		type: 'string',
@@ -73,7 +75,13 @@ const options: {
 		group: gtx._('Font Embedding Options'),
 		type: 'string',
 		multi: true,
-		describe: gtx._("font mapping (FONT_NAME:PATH[:POSTSCRIPT_NAME]"),
+		describe: gtx._('font mapping (FONT_NAME:PATH[:POSTSCRIPT_NAME]'),
+	},
+	subset: {
+		group: gtx._('Font Embedding Options'),
+		type: 'boolean',
+		default: true,
+		describe: gtx._('embed only subset of fonts'),
 	},
 };
 
@@ -118,9 +126,14 @@ export class FontCommand implements Command {
 
 	private async embedFonts(lab: PDFLab, configOptions: ConfigOptions) {
 		const fonts = this.getFonts(lab, configOptions);
-		const refs = [...fonts.values()].map(f => f.ref);
+		const refs = [...fonts.values()].map((f) => f.ref);
+		const fontMap = fontMapSpec(configOptions['font-map'] as string[]);
 
-		await lab.embedFonts(refs);
+		await lab.embedFonts(refs, {
+			fontMap,
+			fcMatch: configOptions['fc-match'] as string,
+			subset: configOptions.subset as boolean,
+		});
 
 		await writeOutput(configOptions.output as string, lab);
 	}

@@ -1,4 +1,4 @@
-import { EmbedFontOptions, PDFDocument, type PDFRef } from '@cantoo/pdf-lib';
+import { PDFDocument, type PDFRef } from '@cantoo/pdf-lib';
 import collectFonts from './font/collect-fonts.js';
 import { collectResources, type FontUsage } from './font/collect-resources.js';
 import type { FontInfo, FontMap } from './font/types.js';
@@ -7,19 +7,19 @@ import { extractText, type TextBlock } from './text/extract-text.js';
 /**
  * Options for embedding fonts.
  */
-type FontEmbedOption = {
+export type FontEmbedOptions = {
 	/**
 	 * Map font names to paths/buffers and optional PostScript names.
 	 */
 	fontMap?: FontMap;
 	/**
-	 * Path to the 'fc-match' program.
+	 * Path to the 'fc-match' program. Default: 'fc-match'.
 	 */
 	fcMatch?: string;
 	/**
-	 * Disable font subsetting.
+	 * Enable font subsetting. Default: true.
 	 */
-	noSubset?: boolean;
+	subset?: boolean;
 };
 
 export class PDFLab {
@@ -135,12 +135,15 @@ export class PDFLab {
 	 * embedded.
 	 *
 	 * @param references font references (try `collectFonts()`)
-	 * @param subset embed only a subset of each font
+	 * @param options control the font embedding
 	 */
-	public async embedFonts(references?: PDFRef[], options: FontEmbedOption = {}) {
+	public async embedFonts(
+		references?: PDFRef[],
+		options: FontEmbedOptions = {},
+	) {
 		options.fontMap ??= {};
 		options.fcMatch ??= 'fc-match';
-		options.noSubset = false;
+		options.subset ??= true;
 
 		if (!this.fontUsage) {
 			this.fontUsage = collectResources(this.pdfDocument);

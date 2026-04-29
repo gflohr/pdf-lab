@@ -1,9 +1,9 @@
 import { isStandardFont, type PDFRef, StandardFonts } from '@cantoo/pdf-lib';
 import type { CMapMapper } from '../encoding/mappers/cmap-mapper.js';
+import { type Encoding, StandardEncodings } from './../encoding/types.js';
 import { fcMatch } from './fc-match.js';
 import { loadFont, loadFontFromPath, type OsType } from './load-font.js';
 import type { FontData, FontMap } from './types.js';
-import { type Encoding, StandardEncodings } from './../encoding/types.js';
 import { fontName } from './util/font-name.js';
 
 export type FontCategory =

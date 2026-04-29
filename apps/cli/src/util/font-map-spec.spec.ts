@@ -55,12 +55,16 @@ describe('parse font-map specifications', () => {
 
 	it('should trip reject specs with missing paths', () => {
 		const name = 'Helvetica-Oblique';
-		expect(() => fontMapSpec([name])).toThrow(`invalid font map specification '${name}'`);
+		expect(() => fontMapSpec([name])).toThrow(
+			`invalid font map specification '${name}'`,
+		);
 	});
 
 	it('should trip reject specs with too many components', () => {
 		const name = 'foo,bar,baz,bazoo';
-		expect(() => fontMapSpec([name])).toThrow(`invalid font map specification '${name}'`);
+		expect(() => fontMapSpec([name])).toThrow(
+			`invalid font map specification '${name}'`,
+		);
 	});
 
 	it('should coerce single steps into arrays', () => {
