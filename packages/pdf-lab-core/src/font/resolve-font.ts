@@ -422,9 +422,9 @@ function createSearchList(desc: FontDescription): FontDescription[] {
 
 	for (const weight of ['normal', 'bold']) {
 		if (desc.weight === weight) continue;
-		for (const style in ['roman', 'itallic']) {
+		for (const style of ['roman', 'italic']) {
 			if (desc.style === style) continue;
-			for (const category in ['sans', 'serif', 'mono']) {
+			for (const category of ['sans', 'serif', 'mono']) {
 				if (desc.category === category) continue;
 				searchList.push({ category, weight, style } as FontDescription);
 			}
