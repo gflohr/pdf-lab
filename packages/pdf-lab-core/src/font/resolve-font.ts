@@ -1,6 +1,6 @@
 import { isStandardFont, type PDFRef, StandardFonts } from '@cantoo/pdf-lib';
 import type { CMapMapper } from '../encoding/mappers/cmap-mapper.js';
-import { type Encoding, StandardEncodings } from './../encoding/types.js';
+import type { Encoding } from './../encoding/types.js';
 import { fcMatch } from './fc-match.js';
 import { loadFont, loadFontFromPath, type OsType } from './load-font.js';
 import type { FontData, FontMap } from './types.js';
@@ -70,7 +70,7 @@ export type FontInfo = {
 	subtype: FontSubtype;
 };
 
-const FontDescriptionByName: Record<string, FontDescription> = {
+const standardFontDescriptions: Record<string, FontDescription> = {
 	helvetica: {
 		category: 'sans',
 		weight: 'normal',
@@ -357,7 +357,7 @@ function parseName(pdfFontName: string): FontDescription {
 	const name = fontName(pdfFontName);
 
 	if (isStandardFont(name)) {
-		return FontDescriptionByName[name.toLowerCase()]!;
+		return standardFontDescriptions[name.toLowerCase()]!;
 	}
 
 	// Heuristic parse.
@@ -380,17 +380,11 @@ function parseName(pdfFontName: string): FontDescription {
 
 	family = family.replace(/^-+|-+$/g, '').trim();
 
-	const familyLower = family.toLowerCase().replace(/[\s-]/g, '');
+	const normalized = family.toLowerCase().replace(/[\s-]/g, '');
 
-	let category: FontCategory | undefined = FontFamilyAliases[familyLower];
-
-	if (!category) {
-		category = FontFamilyAliases[family.toLowerCase()];
-	}
-
-	if (!category) {
-		category = 'sans';
-	}
+	const category = FontFamilyAliases[normalized]
+		?? FontFamilyAliases[family.toLowerCase()]
+		?? 'sans';
 
 	return { fontName: family, category, weight, style, width };
 }
