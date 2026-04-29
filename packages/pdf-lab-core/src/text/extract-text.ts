@@ -1,7 +1,6 @@
 import type { PDFDocument } from '@cantoo/pdf-lib';
 import { SingleByteEncodingMapper } from '../encoding/mappers/single-byte-encoding-mapper.js';
-import collectFonts from '../font/collect-fonts.js';
-import { collectResources, type FontUsage } from '../font/collect-resources.js';
+import type { FontUsage } from '../font/collect-resources.js';
 import type { FontInfo } from '../font/types.js';
 import { extractGlyphs } from '../text/extract-glyphs.js';
 

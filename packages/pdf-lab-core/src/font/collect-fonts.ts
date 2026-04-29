@@ -12,13 +12,9 @@ import {
 import { CMapMapper } from '../encoding/mappers/cmap-mapper.js';
 import type { GlyphMapper } from '../encoding/mappers/glyph-mapper.js';
 import { SingleByteEncodingMapper } from '../encoding/mappers/single-byte-encoding-mapper.js';
+import { type Encoding, StandardEncodings } from '../encoding/types.js';
 import type { FontUsage } from './collect-resources.js';
-import {
-	type Encoding,
-	type FontInfo,
-	type FontSubtype,
-	StandardEncodings,
-} from './types-internal.js';
+import type { FontInfo, FontSubtype } from './types.js';
 import { fontName } from './util/font-name.js';
 
 /**

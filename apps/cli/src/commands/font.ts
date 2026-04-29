@@ -18,6 +18,8 @@ const options: {
 	'base-font': OptSpec;
 	font: OptSpec;
 	format: OptSpec;
+	'font-map': OptSpec;
+	'fc-match': OptSpec;
 } = {
 	embed: {
 		group: gtx._('Mode of Operation'),
@@ -60,6 +62,18 @@ const options: {
 		choices: ['text', 'json', 'yaml'],
 		default: 'text',
 		describe: gtx._('the output format'),
+	},
+	'fc-match': {
+		group: gtx._('Font Embedding Options'),
+		type: 'string',
+		default: 'fc-match',
+		describe: gtx._("path to the 'fc-match' program"),
+	},
+	'font-map': {
+		group: gtx._('Font Embedding Options'),
+		type: 'string',
+		multi: true,
+		describe: gtx._("font mapping (FONT_NAME:PATH[:POSTSCRIPT_NAME]"),
 	},
 };
 

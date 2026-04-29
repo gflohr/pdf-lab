@@ -1,5 +1,4 @@
 import * as fs from 'node:fs/promises';
-import { PDFDocument } from '@cantoo/pdf-lib';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { PDFLab } from '../pdf-lab.js';
 import { extractText, type TextBlock } from './extract-text.js';

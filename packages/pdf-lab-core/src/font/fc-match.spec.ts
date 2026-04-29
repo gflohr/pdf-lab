@@ -43,6 +43,7 @@ describe('fcMatch', () => {
 	});
 
 	it('returns undefined when exec fails', async () => {
+		// biome-ignore lint/suspicious/noExplicitAny: this is a mock.
 		execFileMock.mockImplementation((_cmd, _args, cb: any) => {
 			cb(new Error('fail'), '', '');
 		});
