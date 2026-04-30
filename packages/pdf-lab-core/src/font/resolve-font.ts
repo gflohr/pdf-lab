@@ -311,11 +311,7 @@ export async function resolveFont(
 		const key = canonicalName.toLowerCase();
 		const data = fontMap[key]?.source;
 		if (typeof data === 'string') {
-			fontMap[key] = await loadFontFromPath(
-				canonicalName,
-				data,
-				platform,
-			);
+			fontMap[key] = await loadFontFromPath(canonicalName, data, platform);
 		}
 
 		return fontMap[key]!;
@@ -380,11 +376,16 @@ function parseName(pdfFontName: string): FontDescription {
 
 	family = family.replace(/^-+|-+$/g, '').trim();
 
-	const normalized = family.toLowerCase().replace(/[\s-]/g, '');
+	const normalized = family
+		.toLowerCase()
+		.replace(/[\s-]/g, '')
+		.replace(/PSMT$/i, '')
+		.replace(/MT$/, '');
 
-	const category = FontFamilyAliases[normalized]
-		?? FontFamilyAliases[family.toLowerCase()]
-		?? 'sans';
+	const category =
+		FontFamilyAliases[normalized] ??
+		FontFamilyAliases[family.toLowerCase()] ??
+		'sans';
 
 	return { fontName: family, category, weight, style, width };
 }
@@ -416,7 +417,12 @@ function createSearchList(desc: FontDescription): FontDescription[] {
 			if (desc.style === style) continue;
 			for (const category of ['sans', 'serif', 'mono']) {
 				if (desc.category === category) continue;
-				searchList.push({ fontName: desc.fontName, category, weight, style } as FontDescription);
+				searchList.push({
+					fontName: desc.fontName,
+					category,
+					weight,
+					style,
+				} as FontDescription);
 			}
 		}
 	}
