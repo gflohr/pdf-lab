@@ -300,7 +300,7 @@ const FontFamilyAliases: Record<string, FontCategory> = {
  * @param fontMap the font mapping (maps font names to file names or pre-loaded raw data bytes)
  * @returns the raw font data
  */
-export async function resolve(
+export async function resolveFont(
 	pdfFontName: string,
 	fontMap: FontMap = {},
 	fcMatchPath = 'fc-match',
