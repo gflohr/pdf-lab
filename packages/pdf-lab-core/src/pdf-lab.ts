@@ -3,6 +3,8 @@ import collectFonts from './font/collect-fonts.js';
 import { collectResources, type FontUsage } from './font/collect-resources.js';
 import type { FontInfo, FontMap } from './font/types.js';
 import { extractText, type TextBlock } from './text/extract-text.js';
+import { embedFont } from './font/embed-font.js';
+import fontkit from '@pdf-lib/fontkit';
 
 /**
  * Options for embedding fonts.
@@ -20,6 +22,19 @@ export type FontEmbedOptions = {
 	 * Enable font subsetting. Default: true.
 	 */
 	subset?: boolean;
+	/**
+	 * Compress font streams. Default: true.
+	 */
+	compress?: boolean;
+	/**
+	 * Operating system as returned by os.platform() or undefined for the
+	 * browser.
+	 */
+	platform?: string;
+	/**
+	 * A fontkit instance, see `@pdf-lib/fontkit`.
+	 */
+	fontkit?: unknown;
 };
 
 export class PDFLab {
@@ -52,7 +67,7 @@ export class PDFLab {
 	 * @returns
 	 */
 	public async save(): Promise<Uint8Array> {
-		return this.pdfDocument.save();
+		return this.pdfDocument.save({ useObjectStreams: false });
 	}
 
 	/**
@@ -144,6 +159,7 @@ export class PDFLab {
 		options.fontMap ??= {};
 		options.fcMatch ??= 'fc-match';
 		options.subset ??= true;
+		options.compress ??= true;
 
 		if (!this.fontUsage) {
 			this.fontUsage = collectResources(this.pdfDocument);
@@ -153,10 +169,16 @@ export class PDFLab {
 			this.fonts = collectFonts(this.pdfDocument, this.fontUsage);
 		}
 
+		const fonts = [...this.fonts.values()].filter(f => !f.embedded);
+		if (!fonts.length) {
+			return;
+		}
+
 		const refs = new Set<string>(
-			references?.map((ref) => ref.toString()) ?? this.fonts.keys(),
+			references?.map((ref) => ref.toString()) ?? fonts.map(f => f.ref.toString()),
 		);
 
+		// FIXME! Do not extract text if subsetting is not requested!
 		const textBlocks = await extractText(
 			this.pdfDocument,
 			this.fonts,
@@ -165,7 +187,8 @@ export class PDFLab {
 		const characterUsage: Record<string, Set<string>> = {};
 
 		// Make sure that there is an entry for every font.
-		for (const ref of this.fonts.keys()) {
+		for (const font of fonts) {
+			const ref = font.ref.toString();
 			if (refs.has(ref)) characterUsage[ref] = new Set<string>();
 		}
 
@@ -177,6 +200,10 @@ export class PDFLab {
 			for (const character of block.text) {
 				characterUsage[ref]!.add(character);
 			}
+		}
+
+		for (const font of fonts) {
+			await embedFont(this.pdfDocument, font, characterUsage[font.ref.toString()]!, options);
 		}
 	}
 

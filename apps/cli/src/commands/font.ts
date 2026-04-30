@@ -1,6 +1,8 @@
 import { Textdomain } from '@esgettext/runtime';
+import fontkit from '@pdf-lib/fontkit';
 import * as yaml from 'js-yaml';
-import { type FontInfo, FontMap, PDFLab } from 'pdf-lab-core';
+import * as os from 'node:os';
+import { type FontInfo, PDFLab } from 'pdf-lab-core';
 import type { Arguments, InferredOptionTypes } from 'yargs';
 import type { Command } from '../command.js';
 import { defaultOptions } from '../default-options.js';
@@ -22,6 +24,7 @@ const options: {
 	'font-map': OptSpec;
 	'fc-match': OptSpec;
 	subset: OptSpec;
+	compress: OptSpec;
 } = {
 	embed: {
 		group: gtx._('Mode of Operation'),
@@ -83,6 +86,12 @@ const options: {
 		default: true,
 		describe: gtx._('embed only subset of fonts'),
 	},
+	compress: {
+		group: gtx._('Font Embedding Options'),
+		type: 'boolean',
+		default: true,
+		describe: gtx._('compress embedded fonts'),
+	},
 };
 
 const allOptions = { ...defaultOptions, ...options };
@@ -127,12 +136,14 @@ export class FontCommand implements Command {
 	private async embedFonts(lab: PDFLab, configOptions: ConfigOptions) {
 		const fonts = this.getFonts(lab, configOptions);
 		const refs = [...fonts.values()].map((f) => f.ref);
-		const fontMap = fontMapSpec(configOptions['font-map'] as string[]);
+		const fontMap = fontMapSpec((configOptions['font-map'] ?? []) as string[]);
 
 		await lab.embedFonts(refs, {
 			fontMap,
 			fcMatch: configOptions['fc-match'] as string,
 			subset: configOptions.subset as boolean,
+			platform: os.platform(),
+			fontkit,
 		});
 
 		await writeOutput(configOptions.output as string, lab);
