@@ -2,6 +2,8 @@ import * as fs from 'node:fs/promises';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { PDFLab } from '../pdf-lab.js';
 import { extractText, type TextBlock } from './extract-text.js';
+import { text } from 'node:stream/consumers';
+import { CMapMapper } from '../encoding/mappers/cmap-mapper.js';
 
 describe('Text Extraction', () => {
 	describe('standard fonts', () => {
@@ -120,6 +122,55 @@ describe('Text Extraction', () => {
 				'WinAnsiEncoding',
 				'ZapfDingbatsEncoding',
 			]);
+		});
+	});
+
+	describe('TrueType fonts', () => {
+		let textBlocks: TextBlock[];
+
+		beforeAll(async () => {
+			const pdfBytes = await fs.readFile(
+				'../../assets/pdfs/3-fonts-embedded.pdf',
+			);
+			const pdfLab = await PDFLab.from(pdfBytes);
+			const fonts = pdfLab.collectFonts();
+			// biome-ignore lint/complexity/useLiteralKeys: false positive.
+			const fontResources = pdfLab['fontUsage']!;
+			textBlocks = await extractText(pdfLab.pdfDocument, fonts, fontResources);
+		});
+
+		it('should extract text', () => {
+			expect(textBlocks.length).toBe(3);
+		});
+
+		it('should find text in TJ hex arrays', () => {
+			const block = textBlocks[0];
+
+			expect(block?.text).toBe('This page uses Noto Sans.');
+			expect(block?.pageNumber).toBe(0);
+			expect(block?.font.baseFont).toBe('BAAAAA+NotoSans-Regular');
+			expect(block?.font.fontName).toBe('NotoSans-Regular');
+			expect(block?.font.subtype).toBe('TrueType');
+			expect(block?.font.embedded).toBe(true);
+			expect(block?.font.encoding).not.toBeDefined();
+			expect(block?.font.ref.toString()).toBe('12 0 R');
+			expect(block?.font.glyphMapper).toBeDefined();
+			expect(block?.font.glyphMapper).toBeInstanceOf(CMapMapper);
+		});
+
+		it('should find text in Tj hex arrays', () => {
+			const block = textBlocks[2];
+
+			expect(block?.text).toBe('This page uses Courier New.');
+			expect(block?.pageNumber).toBe(2);
+			expect(block?.font.baseFont).toBe('DAAAAA+CourierNewPSMT');
+			expect(block?.font.fontName).toBe('CourierNewPSMT');
+			expect(block?.font.subtype).toBe('TrueType');
+			expect(block?.font.embedded).toBe(true);
+			expect(block?.font.encoding).not.toBeDefined();
+			expect(block?.font.ref.toString()).toBe('14 0 R');
+			expect(block?.font.glyphMapper).toBeDefined();
+			expect(block?.font.glyphMapper).toBeInstanceOf(CMapMapper);
 		});
 	});
 });
