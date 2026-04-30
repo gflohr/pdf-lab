@@ -75,6 +75,8 @@ function getFontDescriptor(pdfDoc: PDFDocument, fontRef: PDFRef): PDFDict {
 		throw new Error(`PDF has no font dictionary '${fontRef.toString()}'!`);
 	}
 
+	fontDict.set(PDFName.of('Encoding'), PDFName.of('Identity-H'));
+
 	const fontDescriptor = fontDict.lookupMaybe(PDFName.of('FontDescriptor'), PDFDict);
 	if (!fontDescriptor) {
 		throw new Error(`Creating a font descriptor is not yet implemented!`);
