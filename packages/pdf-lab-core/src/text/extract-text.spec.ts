@@ -158,6 +158,21 @@ describe('Text Extraction', () => {
 			expect(block?.font.glyphMapper).toBeInstanceOf(CMapMapper);
 		});
 
+		it('should find cyrillic text in TJ hex arrays', () => {
+			const block = textBlocks[1];
+
+			expect(block?.text).toBe('Тази страница използва Noto Serif.');
+			expect(block?.pageNumber).toBe(1);
+			expect(block?.font.baseFont).toBe('CAAAAA+NotoSerif-Regular');
+			expect(block?.font.fontName).toBe('NotoSerif-Regular');
+			expect(block?.font.subtype).toBe('TrueType');
+			expect(block?.font.embedded).toBe(true);
+			expect(block?.font.encoding).not.toBeDefined();
+			expect(block?.font.ref.toString()).toBe('13 0 R');
+			expect(block?.font.glyphMapper).toBeDefined();
+			expect(block?.font.glyphMapper).toBeInstanceOf(CMapMapper);
+		});
+
 		it('should find text in Tj hex arrays', () => {
 			const block = textBlocks[2];
 
