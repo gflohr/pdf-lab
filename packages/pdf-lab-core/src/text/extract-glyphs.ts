@@ -164,7 +164,7 @@ function parseStream(
 }
 
 function extractTJStringArray(tokens: Token[], end: number): Token {
-	const token: Token = {
+	const stringToken: Token = {
 		type: 'string',
 		value: [] as number[],
 	};
@@ -172,7 +172,7 @@ function extractTJStringArray(tokens: Token[], end: number): Token {
 	for (let i = end - 1; i >= 0; --i) {
 		const token = tokens[i]!;
 		if (token.type === 'string') {
-			token.value.unshift(...token.value);
+			stringToken.value.unshift(...token.value);
 		} else if (
 			token.type === 'token' &&
 			token.value.length === 1 &&
@@ -182,7 +182,7 @@ function extractTJStringArray(tokens: Token[], end: number): Token {
 		}
 	}
 
-	return token;
+	return stringToken;
 }
 
 function decodeNumberArray(value: number[]): string {
