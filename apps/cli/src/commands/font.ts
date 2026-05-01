@@ -195,7 +195,7 @@ export class FontCommand implements Command {
 			await this.doRun(input, configOptions);
 			return 0;
 		} catch (e) {
-			console.error(
+			console.trace(
 				gtx._x('{programName}: {error}', {
 					programName: Package.name,
 					error: e,

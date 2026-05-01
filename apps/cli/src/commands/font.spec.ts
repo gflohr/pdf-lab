@@ -127,7 +127,7 @@ describe('Font command', () => {
 
 		const result = await fontCommand.run(Buffer.from(''), {} as Arguments);
 
-		expect(consoleErrorSpy).toHaveBeenCalledWith('pdf-lab: Error: test error');
+		expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining('pdf-lab: Error: test error'));
 		expect(result).toBe(1);
 	});
 

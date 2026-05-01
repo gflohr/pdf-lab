@@ -103,7 +103,7 @@ const standardFontDescriptions: Record<string, FontDescription> = {
 		fontName: StandardFonts.HelveticaBoldOblique,
 		standardName: StandardFonts.HelveticaBoldOblique,
 	},
-	times: {
+	'times-roman': {
 		category: 'serif',
 		weight: 'normal',
 		style: 'roman',
