@@ -1,10 +1,11 @@
-import { PDFDocument, type PDFRef } from '@cantoo/pdf-lib';
+import { PDFDict, PDFDocument, PDFName, PDFRef } from '@cantoo/pdf-lib';
+import fontkit from '@pdf-lib/fontkit';
 import collectFonts from './font/collect-fonts.js';
 import { collectResources, type FontUsage } from './font/collect-resources.js';
-import type { FontInfo, FontMap } from './font/types.js';
-import { extractText, type TextBlock } from './text/extract-text.js';
 import { embedFont } from './font/embed-font.js';
-import fontkit from '@pdf-lib/fontkit';
+import type { FontInfo, FontMap } from './font/types.js';
+import { extractGlyphs } from './text/extract-glyphs.js';
+import { extractText, type TextBlock } from './text/extract-text.js';
 
 /**
  * Options for embedding fonts.
@@ -169,41 +170,46 @@ export class PDFLab {
 			this.fonts = collectFonts(this.pdfDocument, this.fontUsage);
 		}
 
-		const fonts = [...this.fonts.values()].filter(f => !f.embedded);
+		const fonts = [...this.fonts.values()].filter((f) => !f.embedded);
 		if (!fonts.length) {
 			return;
 		}
 
 		const refs = new Set<string>(
-			references?.map((ref) => ref.toString()) ?? fonts.map(f => f.ref.toString()),
+			references?.map((ref) => ref.toString()) ??
+				fonts.map((f) => f.ref.toString()),
 		);
 
-		// FIXME! Do not extract text if subsetting is not requested!
-		const textBlocks = await extractText(
-			this.pdfDocument,
-			this.fonts,
-			this.fontUsage,
-		);
-		const characterUsage: Record<string, Set<string>> = {};
+		const glyphBlocks = extractGlyphs(this.pdfDocument);
+		const glyphUsage: Record<string, Set<number>> = {};
 
 		// Make sure that there is an entry for every font.
 		for (const font of fonts) {
 			const ref = font.ref.toString();
-			if (refs.has(ref)) characterUsage[ref] = new Set<string>();
+			if (refs.has(ref)) glyphUsage[ref] = new Set<number>();
 		}
 
-		// Aggregate all characters used.
-		for (const block of textBlocks.filter(
-			(block) => !block.font.embedded && refs.has(block.font.ref.toString()),
-		)) {
-			const ref = block.font.ref.toString();
-			for (const character of block.text) {
-				characterUsage[ref]!.add(character);
+		// Aggregate all glyphs used.
+		for (const block of glyphBlocks) {
+			const page = this.pdfDocument.getPage(block.pageNumber);
+			const { Font } = page.node.normalizedEntries();
+
+			const font = Font.get(PDFName.of(block.fontResource));
+			if (font instanceof PDFRef && refs.has(font.toString())) {
+				const fontRef = font.toString();
+				block.glyphs.forEach((g) => {
+					glyphUsage[fontRef]?.add(g);
+				});
 			}
 		}
 
 		for (const font of fonts) {
-			await embedFont(this.pdfDocument, font, characterUsage[font.ref.toString()]!, options);
+			await embedFont(
+				this.pdfDocument,
+				font,
+				glyphUsage[font.ref.toString()]!,
+				options,
+			);
 		}
 	}
 

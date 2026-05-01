@@ -7,12 +7,14 @@ import {
 	type PDFObject,
 	type PDFPage,
 	PDFRawStream,
+	type PDFRef,
 } from '@cantoo/pdf-lib';
 import { Lexer, type Token } from '../parser/lexer.js';
 
 type GlyphBlock = {
 	glyphs: number[];
 	fontResource: string;
+	pageRef: PDFRef;
 	pageNumber: number;
 };
 
@@ -29,20 +31,21 @@ export function extractGlyphs(pdfDoc: PDFDocument): GlyphBlock[] {
 function parseRecursively(
 	collector: GlyphBlock[],
 	obj: PDFObject,
+	pageRef: PDFRef,
 	pageNumber: number,
 	pdfDoc: PDFDocument,
 ) {
 	if (obj instanceof PDFRawStream) {
-		parseStream(collector, pageNumber, obj);
-		parseDictionary(collector, obj.dict, pageNumber, pdfDoc);
+		parseStream(collector, pageRef, pageNumber, obj);
+		parseDictionary(collector, obj.dict, pageRef, pageNumber, pdfDoc);
 	} else if (obj instanceof PDFDict) {
-		parseDictionary(collector, obj, pageNumber, pdfDoc);
+		parseDictionary(collector, obj, pageRef, pageNumber, pdfDoc);
 	} else if (obj instanceof PDFArray) {
 		for (let i = 0; i < obj.size(); ++i) {
 			const item = obj.get(i);
 			const resolved = pdfDoc.context.lookup(item);
 			if (resolved) {
-				parseRecursively(collector, resolved, pageNumber, pdfDoc);
+				parseRecursively(collector, resolved, pageRef, pageNumber, pdfDoc);
 			}
 		}
 	}
@@ -51,6 +54,7 @@ function parseRecursively(
 function parseDictionary(
 	collector: GlyphBlock[],
 	dict: PDFDict,
+	pageRef: PDFRef,
 	pageNumber: number,
 	pdfDoc: PDFDocument,
 ) {
@@ -70,7 +74,7 @@ function parseDictionary(
 		const ref = xo.get(key);
 		const resolved = pdfDoc.context.lookup(ref);
 		if (resolved instanceof PDFRawStream) {
-			parseStream(collector, pageNumber, resolved);
+			parseStream(collector, pageRef, pageNumber, resolved);
 		}
 	});
 }
@@ -86,11 +90,12 @@ function parsePage(
 	const contents = node.get(PDFName.of('Contents'));
 	if (!contents) return;
 
-	parseRecursively(collector, contents, pageNumber, pdfDoc);
+	parseRecursively(collector, contents, page.ref, pageNumber, pdfDoc);
 }
 
 function parseStream(
 	collector: GlyphBlock[],
+	pageRef: PDFRef,
 	pageNumber: number,
 	stream: PDFRawStream,
 ) {
@@ -133,6 +138,7 @@ function parseStream(
 						collector.push({
 							glyphs: tokens[i - 1]!.value,
 							fontResource,
+							pageRef,
 							pageNumber,
 						});
 					}
@@ -151,6 +157,7 @@ function parseStream(
 							collector.push({
 								glyphs: textToken.value,
 								fontResource,
+								pageRef,
 								pageNumber,
 							});
 						}

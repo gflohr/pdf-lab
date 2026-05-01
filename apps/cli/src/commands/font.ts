@@ -1,7 +1,7 @@
+import * as os from 'node:os';
 import { Textdomain } from '@esgettext/runtime';
 import fontkit from '@pdf-lib/fontkit';
 import * as yaml from 'js-yaml';
-import * as os from 'node:os';
 import { type FontInfo, PDFLab } from 'pdf-lab-core';
 import type { Arguments, InferredOptionTypes } from 'yargs';
 import type { Command } from '../command.js';
