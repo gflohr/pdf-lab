@@ -1,30 +1,22 @@
 import * as fs from 'node:fs';
 import fontkit from '@pdf-lib/fontkit';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-
-const rootdir = '../..';
-const assetDir = `${rootdir}/assets`;
-const pdfDir = `${assetDir}/pdfs`;
-
-const resolveFontMock = vi.fn().mockImplementation((name: string) => {
-	console.log(`resolving ${name}`);
-	throw new Error('boum');
-});
-
-vi.mock('./resolve-font.js', () => {
-	return {
-		resolveFont: resolveFontMock,
-	};
-});
-
+import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
+import * as resolveFontModule from '../resolve-font.js';
 import { PDFDocument, PDFRef } from '@cantoo/pdf-lib';
 import { SingleByteEncodingMapper } from '../../encoding/mappers/single-byte-encoding-mapper.js';
 import type { FontEmbedOptions } from '../../pdf-lab.js';
 import type { FontInfo } from '../types.js';
 import { Type1FontEmbedder } from './type1-embedder.js';
 
+const rootdir = '../..';
+const assetDir = `${rootdir}/assets`;
+const pdfDir = `${assetDir}/pdfs`;
+const fontsDir = `${assetDir}/fonts/noto`;
+
 describe('Type1 Font Embedder', () => {
 	const pdfBytes = fs.readFileSync(`${pdfDir}/type1-fonts-missing.pdf`);
+	const notoRegularBytes = fs.readFileSync(`${fontsDir}/NotoSans-Regular.ttf`);
+
 	let pdfDoc: PDFDocument;
 	const options: FontEmbedOptions = {
 		subset: true,
@@ -33,7 +25,6 @@ describe('Type1 Font Embedder', () => {
 	};
 
 	beforeEach(async () => {
-		vi.resetModules();
 		pdfDoc = await PDFDocument.load(pdfBytes);
 		pdfDoc.registerFontkit(fontkit);
 	});
@@ -53,6 +44,7 @@ describe('Type1 Font Embedder', () => {
 		]);
 		const embedder = new Type1FontEmbedder(pdfDoc, fontInfo, glyphIds, options);
 
+		vi.spyOn(resolveFontModule, 'resolveFont').mockResolvedValue({ source: notoRegularBytes });
 		await embedder.embed();
 
 		expect('later').toBe('later');
