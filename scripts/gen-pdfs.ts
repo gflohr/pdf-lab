@@ -52,8 +52,49 @@ async function genStandardFonts(): Promise<void> {
 	console.log(`written ${filename}`);
 }
 
+async function genType1Fonts(): Promise<void> {
+	const draw = async (
+		pdfDoc: PDFDocument,
+		label: string,
+		font: StandardFonts | Uint8Array<ArrayBufferLike>,
+	): Promise<void> => {
+		const page = pdfDoc.addPage();
+
+		const f = await pdfDoc.embedFont(font);
+
+		page.drawText(label, {
+			x: 50,
+			y: page.getSize().height - 50,
+			size: 14,
+			font: f,
+			color: rgb(0, 0, 0),
+		});
+	};
+
+	const pdfDoc = await PDFDocument.create();
+
+	await draw(
+		pdfDoc,
+		'This page uses Helvetica.',
+		StandardFonts.Helvetica,
+	);
+	await draw(
+		pdfDoc,
+		'Тази страница изпозва Times-Roman.',
+		StandardFonts.TimesRomanItalic,
+	);
+	await draw(pdfDoc, 'ΑαΒβΓγΔδ', StandardFonts.Symbol);
+	await draw(pdfDoc, '✂✈✉☎✔✘★', StandardFonts.ZapfDingbats);
+
+	const bytes = await pdfDoc.save();
+	const filename = './assets/pdfs/type1-fonts-missing.pdf';
+	await fs.writeFile(filename, bytes);
+	console.log(`written ${filename}`);
+}
+
 async function genAll() {
 	await genStandardFonts();
+	await genType1Fonts();
 }
 
 genAll().catch((e) => {
