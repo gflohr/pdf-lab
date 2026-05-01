@@ -14,6 +14,11 @@ export type TextBlock = {
 	text: string;
 
 	/**
+	 * The corresponding glyph IDs.
+	 */
+	glyphs: number[];
+
+	/**
 	 * The font information.
 	 */
 	font: FontInfo;
@@ -70,6 +75,7 @@ export async function extractText(
 			text,
 			font,
 			pageNumber: glyphBlock.pageNumber,
+			glyphs: glyphBlock.glyphs,
 		});
 	}
 

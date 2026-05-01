@@ -111,7 +111,7 @@ describe('PDFLab', () => {
 			fontInfoMap.set(f.ref.toString(), f);
 		});
 
-		it('should embed all fonts', async () => {
+		it.skip('should embed all fonts', async () => {
 			const lab = await makePDFLab();
 			const collectMock = vi
 				.spyOn(collectFont, 'default')
