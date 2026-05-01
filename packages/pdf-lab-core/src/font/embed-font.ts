@@ -6,10 +6,10 @@ import {
 	type PDFRef,
 } from '@cantoo/pdf-lib';
 import fontkit from '@pdf-lib/fontkit';
+import type { GlyphMapper } from '../encoding/mappers/glyph-mapper.js';
 import type { FontEmbedOptions } from '../pdf-lab.js';
 import { resolveFont } from './resolve-font.js';
 import type { FontInfo } from './types.js';
-import { GlyphMapper } from '../encoding/mappers/glyph-mapper.js';
 
 type Metrics = {
 	bbox: number[];
@@ -59,7 +59,7 @@ export async function embedFont(
 		if (options.subset) {
 			const subset = font.createSubset();
 			const mapper = fontInfo.glyphMapper!;
-			glyphIds.forEach(glyphId => {
+			glyphIds.forEach((glyphId) => {
 				const codePoint = coerceCodePoints(mapper.lookupCodepoints(glyphId));
 				const glyph = font.glyphForCodePoint(codePoint);
 				subset.includeGlyph(glyph);
@@ -67,7 +67,9 @@ export async function embedFont(
 			fontBytes = await serializeSubset(subset);
 		} else {
 			if (isTTC) {
-				throw new Error(`Can only embed TrueType Collection for font '${fontInfo.fontName}' as subsets`);
+				throw new Error(
+					`Can only embed TrueType Collection for font '${fontInfo.fontName}' as subsets`,
+				);
 			}
 			fontBytes = source;
 		}
@@ -122,21 +124,23 @@ async function embedType1(
 ) {
 	const context = pdfDocument.context;
 	const fontStream = options.compress
-			? pdfDocument.context.flateStream(fontBytes)
-			: pdfDocument.context.stream(fontBytes);
+		? pdfDocument.context.flateStream(fontBytes)
+		: pdfDocument.context.stream(fontBytes);
 	const fontStreamRef = context.register(fontStream);
 
 	const fontDict = getFontDict(pdfDocument, fontInfo.ref);
 	fontDict.set(PDFName.of('SubType'), PDFName.of('Type0'));
 
-	const fontDescriptor = fontDict.lookupMaybe(
-		PDFName.of('FontDescriptor'),
-		PDFDict,
-	) ?? context.obj({
-		Type: 'FontDescriptor',
-	});
+	const fontDescriptor =
+		fontDict.lookupMaybe(PDFName.of('FontDescriptor'), PDFDict) ??
+		context.obj({
+			Type: 'FontDescriptor',
+		});
 	const pdfFontName = fontInfo.baseFont ?? font.fullName ?? 'Unknown';
-	fontDescriptor.set(PDFName.of('FontName'), PDFName.of(context.addRandomSuffix(pdfFontName)));
+	fontDescriptor.set(
+		PDFName.of('FontName'),
+		PDFName.of(context.addRandomSuffix(pdfFontName)),
+	);
 
 	storeFontMetrics(pdfDocument, font, fontDict, fontDescriptor);
 
@@ -146,26 +150,36 @@ async function embedType1(
 		const cmapStream = options.compress
 			? pdfDocument.context.flateStream(cmap)
 			: pdfDocument.context.stream(cmap);
-    	const cmapRef = context.register(cmapStream);
+		const cmapRef = context.register(cmapStream);
 		fontDict.set(PDFName.of('ToUnicode'), cmapRef);
 	} else {
 		throw new Error('not yet implemented!');
 	}
 }
 
-function storeFontMetrics(pdfDocument: PDFDocument, font: fontkit.Font, fontDict: PDFDict, fontDescriptor: PDFDict) {
+function storeFontMetrics(
+	pdfDocument: PDFDocument,
+	font: fontkit.Font,
+	fontDict: PDFDict,
+	fontDescriptor: PDFDict,
+) {
 	const metrics = extractMetrics(font);
 
 	fontDescriptor.set(PDFName.of('Flags'), PDFNumber.of(32));
-	fontDescriptor.set(PDFName.of('FontBBox'), pdfDocument.context.obj(metrics.bbox));
+	fontDescriptor.set(
+		PDFName.of('FontBBox'),
+		pdfDocument.context.obj(metrics.bbox),
+	);
 	fontDescriptor.set(PDFName.of('Ascent'), PDFNumber.of(metrics.ascent));
 	fontDescriptor.set(PDFName.of('Descent'), PDFNumber.of(metrics.descent));
 	fontDescriptor.set(PDFName.of('CapHeight'), PDFNumber.of(metrics.capHeight));
-	fontDescriptor.set(PDFName.of('ItalicAngle'), PDFNumber.of(metrics.italicAngle));
+	fontDescriptor.set(
+		PDFName.of('ItalicAngle'),
+		PDFNumber.of(metrics.italicAngle),
+	);
 	fontDescriptor.set(PDFName.of('StemV'), PDFNumber.of(80));
 
 	const widthsArray = pdfDocument.context.obj(metrics.widths);
-
 }
 
 function createCMap(mapper: GlyphMapper, glyphIds: Set<number>): string {
@@ -186,7 +200,7 @@ ${glyphIds.size} beginbfchar
 `;
 
 	let i = 0;
-	glyphIds.forEach(glyphId => {
+	glyphIds.forEach((glyphId) => {
 		++i;
 		const codepoint = coerceCodePoints(mapper.lookupCodepoints(glyphId));
 		const hexCodePoint = `<${codepoint.toString(16).padStart(4, '0')}>`;

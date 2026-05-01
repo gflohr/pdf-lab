@@ -1,5 +1,4 @@
 import * as fs from 'node:fs/promises';
-import { text } from 'node:stream/consumers';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { CMapMapper } from '../encoding/mappers/cmap-mapper.js';
 import { PDFLab } from '../pdf-lab.js';

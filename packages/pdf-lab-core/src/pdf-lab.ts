@@ -1,5 +1,4 @@
-import { PDFDict, PDFDocument, PDFName, PDFRef } from '@cantoo/pdf-lib';
-import fontkit from '@pdf-lib/fontkit';
+import { PDFDocument, PDFName, PDFRef } from '@cantoo/pdf-lib';
 import collectFonts from './font/collect-fonts.js';
 import { collectResources, type FontUsage } from './font/collect-resources.js';
 import { embedFont } from './font/embed-font.js';

@@ -2,7 +2,6 @@ import { PDFDocument, PDFRef } from '@cantoo/pdf-lib';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { SingleByteEncodingMapper } from './encoding/mappers/single-byte-encoding-mapper.js';
 import * as collectFont from './font/collect-fonts.js';
-import * as embedFont from './font/embed-font.js';
 import type { FontInfo } from './font/types.js';
 import { PDFLab } from './pdf-lab.js';
 
