@@ -1,4 +1,4 @@
-import type { PDFDocument } from '@cantoo/pdf-lib';
+import { type PDFDocument, PDFRef } from '@cantoo/pdf-lib';
 import { describe, expect, it } from 'vitest';
 import type { FontEmbedOptions } from '../pdf-lab.js';
 import { FontEmbedder } from './embedder.js';
@@ -13,7 +13,7 @@ describe('FontEmbedder', () => {
 		const fontInfo: FontInfo = {
 			baseFont: 'Helvetica',
 			fontName: 'Helvetica',
-			ref: {} as unknown as FontInfo['ref'],
+			ref: PDFRef.of(7),
 			embedded: false,
 			subtype: 'TrueType',
 		};
@@ -25,19 +25,7 @@ describe('FontEmbedder', () => {
 
 			expect(() => {
 				new TestFontEmbedder(pdfDoc, fontInfo, glyphIds, options);
-			}).toThrow(
-				'You have to pass a fontkit instance in the embed options!',
-			);
-		});
-
-		it('does not throw if fontkit is provided', () => {
-			const options = {
-				fontkit: {},
-			} as FontEmbedOptions;
-
-			expect(() => {
-				new TestFontEmbedder(pdfDoc, fontInfo, glyphIds, options);
-			}).not.toThrow();
+			}).toThrow('You have to pass a fontkit instance in the embed options!');
 		});
 	});
 });

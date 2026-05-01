@@ -1,7 +1,7 @@
 import { PDFDocument, PDFName, PDFRef } from '@cantoo/pdf-lib';
 import collectFonts from './font/collect-fonts.js';
 import { collectResources, type FontUsage } from './font/collect-resources.js';
-import { embedFont } from './font/embed-font.js';
+import { Type1FontEmbedder } from './font/embedder/type1-embedder.js';
 import type { FontInfo, FontMap } from './font/types.js';
 import { extractGlyphs } from './text/extract-glyphs.js';
 import { extractText, type TextBlock } from './text/extract-text.js';
@@ -203,12 +203,20 @@ export class PDFLab {
 		}
 
 		for (const font of fonts) {
-			await embedFont(
-				this.pdfDocument,
-				font,
-				glyphUsage[font.ref.toString()]!,
-				options,
-			);
+			switch (font.subtype) {
+				case 'Type1':
+					await new Type1FontEmbedder(
+						this.pdfDocument,
+						font,
+						glyphUsage[font.ref.toString()]!,
+						options,
+					).embed();
+					break;
+				default:
+					throw new Error(
+						`Embedding font sybtype ${font.subtype} not yet implemented`,
+					);
+			}
 		}
 	}
 
