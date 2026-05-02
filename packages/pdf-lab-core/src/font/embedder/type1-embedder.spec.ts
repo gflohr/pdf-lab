@@ -1,10 +1,10 @@
 import * as fs from 'node:fs';
-import fontkit from '@pdf-lib/fontkit';
-import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
-import * as resolveFontModule from '../resolve-font.js';
 import { PDFDocument, PDFRef } from '@cantoo/pdf-lib';
+import fontkit from '@pdf-lib/fontkit';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { SingleByteEncodingMapper } from '../../encoding/mappers/single-byte-encoding-mapper.js';
 import type { FontEmbedOptions } from '../../pdf-lab.js';
+import * as resolveFontModule from '../resolve-font.js';
 import type { FontInfo } from '../types.js';
 import { Type1FontEmbedder } from './type1-embedder.js';
 
@@ -44,7 +44,9 @@ describe('Type1 Font Embedder', () => {
 		]);
 		const embedder = new Type1FontEmbedder(pdfDoc, fontInfo, glyphIds, options);
 
-		vi.spyOn(resolveFontModule, 'resolveFont').mockResolvedValue({ source: notoRegularBytes });
+		vi.spyOn(resolveFontModule, 'resolveFont').mockResolvedValue({
+			source: notoRegularBytes,
+		});
 		await embedder.embed();
 
 		expect('later').toBe('later');

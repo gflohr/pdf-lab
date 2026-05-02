@@ -138,7 +138,7 @@ async function embedType1(
 	const cmapRef = context.register(cmapStream);
 	fontDict.set(PDFName.of('ToUnicode'), cmapRef);
 }
-ƒ
+ƒ;
 function storeFontMetrics(
 	pdfDocument: PDFDocument,
 	font: fontkit.Font,

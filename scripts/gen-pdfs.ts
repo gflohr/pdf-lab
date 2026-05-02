@@ -73,11 +73,7 @@ async function genType1Fonts(): Promise<void> {
 
 	const pdfDoc = await PDFDocument.create();
 
-	await draw(
-		pdfDoc,
-		'This page uses Helvetica.',
-		StandardFonts.Helvetica,
-	);
+	await draw(pdfDoc, 'This page uses Helvetica.', StandardFonts.Helvetica);
 	await draw(
 		pdfDoc,
 		'Тази страница изпозва Times-Roman.',

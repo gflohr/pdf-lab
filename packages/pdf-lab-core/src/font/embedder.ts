@@ -1,8 +1,9 @@
-import { PDFDict, PDFName, type PDFDocument } from '@cantoo/pdf-lib';
+import { PDFDict, type PDFDocument, PDFName } from '@cantoo/pdf-lib';
 import fontkit from '@pdf-lib/fontkit';
 import type { FontEmbedOptions } from '../pdf-lab.js';
 import { resolveFont } from './resolve-font.js';
 import type { FontData, FontInfo } from './types.js';
+import { StandardEncodings } from '../encoding/types.js';
 
 export type SubType = 'Type0';
 export abstract class FontEmbedder {
@@ -12,10 +13,10 @@ export abstract class FontEmbedder {
 	private _fontDict: PDFDict | undefined;
 
 	constructor(
-		protected readonly _pdfDoc: PDFDocument,
-		protected readonly _fontInfo: FontInfo,
-		protected readonly _glyphIds: Set<number>,
-		protected readonly _options: FontEmbedOptions,
+		private readonly _pdfDoc: PDFDocument,
+		private readonly _fontInfo: FontInfo,
+		private readonly _glyphIds: Set<number>,
+		private readonly _options: FontEmbedOptions,
 	) {
 		if (!this.options.fontkit) {
 			throw new Error(
@@ -30,7 +31,7 @@ export abstract class FontEmbedder {
 		}
 	}
 
-	private get pdfDoc(): PDFDocument {
+	protected get pdfDoc(): PDFDocument {
 		return this._pdfDoc;
 	}
 
@@ -38,7 +39,7 @@ export abstract class FontEmbedder {
 		return this._isTTC;
 	}
 
-	private get fontInfo(): FontInfo {
+	protected get fontInfo(): FontInfo {
 		return this._fontInfo;
 	}
 
@@ -46,16 +47,15 @@ export abstract class FontEmbedder {
 		return this._options;
 	}
 
-	private get fontDict(): PDFDict {
+	protected get fontDict(): PDFDict {
 		return this._fontDict!;
 	}
 
-	public abstract get subType(): SubType;
-
-	public async embed() {
-		await this.initialise();
-		this.fontDict.set(PDFName.of('SubType'), PDFName.of(this.subType));
+	protected get glyphIds(): Set<number> {
+		return this._glyphIds;
 	}
+
+	protected abstract get subType(): SubType;
 
 	private async initialise() {
 		if (this.initialised) return;
@@ -83,11 +83,110 @@ export abstract class FontEmbedder {
 		this.initialised = true;
 	}
 
+	public async embed() {
+		await this.initialise();
+		this.fontDict.set(PDFName.of('SubType'), PDFName.of(this.subType));
+		this.fontDict.set(PDFName.of('Encoding'), PDFName.of('Identity-H'));
+
+		this.embedToUnicode();
+	}
+
 	private async resolveFont(): Promise<FontData> {
 		return await resolveFont(
 			this.fontInfo.fontName ?? 'sans',
 			this.options.fontMap,
 			this.options.fcMatch,
 		);
+	}
+
+	protected embedToUnicode() {
+		// All embedders but the Type1 embedder must not touch an existing
+		// ToUnicode map, unless they have an encoding that is not a standard
+		// encoding.
+		if (this.fontInfo.encoding && StandardEncodings.includes(this.fontInfo.encoding)) {
+			const cmap = this.createToUnicode();
+
+			const context = this.pdfDoc.context;
+			const cmapStream = context.flateStream(cmap);
+
+			const ref = context.register(cmapStream);
+			this.fontDict.set(PDFName.of('ToUnicode'), ref);
+		}
+	}
+
+	protected coerceCodePoints(cps: number[] | undefined): number {
+		if (!cps?.length) {
+			return 0;
+		} else if (cps.length === 1) {
+			return cps[0]!;
+		} else {
+			// Ligature?
+			const asText = cps.map((cp) => String.fromCodePoint(cp)).join('');
+			switch (asText) {
+				case 'DZ':
+					return 0x01f1;
+				case 'Dz':
+					return 0x01f2;
+				case 'dz':
+					return 0x01f3;
+				case 'ff':
+					return 0xfb00;
+				case 'fi':
+					return 0xfb01;
+				case 'fl':
+					return 0xfb02;
+				case 'ffi':
+					return 0xfb03;
+				case 'ffl':
+					return 0xfb04;
+				case 'st':
+					return 0xfb06;
+				default:
+					return cps[0]!; // Better than nothing.
+			}
+		}
+	}
+
+	protected createToUnicode(): string {
+		const mapper = this.fontInfo.glyphMapper;
+		if (typeof mapper === 'undefined') {
+			throw new Error(
+				`The font '${this.fontInfo.fontName}' does not use a standard encoding and does not have a ToUnicode map!`,
+			);
+		}
+
+		const glyphIds = this.glyphIds;
+
+		let cmap = `/CIDInit /ProcSet findresource begin
+12 dict begin
+begincmap
+/CIDSystemInfo <<
+  /Registry (Adobe)
+  /Ordering (UCS)
+  /Supplement 0
+>> def
+/CMapName /Adobe-Identity-UCS def
+/CMapType 2 def
+1 begincodespacerange
+<0000> <ffff>
+endcodespacerange
+${glyphIds.size} beginbfchar
+`;
+
+		let i = 0;
+		glyphIds.forEach((glyphId) => {
+			++i;
+			const codepoint = this.coerceCodePoints(mapper.lookupCodepoints(glyphId));
+			const hexCodePoint = `<${codepoint.toString(16).padStart(4, '0')}>`;
+			const hexGlyphId = `<${i.toString(16).padStart(4, '0')}>`;
+			cmap += `${hexGlyphId} ${hexCodePoint}\n`;
+		});
+
+		cmap += `endbfchar
+endcmap
+CMapName currentdict /CMap defineresource pop
+end
+`;
+		return cmap;
 	}
 }
