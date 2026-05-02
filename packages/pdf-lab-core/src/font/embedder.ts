@@ -8,9 +8,10 @@ import { StandardEncodings } from '../encoding/types.js';
 export type SubType = 'Type0';
 export abstract class FontEmbedder {
 	private initialised = false;
-	private _font: fontkit.Font;
 	private _isTTC = false;
 	private _fontDict: PDFDict | undefined;
+	private _font: fontkit.Font | undefined;
+	private _subset: fontkit.Subset | undefined;
 
 	constructor(
 		private readonly _pdfDoc: PDFDocument,
@@ -55,6 +56,14 @@ export abstract class FontEmbedder {
 		return this._glyphIds;
 	}
 
+	protected get font(): fontkit.Font {
+		return this._font!;
+	}
+
+	protected get subset(): fontkit.Subset {
+		return this._subset!;
+	}
+
 	protected abstract get subType(): SubType;
 
 	private async initialise() {
@@ -72,6 +81,7 @@ export abstract class FontEmbedder {
 		this._font = this.isTTC
 			? fontkit.create(source, fontData.postScriptName)
 			: fontkit.create(source as Uint8Array);
+		this._subset = this.font.createSubset();
 
 		const fontRef = this._fontInfo.ref;
 		const fontDict = this.pdfDoc.context.lookupMaybe(fontRef, PDFDict);
@@ -88,6 +98,8 @@ export abstract class FontEmbedder {
 		this.fontDict.set(PDFName.of('SubType'), PDFName.of(this.subType));
 		this.fontDict.set(PDFName.of('Encoding'), PDFName.of('Identity-H'));
 
+		this.includeGlyphs();
+		console.dir(this.subset);
 		this.embedToUnicode();
 	}
 
@@ -188,5 +200,27 @@ CMapName currentdict /CMap defineresource pop
 end
 `;
 		return cmap;
+	}
+
+	protected includeGlyphs() {
+		const subset = this.subset;
+		const mapping: Record<string, number> = { '0': 0 };
+		const subsetGlyphs = [0];
+
+		const mapper = this.fontInfo.glyphMapper;
+		if (!mapper) {
+			throw new Error('Cannot embed font without ToUnicode CMap!');
+		}
+		this.glyphIds.forEach((glyphId) => {
+			const codePoint = this.coerceCodePoints(mapper?.lookupCodepoints(glyphId));
+			const glyph = this.font.glyphForCodePoint(codePoint);
+			subsetGlyphs.push(glyph.id);
+			mapping[codePoint] = glyphId;
+		});
+
+		// Ouch.
+		(subset as unknown as { mapping: Record<string, number> }).mapping =
+			mapping;
+		(subset as unknown as { glyphs: number[] }).glyphs = subsetGlyphs;
 	}
 }

@@ -15,4 +15,14 @@ export class Type1FontEmbedder extends FontEmbedder {
 		const ref = context.register(cmapStream);
 		this.fontDict.set(PDFName.of('ToUnicode'), ref);
 	}
+
+	protected includeGlyphs() {
+		const subset = this.subset;
+		const mapper = this.fontInfo.glyphMapper!;
+		this.glyphIds.forEach((glyphId) => {
+			const codePoint = this.coerceCodePoints(mapper.lookupCodepoints(glyphId));
+			const glyph = this.font.glyphForCodePoint(codePoint);
+			subset.includeGlyph(glyph);
+		});
+	}
 }
