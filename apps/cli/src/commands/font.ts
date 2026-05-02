@@ -23,7 +23,6 @@ const options: {
 	format: OptSpec;
 	'font-map': OptSpec;
 	'fc-match': OptSpec;
-	subset: OptSpec;
 	compress: OptSpec;
 } = {
 	embed: {
@@ -80,12 +79,6 @@ const options: {
 		multi: true,
 		describe: gtx._('font mapping (FONT_NAME:PATH[:POSTSCRIPT_NAME]'),
 	},
-	subset: {
-		group: gtx._('Font Embedding Options'),
-		type: 'boolean',
-		default: true,
-		describe: gtx._('embed only subset of fonts'),
-	},
 	compress: {
 		group: gtx._('Font Embedding Options'),
 		type: 'boolean',
@@ -141,7 +134,6 @@ export class FontCommand implements Command {
 		await lab.embedFonts(refs, {
 			fontMap,
 			fcMatch: configOptions['fc-match'] as string,
-			subset: configOptions.subset as boolean,
 			platform: os.platform(),
 			fontkit,
 		});

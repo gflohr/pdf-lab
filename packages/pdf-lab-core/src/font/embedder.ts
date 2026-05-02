@@ -7,10 +7,9 @@ import type { FontData, FontInfo } from './types.js';
 export type SubType = 'Type0';
 export abstract class FontEmbedder {
 	private initialised = false;
-	private _fontData: Uint8Array | undefined;
 	private _font: fontkit.Font;
 	private _isTTC = false;
-	private _fontDict: PDFDict;
+	private _fontDict: PDFDict | undefined;
 
 	constructor(
 		protected readonly _pdfDoc: PDFDocument,
@@ -48,7 +47,7 @@ export abstract class FontEmbedder {
 	}
 
 	private get fontDict(): PDFDict {
-		return this._fontDict;
+		return this._fontDict!;
 	}
 
 	public abstract get subType(): SubType;
@@ -63,7 +62,6 @@ export abstract class FontEmbedder {
 
 		const fontData = await this.resolveFont();
 		const source = fontData.source as Uint8Array;
-		this._fontData = source;
 
 		this._isTTC =
 			source[0] === 0x74 &&

@@ -14,25 +14,29 @@ export type FontEmbedOptions = {
 	 * Map font names to paths/buffers and optional PostScript names.
 	 */
 	fontMap?: FontMap;
+
 	/**
 	 * Path to the 'fc-match' program. Default: 'fc-match'.
 	 */
 	fcMatch?: string;
-	/**
-	 * Enable font subsetting. Default: true.
-	 */
-	subset?: boolean;
+
 	/**
 	 * Compress font streams. Default: true.
 	 */
 	compress?: boolean;
+
 	/**
 	 * Operating system as returned by os.platform() or undefined for the
 	 * browser.
 	 */
+
 	platform?: string;
 	/**
 	 * A fontkit instance, see `@pdf-lib/fontkit`.
+	 */
+
+	/**
+	 * FIXME! Create a stub type that covers all functionality that we need.
 	 */
 	fontkit?: unknown;
 };
@@ -158,7 +162,6 @@ export class PDFLab {
 	) {
 		options.fontMap ??= {};
 		options.fcMatch ??= 'fc-match';
-		options.subset ??= true;
 		options.compress ??= true;
 
 		if (!this.fontUsage) {

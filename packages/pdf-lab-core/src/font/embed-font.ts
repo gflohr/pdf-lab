@@ -55,51 +55,37 @@ export async function embedFont(
 	fontDict.set(PDFName.of('Encoding'), PDFName.of('Identity-H'));
 
 	if (fontInfo.subtype === 'Type1') {
-		let fontBytes: Uint8Array;
-		if (options.subset) {
-			const subset = font.createSubset();
-			const mapper = fontInfo.glyphMapper!;
-			glyphIds.forEach((glyphId) => {
-				const codePoint = coerceCodePoints(mapper.lookupCodepoints(glyphId));
-				const glyph = font.glyphForCodePoint(codePoint);
-				subset.includeGlyph(glyph);
-			});
-			fontBytes = await serializeSubset(subset);
-		} else {
-			if (isTTC) {
-				throw new Error(
-					`Can only embed TrueType Collection for font '${fontInfo.fontName}' as subsets`,
-				);
-			}
-			fontBytes = source;
-		}
+		const subset = font.createSubset();
+		const mapper = fontInfo.glyphMapper!;
+		glyphIds.forEach((glyphId) => {
+			const codePoint = coerceCodePoints(mapper.lookupCodepoints(glyphId));
+			const glyph = font.glyphForCodePoint(codePoint);
+			subset.includeGlyph(glyph);
+		});
+		const fontBytes = await serializeSubset(subset);
 
 		await embedType1(pdfDocument, fontInfo, font, glyphIds, fontBytes, options);
 	} else {
 		const fontDescriptor = getFontDescriptor(fontDict);
 		const subset = font.createSubset();
-		if (options.subset) {
-			const mapping: Record<string, number> = { '0': 0 };
-			const subsetGlyphs = [0];
+		const mapping: Record<string, number> = { '0': 0 };
+		const subsetGlyphs = [0];
 
-			const mapper = fontInfo.glyphMapper;
-			if (!mapper) {
-				throw new Error('Cannot embed font without ToUnicode CMap!');
-			}
-			glyphIds.forEach((glyphId) => {
-				const codePoint = coerceCodePoints(mapper?.lookupCodepoints(glyphId));
-				const glyph = font.glyphForCodePoint(codePoint);
-				subsetGlyphs.push(glyph.id);
-				mapping[codePoint] = glyphId;
-			});
-
-			// Ouch.
-			(subset as unknown as { mapping: Record<string, number> }).mapping =
-				mapping;
-			(subset as unknown as { glyphs: number[] }).glyphs = subsetGlyphs;
-		} else {
-			throw new Error('todo!');
+		const mapper = fontInfo.glyphMapper;
+		if (!mapper) {
+			throw new Error('Cannot embed font without ToUnicode CMap!');
 		}
+		glyphIds.forEach((glyphId) => {
+			const codePoint = coerceCodePoints(mapper?.lookupCodepoints(glyphId));
+			const glyph = font.glyphForCodePoint(codePoint);
+			subsetGlyphs.push(glyph.id);
+			mapping[codePoint] = glyphId;
+		});
+
+		// Ouch.
+		(subset as unknown as { mapping: Record<string, number> }).mapping =
+			mapping;
+		(subset as unknown as { glyphs: number[] }).glyphs = subsetGlyphs;
 
 		const bytes = await serializeSubset(subset);
 		const stream = options.compress
@@ -144,19 +130,15 @@ async function embedType1(
 
 	storeFontMetrics(pdfDocument, font, fontDict, fontDescriptor);
 
-	if (options.subset) {
-		fontDict.set(PDFName.of('Encoding'), PDFName.of('Identity-H'));
-		const cmap = createCMap(fontInfo.glyphMapper!, glyphIds);
-		const cmapStream = options.compress
-			? pdfDocument.context.flateStream(cmap)
-			: pdfDocument.context.stream(cmap);
-		const cmapRef = context.register(cmapStream);
-		fontDict.set(PDFName.of('ToUnicode'), cmapRef);
-	} else {
-		throw new Error('not yet implemented!');
-	}
+	fontDict.set(PDFName.of('Encoding'), PDFName.of('Identity-H'));
+	const cmap = createCMap(fontInfo.glyphMapper!, glyphIds);
+	const cmapStream = options.compress
+		? pdfDocument.context.flateStream(cmap)
+		: pdfDocument.context.stream(cmap);
+	const cmapRef = context.register(cmapStream);
+	fontDict.set(PDFName.of('ToUnicode'), cmapRef);
 }
-
+ƒ
 function storeFontMetrics(
 	pdfDocument: PDFDocument,
 	font: fontkit.Font,
