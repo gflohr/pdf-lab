@@ -3,8 +3,8 @@ import fontkit from '@pdf-lib/fontkit';
 import type { FontEmbedOptions } from '../pdf-lab.js';
 import { resolveFont } from './resolve-font.js';
 import type { FontData, FontInfo } from './types.js';
-import { StandardEncodings } from '../encoding/types.js';
 import { deriveFontFlags } from './derive-font-flags.js';
+import { OsType } from './load-font.js';
 
 export type SubType = 'Type0';
 
@@ -131,6 +131,7 @@ export abstract class FontEmbedder {
 			this.fontInfo.fontName ?? 'sans',
 			this.options.fontMap,
 			this.options.fcMatch,
+			this.options.platform as OsType,
 		);
 	}
 

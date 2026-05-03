@@ -205,6 +205,20 @@ export class PDFLab {
 			}
 		}
 
+		// Normalize the fontMap.
+		if (typeof options.fontMap !== 'undefined') {
+			const fontMap = options.fontMap;
+			Object.keys(fontMap).forEach(key => {
+				const entry = fontMap[key]!;
+				delete fontMap[key];
+				const lcKey = key.toLowerCase();
+				if (Object.hasOwn(fontMap, lcKey)) {
+					throw new Error(`font-mapping has duplicate key '${key}'!`);
+				}
+				fontMap[lcKey] = entry;
+			});
+		}
+
 		for (const font of fonts) {
 			switch (font.subtype) {
 				case 'Type1':
