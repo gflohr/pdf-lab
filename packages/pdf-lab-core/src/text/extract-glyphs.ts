@@ -11,7 +11,7 @@ import {
 } from '@cantoo/pdf-lib';
 import { Lexer, type Token } from '../parser/lexer.js';
 
-type GlyphBlock = {
+export type GlyphBlock = {
 	glyphs: number[];
 	fontResource: string;
 	pageRef: PDFRef;

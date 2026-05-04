@@ -45,8 +45,9 @@ describe('Lexer', () => {
 		const tokens = lexer.tokenize(toBytes('(Hel\\)lo)'));
 
 		expect(tokens.length).toBe(1);
-		expect(tokens[0].type).toBe('string');
-		expect(tokens[0].value.length).toBeGreaterThan(0);
+		const token = tokens[0]!
+		expect(token.type).toBe('string');
+		expect(token.value.length).toBeGreaterThan(0);
 	});
 
 	it('handles nested parentheses', () => {
@@ -108,7 +109,7 @@ describe('Lexer', () => {
 		const tokens = lexer.tokenize(toBytes('<48 65 6c 6c 6f>'));
 
 		expect(tokens.length).toBe(1);
-		expect(tokens[0].value).toEqual([72, 101, 108, 108, 111]);
+		expect(tokens[0]!.value).toEqual([72, 101, 108, 108, 111]);
 	});
 
 	it('handles comments', () => {

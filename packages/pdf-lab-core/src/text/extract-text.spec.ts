@@ -1,8 +1,14 @@
 import * as fs from 'node:fs/promises';
-import { beforeAll, describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { CMapMapper } from '../encoding/mappers/cmap-mapper.js';
 import { PDFLab } from '../pdf-lab.js';
 import { extractText, type TextBlock } from './extract-text.js';
+import { afterEach } from 'node:test';
+import { PDFDocument, PDFRef } from '@cantoo/pdf-lib';
+import * as extractGlyphModule from './extract-glyphs.js';
+import { FontInfo } from '../font/types.js';
+import { FontUsage } from '../font/collect-resources.js';
+import { GlyphBlock } from './extract-glyphs.js';
 
 describe('Text Extraction', () => {
 	describe('standard fonts', () => {
@@ -185,6 +191,74 @@ describe('Text Extraction', () => {
 			expect(block?.font.ref.toString()).toBe('14 0 R');
 			expect(block?.font.glyphMapper).toBeDefined();
 			expect(block?.font.glyphMapper).toBeInstanceOf(CMapMapper);
+		});
+	});
+
+	describe('Multi-byte glyph IDs', () => {
+		const cmap = `
+1 begincodespacerange
+<00000000> <ffffffff>
+endcodespacerange
+1 beginbfchar
+<00000001> <00000058>
+endbfchar
+`;
+		const mapper = new CMapMapper(cmap);
+		const pdfDoc = {} as PDFDocument;
+		const fontRef = PDFRef.of(42);
+		const fontInfo: FontInfo = {
+			baseFont: 'AAAAAA+Fancy',
+			subtype: 'TrueType',
+			fontName: 'Fancy',
+			ref: fontRef,
+			embedded: true,
+			glyphMapper: mapper,
+		};
+		const fonts = new Map<string, FontInfo>();
+		fonts.set(fontRef.toString(), fontInfo);
+		const resources: FontUsage[] = [
+			{ 'F1': fontRef },
+		];
+
+		afterEach(() => {
+			vi.restoreAllMocks();
+			vi.resetAllMocks();
+		});
+
+		it('should extract single-byte glyph IDs', async () => {
+			const glyphBlocks: GlyphBlock[] = [{
+				glyphs: [ 0x01 ],
+				fontResource: 'F1',
+				pageRef: PDFRef.of(123),
+				pageNumber: 0,
+			}];
+
+			vi.spyOn(extractGlyphModule, 'extractGlyphs').mockImplementation(() => glyphBlocks);
+
+			const textBlocks = await extractText(pdfDoc, fonts, resources);
+			expect(textBlocks.length).toBe(1);
+			const textBlock = textBlocks[0]!;
+			expect(textBlock.pageNumber).toBe(0);
+			expect(textBlock.glyphs).toStrictEqual([ 1 ]);
+			expect(textBlock.text).toBe('X');
+		});
+
+		it('should extract double-byte glyph IDs', async () => {
+			const glyphBlocks: GlyphBlock[] = [{
+				glyphs: [ 0x00, 0x01 ],
+				fontResource: 'F1',
+				pageRef: PDFRef.of(123),
+				pageNumber: 0,
+			}];
+
+			vi.spyOn(extractGlyphModule, 'extractGlyphs').mockImplementation(() => glyphBlocks);
+
+			const textBlocks = await extractText(pdfDoc, fonts, resources);
+			expect(textBlocks.length).toBe(1);
+			const textBlock = textBlocks[0]!;
+			expect(textBlock.pageNumber).toBe(0);
+			expect(textBlock.glyphs).toStrictEqual([ 1 ]);
+			expect(textBlock.text).toBe('X');
 		});
 	});
 });

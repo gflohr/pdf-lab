@@ -59,23 +59,45 @@ export async function extractText(
 		// type definition will complicate things.
 		if (!font) continue;
 
-		let text: string;
+		let text: string = '';
+		const glyphs: number[] = [];
 		if (font.glyphMapper) {
 			const mapper = font.glyphMapper;
-			text = glyphBlock.glyphs.map((glyph) => mapper.lookup(glyph)).join('');
+			for (let i = 0; i < glyphBlock.glyphs.length; ++i) {
+				let glyphId = 0;
+				let match = false;
+				for (let j = 0; j < 4; ++j) {
+					const nextByte = glyphBlock.glyphs[i + j];
+					if (typeof nextByte === 'undefined') break;
+					glyphId = (glyphId << 8) | nextByte;
+
+					const s = mapper.lookup(glyphId);
+					if (s !== '\uFFFD') {
+						i += j;
+						text ??= '';
+						text += s;
+						glyphs.push(glyphId);
+						match = true;
+						break;
+					}
+				}
+				if (!match) glyphs.push(glyphBlock.glyphs[i]!);
+			}
 		} else if (font.encoding) {
 			const mapper = new SingleByteEncodingMapper(font.encoding);
 			text = glyphBlock.glyphs.map((glyph) => mapper.lookup(glyph)).join('');
+			glyphs.push(...glyphBlock.glyphs);
 		} else {
 			// Hopeless case.
 			text = glyphBlock.glyphs.map(() => '\uFFFD').join('');
+			glyphs.push(...glyphBlock.glyphs);
 		}
 
 		textBlocks.push({
 			text,
 			font,
 			pageNumber: glyphBlock.pageNumber,
-			glyphs: glyphBlock.glyphs,
+			glyphs,
 		});
 	}
 

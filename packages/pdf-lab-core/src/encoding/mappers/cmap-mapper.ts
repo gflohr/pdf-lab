@@ -6,6 +6,8 @@ type Mapping =
 	| [number, number, number]
 	| [number, number, number[][]]
 	| [number, number[]];
+type Range =
+	| [number, number];
 
 export class CMapMapper implements GlyphMapper {
 	private mappings: Mapping[];
@@ -34,6 +36,7 @@ export class CMapMapper implements GlyphMapper {
 		const tokens = lexer.tokenize(source);
 
 		const mappings: Mapping[] = [];
+		const ranges: Range[] = [];
 
 		for (let i = 0; i < tokens.length; ++i) {
 			const token = tokens[i]!;
@@ -44,6 +47,8 @@ export class CMapMapper implements GlyphMapper {
 				i += this.consumeMappings(mappings, tokens, 2, i + 1);
 			} else if (value === 'beginbfrange') {
 				i += this.consumeMappings(mappings, tokens, 3, i + 1);
+			} else if (value === 'begincodespacerange') {
+				i += this.consumeRanges(ranges, tokens, i + 1);
 			}
 		}
 
@@ -86,6 +91,32 @@ export class CMapMapper implements GlyphMapper {
 					mappings.push([...mapping]);
 					(mapping as Array<number>).length = 0;
 				}
+			}
+		}
+
+		return tokens.length - start + 1;
+	}
+
+	private consumeRanges(
+		ranges: Range[],
+		tokens: Token[],
+		start: number,
+	): number {
+		const range: Range = [] as unknown as Range;
+		for (let i = start; i < tokens.length; ++i) {
+			const token = tokens[i]!;
+
+			if (token.type === 'token') {
+				const value = this.decodeNumberArray(token.value);
+				if (range.length > 1) {
+					ranges.push([range[0], range[1]]);
+				}
+				if (value === 'endcodespacerange') {
+					return i - start + 1;
+				}
+			} else {
+				// String.
+				range.push(this.numberArrayToNumber(token.value));
 			}
 		}
 
