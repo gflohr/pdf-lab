@@ -53,7 +53,7 @@ begincmap
 /CMapName /Adobe-Identity-UCS def
 /CMapType 2 def
 1 begincodespacerange
-<0000> <ffff>
+<00> <ff>
 endcodespacerange
 ${glyphIds.size} beginbfchar
 `;
