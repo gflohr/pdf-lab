@@ -11,8 +11,8 @@ describe('Lexer', () => {
 		const tokens = lexer.tokenize(toBytes('abc def'));
 
 		expect(tokens).toEqual([
-			{ type: 'token', value: [97, 98, 99] },
-			{ type: 'token', value: [100, 101, 102] },
+			{ type: 'token', value: [97, 98, 99], offset: 0, length: 3 },
+			{ type: 'token', value: [100, 101, 102], offset: 4, length: 3 },
 		]);
 	});
 
@@ -21,10 +21,10 @@ describe('Lexer', () => {
 		const tokens = lexer.tokenize(toBytes('abc   def\tghi\njkl'));
 
 		expect(tokens).toEqual([
-			{ type: 'token', value: [97, 98, 99] },
-			{ type: 'token', value: [100, 101, 102] },
-			{ type: 'token', value: [103, 104, 105] },
-			{ type: 'token', value: [106, 107, 108] },
+			{ type: 'token', value: [97, 98, 99], offset: 0, length: 3 },
+			{ type: 'token', value: [100, 101, 102], offset: 6, length: 3 },
+			{ type: 'token', value: [103, 104, 105], offset: 10, length: 3 },
+			{ type: 'token', value: [106, 107, 108], offset: 14, length: 3 },
 		]);
 	});
 
@@ -33,10 +33,10 @@ describe('Lexer', () => {
 		const tokens = lexer.tokenize(toBytes('1 2(Hello) "'));
 
 		expect(tokens).toEqual([
-			{ type: 'token', value: [49] },
-			{ type: 'token', value: [50] },
-			{ type: 'string', value: [72, 101, 108, 108, 111] },
-			{ type: 'token', value: [34] },
+			{ type: 'token', value: [49], offset: 0, length: 1 },
+			{ type: 'token', value: [50], offset: 2, length: 1 },
+			{ type: 'string', value: [72, 101, 108, 108, 111], offset: 3, length: 7},
+			{ type: 'token', value: [34], offset: 11, length: 1 },
 		]);
 	});
 
@@ -58,6 +58,8 @@ describe('Lexer', () => {
 			{
 				type: 'string',
 				value: [72, 101, 108, 108, 111, 32, 40, 119, 111, 114, 108, 100, 41],
+				offset: 0,
+				length: 15,
 			},
 		]);
 	});
@@ -73,6 +75,8 @@ describe('Lexer', () => {
 					68, 101, 101, 112, 101, 114, 32, 40, 97, 110, 100, 32, 40, 100, 101,
 					101, 112, 101, 114, 41, 41,
 				],
+				offset: 0,
+				length: 23,
 			},
 		]);
 	});
@@ -85,22 +89,28 @@ describe('Lexer', () => {
 			{
 				type: 'string',
 				value: [],
+				offset: 0,
+				length: 2,
 			},
 			{
 				type: 'token',
 				value: [84, 106],
+				offset: 3,
+				length: 2,
 			},
 		]);
 	});
 
-	it('parses hex strings', () => {
+	it('parses hex strings and literal strings', () => {
 		const lexer = new Lexer();
-		const tokens = lexer.tokenize(toBytes('<1704>Y<1359>'));
+		const tokens = lexer.tokenize(toBytes('<1704>Y( XY )Z<21>'));
 
 		expect(tokens).toEqual([
-			{ type: 'string', value: [0x17, 0x04] },
-			{ type: 'token', value: [89] },
-			{ type: 'string', value: [0x13, 0x59] },
+			{ type: 'string', value: [0x17, 0x04], offset: 0, length: 6 },
+			{ type: 'token', value: [0x59], offset: 6, length: 1 },
+			{ type: 'string', value: [0x20, 0x58, 0x59, 0x20], offset: 7, length: 6},
+			{ type: 'token', value: [0x5A], offset: 13, length: 1 },
+			{ type: 'string', value: [0x21], offset: 14, length: 4 },
 		]);
 	});
 
@@ -117,8 +127,8 @@ describe('Lexer', () => {
 		const tokens = lexer.tokenize(toBytes('abc % this is a comment\ndef'));
 
 		expect(tokens).toEqual([
-			{ type: 'token', value: [97, 98, 99] },
-			{ type: 'token', value: [100, 101, 102] },
+			{ type: 'token', value: [97, 98, 99], offset: 0, length: 3 },
+			{ type: 'token', value: [100, 101, 102], offset: 24, length: 3 },
 		]);
 	});
 
@@ -126,7 +136,7 @@ describe('Lexer', () => {
 		const lexer = new Lexer();
 		const tokens = lexer.tokenize(toBytes('abc % comment'));
 
-		expect(tokens).toEqual([{ type: 'token', value: [97, 98, 99] }]);
+		expect(tokens).toEqual([{ type: 'token', value: [97, 98, 99], offset: 0, length: 3 }]);
 	});
 
 	it('handles mixed content (realistic PDF snippet)', () => {
@@ -168,19 +178,19 @@ ET
 	it('handles CMap bfchar entries', () => {
 		const lexer = new Lexer();
 		const input = `
-      <0001> <003a>
-      <0002> <003B>
-    `;
+	<0001> <003a>
+	<0002> <003B>
+`;
 
 		const tokens = lexer.tokenize(toBytes(input));
 
 		const strings = tokens.filter((t) => t.type === 'string');
 
 		expect(strings).toEqual([
-			{ type: 'string', value: [0x00, 0x01] },
-			{ type: 'string', value: [0x00, 0x3a] },
-			{ type: 'string', value: [0x00, 0x02] },
-			{ type: 'string', value: [0x00, 0x3b] },
+			{ type: 'string', value: [0x00, 0x01], offset: 2, length: 6 },
+			{ type: 'string', value: [0x00, 0x3a], offset: 9, length: 6 },
+			{ type: 'string', value: [0x00, 0x02], offset: 17, length: 6 },
+			{ type: 'string', value: [0x00, 0x3b], offset: 24, length: 6 },
 		]);
 	});
 
@@ -200,13 +210,14 @@ ET
 ET
 `;
 
-			const tokens = lexer.tokenize(toBytes(input), true);
+			const tokens = lexer.tokenize(toBytes(input));
 			expect(tokens.length).toBeGreaterThan(0);
 
 			const stringTokens = tokens.filter((t) => t.type === 'string');
 			expect(stringTokens.length).toBe(1);
 			const token = stringTokens[0]!;
-			expect(token.locations).toStrictEqual([{ offset: 13, length: 7 }]);
+			expect(token.offset).toBe(13);
+			expect(token.length).toBe(7);
 		});
 
 		it('should store the locations of hex strings', () => {
@@ -217,13 +228,14 @@ ET
 ET
 `;
 
-			const tokens = lexer.tokenize(toBytes(input), true);
+			const tokens = lexer.tokenize(toBytes(input));
 			expect(tokens.length).toBeGreaterThan(0);
 
 			const stringTokens = tokens.filter((t) => t.type === 'string');
 			expect(stringTokens.length).toBe(1);
 			const token = stringTokens[0]!;
-			expect(token.locations).toStrictEqual([{ offset: 13, length: 12 }]);
+			expect(token.offset).toBe(13);
+			expect(token.length).toBe(12);
 		});
 	});
 });
