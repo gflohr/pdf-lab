@@ -6,8 +6,7 @@ type Mapping =
 	| [number, number, number]
 	| [number, number, number[][]]
 	| [number, number[]];
-type Range =
-	| [number, number];
+type Range = [number, number];
 
 export class CMapMapper implements GlyphMapper {
 	private mappings: Mapping[];

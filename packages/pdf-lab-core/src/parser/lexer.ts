@@ -1,8 +1,14 @@
 type State = 'initial' | 'string' | 'hexstring';
 
+type Location = {
+	offset: number;
+	length: number;
+};
+
 export type Token = {
 	type: 'string' | 'token';
 	value: number[];
+	locations?: Location[];
 };
 
 // This lexer happens to work for both CMap files embedded in PDFs and
@@ -13,6 +19,7 @@ export type Token = {
 export class Lexer {
 	public tokenize(
 		bytes: Uint8Array<ArrayBufferLike> | Uint8ClampedArray<ArrayBufferLike>,
+		locations = false,
 	): Token[] {
 		let state: State = 'initial';
 		let parenLevel = 0;
@@ -28,26 +35,31 @@ export class Lexer {
 			if (state === 'initial') {
 				switch (byte) {
 					case 40: // Open parenthesis.
-						if (token.value.length) tokens.push(token);
+						if (token.value.length) pushToken(tokens, token, i, locations);
 						token = {
 							type: 'string',
 							value: [],
 						};
+						if (locations) token.locations = [ { offset: i, length: 1 }]
 						state = 'string';
 						++parenLevel;
 						break;
 					case 60: // Left angle bracket.
-						if (token.value.length) tokens.push(token);
+						if (token.value.length) pushToken(tokens, token, i, locations);
 						token = {
 							type: 'string',
 							value: [],
 						};
+						if (locations) token.locations = [ { offset: i, length: 1 }]
 						state = 'hexstring';
 						break;
 					case 91: // Left square bracket.
 					case 93: // Right square bracket.
-						if (token.value.length) tokens.push(token);
-						tokens.push({ type: 'token', value: [byte] });
+						if (token.value.length) pushToken(tokens, token, i, locations);
+						tokens.push({
+							type: 'token',
+							value: [byte],
+						});
 						token = {
 							type: 'token',
 							value: [],
@@ -67,8 +79,11 @@ export class Lexer {
 						break;
 					default:
 						if (byte <= 32) {
-							if (token.value.length) tokens.push(token);
-							token = { type: 'token', value: [] };
+						if (token.value.length) pushToken(tokens, token, i, locations);
+							token = {
+								type: 'token',
+								value: [],
+							};
 						} else {
 							token.value.push(byte);
 						}
@@ -88,8 +103,11 @@ export class Lexer {
 						if (parenLevel <= 0) {
 							// In case of an empty string, we have a token
 							// length of 0. This is okay in this case.
-							tokens.push(token);
-							token = { type: 'token', value: [] };
+							pushToken(tokens, token, i, locations);
+							token = {
+								type: 'token',
+								value: [],
+							};
 							state = 'initial';
 						} else {
 							token.value.push(byte);
@@ -112,8 +130,11 @@ export class Lexer {
 					token.value = [...value];
 					// The length of the value should not be checked here so
 					// that empty strings can be encoded.
-					tokens.push(token);
-					token = { type: 'token', value: [] };
+					pushToken(tokens, token, i, locations);
+					token = {
+						type: 'token',
+						value: [],
+					};
 					state = 'initial';
 				} else if (
 					(byte >= 48 && byte <= 57) ||
@@ -125,7 +146,7 @@ export class Lexer {
 			}
 		}
 
-		if (token.value.length) tokens.push(token);
+		if (token.value.length) pushToken(tokens, token, bytes.length, locations);
 
 		return tokens;
 	}
@@ -139,4 +160,13 @@ export class Lexer {
 			return hex - 48;
 		}
 	}
+}
+
+function pushToken(tokens: Token[], token: Token, offset: number, encode: boolean) {
+	if (encode && token.type === 'string') {
+		// We want to throw an exception if locations are not set.
+		const lastLocation = token.locations![token.locations!.length - 1]!;
+		lastLocation.length = offset + 1 - lastLocation.offset;
+	}
+	tokens.push(token);
 }

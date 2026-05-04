@@ -1,14 +1,14 @@
 import * as fs from 'node:fs/promises';
+import { afterEach } from 'node:test';
+import { type PDFDocument, PDFRef } from '@cantoo/pdf-lib';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { CMapMapper } from '../encoding/mappers/cmap-mapper.js';
+import type { FontUsage } from '../font/collect-resources.js';
+import type { FontInfo } from '../font/types.js';
 import { PDFLab } from '../pdf-lab.js';
-import { extractText, type TextBlock } from './extract-text.js';
-import { afterEach } from 'node:test';
-import { PDFDocument, PDFRef } from '@cantoo/pdf-lib';
+import type { GlyphBlock } from './extract-glyphs.js';
 import * as extractGlyphModule from './extract-glyphs.js';
-import { FontInfo } from '../font/types.js';
-import { FontUsage } from '../font/collect-resources.js';
-import { GlyphBlock } from './extract-glyphs.js';
+import { extractText, type TextBlock } from './extract-text.js';
 
 describe('Text Extraction', () => {
 	describe('standard fonts', () => {
@@ -216,9 +216,7 @@ endbfchar
 		};
 		const fonts = new Map<string, FontInfo>();
 		fonts.set(fontRef.toString(), fontInfo);
-		const resources: FontUsage[] = [
-			{ 'F1': fontRef },
-		];
+		const resources: FontUsage[] = [{ F1: fontRef }];
 
 		afterEach(() => {
 			vi.restoreAllMocks();
@@ -226,38 +224,46 @@ endbfchar
 		});
 
 		it('should extract single-byte glyph IDs', async () => {
-			const glyphBlocks: GlyphBlock[] = [{
-				glyphs: [ 0x01 ],
-				fontResource: 'F1',
-				pageRef: PDFRef.of(123),
-				pageNumber: 0,
-			}];
+			const glyphBlocks: GlyphBlock[] = [
+				{
+					glyphs: [0x01],
+					fontResource: 'F1',
+					pageRef: PDFRef.of(123),
+					pageNumber: 0,
+				},
+			];
 
-			vi.spyOn(extractGlyphModule, 'extractGlyphs').mockImplementation(() => glyphBlocks);
+			vi.spyOn(extractGlyphModule, 'extractGlyphs').mockImplementation(
+				() => glyphBlocks,
+			);
 
 			const textBlocks = await extractText(pdfDoc, fonts, resources);
 			expect(textBlocks.length).toBe(1);
 			const textBlock = textBlocks[0]!;
 			expect(textBlock.pageNumber).toBe(0);
-			expect(textBlock.glyphs).toStrictEqual([ 1 ]);
+			expect(textBlock.glyphs).toStrictEqual([1]);
 			expect(textBlock.text).toBe('X');
 		});
 
 		it('should extract double-byte glyph IDs', async () => {
-			const glyphBlocks: GlyphBlock[] = [{
-				glyphs: [ 0x00, 0x01 ],
-				fontResource: 'F1',
-				pageRef: PDFRef.of(123),
-				pageNumber: 0,
-			}];
+			const glyphBlocks: GlyphBlock[] = [
+				{
+					glyphs: [0x00, 0x01],
+					fontResource: 'F1',
+					pageRef: PDFRef.of(123),
+					pageNumber: 0,
+				},
+			];
 
-			vi.spyOn(extractGlyphModule, 'extractGlyphs').mockImplementation(() => glyphBlocks);
+			vi.spyOn(extractGlyphModule, 'extractGlyphs').mockImplementation(
+				() => glyphBlocks,
+			);
 
 			const textBlocks = await extractText(pdfDoc, fonts, resources);
 			expect(textBlocks.length).toBe(1);
 			const textBlock = textBlocks[0]!;
 			expect(textBlock.pageNumber).toBe(0);
-			expect(textBlock.glyphs).toStrictEqual([ 1 ]);
+			expect(textBlock.glyphs).toStrictEqual([1]);
 			expect(textBlock.text).toBe('X');
 		});
 	});

@@ -74,11 +74,7 @@ async function genType1FontsMissing(): Promise<void> {
 	const pdfDoc = await PDFDocument.create();
 
 	await draw(pdfDoc, 'This page uses Helvetica.', StandardFonts.Helvetica);
-	await draw(
-		pdfDoc,
-		'ÄÖÜäöüß in Times-Roman.',
-		StandardFonts.TimesRomanItalic,
-	);
+	await draw(pdfDoc, 'ÄÖÜäöüß in Times-Roman.', StandardFonts.TimesRomanItalic);
 	await draw(pdfDoc, 'ΑαΒβΓγΔδ', StandardFonts.Symbol);
 	await draw(pdfDoc, '✂✈✉☎✔✘★', StandardFonts.ZapfDingbats);
 

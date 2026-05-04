@@ -182,7 +182,7 @@ export class PDFLab {
 				fonts.map((f) => f.ref.toString()),
 		);
 
-		const glyphBlocks = extractGlyphs(this.pdfDocument);
+		const glyphBlocks = extractGlyphs(this.pdfDocument, true);
 		const glyphUsage: Record<string, Set<number>> = {};
 
 		// Make sure that there is an entry for every font.
@@ -208,7 +208,7 @@ export class PDFLab {
 		// Normalize the fontMap.
 		if (typeof options.fontMap !== 'undefined') {
 			const fontMap = options.fontMap;
-			Object.keys(fontMap).forEach(key => {
+			Object.keys(fontMap).forEach((key) => {
 				const entry = fontMap[key]!;
 				delete fontMap[key];
 				const lcKey = key.toLowerCase();

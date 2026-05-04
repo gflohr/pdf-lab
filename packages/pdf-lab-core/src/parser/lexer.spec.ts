@@ -45,7 +45,7 @@ describe('Lexer', () => {
 		const tokens = lexer.tokenize(toBytes('(Hel\\)lo)'));
 
 		expect(tokens.length).toBe(1);
-		const token = tokens[0]!
+		const token = tokens[0]!;
 		expect(token.type).toBe('string');
 		expect(token.value.length).toBeGreaterThan(0);
 	});
@@ -148,6 +148,23 @@ describe('Lexer', () => {
 		expect(stringTokens.length).toBeGreaterThan(1);
 	});
 
+	it('handles strings with glyph positioning', () => {
+		const lexer = new Lexer();
+		const input = `BT
+/F1 12 Tf
+[<0102>2<0303>1<04>] TJ
+ET
+`;
+
+		const tokens = lexer.tokenize(toBytes(input));
+
+		expect(tokens.length).toBeGreaterThan(0);
+
+		// Ensure both string types are present.
+		const stringTokens = tokens.filter((t) => t.type === 'string');
+		expect(stringTokens.length).toBe(3);
+	});
+
 	it('handles CMap bfchar entries', () => {
 		const lexer = new Lexer();
 		const input = `
@@ -172,5 +189,41 @@ describe('Lexer', () => {
 		const tokens = lexer.tokenize(toBytes('<123>'));
 
 		expect(tokens.length).toBeGreaterThan(0);
+	});
+
+	describe('Location parsing', () => {
+		it('should store the locations of simple strings', () => {
+			const lexer = new Lexer();
+			const input = `BT
+/F1 12 Tf
+(Hello) Tj
+ET
+`;
+
+			const tokens = lexer.tokenize(toBytes(input), true);
+			expect(tokens.length).toBeGreaterThan(0);
+
+			const stringTokens = tokens.filter((t) => t.type === 'string');
+			expect(stringTokens.length).toBe(1);
+			const token = stringTokens[0]!;
+			expect(token.locations).toStrictEqual([{ offset: 13, length: 7 }]);
+		});
+
+		it('should store the locations of hex strings', () => {
+			const lexer = new Lexer();
+			const input = `BT
+/F1 12 Tf
+<0102030304> Tj
+ET
+`;
+
+			const tokens = lexer.tokenize(toBytes(input), true);
+			expect(tokens.length).toBeGreaterThan(0);
+
+			const stringTokens = tokens.filter((t) => t.type === 'string');
+			expect(stringTokens.length).toBe(1);
+			const token = stringTokens[0]!;
+			expect(token.locations).toStrictEqual([{ offset: 13, length: 12 }]);
+		});
 	});
 });

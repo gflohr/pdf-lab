@@ -1,6 +1,6 @@
-import { PDFRef } from '@cantoo/pdf-lib';
-import { FontEmbedder, type SubType } from '../embedder.js';
+import type { PDFRef } from '@cantoo/pdf-lib';
 import { StandardEncodings } from '../../encoding/types.js';
+import { FontEmbedder, type SubType } from '../embedder.js';
 
 export class Type1FontEmbedder extends FontEmbedder {
 	get subType(): SubType {
@@ -21,7 +21,10 @@ export class Type1FontEmbedder extends FontEmbedder {
 		// All embedders but the Type1 embedder must not touch an existing
 		// ToUnicode map, unless they have an encoding that is not a standard
 		// encoding.
-		if (this.fontInfo.encoding && StandardEncodings.includes(this.fontInfo.encoding)) {
+		if (
+			this.fontInfo.encoding &&
+			StandardEncodings.includes(this.fontInfo.encoding)
+		) {
 			const cmap = this.createToUnicode();
 
 			const context = this.pdfDoc.context;

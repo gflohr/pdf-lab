@@ -1,10 +1,18 @@
-import { PDFArray, PDFDict, type PDFDocument, PDFName, PDFNumber, PDFRef, PDFString } from '@cantoo/pdf-lib';
+import {
+	PDFArray,
+	PDFDict,
+	type PDFDocument,
+	PDFName,
+	PDFNumber,
+	type PDFRef,
+	PDFString,
+} from '@cantoo/pdf-lib';
 import fontkit from '@pdf-lib/fontkit';
 import type { FontEmbedOptions } from '../pdf-lab.js';
+import { deriveFontFlags } from './derive-font-flags.js';
+import type { OsType } from './load-font.js';
 import { resolveFont } from './resolve-font.js';
 import type { FontData, FontInfo } from './types.js';
-import { deriveFontFlags } from './derive-font-flags.js';
-import { OsType } from './load-font.js';
 
 export type SubType = 'Type0';
 
@@ -119,7 +127,10 @@ export abstract class FontEmbedder {
 		this.fontDict.set(PDFName.of('LastChar'), PDFNumber.of(this.glyphIds.size));
 
 		const metrics = this.extractMetrics();
-		this.fontDict.set(PDFName.of('Widths'), this.pdfDoc.context.obj(metrics.widths));
+		this.fontDict.set(
+			PDFName.of('Widths'),
+			this.pdfDoc.context.obj(metrics.widths),
+		);
 
 		this.includeGlyphs();
 
@@ -131,7 +142,6 @@ export abstract class FontEmbedder {
 
 		const fontDescriptor = await this.embedFontDescriptor(metrics, baseName);
 		this.fontDict.set(PDFName.of('FontDescriptor'), fontDescriptor);
-
 
 		/*
 
@@ -151,7 +161,9 @@ export abstract class FontEmbedder {
 		);
 	}
 
-	protected embedToUnicode(): PDFRef | undefined { return }
+	protected embedToUnicode(): PDFRef | undefined {
+		return;
+	}
 
 	protected coerceCodePoints(cps: number[] | undefined): number {
 		if (!cps?.length) {
@@ -196,7 +208,9 @@ export abstract class FontEmbedder {
 			throw new Error('Cannot embed font without ToUnicode CMap!');
 		}
 		this.glyphIds.forEach((glyphId) => {
-			const codePoint = this.coerceCodePoints(mapper?.lookupCodepoints(glyphId));
+			const codePoint = this.coerceCodePoints(
+				mapper?.lookupCodepoints(glyphId),
+			);
 			const glyph = this.font.glyphForCodePoint(codePoint);
 			subsetGlyphs.push(glyph.id);
 			mapping[codePoint] = glyphId;
@@ -207,7 +221,6 @@ export abstract class FontEmbedder {
 			mapping;
 		(subset as unknown as { glyphs: number[] }).glyphs = subsetGlyphs;
 	}
-
 
 	private async serializeSubset(): Promise<Uint8Array> {
 		const subset = this.subset;
@@ -256,7 +269,10 @@ export abstract class FontEmbedder {
 		const context = this.pdfDoc.context;
 
 		const metrics = this.extractMetrics();
-		const fontDescriptorRef = await this.embedFontDescriptor(metrics, this.fontInfo.fontName ?? 'Unknown');
+		const fontDescriptorRef = await this.embedFontDescriptor(
+			metrics,
+			this.fontInfo.fontName ?? 'Unknown',
+		);
 
 		const cidFontDict = context.obj({
 			Type: PDFName.of('Font'),
@@ -292,9 +308,9 @@ export abstract class FontEmbedder {
 
 		const italicAngle = font.italicAngle || 0;
 
-		const widths = [ 0 ];
+		const widths = [0];
 		const mapper = this.fontInfo.glyphMapper!;
-		this.glyphIds.forEach(glyphId => {
+		this.glyphIds.forEach((glyphId) => {
 			const codePoint = this.coerceCodePoints(mapper.lookupCodepoints(glyphId));
 			const glyph = font.glyphForCodePoint(codePoint);
 
@@ -313,7 +329,9 @@ export abstract class FontEmbedder {
 
 	private computeWidths(): (number | number[])[] {
 		const glyphs: fontkit.Glyph[] = [];
-		this.glyphIds.forEach(glyphId => { glyphs.push(this.font.getGlyph(glyphId)) });
+		this.glyphIds.forEach((glyphId) => {
+			glyphs.push(this.font.getGlyph(glyphId));
+		});
 
 		const widths: (number | number[])[] = [];
 		let currSection: number[] = [];
@@ -341,7 +359,10 @@ export abstract class FontEmbedder {
 		return widths;
 	}
 
-	protected async embedFontDescriptor(metrics: Metrics, fontName: string): Promise<PDFRef> {
+	protected async embedFontDescriptor(
+		metrics: Metrics,
+		fontName: string,
+	): Promise<PDFRef> {
 		const context = this.pdfDoc.context;
 		const fontStreamRef = await this.embedFontStream();
 
@@ -377,6 +398,6 @@ export abstract class FontEmbedder {
 			result += chars[Math.floor(Math.random() * chars.length)];
 		}
 
-	return result;
-}
+		return result;
+	}
 }

@@ -13,17 +13,19 @@ export interface FontFlagOptions {
 const makeFontFlags = (options: FontFlagOptions) => {
 	let flags = 0;
 
-	const flipBit = (bit: number) => { flags |= (1 << (bit - 1)); };
+	const flipBit = (bit: number) => {
+		flags |= 1 << (bit - 1);
+	};
 
-	if (options.fixedPitch)  flipBit(1);
-	if (options.serif)       flipBit(2);
-	if (options.symbolic)    flipBit(3);
-	if (options.script)      flipBit(4);
+	if (options.fixedPitch) flipBit(1);
+	if (options.serif) flipBit(2);
+	if (options.symbolic) flipBit(3);
+	if (options.script) flipBit(4);
 	if (options.nonsymbolic) flipBit(6);
-	if (options.italic)      flipBit(7);
-	if (options.allCap)      flipBit(17);
-	if (options.smallCap)    flipBit(18);
-	if (options.forceBold)   flipBit(19);
+	if (options.italic) flipBit(7);
+	if (options.allCap) flipBit(17);
+	if (options.smallCap) flipBit(18);
+	if (options.forceBold) flipBit(19);
 
 	return flags;
 };
