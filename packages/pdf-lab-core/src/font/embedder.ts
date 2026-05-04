@@ -112,18 +112,34 @@ export abstract class FontEmbedder {
 
 	public async embed() {
 		await this.initialise();
-		this.fontDict.set(PDFName.of('Subtype'), PDFName.of('Type0'));
-		this.fontDict.set(PDFName.of('Encoding'), PDFName.of('Identity-H'));
+		this.fontDict.set(PDFName.of('Subtype'), PDFName.of('TrueType'));
+		const baseName = `${this.generateSubsetPrefix()}+${this.fontInfo.fontName}`;
+		this.fontDict.set(PDFName.of('BaseFont'), PDFName.of(baseName));
+		this.fontDict.set(PDFName.of('FirstChar'), PDFNumber.of(0));
+		this.fontDict.set(PDFName.of('LastChar'), PDFNumber.of(this.glyphIds.size));
+
+		const metrics = this.extractMetrics();
+		this.fontDict.set(PDFName.of('Widths'), this.pdfDoc.context.obj(metrics.widths));
 
 		this.includeGlyphs();
 
 		const toUnicode = this.embedToUnicode();
-		if (toUnicode) this.fontDict.set(PDFName.of('ToUnicode'), toUnicode);
+		if (toUnicode) {
+			this.fontDict.set(PDFName.of('ToUnicode'), toUnicode);
+			this.fontDict.delete(PDFName.of('Encoding'));
+		}
+
+		const fontDescriptor = await this.embedFontDescriptor(metrics, baseName);
+		this.fontDict.set(PDFName.of('FontDescriptor'), fontDescriptor);
+
+
+		/*
 
 		const cidFontDict = await this.embedCIDFontDict();
 		const descendantFonts = PDFArray.withContext(this.pdfDoc.context);
 		descendantFonts.push(cidFontDict);
 		this.fontDict.set(PDFName.of('DescendantFonts'), descendantFonts);
+		*/
 	}
 
 	private async resolveFont(): Promise<FontData> {
@@ -168,49 +184,6 @@ export abstract class FontEmbedder {
 					return cps[0]!; // Better than nothing.
 			}
 		}
-	}
-
-	protected createToUnicode(): string {
-		const mapper = this.fontInfo.glyphMapper;
-		if (typeof mapper === 'undefined') {
-			throw new Error(
-				`The font '${this.fontInfo.fontName}' does not use a standard encoding and does not have a ToUnicode map!`,
-			);
-		}
-
-		const glyphIds = this.glyphIds;
-
-		let cmap = `/CIDInit /ProcSet findresource begin
-12 dict begin
-begincmap
-/CIDSystemInfo <<
-  /Registry (Adobe)
-  /Ordering (UCS)
-  /Supplement 0
->> def
-/CMapName /Adobe-Identity-UCS def
-/CMapType 2 def
-1 begincodespacerange
-<0000> <ffff>
-endcodespacerange
-${glyphIds.size} beginbfchar
-`;
-
-		let i = 0;
-		glyphIds.forEach((glyphId) => {
-			++i;
-			const codepoint = this.coerceCodePoints(mapper.lookupCodepoints(glyphId));
-			const hexCodePoint = `<${codepoint.toString(16).padStart(4, '0')}>`;
-			const hexGlyphId = `<${i.toString(16).padStart(4, '0')}>`;
-			cmap += `${hexGlyphId} ${hexCodePoint}\n`;
-		});
-
-		cmap += `endbfchar
-endcmap
-CMapName currentdict /CMap defineresource pop
-end
-`;
-		return cmap;
 	}
 
 	protected includeGlyphs() {
@@ -283,7 +256,7 @@ end
 		const context = this.pdfDoc.context;
 
 		const metrics = this.extractMetrics();
-		const fontDescriptorRef = await this.embedFontDescriptor(metrics);
+		const fontDescriptorRef = await this.embedFontDescriptor(metrics, this.fontInfo.fontName ?? 'Unknown');
 
 		const cidFontDict = context.obj({
 			Type: PDFName.of('Font'),
@@ -304,7 +277,6 @@ end
 
 	private extractMetrics(): Metrics {
 		const font = this.font;
-		const unitsPerEm = font.unitsPerEm;
 
 		const bbox = [
 			this.scale * font.bbox.minX,
@@ -320,7 +292,14 @@ end
 
 		const italicAngle = font.italicAngle || 0;
 
-		const widths = this.computeWidths();
+		const widths = [ 0 ];
+		const mapper = this.fontInfo.glyphMapper!;
+		this.glyphIds.forEach(glyphId => {
+			const codePoint = this.coerceCodePoints(mapper.lookupCodepoints(glyphId));
+			const glyph = font.glyphForCodePoint(codePoint);
+
+			widths.push(glyph.advanceWidth);
+		});
 
 		return {
 			bbox,
@@ -362,7 +341,7 @@ end
 		return widths;
 	}
 
-	protected async embedFontDescriptor(metrics: Metrics): Promise<PDFRef> {
+	protected async embedFontDescriptor(metrics: Metrics, fontName: string): Promise<PDFRef> {
 		const context = this.pdfDoc.context;
 		const fontStreamRef = await this.embedFontStream();
 
@@ -370,14 +349,14 @@ end
 
 		const fontDescriptor = context.obj({
 			Type: 'FontDescriptor',
-			FontName: this.fontInfo.baseFont,
+			FontName: fontName,
 			Flags: deriveFontFlags(this.font),
 			FontBBox: context.obj(metrics.bbox),
 			ItalicAngle: PDFNumber.of(metrics.italicAngle),
 			Ascent: PDFNumber.of(metrics.ascent),
 			Descent: PDFNumber.of(metrics.descent),
 			CapHeight: PDFNumber.of(metrics.capHeight),
-			XHeight: PDFNumber.of((this.font.xHeight || 0) * scale),
+			//XHeight: PDFNumber.of((this.font.xHeight || 0) * scale),
 			StemV: PDFNumber.of(80),
 			[this.isCFF() ? 'FontFile3' : 'FontFile2']: fontStreamRef,
 		});
@@ -388,4 +367,16 @@ end
 	private glyphId(glyph?: fontkit.Glyph): number {
 		return glyph ? glyph.id : -1;
 	}
+
+	// FIXME! Check for collisions!
+	private generateSubsetPrefix(): string {
+		const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+		let result = '';
+
+		for (let i = 0; i < 6; i++) {
+			result += chars[Math.floor(Math.random() * chars.length)];
+		}
+
+	return result;
+}
 }

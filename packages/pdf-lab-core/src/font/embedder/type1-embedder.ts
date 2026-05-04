@@ -13,6 +13,7 @@ export class Type1FontEmbedder extends FontEmbedder {
 		this.glyphIds.forEach((glyphId) => {
 			const codePoint = this.coerceCodePoints(mapper.lookupCodepoints(glyphId));
 			const glyph = this.font.glyphForCodePoint(codePoint);
+console.dir(glyph);
 			subset.includeGlyph(glyph);
 		});
 	}
@@ -29,5 +30,47 @@ export class Type1FontEmbedder extends FontEmbedder {
 
 			return context.register(cmapStream);
 		}
+	}
+
+	protected createToUnicode(): string {
+		const mapper = this.fontInfo.glyphMapper;
+		if (typeof mapper === 'undefined') {
+			throw new Error(
+				`The font '${this.fontInfo.fontName}' does not use a standard encoding and does not have a ToUnicode map!`,
+			);
+		}
+
+		const glyphIds = this.glyphIds;
+
+		let cmap = `/CIDInit /ProcSet findresource begin
+12 dict begin
+begincmap
+/CIDSystemInfo <<
+  /Registry (Adobe)
+  /Ordering (UCS)
+  /Supplement 0
+>> def
+/CMapName /Adobe-Identity-UCS def
+/CMapType 2 def
+1 begincodespacerange
+<0000> <ffff>
+endcodespacerange
+${glyphIds.size} beginbfchar
+`;
+
+		glyphIds.forEach((glyphId) => {
+			const codePoint = this.coerceCodePoints(mapper.lookupCodepoints(glyphId));
+console.log(`glyphId vs code point: ${glyphId}/${codePoint}`);
+			const hexCodePoint = `<${codePoint.toString(16).padStart(4, '0')}>`;
+			const hexGlyphId = `<${glyphId.toString(16).padStart(2, '0')}>`;
+			cmap += `${hexGlyphId} ${hexCodePoint}\n`;
+		});
+
+		cmap += `endbfchar
+endcmap
+CMapName currentdict /CMap defineresource pop
+end
+`;
+		return cmap;
 	}
 }
