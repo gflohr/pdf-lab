@@ -13,7 +13,6 @@ export class Type1FontEmbedder extends FontEmbedder {
 		this.glyphIds.forEach((glyphId) => {
 			const codePoint = this.coerceCodePoints(mapper.lookupCodepoints(glyphId));
 			const glyph = this.font.glyphForCodePoint(codePoint);
-console.dir(glyph);
 			subset.includeGlyph(glyph);
 		});
 	}
@@ -60,7 +59,6 @@ ${glyphIds.size} beginbfchar
 
 		glyphIds.forEach((glyphId) => {
 			const codePoint = this.coerceCodePoints(mapper.lookupCodepoints(glyphId));
-console.log(`glyphId vs code point: ${glyphId}/${codePoint}`);
 			const hexCodePoint = `<${codePoint.toString(16).padStart(4, '0')}>`;
 			const hexGlyphId = `<${glyphId.toString(16).padStart(2, '0')}>`;
 			cmap += `${hexGlyphId} ${hexCodePoint}\n`;
