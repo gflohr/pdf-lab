@@ -188,7 +188,7 @@ function extractTJStringArray(tokens: Token[], end: number): Token {
 	const stringToken: Token = {
 		type: 'string',
 		value: [] as number[],
-	};
+	} as Token;
 
 	for (let i = end - 1; i >= 0; --i) {
 		const token = tokens[i]!;
