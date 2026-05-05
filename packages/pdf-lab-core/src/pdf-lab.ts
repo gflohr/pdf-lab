@@ -182,7 +182,7 @@ export class PDFLab {
 				fonts.map((f) => f.ref.toString()),
 		);
 
-		const glyphBlocks = extractGlyphs(this.pdfDocument, true);
+		const glyphBlocks = extractGlyphs(this.pdfDocument);
 		const glyphUsage: Record<string, Set<number>> = {};
 
 		// Make sure that there is an entry for every font.

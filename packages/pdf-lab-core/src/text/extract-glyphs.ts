@@ -16,16 +16,20 @@ export type GlyphBlock = {
 	fontResource: string;
 	pageRef: PDFRef;
 	pageNumber: number;
+	stream: PDFRawStream;
 };
+
+export class GlyphExtractor {
+
+}
 
 export function extractGlyphs(
 	pdfDoc: PDFDocument,
-	encode = false,
 ): GlyphBlock[] {
 	const blocks: GlyphBlock[] = [];
 	const pages = pdfDoc.getPages();
 	for (let i = 0; i < pages.length; ++i) {
-		parsePage(blocks, pages[i]!, i, pdfDoc, encode);
+		parsePage(blocks, pages[i]!, i, pdfDoc);
 	}
 
 	return blocks;
@@ -37,13 +41,12 @@ function parseRecursively(
 	pageRef: PDFRef,
 	pageNumber: number,
 	pdfDoc: PDFDocument,
-	encode: boolean,
 ) {
 	if (obj instanceof PDFRawStream) {
-		parseStream(collector, pageRef, pageNumber, obj, encode);
-		parseDictionary(collector, obj.dict, pageRef, pageNumber, pdfDoc, encode);
+		parseStream(collector, pageRef, pageNumber, obj);
+		parseDictionary(collector, obj.dict, pageRef, pageNumber, pdfDoc);
 	} else if (obj instanceof PDFDict) {
-		parseDictionary(collector, obj, pageRef, pageNumber, pdfDoc, encode);
+		parseDictionary(collector, obj, pageRef, pageNumber, pdfDoc);
 	} else if (obj instanceof PDFArray) {
 		for (let i = 0; i < obj.size(); ++i) {
 			const item = obj.get(i);
@@ -55,7 +58,6 @@ function parseRecursively(
 					pageRef,
 					pageNumber,
 					pdfDoc,
-					encode,
 				);
 			}
 		}
@@ -68,7 +70,6 @@ function parseDictionary(
 	pageRef: PDFRef,
 	pageNumber: number,
 	pdfDoc: PDFDocument,
-	encode: boolean,
 ) {
 	const resources = dict.get(PDFName.of('Resources'));
 	if (!resources) return;
@@ -86,7 +87,7 @@ function parseDictionary(
 		const ref = xo.get(key);
 		const resolved = pdfDoc.context.lookup(ref);
 		if (resolved instanceof PDFRawStream) {
-			parseStream(collector, pageRef, pageNumber, resolved, encode);
+			parseStream(collector, pageRef, pageNumber, resolved);
 		}
 	});
 }
@@ -96,14 +97,13 @@ function parsePage(
 	page: PDFPage,
 	pageNumber: number,
 	pdfDoc: PDFDocument,
-	encode: boolean,
 ) {
 	const node = page.node;
 
 	const contents = node.get(PDFName.of('Contents'));
 	if (!contents) return;
 
-	parseRecursively(collector, contents, page.ref, pageNumber, pdfDoc, encode);
+	parseRecursively(collector, contents, page.ref, pageNumber, pdfDoc);
 }
 
 function parseStream(
@@ -111,7 +111,6 @@ function parseStream(
 	pageRef: PDFRef,
 	pageNumber: number,
 	stream: PDFRawStream,
-	encode: boolean,
 ) {
 	const decoded = decodePDFRawStream(stream);
 	const bytes = decoded.getBytes(0);
@@ -154,6 +153,7 @@ function parseStream(
 							fontResource,
 							pageRef,
 							pageNumber,
+							stream,
 						});
 					}
 					break;
@@ -173,6 +173,7 @@ function parseStream(
 								fontResource,
 								pageRef,
 								pageNumber,
+								stream,
 							});
 						}
 					}
