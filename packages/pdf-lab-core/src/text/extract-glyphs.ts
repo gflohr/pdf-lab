@@ -1,11 +1,8 @@
 import {
 	decodePDFRawStream,
 	PDFArray,
-	PDFDict,
 	type PDFDocument,
 	PDFName,
-	type PDFObject,
-	type PDFPage,
 	PDFRawStream,
 	type PDFRef,
 } from '@cantoo/pdf-lib';
