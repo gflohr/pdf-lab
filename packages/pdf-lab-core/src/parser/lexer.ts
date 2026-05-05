@@ -105,6 +105,7 @@ export class Lexer {
 						break;
 					case 92: // Backslash.
 						++i;
+						token.value.push(byte);
 						break;
 					case 41: // Closing parenthesis.
 						--parenLevel;

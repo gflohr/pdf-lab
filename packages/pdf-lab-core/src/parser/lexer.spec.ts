@@ -1,8 +1,13 @@
-import { describe, expect, it } from 'vitest';
-import { Lexer } from './lexer.js';
+import * as fs from 'node:fs/promises';
+import { beforeAll, describe, expect, it } from 'vitest';
+import { Lexer, Token } from './lexer.js';
 
 function toBytes(str: string): Uint8Array {
 	return new TextEncoder().encode(str);
+}
+
+function decodeNumberArray(codes: number[]): string {
+	return codes.map(n => String.fromCodePoint(n)).join('');
 }
 
 describe('Lexer', () => {
@@ -236,6 +241,30 @@ ET
 			const token = stringTokens[0]!;
 			expect(token.offset).toBe(13);
 			expect(token.length).toBe(12);
+		});
+	});
+
+	describe('literal string extraction', () => {
+		let tokens: Token[];
+
+		beforeAll(async () => {
+			const contents = await fs.readFile('../../assets/text/string-edge-cases.txt');
+			tokens = new Lexer().tokenize(contents);
+			console.dir(tokens);
+		});
+
+		it('should find all tokens', () => {
+			expect(tokens.length).toBe(56);
+		});
+
+		it('should extract a simple literal', () => {
+			expect(tokens[7]!.type).toBe('string');
+			expect(decodeNumberArray(tokens[7]!.value)).toBe('Hello, world!');
+		});
+
+		it.skip('should extract a literal with BOM', () => {
+			expect(tokens[9]!.type).toBe('string');
+			expect(decodeNumberArray(tokens[9]!.value)).toBe('(Hello), (world)!)');
 		});
 	});
 });
