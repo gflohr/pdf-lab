@@ -1,5 +1,6 @@
 import {
 	decodePDFRawStream,
+	PDFArray,
 	PDFDict,
 	type PDFDocument,
 	PDFName,
@@ -122,39 +123,23 @@ export abstract class FontEmbedder {
 
 	public async embed() {
 		await this.initialise();
-		this.fontDict.set(PDFName.of('Subtype'), PDFName.of('TrueType'));
-		const baseName = `${this.generateSubsetPrefix()}+${this.fontInfo.fontName}`;
-		this.fontDict.set(PDFName.of('BaseFont'), PDFName.of(baseName));
-		//this.fontDict.delete(PDFName.of('Encoding'));
-this.fontDict.set(PDFName.of('Encoding'), PDFName.of('Identity-H'));
-
-		this.fontDict.set(PDFName.of('FirstChar'), PDFNumber.of(0));
-		this.fontDict.set(PDFName.of('LastChar'), PDFNumber.of(this.glyphIds.size));
-
-		const metrics = this.extractMetrics();
-		this.fontDict.set(
-			PDFName.of('Widths'),
-			this.pdfDoc.context.obj(metrics.widths),
-		);
+		this.fontDict.set(PDFName.of('Subtype'), PDFName.of('Type0'));
+		const subsetPrefix = this.generateSubsetPrefix();
+		const baseFontName = `${subsetPrefix}+${this.fontInfo.fontName ?? 'Unknown'}`;
+		this.fontDict.set(PDFName.of('BaseFont'), PDFName.of(baseFontName));
+		this.fontDict.set(PDFName.of('Encoding'), PDFName.of('Identity-H'));
 
 		this.includeGlyphs();
 
 		const toUnicode = this.embedToUnicode();
 		this.fontDict.set(PDFName.of('ToUnicode'), toUnicode);
-		//this.fontDict.delete(PDFName.of('Encoding'));
-
-		const fontDescriptor = await this.embedFontDescriptor(metrics, baseName);
-		this.fontDict.set(PDFName.of('FontDescriptor'), fontDescriptor);
 
 		this.recodeTextBlocks();
 
-		/*
-
-		const cidFontDict = await this.embedCIDFontDict();
+		const cidFontDict = await this.embedCIDFontDict(baseFontName);
 		const descendantFonts = PDFArray.withContext(this.pdfDoc.context);
 		descendantFonts.push(cidFontDict);
 		this.fontDict.set(PDFName.of('DescendantFonts'), descendantFonts);
-		*/
 	}
 
 	private async resolveFont(): Promise<FontData> {
@@ -165,7 +150,6 @@ this.fontDict.set(PDFName.of('Encoding'), PDFName.of('Identity-H'));
 			this.options.platform as OsType,
 		);
 	}
-
 
 	private embedToUnicode(): PDFRef {
 		const cmap = this.createToUnicode();
@@ -329,20 +313,20 @@ end
 		return (this.subset as unknown as { cff: boolean }).cff;
 	}
 
-	private async embedCIDFontDict(): Promise<PDFRef> {
+	private async embedCIDFontDict(baseFontName: string): Promise<PDFRef> {
 		const context = this.pdfDoc.context;
 
 		const metrics = this.extractMetrics();
 		const fontDescriptorRef = await this.embedFontDescriptor(
 			metrics,
-			this.fontInfo.fontName ?? 'Unknown',
+			baseFontName,
 		);
 
 		const cidFontDict = context.obj({
 			Type: PDFName.of('Font'),
 			Subtype: PDFName.of(this.isCFF() ? 'CIDFontType0' : 'CIDFontType2'),
 			CIDToGIDMap: PDFName.of('Identity'),
-			BaseFont: PDFName.of(this.fontInfo.baseFont ?? 'Unknown'),
+			BaseFont: PDFName.of(baseFontName),
 			CIDSystemInfo: {
 				Registry: PDFString.of('Adobe'),
 				Ordering: PDFString.of('Identity'),
@@ -384,20 +368,7 @@ end
 		};
 	}
 
-	protected computeWidths(): number[] {
-		const widths = [0];
-		const mapper = this.fontInfo.glyphMapper!;
-		this.glyphIds.forEach((glyphId) => {
-			const codePoint = this.coerceCodePoints(mapper.lookupCodepoints(glyphId));
-			const glyph = this.font.glyphForCodePoint(codePoint);
-
-			widths.push(glyph.advanceWidth);
-		});
-
-		return widths;
-	}
-
-	private computeCIDWidths(): (number | number[])[] {
+	protected computeWidths(): (number | number[])[] {
 		const glyphs: fontkit.Glyph[] = [];
 		this.glyphIds.forEach((glyphId) => {
 			glyphs.push(this.font.getGlyph(glyphId));
@@ -525,6 +496,6 @@ end
 	}
 
 	private recodePDFString(pdfString: string): string {
-		return '<01>';
+		return '<0001>';
 	}
 }
