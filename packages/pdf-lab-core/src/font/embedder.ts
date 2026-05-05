@@ -447,10 +447,17 @@ end
 	}
 
 	private recodeTextBlocks() {
-		// It is crucial to recode the text blocks in reverse order. Otherwise,
-		// the offsets will change while recoding.
-		// FIXME! Group by stream!
-		this.glyphBlocks.reverse().forEach(block => { this.recodeStream([block]) });
+		const groups: GlyphBlock[][] = [];
+
+		this.glyphBlocks.forEach(block => {
+			const streamId = block.streamId;
+			groups[streamId] ??= [];
+			groups[streamId].push(block);
+		});
+
+		for (const group of groups) {
+			this.recodeStream(group);
+		}
 	}
 
 	private recodeStream(blocks: GlyphBlock[]) {
