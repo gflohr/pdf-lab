@@ -183,8 +183,6 @@ export abstract class FontEmbedder {
 			glyphIdLength = 8;
 			codeSpaceRange = '<00000000> <ffffffff>'
 		}
-glyphIdLength = 4;
-codeSpaceRange = '<0000><ffff>';
 
 		const mapper = this.fontInfo.glyphMapper;
 		if (typeof mapper === 'undefined') {
