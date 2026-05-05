@@ -14,6 +14,7 @@ export type GlyphBlock = {
 	pageRef: PDFRef;
 	pageNumber: number;
 	stream: PDFRawStream;
+	streamId: number;
 	offset: number;
 	length: number;
 };
@@ -22,6 +23,7 @@ export function extractGlyphs(pdfDoc: PDFDocument): GlyphBlock[] {
 	const pages = pdfDoc.getPages();
 	const blocks: GlyphBlock[] = [];
 
+	let streamId = 0;
 	for (let i = 0; i < pages.length; ++i) {
 		const page = pages[i]!;
 
@@ -30,7 +32,7 @@ export function extractGlyphs(pdfDoc: PDFDocument): GlyphBlock[] {
 
 		if (contents instanceof PDFRawStream) {
 			// Case 1: single stream.
-			parseStream(blocks, page.ref, i, contents);
+			parseStream(blocks, page.ref, i, contents, streamId++);
 		} else if (contents instanceof PDFArray) {
 			// Case 2: array of streams
 			for (let j = 0; j < contents.size(); ++j) {
@@ -38,14 +40,14 @@ export function extractGlyphs(pdfDoc: PDFDocument): GlyphBlock[] {
 				const resolved = pdfDoc.context.lookup(item);
 
 				if (resolved instanceof PDFRawStream) {
-					parseStream(blocks, page.ref, i, resolved);
+					parseStream(blocks, page.ref, i, resolved, streamId++);
 				}
 			}
 		} else {
 			// Case 3: indirect ref
 			const resolved = pdfDoc.context.lookup(contents);
 			if (resolved instanceof PDFRawStream) {
-				parseStream(blocks, page.ref, i, resolved);
+				parseStream(blocks, page.ref, i, resolved, streamId++);
 			}
 		}
 	}
@@ -58,6 +60,7 @@ function parseStream(
 	pageRef: PDFRef,
 	pageNumber: number,
 	stream: PDFRawStream,
+	streamId: number,
 ) {
 	const decoded = decodePDFRawStream(stream);
 	const bytes = decoded.getBytes(0);
@@ -104,6 +107,7 @@ function parseStream(
 							stream,
 							offset: token.offset,
 							length: token.length,
+							streamId,
 						});
 					}
 					break;
@@ -126,6 +130,7 @@ function parseStream(
 								stream,
 								offset: textToken.offset,
 								length: textToken.length,
+								streamId,
 							});
 						}
 					}

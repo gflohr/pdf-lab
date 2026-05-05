@@ -495,8 +495,15 @@ end
 
 		const newBytes = new Uint8Array(out);
 
-		stream.updateContents(newBytes);
-		stream.dict.delete(PDFName.of('Filter'));
+		if (this.options.compress) {
+			const compressed = this.pdfDoc.context.flateStream(newBytes);
+			stream.dict.set(PDFName.of('Filter'), PDFName.of('FlateDecode'));
+			stream.dict.set(PDFName.of('Length'), PDFNumber.of(compressed.contents.length));
+			stream.updateContents(compressed.contents);
+		} else {
+			stream.updateContents(newBytes);
+			stream.dict.delete(PDFName.of('Filter'));
+		}
 	}
 
 	private recodePDFString(pdfString: string): string {
