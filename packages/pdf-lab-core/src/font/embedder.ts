@@ -32,7 +32,8 @@ export abstract class FontEmbedder {
 	private _font: fontkit.Font | undefined;
 	private _subset: fontkit.Subset | undefined;
 	private _scale: number | undefined;
-	private _glyphs: fontkit.Glyph[] | undefined;
+	private _glyphs: fontkit.Glyph[] = [];
+	private _glyphMapping: Record<string, number> = {};
 
 	constructor(
 		private readonly _pdfDoc: PDFDocument,
@@ -95,7 +96,11 @@ export abstract class FontEmbedder {
 	}
 
 	private get glyphs(): fontkit.Glyph[] {
-		return this._glyphs!;
+		return this._glyphs;
+	}
+
+	private get glyphMapping(): Record<string, number> {
+		return this._glyphMapping;
 	}
 
 	private async initialise() {
@@ -258,13 +263,14 @@ end
 	}
 
 	protected includeGlyphs() {
-		this._glyphs = [];
 		const subset = this.subset;
 
 		const mapper = this.fontInfo.glyphMapper;
 		if (!mapper) {
 			throw new Error('Cannot embed font without ToUnicode CMap!');
 		}
+
+		const newGlyphId = 0;
 		this.glyphIds.forEach((glyphId) => {
 			const codePoint = this.coerceCodePoints(
 				mapper?.lookupCodepoints(glyphId),
@@ -272,6 +278,7 @@ end
 			const glyph = this.font.glyphForCodePoint(codePoint);
 			subset.includeGlyph(glyph);
 			this.glyphs.push(glyph);
+			this.glyphMapping[glyphId] = newGlyphId;
 		});
 	}
 
@@ -469,7 +476,9 @@ end
 		const out: number[] = [];
 		let cursor = 0;
 
-		for (const block of blocks) {
+		// Patch the streams in reverse direction. This ensures that the
+		// offsets are correct.
+		for (const block of blocks.reverse()) {
 			if (block.offset > cursor) {
 				out.push(...bytes.slice(cursor, block.offset));
 			}
@@ -505,6 +514,12 @@ end
 	}
 
 	private recodePDFString(pdfString: string): string {
-		return '<0001>';
+		if (pdfString.length < 3) return '<>';
+		const operator = pdfString[0];
+		const operand = pdfString.slice(1, pdfString.length - 2);
+
+		console.log(`operator: '${operator}', operand: '${operand}'`);
+
+		return '<01>';
 	}
 }
