@@ -420,7 +420,7 @@ end
 			Ascent: PDFNumber.of(metrics.ascent),
 			Descent: PDFNumber.of(metrics.descent),
 			CapHeight: PDFNumber.of(metrics.capHeight),
-			//XHeight: PDFNumber.of((this.font.xHeight || 0) * scale),
+			XHeight: PDFNumber.of((this.font.xHeight || 0) * scale),
 			StemV: PDFNumber.of(80),
 			[this.isCFF() ? 'FontFile3' : 'FontFile2']: fontStreamRef,
 		});
@@ -453,9 +453,7 @@ end
 			groups[streamId].push(block);
 		});
 
-		for (const group of groups) {
-			this.recodeStream(group);
-		}
+		groups.forEach(group => { this.recodeStream(group) });
 	}
 
 	private recodeStream(blocks: GlyphBlock[]) {
@@ -472,28 +470,23 @@ end
 		let cursor = 0;
 
 		for (const block of blocks) {
-			// 1. copy everything before this block
 			if (block.offset > cursor) {
-			out.push(...bytes.slice(cursor, block.offset));
+				out.push(...bytes.slice(cursor, block.offset));
 			}
 
-			// 2. extract original PDF string
 			const raw = decoder.decode(
-			bytes.slice(block.offset, block.offset + block.length)
+				bytes.slice(block.offset, block.offset + block.length)
 			);
 
-			// 3. replace it
 			const replaced = this.recodePDFString(raw);
 
-			// 4. write replacement (latin1-safe)
 			for (let i = 0; i < replaced.length; i++) {
-			out.push(replaced.charCodeAt(i) & 0xff);
+				out.push(replaced.charCodeAt(i) & 0xff);
 			}
 
 			cursor = block.offset + block.length;
 		}
 
-		// 5. append remaining tail
 		if (cursor < bytes.length) {
 			out.push(...bytes.slice(cursor));
 		}

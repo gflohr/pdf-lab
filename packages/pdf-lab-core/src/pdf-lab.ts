@@ -223,6 +223,9 @@ export class PDFLab {
 		}
 
 		for (const font of fonts) {
+			const fontBlocks = glyphsInFont[font.ref.toString()];
+			if (typeof fontBlocks === 'undefined') continue;
+
 			switch (font.subtype) {
 				case 'Type1':
 					await new Type1FontEmbedder(
