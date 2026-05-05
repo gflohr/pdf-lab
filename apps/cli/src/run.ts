@@ -26,7 +26,6 @@ export async function run(argv = process.argv.slice(2)): Promise<number> {
 	gtx.bindtextdomain(localePath);
 	await gtx.resolve();
 
-	try {
 		let exitCode = 0;
 		const ulocale = Textdomain.locale.replace('-', '_');
 
@@ -98,14 +97,4 @@ export async function run(argv = process.argv.slice(2)): Promise<number> {
 		await program.help().epilogue(epilogue).parse();
 
 		return exitCode;
-	} catch (exception) {
-		console.error(
-			gtx._x('{programName}: unhandled exception: {exception}', {
-				programName: Package.name,
-				exception,
-			}),
-		);
-
-		throw exception;
-	}
 }

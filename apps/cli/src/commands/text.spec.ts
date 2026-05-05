@@ -75,23 +75,6 @@ describe('Text Command', () => {
 		expect(result).toBe(0);
 	});
 
-	it('run() should return 1 and log an error if doRun throws', async () => {
-		const error = new Error('test error');
-		vi.spyOn(
-			textCommand as unknown as { doRun: () => Promise<void> },
-			'doRun',
-		).mockRejectedValue(error);
-
-		const consoleErrorSpy = vi
-			.spyOn(console, 'error')
-			.mockImplementation(() => {});
-
-		const result = await textCommand.run(Buffer.from(''), {} as Arguments);
-
-		expect(consoleErrorSpy).toHaveBeenCalledWith('pdf-lab: Error: test error');
-		expect(result).toBe(1);
-	});
-
 	describe('output format', () => {
 		const textBlocks: TextBlock[] = [
 			{
@@ -105,6 +88,7 @@ describe('Text Command', () => {
 					encoding: 'MacRomanEncoding',
 				},
 				pageNumber: 0,
+				glyphs: [],
 			},
 			{
 				text: 'Бързата кафява лисица прескача 13 мързеливи кучета.',
@@ -116,6 +100,7 @@ describe('Text Command', () => {
 					subtype: 'Type1',
 				},
 				pageNumber: 0,
+				glyphs: [],
 			},
 		];
 		const textBlocksDto = structuredClone<TextBlock[]>(textBlocks);
@@ -123,6 +108,7 @@ describe('Text Command', () => {
 		// Patch the object.
 		textBlocksDto.forEach((block) => {
 			block.font.ref = block.font.ref.tag as unknown as PDFRef;
+			delete (block as Record<string, unknown>).glyphs;
 		});
 
 		it('should output text only', async () => {

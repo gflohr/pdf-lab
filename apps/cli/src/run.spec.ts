@@ -42,24 +42,6 @@ describe('pdf-lab-cli', () => {
 			expect(doRunSpy).toHaveBeenCalledTimes(1);
 		});
 
-		it('should log exceptions', async () => {
-			const argv = ['text', 'sample.pdf'];
-
-			const doRunSpy = vi
-				.spyOn(
-					TextCommand.prototype as unknown as { doRun: () => Promise<void> },
-					'doRun',
-				)
-				.mockRejectedValue('boum');
-
-			const exitCode = await run(argv);
-
-			expect(exitCode).toBe(1);
-			expect(doRunSpy).toHaveBeenCalledTimes(1);
-			expect(loadInput).toHaveBeenCalledWith('sample.pdf');
-			expect(consoleErrorSpy).toHaveBeenCalledWith(`${Package.name}: boum`);
-		});
-
 		it('should use defaults', async () => {
 			const doRunSpy = vi
 				.spyOn(
@@ -131,22 +113,6 @@ describe('pdf-lab-cli', () => {
 			expect(exitCode).toBe(0);
 			expect(doRunSpy).toHaveBeenCalledTimes(1);
 			expect(loadInput).toHaveBeenCalledWith('-');
-		});
-
-		it('should re-throw exceptions', async () => {
-			const optionsSpy = vi
-				.spyOn(TextCommand.prototype, 'options')
-				.mockImplementation(() => {
-					throw new Error('boum');
-				});
-
-			await expect(run(['text'])).rejects.toThrow('boum');
-
-			expect(optionsSpy).toHaveBeenCalledTimes(1);
-			expect(consoleErrorSpy).toHaveBeenCalledTimes(1);
-			expect(consoleErrorSpy).toHaveBeenCalledWith(
-				'pdf-lab: unhandled exception: Error: boum',
-			);
 		});
 	});
 });

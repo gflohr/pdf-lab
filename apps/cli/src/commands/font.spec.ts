@@ -29,7 +29,6 @@ import { FontCommand } from './font.js';
 describe('Font command', () => {
 	let fontCommand: FontCommand;
 	let consoleLogSpy: ReturnType<typeof vi.spyOn>;
-	let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
 	let fontInfos: FontInfo[];
 	let fontInfoMap: Map<string, FontInfo>;
 	let fontInfoDtos: FontInfoDto[];
@@ -38,7 +37,6 @@ describe('Font command', () => {
 		fontCommand = new FontCommand();
 		(coerceOptions as Mock).mockReturnValue(true);
 		consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-		consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
 		fontInfos = [
 			{
@@ -90,12 +88,7 @@ describe('Font command', () => {
 	});
 
 	it('should throw an error if nothing to do', async () => {
-		const result = await fontCommand.run(Buffer.from(''), {} as Arguments);
-
-		expect(result).toBe(1);
-		expect(consoleErrorSpy).toHaveBeenCalledExactlyOnceWith(
-			expect.stringContaining('nothing to do'),
-		);
+		await expect(fontCommand.run(Buffer.from(''), {} as Arguments)).rejects.toThrow(/nothing to do/);
 	});
 
 	it('run() should call collectFonts and return 0 on success', async () => {
@@ -112,25 +105,6 @@ describe('Font command', () => {
 
 		expect(collectFontsMock).toHaveBeenCalledTimes(1);
 		expect(result).toBe(0);
-	});
-
-	it('run() should return 1 and log an error if doRun throws', async () => {
-		const error = new Error('test error');
-		vi.spyOn(
-			fontCommand as unknown as { doRun: () => Promise<void> },
-			'doRun',
-		).mockRejectedValue(error);
-
-		const consoleErrorSpy = vi
-			.spyOn(console, 'error')
-			.mockImplementation(() => {});
-
-		const result = await fontCommand.run(Buffer.from(''), {} as Arguments);
-
-		expect(consoleErrorSpy).toHaveBeenCalledWith(
-			expect.stringContaining('pdf-lab: Error: test error'),
-		);
-		expect(result).toBe(1);
 	});
 
 	describe('output format', () => {

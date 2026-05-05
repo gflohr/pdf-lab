@@ -183,18 +183,7 @@ export class FontCommand implements Command {
 			return 1;
 		}
 
-		try {
-			await this.doRun(input, configOptions);
-			return 0;
-		} catch (e) {
-			console.trace(
-				gtx._x('{programName}: {error}', {
-					programName: Package.name,
-					error: e,
-				}),
-			);
-
-			return 1;
-		}
+		await this.doRun(input, configOptions);
+		return 0;
 	}
 }

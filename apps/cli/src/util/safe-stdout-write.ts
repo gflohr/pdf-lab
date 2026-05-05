@@ -5,7 +5,7 @@
 // test, therefore would have to do a large write to file descriptor 1
 // which is not feasible.
 //
-// What the function addresses is a problem writing large schema data
+// What the function addresses is a problem writing large amounts of data
 // (around 90 kb) to the console. If that is piped to a program like `jq`
 // the output gets truncated to 64k bytes when you just do a
 // conventional `process.stdout.write()`.
