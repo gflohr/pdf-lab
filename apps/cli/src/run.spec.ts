@@ -6,7 +6,6 @@ import {
 	type MockInstance,
 	vi,
 } from 'vitest';
-import { Package } from './package.js';
 import { loadInput } from './util/load-input.js';
 
 vi.mock('node:fs/promises', () => ({
