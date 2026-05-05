@@ -32,6 +32,7 @@ export abstract class FontEmbedder {
 	private _font: fontkit.Font | undefined;
 	private _subset: fontkit.Subset | undefined;
 	private _scale: number | undefined;
+	private _glyphs: fontkit.Glyph[] | undefined;
 
 	constructor(
 		private readonly _pdfDoc: PDFDocument,
@@ -93,6 +94,10 @@ export abstract class FontEmbedder {
 		return this._glyphBlocks;
 	}
 
+	private get glyphs(): fontkit.Glyph[] {
+		return this._glyphs!;
+	}
+
 	private async initialise() {
 		if (this.initialised) return;
 
@@ -111,6 +116,8 @@ export abstract class FontEmbedder {
 		this._subset = this.font.createSubset();
 		this._scale = 1000 / this.font.unitsPerEm;
 
+		this.includeGlyphs();
+
 		const fontRef = this._fontInfo.ref;
 		const fontDict = this.pdfDoc.context.lookupMaybe(fontRef, PDFDict);
 		if (typeof fontDict === 'undefined') {
@@ -128,8 +135,6 @@ export abstract class FontEmbedder {
 		const baseFontName = `${subsetPrefix}+${this.fontInfo.fontName ?? 'Unknown'}`;
 		this.fontDict.set(PDFName.of('BaseFont'), PDFName.of(baseFontName));
 		this.fontDict.set(PDFName.of('Encoding'), PDFName.of('Identity-H'));
-
-		this.includeGlyphs();
 
 		const toUnicode = this.embedToUnicode();
 		this.fontDict.set(PDFName.of('ToUnicode'), toUnicode);
@@ -255,6 +260,7 @@ end
 	}
 
 	protected includeGlyphs() {
+		this._glyphs = [];
 		const subset = this.subset;
 
 		const mapper = this.fontInfo.glyphMapper;
@@ -267,6 +273,7 @@ end
 			);
 			const glyph = this.font.glyphForCodePoint(codePoint);
 			subset.includeGlyph(glyph);
+			this.glyphs.push(glyph);
 		});
 	}
 
@@ -369,10 +376,7 @@ end
 	}
 
 	protected computeWidths(): (number | number[])[] {
-		const glyphs: fontkit.Glyph[] = [];
-		this.glyphIds.forEach((glyphId) => {
-			glyphs.push(this.font.getGlyph(glyphId));
-		});
+		const glyphs = this.glyphs;
 
 		const widths: (number | number[])[] = [];
 		let currSection: number[] = [];
