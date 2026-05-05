@@ -19,91 +19,39 @@ export type GlyphBlock = {
 	stream: PDFRawStream;
 };
 
-export class GlyphExtractor {
-
-}
-
-export function extractGlyphs(
-	pdfDoc: PDFDocument,
-): GlyphBlock[] {
-	const blocks: GlyphBlock[] = [];
+export function extractGlyphs(pdfDoc: PDFDocument): GlyphBlock[] {
 	const pages = pdfDoc.getPages();
+	const blocks: GlyphBlock[] = [];
+
 	for (let i = 0; i < pages.length; ++i) {
-		parsePage(blocks, pages[i]!, i, pdfDoc);
-	}
+		const page = pages[i]!;
 
-	return blocks;
-}
+		const contents = page.node.get(PDFName.of('Contents'));
+		if (!contents) continue;
 
-function parseRecursively(
-	collector: GlyphBlock[],
-	obj: PDFObject,
-	pageRef: PDFRef,
-	pageNumber: number,
-	pdfDoc: PDFDocument,
-) {
-	if (obj instanceof PDFRawStream) {
-		parseStream(collector, pageRef, pageNumber, obj);
-		parseDictionary(collector, obj.dict, pageRef, pageNumber, pdfDoc);
-	} else if (obj instanceof PDFDict) {
-		parseDictionary(collector, obj, pageRef, pageNumber, pdfDoc);
-	} else if (obj instanceof PDFArray) {
-		for (let i = 0; i < obj.size(); ++i) {
-			const item = obj.get(i);
-			const resolved = pdfDoc.context.lookup(item);
-			if (resolved) {
-				parseRecursively(
-					collector,
-					resolved,
-					pageRef,
-					pageNumber,
-					pdfDoc,
-				);
+		if (contents instanceof PDFRawStream) {
+			// Case 1: single stream.
+			parseStream(blocks, page.ref, i, contents);
+		} else if (contents instanceof PDFArray) {
+			// Case 2: array of streams
+			for (let j = 0; j < contents.size(); ++j) {
+				const item = contents.get(j);
+				const resolved = pdfDoc.context.lookup(item);
+
+				if (resolved instanceof PDFRawStream) {
+					parseStream(blocks, page.ref, i, resolved);
+				}
+			}
+		} else {
+			// Case 3: indirect ref
+			const resolved = pdfDoc.context.lookup(contents);
+			if (resolved instanceof PDFRawStream) {
+				parseStream(blocks, page.ref, i, resolved);
 			}
 		}
 	}
-}
 
-function parseDictionary(
-	collector: GlyphBlock[],
-	dict: PDFDict,
-	pageRef: PDFRef,
-	pageNumber: number,
-	pdfDoc: PDFDocument,
-) {
-	const resources = dict.get(PDFName.of('Resources'));
-	if (!resources) return;
-
-	const res = pdfDoc.context.lookup(resources);
-	if (!(res instanceof PDFDict)) return;
-
-	const xObject = res?.get(PDFName.of('XObject'));
-	if (!xObject) return;
-
-	const xo = pdfDoc.context.lookupMaybe(xObject, PDFDict);
-	if (!xo) return;
-
-	xo.keys().forEach((key) => {
-		const ref = xo.get(key);
-		const resolved = pdfDoc.context.lookup(ref);
-		if (resolved instanceof PDFRawStream) {
-			parseStream(collector, pageRef, pageNumber, resolved);
-		}
-	});
-}
-
-function parsePage(
-	collector: GlyphBlock[],
-	page: PDFPage,
-	pageNumber: number,
-	pdfDoc: PDFDocument,
-) {
-	const node = page.node;
-
-	const contents = node.get(PDFName.of('Contents'));
-	if (!contents) return;
-
-	parseRecursively(collector, contents, page.ref, pageNumber, pdfDoc);
+	return blocks;
 }
 
 function parseStream(
