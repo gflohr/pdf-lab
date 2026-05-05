@@ -22,5 +22,11 @@ describe('Literal string parsing', () => {
 			const cp = parser.parse(toOctets('(böse)'));
 			expect(cp).toStrictEqual([0x62, 0xc3, 0xb6, 0x73, 0x65]);
 		});
+
+		it('should allow unescaped nested parentheses', () => {
+			const parser = new LiteralParser();
+			const cp = parser.parse(toOctets('(Hello, world!)'));
+			expect(decodeNumberArray(cp)).toBe('Hello, world!');
+		});
 	});
 })
