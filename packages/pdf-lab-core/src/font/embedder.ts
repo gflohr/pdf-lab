@@ -123,8 +123,8 @@ export abstract class FontEmbedder {
 		this.fontDict.set(PDFName.of('Subtype'), PDFName.of('TrueType'));
 		const baseName = `${this.generateSubsetPrefix()}+${this.fontInfo.fontName}`;
 		this.fontDict.set(PDFName.of('BaseFont'), PDFName.of(baseName));
-		this.fontDict.set(PDFName.of('FirstChar'), PDFNumber.of(0));
-		this.fontDict.set(PDFName.of('LastChar'), PDFNumber.of(this.glyphIds.size));
+		this.fontDict.set(PDFName.of('FirstChar'), PDFNumber.of(this.getFirstChar()));
+		this.fontDict.set(PDFName.of('LastChar'), PDFNumber.of(this.getLastChar()));
 
 		const metrics = this.extractMetrics();
 		this.fontDict.set(
@@ -150,6 +150,14 @@ export abstract class FontEmbedder {
 		descendantFonts.push(cidFontDict);
 		this.fontDict.set(PDFName.of('DescendantFonts'), descendantFonts);
 		*/
+	}
+
+	protected getFirstChar() {
+		return 0;
+	}
+
+	protected getLastChar() {
+		return this.glyphIds.size;
 	}
 
 	private async resolveFont(): Promise<FontData> {
@@ -308,14 +316,7 @@ export abstract class FontEmbedder {
 
 		const italicAngle = font.italicAngle || 0;
 
-		const widths = [0];
-		const mapper = this.fontInfo.glyphMapper!;
-		this.glyphIds.forEach((glyphId) => {
-			const codePoint = this.coerceCodePoints(mapper.lookupCodepoints(glyphId));
-			const glyph = font.glyphForCodePoint(codePoint);
-
-			widths.push(glyph.advanceWidth);
-		});
+		const widths = this.computeWidths();
 
 		return {
 			bbox,
@@ -327,7 +328,20 @@ export abstract class FontEmbedder {
 		};
 	}
 
-	private computeWidths(): (number | number[])[] {
+	protected computeWidths(): number[] {
+		const widths = [0];
+		const mapper = this.fontInfo.glyphMapper!;
+		this.glyphIds.forEach((glyphId) => {
+			const codePoint = this.coerceCodePoints(mapper.lookupCodepoints(glyphId));
+			const glyph = this.font.glyphForCodePoint(codePoint);
+
+			widths.push(glyph.advanceWidth);
+		});
+
+		return widths;
+	}
+
+	private computeCIDWidths(): (number | number[])[] {
 		const glyphs: fontkit.Glyph[] = [];
 		this.glyphIds.forEach((glyphId) => {
 			glyphs.push(this.font.getGlyph(glyphId));

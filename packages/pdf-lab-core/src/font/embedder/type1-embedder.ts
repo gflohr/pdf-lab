@@ -8,16 +8,25 @@ export class Type1FontEmbedder extends FontEmbedder {
 	}
 
 	protected includeGlyphs() {
-		const subset = this.subset;
-		const mapper = this.fontInfo.glyphMapper!;
-		this.glyphIds.forEach((glyphId) => {
-			const codePoint = this.coerceCodePoints(mapper.lookupCodepoints(glyphId));
-			const glyph = this.font.glyphForCodePoint(codePoint);
-			subset.includeGlyph(glyph);
-		});
+		const mapper = this.fontInfo.glyphMapper;
+		if (!mapper) {
+			throw new Error('Cannot embed font without ToUnicode CMap!');
+		}
+		for (let octet = 1; octet < 256; ++octet) {
+			const codePoint = this.coerceCodePoints(
+				mapper?.lookupCodepoints(octet),
+			);
+			const { glyphs } = this.font.layout(String.fromCharCode(codePoint));
+			for (let idx = 0, len = glyphs.length; idx < len; ++idx) {
+				const glyph = glyphs[idx]!;
+				this.subset.includeGlyph(glyph);
+			}
+		}
+
+		console.dir(this.subset);
 	}
 
-	protected embedToUnicode(): PDFRef | undefined {
+	protected embedToUnicodeDisabled(): PDFRef | undefined {
 		// All embedders but the Type1 embedder must not touch an existing
 		// ToUnicode map, unless they have an encoding that is not a standard
 		// encoding.
@@ -42,8 +51,6 @@ export class Type1FontEmbedder extends FontEmbedder {
 			);
 		}
 
-		const glyphIds = this.glyphIds;
-
 		let cmap = `/CIDInit /ProcSet findresource begin
 12 dict begin
 begincmap
@@ -57,15 +64,15 @@ begincmap
 1 begincodespacerange
 <00> <ff>
 endcodespacerange
-${glyphIds.size} beginbfchar
+224 beginbfchar
 `;
 
-		glyphIds.forEach((glyphId) => {
+		for (let glyphId = 32; glyphId < 256; ++glyphId) {
 			const codePoint = this.coerceCodePoints(mapper.lookupCodepoints(glyphId));
 			const hexCodePoint = `<${codePoint.toString(16).padStart(4, '0')}>`;
 			const hexGlyphId = `<${glyphId.toString(16).padStart(2, '0')}>`;
 			cmap += `${hexGlyphId} ${hexCodePoint}\n`;
-		});
+		}
 
 		cmap += `endbfchar
 endcmap
@@ -73,5 +80,26 @@ CMapName currentdict /CMap defineresource pop
 end
 `;
 		return cmap;
+	}
+
+	protected getFirstChar() {
+		return 32;
+	}
+
+	protected getLastChar() {
+		return 255;
+	}
+
+	protected computeWidths(): number[] {
+		const widths = [0];
+		const mapper = this.fontInfo.glyphMapper!;
+		for (let glyphId = 32; glyphId < 256; ++glyphId) {
+			const codePoint = this.coerceCodePoints(mapper.lookupCodepoints(glyphId));
+			const glyph = this.font.glyphForCodePoint(codePoint);
+
+			widths.push(glyph.advanceWidth);
+		};
+
+		return widths;
 	}
 }
