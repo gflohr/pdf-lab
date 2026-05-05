@@ -3,7 +3,7 @@ import collectFonts from './font/collect-fonts.js';
 import { collectResources, type FontUsage } from './font/collect-resources.js';
 import { Type1FontEmbedder } from './font/embedder/type1-embedder.js';
 import type { FontInfo, FontMap } from './font/types.js';
-import { extractGlyphs } from './text/extract-glyphs.js';
+import { extractGlyphs, GlyphBlock } from './text/extract-glyphs.js';
 import { extractText, type TextBlock } from './text/extract-text.js';
 
 /**
@@ -184,6 +184,7 @@ export class PDFLab {
 
 		const glyphBlocks = extractGlyphs(this.pdfDocument);
 		const glyphUsage: Record<string, Set<number>> = {};
+		const glyphsInFont: Record<string, GlyphBlock[]> = {};
 
 		// Make sure that there is an entry for every font.
 		for (const font of fonts) {
@@ -199,6 +200,8 @@ export class PDFLab {
 			const font = Font.get(PDFName.of(block.fontResource));
 			if (font instanceof PDFRef && refs.has(font.toString())) {
 				const fontRef = font.toString();
+				glyphsInFont[fontRef] ??= [];
+				glyphsInFont[fontRef].push(block);
 				block.glyphs.forEach((g) => {
 					glyphUsage[fontRef]?.add(g);
 				});
@@ -226,6 +229,7 @@ export class PDFLab {
 						this.pdfDocument,
 						font,
 						glyphUsage[font.ref.toString()]!,
+						glyphsInFont[font.ref.toString()]!,
 						options,
 					).embed();
 					break;

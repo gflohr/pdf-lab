@@ -14,6 +14,8 @@ export type GlyphBlock = {
 	pageRef: PDFRef;
 	pageNumber: number;
 	stream: PDFRawStream;
+	offset: number;
+	length: number;
 };
 
 export function extractGlyphs(pdfDoc: PDFDocument): GlyphBlock[] {
@@ -93,12 +95,15 @@ function parseStream(
 						tokens[i - 1]!.type === 'string' &&
 						fontResource.length
 					) {
+						const token = tokens[i - 1]!;
 						collector.push({
-							glyphs: tokens[i - 1]!.value,
+							glyphs: token.value,
 							fontResource,
 							pageRef,
 							pageNumber,
 							stream,
+							offset: token.offset,
+							length: token.length,
 						});
 					}
 					break;
@@ -119,6 +124,8 @@ function parseStream(
 								pageRef,
 								pageNumber,
 								stream,
+								offset: textToken.offset,
+								length: textToken.length,
 							});
 						}
 					}

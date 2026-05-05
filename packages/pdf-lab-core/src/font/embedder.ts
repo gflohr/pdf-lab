@@ -1,5 +1,5 @@
 import {
-	PDFArray,
+	decodePDFRawStream,
 	PDFDict,
 	type PDFDocument,
 	PDFName,
@@ -13,8 +13,7 @@ import { deriveFontFlags } from './derive-font-flags.js';
 import type { OsType } from './load-font.js';
 import { resolveFont } from './resolve-font.js';
 import type { FontData, FontInfo } from './types.js';
-
-export type SubType = 'Type0';
+import { GlyphBlock } from '../text/extract-glyphs.js';
 
 type Metrics = {
 	bbox: number[];
@@ -37,6 +36,7 @@ export abstract class FontEmbedder {
 		private readonly _pdfDoc: PDFDocument,
 		private readonly _fontInfo: FontInfo,
 		private readonly _glyphIds: Set<number>,
+		private readonly _glyphBlocks: GlyphBlock[],
 		private readonly _options: FontEmbedOptions,
 	) {
 		if (!this.options.fontkit) {
@@ -52,7 +52,7 @@ export abstract class FontEmbedder {
 		}
 	}
 
-	protected get pdfDoc(): PDFDocument {
+	private get pdfDoc(): PDFDocument {
 		return this._pdfDoc;
 	}
 
@@ -60,7 +60,7 @@ export abstract class FontEmbedder {
 		return this._isTTC;
 	}
 
-	protected get fontInfo(): FontInfo {
+	private get fontInfo(): FontInfo {
 		return this._fontInfo;
 	}
 
@@ -68,27 +68,29 @@ export abstract class FontEmbedder {
 		return this._options;
 	}
 
-	protected get fontDict(): PDFDict {
+	private get fontDict(): PDFDict {
 		return this._fontDict!;
 	}
 
-	protected get glyphIds(): Set<number> {
+	private get glyphIds(): Set<number> {
 		return this._glyphIds;
 	}
 
-	protected get font(): fontkit.Font {
+	private get font(): fontkit.Font {
 		return this._font!;
 	}
 
-	protected get subset(): fontkit.Subset {
+	private get subset(): fontkit.Subset {
 		return this._subset!;
 	}
 
-	protected get scale(): number {
+	private get scale(): number {
 		return this._scale!;
 	}
 
-	protected abstract get subType(): SubType;
+	private get glyphBlocks(): GlyphBlock[] {
+		return this._glyphBlocks;
+	}
 
 	private async initialise() {
 		if (this.initialised) return;
@@ -123,8 +125,11 @@ export abstract class FontEmbedder {
 		this.fontDict.set(PDFName.of('Subtype'), PDFName.of('TrueType'));
 		const baseName = `${this.generateSubsetPrefix()}+${this.fontInfo.fontName}`;
 		this.fontDict.set(PDFName.of('BaseFont'), PDFName.of(baseName));
-		this.fontDict.set(PDFName.of('FirstChar'), PDFNumber.of(this.getFirstChar()));
-		this.fontDict.set(PDFName.of('LastChar'), PDFNumber.of(this.getLastChar()));
+		//this.fontDict.delete(PDFName.of('Encoding'));
+this.fontDict.set(PDFName.of('Encoding'), PDFName.of('Identity-H'));
+
+		this.fontDict.set(PDFName.of('FirstChar'), PDFNumber.of(0));
+		this.fontDict.set(PDFName.of('LastChar'), PDFNumber.of(this.glyphIds.size));
 
 		const metrics = this.extractMetrics();
 		this.fontDict.set(
@@ -135,13 +140,13 @@ export abstract class FontEmbedder {
 		this.includeGlyphs();
 
 		const toUnicode = this.embedToUnicode();
-		if (toUnicode) {
-			this.fontDict.set(PDFName.of('ToUnicode'), toUnicode);
-			this.fontDict.delete(PDFName.of('Encoding'));
-		}
+		this.fontDict.set(PDFName.of('ToUnicode'), toUnicode);
+		//this.fontDict.delete(PDFName.of('Encoding'));
 
 		const fontDescriptor = await this.embedFontDescriptor(metrics, baseName);
 		this.fontDict.set(PDFName.of('FontDescriptor'), fontDescriptor);
+
+		this.recodeTextBlocks();
 
 		/*
 
@@ -150,14 +155,6 @@ export abstract class FontEmbedder {
 		descendantFonts.push(cidFontDict);
 		this.fontDict.set(PDFName.of('DescendantFonts'), descendantFonts);
 		*/
-	}
-
-	protected getFirstChar() {
-		return 0;
-	}
-
-	protected getLastChar() {
-		return this.glyphIds.size;
 	}
 
 	private async resolveFont(): Promise<FontData> {
@@ -169,8 +166,75 @@ export abstract class FontEmbedder {
 		);
 	}
 
-	protected embedToUnicode(): PDFRef | undefined {
-		return;
+
+	private embedToUnicode(): PDFRef {
+		const cmap = this.createToUnicode();
+
+		const context = this.pdfDoc.context;
+		const cmapStream = context.flateStream(cmap);
+
+		return context.register(cmapStream);
+	}
+
+	private createToUnicode(): string {
+		const numGlyphs = this.glyphIds.size;
+
+		let glyphIdLength: number;
+		let codeSpaceRange: string;
+		if (numGlyphs <= 0xff) {
+			glyphIdLength = 2;
+			codeSpaceRange = '<00> <ff>'
+		} else if (numGlyphs <= 0xffff) {
+			glyphIdLength = 4;
+			codeSpaceRange = '<0000> <ffff>'
+		} else if (numGlyphs <= 0xffffff) {
+			glyphIdLength = 6;
+			codeSpaceRange = '<000000> <ffffff>'
+		} else {
+			glyphIdLength = 8;
+			codeSpaceRange = '<00000000> <ffffffff>'
+		}
+glyphIdLength = 4;
+codeSpaceRange = '<0000><ffff>';
+
+		const mapper = this.fontInfo.glyphMapper;
+		if (typeof mapper === 'undefined') {
+			throw new Error(
+				`The font '${this.fontInfo.fontName}' does not use a standard encoding and does not have a ToUnicode map!`,
+			);
+		}
+
+		let cmap = `/CIDInit /ProcSet findresource begin
+12 dict begin
+begincmap
+/CIDSystemInfo <<
+  /Registry (Adobe)
+  /Ordering (UCS)
+  /Supplement 0
+>> def
+/CMapName /Adobe-Identity-UCS def
+/CMapType 2 def
+1 begincodespacerange
+${codeSpaceRange}
+endcodespacerange
+224 beginbfchar
+`;
+
+		let glyphId = 0;
+		this.glyphIds.forEach((fromCodePoint) => {
+			++glyphId;
+			const codePoint = this.coerceCodePoints(mapper.lookupCodepoints(fromCodePoint));
+			const hexCodePoint = `<${codePoint.toString(16).padStart(4, '0')}>`;
+			const hexGlyphId = `<${glyphId.toString(16).padStart(glyphIdLength, '0')}>`;
+			cmap += `${hexGlyphId} ${hexCodePoint}\n`;
+		});
+
+		cmap += `endbfchar
+endcmap
+CMapName currentdict /CMap defineresource pop
+end
+`;
+		return cmap;
 	}
 
 	protected coerceCodePoints(cps: number[] | undefined): number {
@@ -208,8 +272,6 @@ export abstract class FontEmbedder {
 
 	protected includeGlyphs() {
 		const subset = this.subset;
-		const mapping: Record<string, number> = { '0': 0 };
-		const subsetGlyphs = [0];
 
 		const mapper = this.fontInfo.glyphMapper;
 		if (!mapper) {
@@ -220,14 +282,8 @@ export abstract class FontEmbedder {
 				mapper?.lookupCodepoints(glyphId),
 			);
 			const glyph = this.font.glyphForCodePoint(codePoint);
-			subsetGlyphs.push(glyph.id);
-			mapping[codePoint] = glyphId;
+			subset.includeGlyph(glyph);
 		});
-
-		// Ouch.
-		(subset as unknown as { mapping: Record<string, number> }).mapping =
-			mapping;
-		(subset as unknown as { glyphs: number[] }).glyphs = subsetGlyphs;
 	}
 
 	private async serializeSubset(): Promise<Uint8Array> {
@@ -413,5 +469,62 @@ export abstract class FontEmbedder {
 		}
 
 		return result;
+	}
+
+	private recodeTextBlocks() {
+		// It is crucial to recode the text blocks in reverse order. Otherwise,
+		// the offsets will change while recoding.
+		// FIXME! Group by stream!
+		this.glyphBlocks.reverse().forEach(block => { this.recodeStream([block]) });
+	}
+
+	private recodeStream(blocks: GlyphBlock[]) {
+		const first = blocks[0];
+		if (!first) return;
+
+		const stream = first.stream;
+		const decoded = decodePDFRawStream(stream);
+		const bytes = decoded.getBytes(0);
+
+		const decoder = new TextDecoder('latin1');
+
+		const out: number[] = [];
+		let cursor = 0;
+
+		for (const block of blocks) {
+			// 1. copy everything before this block
+			if (block.offset > cursor) {
+			out.push(...bytes.slice(cursor, block.offset));
+			}
+
+			// 2. extract original PDF string
+			const raw = decoder.decode(
+			bytes.slice(block.offset, block.offset + block.length)
+			);
+
+			// 3. replace it
+			const replaced = this.recodePDFString(raw);
+
+			// 4. write replacement (latin1-safe)
+			for (let i = 0; i < replaced.length; i++) {
+			out.push(replaced.charCodeAt(i) & 0xff);
+			}
+
+			cursor = block.offset + block.length;
+		}
+
+		// 5. append remaining tail
+		if (cursor < bytes.length) {
+			out.push(...bytes.slice(cursor));
+		}
+
+		const newBytes = new Uint8Array(out);
+
+		stream.updateContents(newBytes);
+		stream.dict.delete(PDFName.of('Filter'));
+	}
+
+	private recodePDFString(pdfString: string): string {
+		return '<01>';
 	}
 }

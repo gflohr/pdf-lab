@@ -14,6 +14,7 @@ export class CMapMapper implements GlyphMapper {
 	constructor(
 		source:
 			| string
+			| Set<number>
 			| Uint8Array<ArrayBufferLike>
 			| Uint8ClampedArray<ArrayBufferLike>,
 	) {
@@ -21,7 +22,13 @@ export class CMapMapper implements GlyphMapper {
 			source = new TextEncoder().encode(source);
 		}
 
-		if (source instanceof Uint8Array) {
+		if (source instanceof Set) {
+			this.mappings = [];
+			let glyphId = 0;
+			source.forEach(codePoint => {
+				this.mappings.push([++glyphId, codePoint]);
+			});
+		} else if (source instanceof Uint8Array) {
 			this.mappings = [...this.parse(source)].sort((a, b) => a[0] - b[0]);
 		} else {
 			throw new Error(`unsupported CMap source type '${typeof source}'`);
