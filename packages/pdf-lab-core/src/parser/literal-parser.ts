@@ -1,18 +1,168 @@
-export class LiteralParser {
-	public parse(input: number[]): number[] {
-		const octets: number[] = [];
+import { SingleByteEncodingMapper } from '../encoding/mappers/single-byte-encoding-mapper.js';
+import { type Encoding, StandardEncodings } from '../encoding/types.js';
+import { coerceCodePoints } from '../encoding/util/coerce-code-points.js';
 
-		for (let i = 1; i < input.length; ++i) {
-			const octet = input[i]!;
+type LiteralEncoding = Encoding | 'Identity-H' | 'UTF-8' | 'UTF-16BE' | 'UTF-16LE';
+
+export class LiteralParser {
+	private encoding: LiteralEncoding;
+
+	constructor(_encoding: Encoding = 'StandardEncoding') {
+		this.encoding = _encoding;
+	}
+
+	/**
+	 * Parse a literal string. Literal strings are delimited by parentheses.
+	 * The input must begin with an open parentheses and end with a closing
+	 * parentheses.
+	 *
+	 * Nested parentheses are not treated in a special way. It is expected
+	 * that they are balanced.
+	 *
+	 * @param octets input bytes as numbers
+	 * @returns an array of unicode code points
+	 */
+	public parse(octets: number[]): number[] {
+		const chars: number[] = [];
+
+		for (let i = 1; i < octets.length - 1; ++i) {
+			const octet = octets[i]!;
 
 			switch(octet) {
-				case 0x29:
-					return octets;
+				case 92:
+					i += this.consumeBackslashSequence(chars, octets, i + 1);
+					break;
+				case 0xfe: // Big-endian BOM FEFF?
+					if (i === 1 && StandardEncodings.includes(this.encoding as Encoding) && octets[i + 1] === 0xff) {
+						this.encoding = 'UTF-16BE';
+						++i;
+					} else {
+						chars.push(octet);
+					}
+					break;
+				case 0xff: // Little-endian BOM FFFE?
+					if (i === 1 && StandardEncodings.includes(this.encoding as Encoding) && octets[i + 1] === 0xfe) {
+						this.encoding = 'UTF-16LE';
+						++i;
+					} else {
+						chars.push(octet);
+					}
+					break;
+				case 0xef: // UTF-8 BOM 0xEFBBBF?
+					if (i === 1 && StandardEncodings.includes(this.encoding as Encoding) && octets[i + 1] === 0xbb && octets[i + 2] === 0xbf) {
+						this.encoding = 'UTF-8';
+						i += 2;
+					} else {
+						chars.push(octet);
+					}
+					break;
 				default:
-					octets.push(octet);
+					chars.push(octet);
+					break;
 			}
 		}
 
-		return octets;
+	if (StandardEncodings.includes(this.encoding as Encoding)) {
+		const mapper = new SingleByteEncodingMapper(this.encoding);
+		const outChars: number[] = [];
+
+		for (let i = 0; i < chars.length; ++i) {
+			const codePoints = mapper.lookupCodepoints(chars[i]!);
+			if (codePoints.length) {
+				outChars.push(coerceCodePoints(codePoints));
+			} else {
+				outChars.push(chars[i]!);
+			}
+		}
+
+		return outChars;
+	}
+
+	const uint8 = new Uint8Array(chars);
+	const text = new TextDecoder(this.encoding).decode(uint8);
+
+	return Array.from(text, c => c.codePointAt(0)!);
+}
+
+	/**
+	 *
+	 * @param chars array of output characters
+	 * @param octets array of input octets
+	 * @param pos current position in input stream
+	 * @returns the number of octets consumed minus 1
+	 */
+	private consumeBackslashSequence(chars: number[], octets: number[], pos: number): number {
+		let i = pos;
+		const octet = octets[i];
+		switch (octet) {
+			case undefined:
+				return 0;
+			case 10:
+				if (octets[i + 1] === 13) {
+					return 2;
+				}
+				return 1;
+			case 13:
+				if (octets[i + 1] === 10) {
+					return 2;
+				}
+				return 1;
+			case 110: // n => newline.
+				if (octets[i + 1] === 92 && octets[i + 2] === 114) {
+					i += 2;
+				}
+				chars.push(0x0a);
+				break;
+			case 114: // r => carriage return.
+				if (octets[i + 1] === 92 && octets[i + 2] === 110) {
+					i += 2;
+				}
+				chars.push(0x0a);
+				break;
+			case 116: // h => horizontal tab.
+				chars.push(0x09);
+				break;
+			case 98: // b => backspace.
+				chars.push(0x08);
+				break;
+			case 102: // f => form feed.
+				chars.push(0x0c);
+				break;
+			case 48:
+			case 49:
+			case 50:
+			case 51:
+			case 52:
+			case 53:
+			case 54:
+			case 55:
+			case 56:
+			case 57:
+				i += this.parseOctalEscape(chars, octets, pos);
+				break;
+			default:
+				chars.push(octet);
+				break;
+		}
+
+		return i - pos + 1;
+	}
+
+	private parseOctalEscape(chars: number[], octets: number[], i: number): number {
+		let value = octets[i]! - 0o060;
+		let consumed = 0;
+		if (octets[i + 1] && octets[i + 1]! >= 0o060 && octets[i + 1]! <= 0o071) {
+			value *= 8;
+			value += octets[i + 1]! - 0o060;
+			++consumed;
+			if (octets[i + 2] && octets[i + 2]! >= 0o060 && octets[i + 2]! <= 0o071) {
+				value *= 8;
+				value += octets[i + 2]! - 0o060;
+				++consumed;
+			}
+		}
+		chars.push(value);
+
+		return consumed;
 	}
 }

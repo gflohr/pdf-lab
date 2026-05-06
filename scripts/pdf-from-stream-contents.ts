@@ -2,7 +2,28 @@ import { once } from 'node:events';
 import * as stream from 'node:stream';
 import * as util from 'node:util';
 
-import { PDFArray, PDFDocument, PDFName, PDFRawStream, PDFStream, rgb, StandardFonts } from '@cantoo/pdf-lib';
+import { PDFArray, PDFDocument, PDFName, PDFStream, rgb, StandardFonts } from '@cantoo/pdf-lib';
+
+// This simple test script creates a PDF with a hand-crafted content stream.
+// It reads the stream from standard input, and writes the generated PDF to
+// standard output.
+//
+// Sample usage: pnpm dlx tsx scripts/pdf-from-stream-contents.ts <in.txt >out.pdf
+//
+// Example input file:
+//
+// q
+// BT
+// 0 0 0 rg
+// /Helvetica-7098480789 14 Tf
+// 24 TL
+// 1 0 0 1 50 791.89 Tm
+// (test string) Tj
+// T*
+// ET
+// Q
+//
+// The font /Helvetica-7098480789 should always work.
 
 const CHUNK_SIZE = 16 * 1024;
 
@@ -81,7 +102,7 @@ async function main(): Promise<void> {
 	stream.updateContents(contentBytes);
 	stream.dict.delete(PDFName.of('Filter'));
 
-	const bytes = await pdfDoc.save();
+	const bytes = await pdfDoc.save({ useObjectStreams: false });
 	safeStdoutBufferWrite(bytes);
 }
 
