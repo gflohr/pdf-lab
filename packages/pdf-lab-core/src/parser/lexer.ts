@@ -1,10 +1,13 @@
-type State = 'initial' | 'string' | 'hexstring';
+import { LiteralParser } from './literal-parser.js';
+import { encodeOctets } from './util/encode-octets.js';
+import type { Token as Uint8Token } from './types.js';
 
-export type Token = {
+type State = 'initial' | 'string' | 'hexstring';
+type Token = {
 	type: 'string' | 'token';
 	value: number[];
-	offset: number,
-	length: number,
+	offset: number;
+	length: number;
 };
 
 // This lexer happens to work for both CMap files embedded in PDFs and
@@ -14,12 +17,12 @@ export type Token = {
 // should work for normal files out in the wild.
 export class Lexer {
 	public tokenize(
-		bytes: Uint8Array<ArrayBufferLike> | Uint8ClampedArray<ArrayBufferLike>
-	): Token[] {
+		bytes: Uint8Array<ArrayBufferLike> | Uint8ClampedArray<ArrayBufferLike>,
+	): Uint8Token[] {
 		let state: State = 'initial';
 		let parenLevel = 0;
 
-		const tokens: Token[] = [];
+		const tokens: Uint8Token[] = [];
 		let token: Token = {
 			type: 'token',
 			value: [],
@@ -32,7 +35,7 @@ export class Lexer {
 			if (state === 'initial') {
 				switch (byte) {
 					case 40: // Open parenthesis.
-						if (token.value.length) pushToken(tokens, token, i);
+						if (token.value.length) this.pushToken(tokens, token, i);
 						token = {
 							type: 'string',
 							value: [],
@@ -43,7 +46,7 @@ export class Lexer {
 						++parenLevel;
 						break;
 					case 60: // Left angle bracket.
-						if (token.value.length) pushToken(tokens, token, i);
+						if (token.value.length) this.pushToken(tokens, token, i);
 						token = {
 							type: 'string',
 							value: [],
@@ -54,10 +57,10 @@ export class Lexer {
 						break;
 					case 91: // Left square bracket.
 					case 93: // Right square bracket.
-						if (token.value.length) pushToken(tokens, token, i);
+						if (token.value.length) this.pushToken(tokens, token, i);
 						tokens.push({
 							type: 'token',
-							value: [byte],
+							value: new Uint8Array([byte]),
 							offset: i,
 							length: 0,
 						});
@@ -70,7 +73,7 @@ export class Lexer {
 						state = 'initial';
 						break;
 					case 37: // Percent (comment).
-						if (token.value.length) pushToken(tokens, token, i);
+						if (token.value.length) this.pushToken(tokens, token, i);
 						for (let j = i; j < bytes.length; ++j) {
 							if (bytes[j] === 10 || bytes[j] === 13) {
 								i = j;
@@ -85,7 +88,7 @@ export class Lexer {
 						break;
 					default:
 						if (byte <= 32) {
-							if (token.value.length) pushToken(tokens, token, i);
+						if (token.value.length) this.pushToken(tokens, token, i);
 							token = {
 								type: 'token',
 								value: [],
@@ -98,6 +101,7 @@ export class Lexer {
 						break;
 				}
 			} else if (state === 'string') {
+				let value: Uint8Array;
 				switch (byte) {
 					case 40: // Open parenthesis.
 						++parenLevel;
@@ -105,13 +109,15 @@ export class Lexer {
 						break;
 					case 92: // Backslash.
 						++i;
+						token.value.push(byte);
+						if (i < bytes.length) token.value.push(bytes[i]!);
 						break;
 					case 41: // Closing parenthesis.
 						--parenLevel;
 						if (parenLevel <= 0) {
 							// In case of an empty string, we have a token
 							// length of 0. This is okay in this case.
-							pushToken(tokens, token, i);
+							this.pushToken(tokens, token, i);
 							token = {
 								type: 'token',
 								value: [],
@@ -130,17 +136,18 @@ export class Lexer {
 			} else {
 				// Hexstring.
 				if (byte === 62) {
-					const value: number[] = [];
+					const hexvalues: number[] = [];
 					for (let j = 0; j < token.value.length - 1; j += 2) {
-						value.push(
+						hexvalues.push(
 							16 * this.hexCharToNumber(token.value[j]!) +
 								this.hexCharToNumber(token.value[j + 1]!),
 						);
 					}
-					token.value = [...value];
+					token.value = hexvalues;
+
 					// The length of the value should not be checked here so
 					// that empty strings can be encoded.
-					pushToken(tokens, token, i);
+					this.pushToken(tokens, token, i);
 					token = {
 						type: 'token',
 						value: [],
@@ -158,7 +165,9 @@ export class Lexer {
 			}
 		}
 
-		if (token.value.length) pushToken(tokens, token, bytes.length);
+		if (token.value.length) {
+			this.pushToken(tokens, token, bytes.length);
+		}
 
 		return tokens;
 	}
@@ -172,12 +181,18 @@ export class Lexer {
 			return hex - 48;
 		}
 	}
+
+	private pushToken(tokens: Uint8Token[], token: Token, offset: number) {
+		const uint8Token = {
+			type: token.type,
+			value: new Uint8Array(token.value),
+			offset: token.offset,
+			length: offset - token.offset,
+		};
+
+		if (token.type === 'string') ++uint8Token.length;
+
+		tokens.push(uint8Token);
+	}
 }
 
-function pushToken(tokens: Token[], token: Token, offset: number) {
-	token.length = offset - token.offset;
-
-	if (token.type === 'string') ++token.length;
-
-	tokens.push(token);
-}

@@ -1,14 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { CMapMapper } from './cmap-mapper.js';
 
-function toBytes(str: string): Uint8Array {
-	return new TextEncoder().encode(str);
-}
-
 describe('CMap', () => {
 	describe('Basics', () => {
 		it('should instantiate the class', () => {
-			expect(new CMapMapper(toBytes(''))).toBeDefined();
+			expect(new CMapMapper('')).toBeDefined();
 		});
 
 		it('should ignore garbage', () => {
@@ -18,7 +14,7 @@ describe('CMap', () => {
 <0021> <0065>
 endbfchar
 `;
-			const cmap = new CMapMapper(toBytes(source));
+			const cmap = new CMapMapper(source);
 			expect(cmap).toBeDefined();
 			expect(cmap.lookup(0x21)).toBe('e');
 		});
@@ -29,7 +25,7 @@ endbfchar
 1 beginbfchar
 <0021> <0065>
 `;
-			const cmap = new CMapMapper(toBytes(source));
+			const cmap = new CMapMapper(source);
 			expect(cmap).toBeDefined();
 			expect(cmap.lookup(0x21)).toBe('e');
 		});
@@ -45,7 +41,7 @@ endbfchar
 <abcd> <1234>
 endbfchar
 `;
-			const cmap = new CMapMapper(toBytes(source));
+			const cmap = new CMapMapper(source);
 			expect(cmap).toBeDefined();
 			expect(cmap.lookup(0)).toBe('\uFFFD');
 			expect(cmap.lookup(0x21)).toBe('e');
@@ -64,7 +60,7 @@ endbfchar
 <abcd>
 endbfchar
 `;
-			const cmap = new CMapMapper(toBytes(source));
+			const cmap = new CMapMapper(source);
 			expect(cmap).toBeDefined();
 			expect(cmap.lookup(0x21)).toBe('e');
 			expect(cmap.lookup(0xaf)).toBe('6');
@@ -80,7 +76,7 @@ endbfchar
 <0200> <a000>
 endbfrange
 `;
-			const cmap = new CMapMapper(toBytes(source));
+			const cmap = new CMapMapper(source);
 			expect(cmap).toBeDefined();
 			expect(cmap.lookup(0x22)).toBe('\u0101');
 			expect(cmap.lookup(0x201)).toBe('\uFFFD');
@@ -92,7 +88,7 @@ endbfrange
 <3AF1> <D840DC3E>
 endbfchar
 `;
-			const cmap = new CMapMapper(toBytes(source));
+			const cmap = new CMapMapper(source);
 			expect(cmap).toBeDefined();
 			expect(cmap.lookup(0x3af1)).toBe(String.fromCharCode(0x2003e));
 		});
@@ -104,7 +100,7 @@ endbfchar
 <3AF2> <D840EC3E>
 endbfchar
 `;
-			const cmap = new CMapMapper(toBytes(source));
+			const cmap = new CMapMapper(source);
 			expect(cmap).toBeDefined();
 			expect(cmap.lookup(0x3af1)).toBe('\uFFFD');
 			expect(cmap.lookup(0x3af2)).toBe('\uFFFD');
@@ -116,7 +112,7 @@ endbfchar
 <0061> [<00660066006C>]
 endbfchar
 `;
-			const cmap = new CMapMapper(toBytes(source));
+			const cmap = new CMapMapper(source);
 			expect(cmap).toBeDefined();
 			expect(cmap.lookup(0x61)).toBe('ffl');
 		});
@@ -129,7 +125,7 @@ endbfchar
 <0061> [<00660066006C>
 endbfchar
 `;
-			const cmap = new CMapMapper(toBytes(source));
+			const cmap = new CMapMapper(source);
 			expect(cmap).toBeDefined();
 			expect(cmap.lookup(0x61)).toBe('\uFFFD');
 		});
@@ -147,7 +143,7 @@ endbfchar
 endbfrange
 trailing garbage
 `;
-			const cmap = new CMapMapper(toBytes(source));
+			const cmap = new CMapMapper(source);
 			expect(cmap).toBeDefined();
 			expect(cmap.lookup(0)).toBe('\uFFFD');
 			expect(cmap.lookup(0x21)).toBe('\u0100');
@@ -160,7 +156,7 @@ trailing garbage
 beginbfrange
 <005f> <0061> [<00660066> <00660069> <00660066006C>]
 endbfrange`;
-			const cmap = new CMapMapper(toBytes(source));
+			const cmap = new CMapMapper(source);
 			expect(cmap).toBeDefined();
 			expect(cmap.lookup(0x5f)).toBe('ff');
 			expect(cmap.lookup(0x60)).toBe('fi');
@@ -173,7 +169,7 @@ endbfrange`;
 beginbfrange
 <005f> <0061> [<00660066> <00660069>]
 endbfrange`;
-			const cmap = new CMapMapper(toBytes(source));
+			const cmap = new CMapMapper(source);
 			expect(cmap).toBeDefined();
 			expect(cmap.lookup(0x5f)).toBe('ff');
 			expect(cmap.lookup(0x60)).toBe('fi');
@@ -185,7 +181,7 @@ endbfrange`;
 beginbfrange
 <005f> <0061> I should not be here!
 endbfrange`;
-			const cmap = new CMapMapper(toBytes(source));
+			const cmap = new CMapMapper(source);
 			expect(cmap).toBeDefined();
 			expect(cmap.lookup(0x5f)).toBe('\uFFFD');
 			expect(cmap.lookup(0x60)).toBe('\uFFFD');
@@ -199,7 +195,7 @@ endbfrange`;
 beginbfrange
 <005f> <0061> [<00660066> <00660069> <00660066006C>
 endbfrange`;
-			const cmap = new CMapMapper(toBytes(source));
+			const cmap = new CMapMapper(source);
 			expect(cmap).toBeDefined();
 			expect(cmap.lookup(0x5f)).toBe('\uFFFD');
 			expect(cmap.lookup(0x60)).toBe('\uFFFD');
@@ -243,7 +239,7 @@ endbfchar
 beginbfrange
 <005f> <0061> [<00660066> <00660069> <00660066006C>]
 endbfrange`;
-			const cmap = new CMapMapper(toBytes(source));
+			const cmap = new CMapMapper(source);
 			expect(cmap).toBeDefined();
 			expect(cmap.lookupCodepoints(0x5f)).toStrictEqual([0x66, 0x66]);
 			expect(cmap.lookupCodepoints(0x60)).toStrictEqual([0x66, 0x69]);

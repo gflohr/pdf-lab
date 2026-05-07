@@ -2,7 +2,14 @@ import { once } from 'node:events';
 import * as stream from 'node:stream';
 import * as util from 'node:util';
 
-import { PDFArray, PDFDocument, PDFName, PDFStream, rgb, StandardFonts } from '@cantoo/pdf-lib';
+import {
+	PDFArray,
+	PDFDocument,
+	PDFName,
+	PDFStream,
+	rgb,
+	StandardFonts,
+} from '@cantoo/pdf-lib';
 
 // This simple test script creates a PDF with a hand-crafted content stream.
 // It reads the stream from standard input, and writes the generated PDF to

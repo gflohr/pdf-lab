@@ -1,13 +1,13 @@
 import { SingleByteEncodingMapper } from '../encoding/mappers/single-byte-encoding-mapper.js';
 import { type Encoding, StandardEncodings } from '../encoding/types.js';
 import { coerceCodePoints } from '../encoding/util/coerce-code-points.js';
-
-type LiteralEncoding = Encoding | 'Identity-H' | 'UTF-8' | 'UTF-16BE' | 'UTF-16LE';
+import type { LiteralEncoding } from './types.js';
+import { encodeOctets } from './util/encode-octets.js';
 
 export class LiteralParser {
 	private encoding: LiteralEncoding;
 
-	constructor(_encoding: Encoding = 'StandardEncoding') {
+	constructor(_encoding: LiteralEncoding) {
 		this.encoding = _encoding;
 	}
 
@@ -22,18 +22,22 @@ export class LiteralParser {
 	 * @param octets input bytes as numbers
 	 * @returns an array of unicode code points
 	 */
-	public parse(octets: number[]): number[] {
+	public parse(octets: number[]): Uint16Array {
 		const chars: number[] = [];
 
-		for (let i = 1; i < octets.length - 1; ++i) {
+		for (let i = 0; i < octets.length; ++i) {
 			const octet = octets[i]!;
 
-			switch(octet) {
+			switch (octet) {
 				case 92:
 					i += this.consumeBackslashSequence(chars, octets, i + 1);
 					break;
 				case 0xfe: // Big-endian BOM FEFF?
-					if (i === 1 && StandardEncodings.includes(this.encoding as Encoding) && octets[i + 1] === 0xff) {
+					if (
+						i === 0 &&
+						StandardEncodings.includes(this.encoding as Encoding) &&
+						octets[i + 1] === 0xff
+					) {
 						this.encoding = 'UTF-16BE';
 						++i;
 					} else {
@@ -41,7 +45,11 @@ export class LiteralParser {
 					}
 					break;
 				case 0xff: // Little-endian BOM FFFE?
-					if (i === 1 && StandardEncodings.includes(this.encoding as Encoding) && octets[i + 1] === 0xfe) {
+					if (
+						i === 0 &&
+						StandardEncodings.includes(this.encoding as Encoding) &&
+						octets[i + 1] === 0xfe
+					) {
 						this.encoding = 'UTF-16LE';
 						++i;
 					} else {
@@ -49,7 +57,12 @@ export class LiteralParser {
 					}
 					break;
 				case 0xef: // UTF-8 BOM 0xEFBBBF?
-					if (i === 1 && StandardEncodings.includes(this.encoding as Encoding) && octets[i + 1] === 0xbb && octets[i + 2] === 0xbf) {
+					if (
+						i === 0 &&
+						StandardEncodings.includes(this.encoding as Encoding) &&
+						octets[i + 1] === 0xbb &&
+						octets[i + 2] === 0xbf
+					) {
 						this.encoding = 'UTF-8';
 						i += 2;
 					} else {
@@ -62,27 +75,8 @@ export class LiteralParser {
 			}
 		}
 
-	if (StandardEncodings.includes(this.encoding as Encoding)) {
-		const mapper = new SingleByteEncodingMapper(this.encoding);
-		const outChars: number[] = [];
-
-		for (let i = 0; i < chars.length; ++i) {
-			const codePoints = mapper.lookupCodepoints(chars[i]!);
-			if (codePoints.length) {
-				outChars.push(coerceCodePoints(codePoints));
-			} else {
-				outChars.push(chars[i]!);
-			}
-		}
-
-		return outChars;
+		return encodeOctets(chars, this.encoding);
 	}
-
-	const uint8 = new Uint8Array(chars);
-	const text = new TextDecoder(this.encoding).decode(uint8);
-
-	return Array.from(text, c => c.codePointAt(0)!);
-}
 
 	/**
 	 *
@@ -91,7 +85,11 @@ export class LiteralParser {
 	 * @param pos current position in input stream
 	 * @returns the number of octets consumed minus 1
 	 */
-	private consumeBackslashSequence(chars: number[], octets: number[], pos: number): number {
+	private consumeBackslashSequence(
+		chars: number[],
+		octets: number[],
+		pos: number,
+	): number {
 		let i = pos;
 		const octet = octets[i];
 		switch (octet) {
@@ -148,7 +146,11 @@ export class LiteralParser {
 		return i - pos + 1;
 	}
 
-	private parseOctalEscape(chars: number[], octets: number[], i: number): number {
+	private parseOctalEscape(
+		chars: number[],
+		octets: number[],
+		i: number,
+	): number {
 		let value = octets[i]! - 0o060;
 		let consumed = 0;
 		if (octets[i + 1] && octets[i + 1]! >= 0o060 && octets[i + 1]! <= 0o071) {

@@ -10,11 +10,11 @@ import {
 } from '@cantoo/pdf-lib';
 import fontkit from '@pdf-lib/fontkit';
 import type { FontEmbedOptions } from '../pdf-lab.js';
+import type { GlyphBlock } from '../text/extract-glyphs.js';
 import { deriveFontFlags } from './derive-font-flags.js';
 import type { OsType } from './load-font.js';
 import { resolveFont } from './resolve-font.js';
 import type { FontData, FontInfo } from './types.js';
-import { GlyphBlock } from '../text/extract-glyphs.js';
 
 type Metrics = {
 	bbox: number[];
@@ -177,16 +177,16 @@ export abstract class FontEmbedder {
 		let codeSpaceRange: string;
 		if (numGlyphs <= 0xff) {
 			glyphIdLength = 2;
-			codeSpaceRange = '<00> <ff>'
+			codeSpaceRange = '<00> <ff>';
 		} else if (numGlyphs <= 0xffff) {
 			glyphIdLength = 4;
-			codeSpaceRange = '<0000> <ffff>'
+			codeSpaceRange = '<0000> <ffff>';
 		} else if (numGlyphs <= 0xffffff) {
 			glyphIdLength = 6;
-			codeSpaceRange = '<000000> <ffffff>'
+			codeSpaceRange = '<000000> <ffffff>';
 		} else {
 			glyphIdLength = 8;
-			codeSpaceRange = '<00000000> <ffffffff>'
+			codeSpaceRange = '<00000000> <ffffffff>';
 		}
 
 		const mapper = this.fontInfo.glyphMapper;
@@ -215,7 +215,9 @@ endcodespacerange
 		let glyphId = 0;
 		this.glyphIds.forEach((fromCodePoint) => {
 			++glyphId;
-			const codePoint = this.coerceCodePoints(mapper.lookupCodepoints(fromCodePoint));
+			const codePoint = this.coerceCodePoints(
+				mapper.lookupCodepoints(fromCodePoint),
+			);
 			const hexCodePoint = `<${codePoint.toString(16).padStart(4, '0')}>`;
 			const hexGlyphId = `<${glyphId.toString(16).padStart(glyphIdLength, '0')}>`;
 			cmap += `${hexGlyphId} ${hexCodePoint}\n`;
@@ -454,13 +456,15 @@ end
 	private recodeTextBlocks() {
 		const groups: GlyphBlock[][] = [];
 
-		this.glyphBlocks.forEach(block => {
+		this.glyphBlocks.forEach((block) => {
 			const streamId = block.streamId;
 			groups[streamId] ??= [];
 			groups[streamId].push(block);
 		});
 
-		groups.forEach(group => { this.recodeStream(group) });
+		groups.forEach((group) => {
+			this.recodeStream(group);
+		});
 	}
 
 	private recodeStream(blocks: GlyphBlock[]) {
@@ -484,7 +488,7 @@ end
 			}
 
 			const raw = decoder.decode(
-				bytes.slice(block.offset, block.offset + block.length)
+				bytes.slice(block.offset, block.offset + block.length),
 			);
 
 			const replaced = this.recodePDFString(raw);
@@ -505,7 +509,10 @@ end
 		if (this.options.compress) {
 			const compressed = this.pdfDoc.context.flateStream(newBytes);
 			stream.dict.set(PDFName.of('Filter'), PDFName.of('FlateDecode'));
-			stream.dict.set(PDFName.of('Length'), PDFNumber.of(compressed.contents.length));
+			stream.dict.set(
+				PDFName.of('Length'),
+				PDFNumber.of(compressed.contents.length),
+			);
 			stream.updateContents(compressed.contents);
 		} else {
 			stream.updateContents(newBytes);

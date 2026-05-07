@@ -1,4 +1,5 @@
-import { Lexer, type Token } from '../../parser/lexer.js';
+import { Lexer } from '../../parser/lexer.js';
+import type { Token } from '../../parser/types.js';
 import type { GlyphMapper } from './glyph-mapper.js';
 
 type Mapping =
@@ -14,7 +15,6 @@ export class CMapMapper implements GlyphMapper {
 	constructor(
 		source:
 			| string
-			| Set<number>
 			| Uint8Array<ArrayBufferLike>
 			| Uint8ClampedArray<ArrayBufferLike>,
 	) {
@@ -22,13 +22,7 @@ export class CMapMapper implements GlyphMapper {
 			source = new TextEncoder().encode(source);
 		}
 
-		if (source instanceof Set) {
-			this.mappings = [];
-			let glyphId = 0;
-			source.forEach(codePoint => {
-				this.mappings.push([++glyphId, codePoint]);
-			});
-		} else if (source instanceof Uint8Array) {
+		if (source instanceof Uint8Array) {
 			this.mappings = [...this.parse(source)].sort((a, b) => a[0] - b[0]);
 		} else {
 			throw new Error(`unsupported CMap source type '${typeof source}'`);
@@ -38,7 +32,7 @@ export class CMapMapper implements GlyphMapper {
 	private parse(
 		source: Uint8Array<ArrayBufferLike> | Uint8ClampedArray<ArrayBufferLike>,
 	): Mapping[] {
-		const lexer = new Lexer();
+		const lexer = new Lexer('Identity-H');
 		const tokens = lexer.tokenize(source);
 
 		const mappings: Mapping[] = [];
@@ -48,7 +42,7 @@ export class CMapMapper implements GlyphMapper {
 			const token = tokens[i]!;
 			if (token.type !== 'token') continue;
 
-			const value = this.decodeNumberArray(token.value);
+			const value = this.decodeUint16Array(token.value);
 			if (value === 'beginbfchar') {
 				i += this.consumeMappings(mappings, tokens, 2, i + 1);
 			} else if (value === 'beginbfrange') {
@@ -72,7 +66,7 @@ export class CMapMapper implements GlyphMapper {
 			const token = tokens[i]!;
 
 			if (token.type === 'token') {
-				const value = this.decodeNumberArray(token.value);
+				const value = this.decodeUint16Array(token.value);
 				if (cardinality === 2 && value === 'endbfchar') {
 					return i - start + 1;
 				} else if (
@@ -92,7 +86,7 @@ export class CMapMapper implements GlyphMapper {
 				}
 			} else {
 				// String.
-				mapping.push(this.numberArrayToNumber(token.value));
+				mapping.push(this.uint16ArrayToNumber(token.value));
 				if (mapping.length >= cardinality) {
 					mappings.push([...mapping]);
 					(mapping as Array<number>).length = 0;
@@ -113,7 +107,7 @@ export class CMapMapper implements GlyphMapper {
 			const token = tokens[i]!;
 
 			if (token.type === 'token') {
-				const value = this.decodeNumberArray(token.value);
+				const value = this.decodeUint16Array(token.value);
 				if (range.length > 1) {
 					ranges.push([range[0], range[1]]);
 				}
@@ -122,7 +116,7 @@ export class CMapMapper implements GlyphMapper {
 				}
 			} else {
 				// String.
-				range.push(this.numberArrayToNumber(token.value));
+				range.push(this.uint16ArrayToNumber(token.value));
 			}
 		}
 
@@ -141,7 +135,7 @@ export class CMapMapper implements GlyphMapper {
 
 			if (
 				token.type === 'token' &&
-				this.decodeNumberArray(token.value) === ']'
+				this.decodeUint16Array(token.value) === ']'
 			) {
 				mappings.push(mapping);
 				return i - start + 1;
@@ -169,7 +163,7 @@ export class CMapMapper implements GlyphMapper {
 
 			if (
 				token.type === 'token' &&
-				this.decodeNumberArray(token.value) === ']'
+				this.decodeUint16Array(token.value) === ']'
 			) {
 				mappings.push(mapping);
 				return i - start + 1;
@@ -187,19 +181,30 @@ export class CMapMapper implements GlyphMapper {
 		return tokens.length - start + 1;
 	}
 
-	private decodeNumberArray(value: number[]): string {
-		return value.map((c) => String.fromCharCode(c)).join('');
+	private decodeUint16Array(value: Uint16Array): string {
+		return String.fromCodePoint(...value);
 	}
 
-	private numberArrayToNumber(octets: number[]): number {
-		let factor = 1;
+	private uint16ArrayToNumber(octets: Uint16Array): number {
 		let value = 0;
-		octets.reverse().forEach((octet) => {
-			value += factor * octet;
-			factor *= 256;
-		});
+		let nonZeroSeen = false;
+		let count = 0;
 
-		return value;
+		for (let i = 0; i < octets.length; ++i) {
+			const octet = octets[i]! & 0xff;
+
+			if (!nonZeroSeen) {
+				if (octet === 0) continue;
+				nonZeroSeen = true;
+			}
+
+			if (count >= 4) return 0;
+
+			value = (value << 8) | octet;
+			++count;
+		}
+
+		return nonZeroSeen ? (value >>> 0) : 0;
 	}
 
 	// The CMap tables can become very big. Instead of a (sparse) array, we

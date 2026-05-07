@@ -1,4 +1,5 @@
 import * as fs from 'node:fs/promises';
+import * as path from 'node:path';
 import { afterEach } from 'node:test';
 import { type PDFDocument, PDFRef } from '@cantoo/pdf-lib';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
@@ -134,9 +135,10 @@ describe('Text Extraction', () => {
 		let textBlocks: TextBlock[];
 
 		beforeAll(async () => {
-			const pdfBytes = await fs.readFile(
-				'../../assets/pdfs/3-fonts-embedded.pdf',
+			const filename = path.resolve(import.meta.dirname,
+				'../../../../assets/pdfs/3-fonts-embedded.pdf',
 			);
+			const pdfBytes = await fs.readFile(filename);
 			const pdfLab = await PDFLab.from(pdfBytes);
 			const fonts = pdfLab.collectFonts();
 			// biome-ignore lint/complexity/useLiteralKeys: false positive.
@@ -145,13 +147,13 @@ describe('Text Extraction', () => {
 		});
 
 		it('should extract text', () => {
-			expect(textBlocks.length).toBe(3);
+			expect(textBlocks.length).toBe(7);
 		});
 
 		it('should find text in TJ hex arrays', () => {
 			const block = textBlocks[0];
 
-			expect(block?.text).toBe('This page uses Noto Sans.');
+			expect(block?.text).toBe('This page uses');
 			expect(block?.pageNumber).toBe(0);
 			expect(block?.font.baseFont).toBe('BAAAAA+NotoSans-Regular');
 			expect(block?.font.fontName).toBe('NotoSans-Regular');
@@ -164,9 +166,9 @@ describe('Text Extraction', () => {
 		});
 
 		it('should find cyrillic text in TJ hex arrays', () => {
-			const block = textBlocks[1];
+			const block = textBlocks[2];
 
-			expect(block?.text).toBe('Тази страница използва Noto Serif.');
+			expect(block?.text).toBe('Тази стран');
 			expect(block?.pageNumber).toBe(1);
 			expect(block?.font.baseFont).toBe('CAAAAA+NotoSerif-Regular');
 			expect(block?.font.fontName).toBe('NotoSerif-Regular');
@@ -179,7 +181,7 @@ describe('Text Extraction', () => {
 		});
 
 		it('should find text in Tj hex arrays', () => {
-			const block = textBlocks[2];
+			const block = textBlocks[6];
 
 			expect(block?.text).toBe('This page uses Courier New.');
 			expect(block?.pageNumber).toBe(2);

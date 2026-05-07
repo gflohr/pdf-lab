@@ -6,10 +6,11 @@ import {
 	PDFRawStream,
 	type PDFRef,
 } from '@cantoo/pdf-lib';
-import { Lexer, type Token } from '../parser/lexer.js';
+import { Lexer } from '../parser/lexer.js';
+import type { Token } from '../parser/types.js';
 
 export type GlyphBlock = {
-	glyphs: number[];
+	glyphs: Uint8Array;
 	fontResource: string;
 	pageRef: PDFRef;
 	pageNumber: number;
@@ -73,7 +74,7 @@ function parseStream(
 	for (let i = 1; i < tokens.length; ++i) {
 		const token = tokens[i]!;
 		if (token.type === 'token') {
-			const value = decodeNumberArray(token.value);
+			const value = decodeUint8Array(token.value);
 			switch (value) {
 				case 'BT':
 					inText = true;
@@ -84,7 +85,7 @@ function parseStream(
 					break;
 				case 'Tf':
 					if (inText && i > 1 && tokens[i - 2]!.type === 'token') {
-						fontResource = decodeNumberArray(tokens[i - 2]!.value).replace(
+						fontResource = decodeUint8Array(tokens[i - 2]!.value).replace(
 							/^\//,
 							'',
 						);
@@ -120,19 +121,20 @@ function parseStream(
 						tokens[i - 1]!.value[0] === 93 &&
 						fontResource.length
 					) {
-						const textToken = extractTJStringArray(tokens, i - 1);
-						if (textToken.value.length) {
-							collector.push({
-								glyphs: textToken.value,
-								fontResource,
-								pageRef,
-								pageNumber,
-								stream,
-								offset: textToken.offset,
-								length: textToken.length,
-								streamId,
-							});
-						}
+						extractTJStringArray(tokens, i - 1).forEach(t => {
+							if (t.value.length) {
+								collector.push({
+									glyphs: t.value,
+									fontResource,
+									pageRef,
+									pageNumber,
+									stream,
+									offset: t.offset,
+									length: t.length,
+									streamId,
+								});
+							}
+						});
 					}
 					break;
 				default:
@@ -142,16 +144,12 @@ function parseStream(
 	}
 }
 
-function extractTJStringArray(tokens: Token[], end: number): Token {
-	const stringToken: Token = {
-		type: 'string',
-		value: [] as number[],
-	} as Token;
-
+function extractTJStringArray(tokens: Token[], end: number): Token[] {
+	const tjTokens: Token[] = [];
 	for (let i = end - 1; i >= 0; --i) {
 		const token = tokens[i]!;
 		if (token.type === 'string') {
-			stringToken.value.unshift(...token.value);
+			tjTokens.push(token);
 		} else if (
 			token.type === 'token' &&
 			token.value.length === 1 &&
@@ -161,9 +159,9 @@ function extractTJStringArray(tokens: Token[], end: number): Token {
 		}
 	}
 
-	return stringToken;
+	return tjTokens.reverse();
 }
 
-function decodeNumberArray(value: number[]): string {
-	return value.map((c) => String.fromCharCode(c)).join('');
+function decodeUint8Array(value: Uint8Array): string {
+	return new TextDecoder().decode(value);
 }

@@ -41,7 +41,13 @@ describe('Type1 Font Embedder', () => {
 		const glyphIds = new Set([
 			84, 104, 105, 115, 32, 112, 97, 103, 101, 117, 72, 108, 118, 116, 99, 46,
 		]);
-		const embedder = new Type1FontEmbedder(pdfDoc, fontInfo, glyphIds, [], options);
+		const embedder = new Type1FontEmbedder(
+			pdfDoc,
+			fontInfo,
+			glyphIds,
+			[],
+			options,
+		);
 
 		vi.spyOn(resolveFontModule, 'resolveFont').mockResolvedValue({
 			source: notoRegularBytes,

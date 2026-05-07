@@ -88,7 +88,9 @@ describe('Font command', () => {
 	});
 
 	it('should throw an error if nothing to do', async () => {
-		await expect(fontCommand.run(Buffer.from(''), {} as Arguments)).rejects.toThrow(/nothing to do/);
+		await expect(
+			fontCommand.run(Buffer.from(''), {} as Arguments),
+		).rejects.toThrow(/nothing to do/);
 	});
 
 	it('run() should call collectFonts and return 0 on success', async () => {

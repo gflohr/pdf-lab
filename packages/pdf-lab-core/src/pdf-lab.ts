@@ -3,7 +3,7 @@ import collectFonts from './font/collect-fonts.js';
 import { collectResources, type FontUsage } from './font/collect-resources.js';
 import { Type1FontEmbedder } from './font/embedder/type1-embedder.js';
 import type { FontInfo, FontMap } from './font/types.js';
-import { extractGlyphs, GlyphBlock } from './text/extract-glyphs.js';
+import { extractGlyphs, type GlyphBlock } from './text/extract-glyphs.js';
 import { extractText, type TextBlock } from './text/extract-text.js';
 
 /**
