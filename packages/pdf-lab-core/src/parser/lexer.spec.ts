@@ -42,7 +42,7 @@ describe('Lexer', () => {
 		expect(tokens).toEqual([
 			{ type: 'token',  value: new Uint8Array([49]), offset: 0, length: 1 },
 			{ type: 'token',  value: new Uint8Array([50]), offset: 2, length: 1 },
-			{ type: 'string', value: new Uint8Array([72, 101, 108, 108, 111]), offset: 3, length: 7 },
+			{ type: 'lstring', value: new Uint8Array([72, 101, 108, 108, 111]), offset: 3, length: 7 },
 			{ type: 'token',  value: new Uint8Array([34]), offset: 11, length: 1 },
 		]);
 	});
@@ -53,7 +53,7 @@ describe('Lexer', () => {
 
 		expect(tokens.length).toBe(1);
 		const token = tokens[0]!;
-		expect(token.type).toBe('string');
+		expect(token.type).toBe('lstring');
 		expect(token.value.length).toBeGreaterThan(0);
 	});
 
@@ -63,7 +63,7 @@ describe('Lexer', () => {
 
 		expect(tokens).toEqual([
 			{
-				type: 'string',
+				type: 'lstring',
 				value: new Uint8Array([72, 101, 108, 108, 111, 32, 40, 119, 111, 114, 108, 100, 41]),
 				offset: 0,
 				length: 15,
@@ -77,7 +77,7 @@ describe('Lexer', () => {
 
 		expect(tokens).toEqual([
 			{
-				type: 'string',
+				type: 'lstring',
 				value: new Uint8Array([
 					68, 101, 101, 112, 101, 114, 32, 40, 97, 110, 100, 32, 40, 100, 101,
 					101, 112, 101, 114, 41, 41,
@@ -94,7 +94,7 @@ describe('Lexer', () => {
 
 		expect(tokens).toEqual([
 			{
-				type: 'string',
+				type: 'lstring',
 				value: new Uint8Array([]),
 				offset: 0,
 				length: 2,
@@ -115,7 +115,7 @@ describe('Lexer', () => {
 		expect(tokens).toEqual([
 			{ type: 'string', value: new Uint8Array([0x17, 0x04]), offset: 0, length: 6 },
 			{ type: 'token', value: new Uint8Array([0x59]), offset: 6, length: 1 },
-			{ type: 'string', value: new Uint8Array([0x20, 0x58, 0x59, 0x20]), offset: 7, length: 6 },
+			{ type: 'lstring', value: new Uint8Array([0x20, 0x58, 0x59, 0x20]), offset: 7, length: 6 },
 			{ type: 'token', value: new Uint8Array([0x5a]), offset: 13, length: 1 },
 			{ type: 'string', value: new Uint8Array([0x21]), offset: 14, length: 4 },
 		]);
@@ -163,7 +163,7 @@ describe('Lexer', () => {
 		expect(tokens.length).toBeGreaterThan(0);
 
 		// Ensure both string types are present.
-		const stringTokens = tokens.filter((t) => t.type === 'string');
+		const stringTokens = tokens.filter((t) => t.type === 'string' || t.type === 'lstring');
 		expect(stringTokens.length).toBeGreaterThan(1);
 	});
 
@@ -235,7 +235,7 @@ ET
 			const tokens = lexer.tokenize(toBytes(input));
 			expect(tokens.length).toBeGreaterThan(0);
 
-			const stringTokens = tokens.filter((t) => t.type === 'string');
+			const stringTokens = tokens.filter((t) => t.type === 'lstring');
 			expect(stringTokens.length).toBe(1);
 			const token = stringTokens[0]!;
 			expect(token.offset).toBe(13);

@@ -9,7 +9,7 @@ export type LiteralEncoding =
 	| 'UTF-16LE';
 
 export type Token = {
-	type: 'string' | 'token';
+	type: 'string' | 'lstring' | 'token';
 	value: Uint8Array;
 	offset: number;
 	length: number;

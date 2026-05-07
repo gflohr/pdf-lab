@@ -1,10 +1,8 @@
-import { LiteralParser } from './literal-parser.js';
-import { encodeOctets } from './util/encode-octets.js';
 import type { Token as Uint8Token } from './types.js';
 
-type State = 'initial' | 'string' | 'hexstring';
+type State = 'initial' | 'lstring' | 'hexstring';
 type Token = {
-	type: 'string' | 'token';
+	type: 'string' | 'lstring' | 'token';
 	value: number[];
 	offset: number;
 	length: number;
@@ -37,12 +35,12 @@ export class Lexer {
 					case 40: // Open parenthesis.
 						if (token.value.length) this.pushToken(tokens, token, i);
 						token = {
-							type: 'string',
+							type: 'lstring',
 							value: [],
 							offset: i,
 							length: 0,
 						};
-						state = 'string';
+						state = 'lstring';
 						++parenLevel;
 						break;
 					case 60: // Left angle bracket.
@@ -100,8 +98,7 @@ export class Lexer {
 						}
 						break;
 				}
-			} else if (state === 'string') {
-				let value: Uint8Array;
+			} else if (state === 'lstring') {
 				switch (byte) {
 					case 40: // Open parenthesis.
 						++parenLevel;
@@ -190,7 +187,7 @@ export class Lexer {
 			length: offset - token.offset,
 		};
 
-		if (token.type === 'string') ++uint8Token.length;
+		if (token.type === 'string' || token.type === 'lstring') ++uint8Token.length;
 
 		tokens.push(uint8Token);
 	}

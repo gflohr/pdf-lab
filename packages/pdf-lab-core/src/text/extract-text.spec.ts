@@ -269,4 +269,40 @@ endbfchar
 			expect(textBlock.text).toBe('X');
 		});
 	});
+
+	describe('Mixed content', () => {
+		let textBlocks: TextBlock[];
+
+		beforeAll(async () => {
+			vi.resetAllMocks();
+			const filename = path.resolve(import.meta.dirname,
+				'../../../../assets/pdfs/mixed-content.pdf',
+			);
+			const pdfBytes = await fs.readFile(filename);
+			const pdfLab = await PDFLab.from(pdfBytes);
+			const fonts = pdfLab.collectFonts();
+			// biome-ignore lint/complexity/useLiteralKeys: false positive.
+			const fontResources = pdfLab['fontUsage']!;
+			textBlocks = await extractText(pdfLab.pdfDocument, fonts, fontResources);
+		});
+
+		it('should extract text', () => {
+			expect(textBlocks.length).toBe(3);
+		});
+
+		it.skip('should find text from literal strings', () => {
+			const block = textBlocks[0];
+
+			expect(block?.text).toBe('(Hello), (world)!');
+			expect(block?.pageNumber).toBe(0);
+			expect(block?.font.baseFont).toBe('BAAAAA+NotoSans-Regular');
+			expect(block?.font.fontName).toBe('NotoSans-Regular');
+			expect(block?.font.subtype).toBe('TrueType');
+			expect(block?.font.embedded).toBe(true);
+			expect(block?.font.encoding).not.toBeDefined();
+			expect(block?.font.ref.toString()).toBe('12 0 R');
+			expect(block?.font.glyphMapper).toBeDefined();
+			expect(block?.font.glyphMapper).toBeInstanceOf(CMapMapper);
+		});
+	});
 });
