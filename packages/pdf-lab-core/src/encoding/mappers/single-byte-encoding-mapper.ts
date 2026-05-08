@@ -1,3 +1,4 @@
+import { PDFArray, PDFName, PDFNumber, PDFString } from '@cantoo/pdf-lib';
 import { adobeGlyphs } from '../agl.js';
 import { MacExpertEncoding } from '../single-byte-encodings/mac-expert.js';
 import { MacRomanEncoding } from '../single-byte-encodings/mac-roman.js';
@@ -11,32 +12,34 @@ import type { GlyphMapper } from './glyph-mapper.js';
 export class SingleByteEncodingMapper implements GlyphMapper {
 	private readonly encoding: string[];
 
-	constructor(encodingName: string) {
+	constructor(encodingName: string, differences?: PDFArray) {
 		switch (encodingName.toLowerCase()) {
 			case 'macexpertencoding':
-				this.encoding = MacExpertEncoding;
+				this.encoding = [...MacExpertEncoding];
 				break;
 			case 'macromanencoding':
-				this.encoding = MacRomanEncoding;
+				this.encoding = [...MacRomanEncoding];
 				break;
 			case 'pdfdocencoding':
-				this.encoding = PDFDocEncoding;
+				this.encoding = [...PDFDocEncoding];
 				break;
 			case 'standardencoding':
-				this.encoding = StandardEncoding;
+				this.encoding = [...StandardEncoding];
 				break;
 			case 'symbolencoding':
-				this.encoding = SymbolEncoding;
+				this.encoding = [...SymbolEncoding];
 				break;
 			case 'winansiencoding':
-				this.encoding = WinAnsiEncoding;
+				this.encoding = [...WinAnsiEncoding];
 				break;
 			case 'zapfdingbatsencoding':
-				this.encoding = ZapfDingbatsEncoding;
+				this.encoding = [...ZapfDingbatsEncoding];
 				break;
 			default:
 				throw new Error(`unsupported encoding '${encodingName}`);
 		}
+
+		if (differences) this.parseDifferences(differences);
 	}
 
 	public lookup(glyph: number): string {
@@ -60,5 +63,29 @@ export class SingleByteEncodingMapper implements GlyphMapper {
 		if (!adobeGlyph) return [];
 
 		return typeof adobeGlyph.u === 'number' ? [adobeGlyph.u] : adobeGlyph.u;
+	}
+
+	private parseDifferences(differences: PDFArray) {
+		let glyphId: number | undefined;
+		for (let i = 0; i < differences.size(); ++i) {
+			const item = differences.get(i);
+
+			if (item instanceof PDFNumber) {
+				glyphId = item.asNumber();
+				if (glyphId < 0 || glyphId > 255) {
+					glyphId = undefined;
+				}
+			} else if (typeof glyphId !== 'undefined') {
+				if (item instanceof PDFName) {
+					if (glyphId < this.encoding.length) {
+						const glyph = item.decodeText();
+						if (adobeGlyphs[glyph]) {
+							this.encoding[glyphId] = glyph;
+						}
+					}
+					++glyphId;
+				}
+			}
+		}
 	}
 }

@@ -165,6 +165,7 @@ export abstract class FontEmbedder {
 		const cmap = this.createToUnicode();
 
 		const context = this.pdfDoc.context;
+		// FIXME! Only compress, when requested!
 		const cmapStream = context.flateStream(cmap);
 
 		return context.register(cmapStream);
