@@ -138,7 +138,7 @@ describe('8-bit mappers', () => {
 	describe('Differences', () => {
 		const context = PDFContext.create();
 		const differences = PDFArray.withContext(context);
-		differences.push(PDFNumber.of(97));
+		differences.push(PDFNumber.of('a'.codePointAt(0)!));
 		for (let c = 'A'.codePointAt(0); c! <= 'Z'.codePointAt(0)!; ++c!) {
 			differences.push(PDFName.of(String.fromCharCode(c!)));
 		}
