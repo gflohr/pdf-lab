@@ -11,7 +11,7 @@ import type { Token } from '../parser/types.js';
 
 export type GlyphBlock = {
 	glyphs: Uint8Array;
-	type: 'string' | 'lstring',
+	type: 'string' | 'lstring';
 	fontResource: string;
 	pageRef: PDFRef;
 	pageNumber: number;
@@ -95,11 +95,7 @@ function parseStream(
 				case 'Tj':
 				case '"':
 				case "'":
-					if (
-						inText &&
-						isString(tokens[i - 1]!) &&
-						fontResource.length
-					) {
+					if (inText && isString(tokens[i - 1]!) && fontResource.length) {
 						const token = tokens[i - 1]!;
 						collector.push({
 							glyphs: token.value,
@@ -123,7 +119,7 @@ function parseStream(
 						tokens[i - 1]!.value[0] === 93 &&
 						fontResource.length
 					) {
-						extractTJStringArray(tokens, i - 1).forEach(t => {
+						extractTJStringArray(tokens, i - 1).forEach((t) => {
 							if (t.value.length) {
 								collector.push({
 									glyphs: t.value,

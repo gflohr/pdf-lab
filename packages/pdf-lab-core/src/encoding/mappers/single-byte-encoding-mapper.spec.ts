@@ -1,6 +1,6 @@
+import { PDFArray, PDFContext, PDFName, PDFNumber } from '@cantoo/pdf-lib';
 import { describe, expect, it } from 'vitest';
 import { SingleByteEncodingMapper } from './single-byte-encoding-mapper.js';
-import { PDFArray, PDFContext, PDFName, PDFNumber } from '@cantoo/pdf-lib';
 
 describe('8-bit mappers', () => {
 	describe('basic', () => {
@@ -145,7 +145,10 @@ describe('8-bit mappers', () => {
 		differences.push(PDFNumber.of(0xdb));
 		differences.push(PDFName.of('Euro'));
 
-		const mapper = new SingleByteEncodingMapper('MacRomanEncoding', differences);
+		const mapper = new SingleByteEncodingMapper(
+			'MacRomanEncoding',
+			differences,
+		);
 
 		it('should honour the differences', () => {
 			expect(mapper.lookup('a'.codePointAt(0)!)).toBe('A');

@@ -135,7 +135,8 @@ describe('Text Extraction', () => {
 		let textBlocks: TextBlock[];
 
 		beforeAll(async () => {
-			const filename = path.resolve(import.meta.dirname,
+			const filename = path.resolve(
+				import.meta.dirname,
 				'../../../../assets/pdfs/3-fonts-embedded.pdf',
 			);
 			const pdfBytes = await fs.readFile(filename);
@@ -275,7 +276,8 @@ endbfchar
 
 		beforeAll(async () => {
 			vi.resetAllMocks();
-			const filename = path.resolve(import.meta.dirname,
+			const filename = path.resolve(
+				import.meta.dirname,
 				'../../../../assets/pdfs/mixed-content.pdf',
 			);
 			const pdfBytes = await fs.readFile(filename);

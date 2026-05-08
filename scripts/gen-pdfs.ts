@@ -1,5 +1,17 @@
 import fs from 'node:fs/promises';
-import { PDFArray, PDFDict, PDFDocument, PDFName, PDFNumber, PDFPage, PDFRawStream, PDFRef, PDFStream, rgb, StandardFonts } from '@cantoo/pdf-lib';
+import {
+	PDFArray,
+	PDFDict,
+	PDFDocument,
+	PDFName,
+	PDFNumber,
+	type PDFPage,
+	PDFRawStream,
+	type PDFRef,
+	PDFStream,
+	rgb,
+	StandardFonts,
+} from '@cantoo/pdf-lib';
 import fontkit from '@pdf-lib/fontkit';
 
 async function genStandardFonts(): Promise<void> {
@@ -145,10 +157,18 @@ async function genEncodingTest() {
 
 	const y = page.getSize().height - 50;
 	page.drawText('dummy', {
-		x: 50, y, size: 12, font: helvetica, color: rgb(0, 0, 0),
+		x: 50,
+		y,
+		size: 12,
+		font: helvetica,
+		color: rgb(0, 0, 0),
 	});
 	page.drawText('dummy', {
-		x: 50, y, size: 12, font: times, color: rgb(0, 0, 0),
+		x: 50,
+		y,
+		size: 12,
+		font: times,
+		color: rgb(0, 0, 0),
 	});
 
 	const helveticaName = getFontNameByRef(page, helvetica.ref).decodeText();
@@ -199,7 +219,7 @@ function getFontNameByRef(page: PDFPage, ref: PDFRef) {
 		}
 	}
 
-	throw new Error(`no font resource '${ref}'`)
+	throw new Error(`no font resource '${ref}'`);
 }
 
 function getContentStream(page: PDFPage): PDFStream {

@@ -3,6 +3,7 @@ export const StandardEncodings = [
 	'MacRomanEncoding',
 	'WinAnsiEncoding',
 	'MacExpertEncoding',
+	'PDFDocEncoding',
 	'SymbolEncoding',
 	'ZapfDingbatsEncoding',
 ] as const;

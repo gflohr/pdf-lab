@@ -91,6 +91,10 @@ function getFontInfo(
 		);
 		if (canonical) {
 			encoding = canonical;
+		} else if (decoded.toLowerCase() === 'identity-v' ) {
+			encoding = 'Identity-V';
+		} else {
+			encoding = 'Identity-H';
 		}
 	} else {
 		const baseFont = fontDict.lookupMaybe(PDFName.of('BaseFont'), PDFName);

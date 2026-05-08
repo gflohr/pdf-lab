@@ -23,7 +23,9 @@ describe('Literal string parsing', () => {
 			// The utf-8 'ö' is encoded with the octets 0xc3 and 0xb6.
 			// In the PDF StandardEncoding, this is /Atilde and /paragraph.
 			// And they have the codepoints \u02c6 and \u00b6.
-			expect(cp).toStrictEqual(new Uint16Array([0x62, 0x2c6, 0xb6, 0x73, 0x65]));
+			expect(cp).toStrictEqual(
+				new Uint16Array([0x62, 0x2c6, 0xb6, 0x73, 0x65]),
+			);
 		});
 
 		it('should assume byte semantics for Windows-1252', () => {
@@ -37,7 +39,9 @@ describe('Literal string parsing', () => {
 			// 0xc3 and 0xbc map to the same Unicode code points. But 0x9f
 			// is /Ydierises in WinAnsiEncoding, which has the code
 			// point \u0178.
-			expect(cp).toStrictEqual(new Uint16Array([0x46, 0xc3, 0xbc, 0xc3, 0x178, 0x65]));
+			expect(cp).toStrictEqual(
+				new Uint16Array([0x46, 0xc3, 0xbc, 0xc3, 0x178, 0x65]),
+			);
 		});
 
 		it('should allow unescaped nested parentheses', () => {
@@ -149,4 +153,4 @@ describe('Literal string parsing', () => {
 			expect(decodeUint16Array(cp)).toBe('∫');
 		});
 	});
-})
+});

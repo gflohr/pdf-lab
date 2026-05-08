@@ -18,8 +18,18 @@ describe('Lexer', () => {
 		const tokens = lexer.tokenize(toBytes('abc def'));
 
 		expect(tokens).toEqual([
-			{ type: 'token', value: new Uint8Array([97, 98, 99]), offset: 0, length: 3 },
-			{ type: 'token', value: new Uint8Array([100, 101, 102]), offset: 4, length: 3 },
+			{
+				type: 'token',
+				value: new Uint8Array([97, 98, 99]),
+				offset: 0,
+				length: 3,
+			},
+			{
+				type: 'token',
+				value: new Uint8Array([100, 101, 102]),
+				offset: 4,
+				length: 3,
+			},
 		]);
 	});
 
@@ -28,10 +38,30 @@ describe('Lexer', () => {
 		const tokens = lexer.tokenize(toBytes('abc   def\tghi\njkl'));
 
 		expect(tokens).toEqual([
-			{ type: 'token', value: new Uint8Array([97, 98, 99]), offset: 0, length: 3 },
-			{ type: 'token', value: new Uint8Array([100, 101, 102]), offset: 6, length: 3 },
-			{ type: 'token', value: new Uint8Array([103, 104, 105]), offset: 10, length: 3 },
-			{ type: 'token', value: new Uint8Array([106, 107, 108]), offset: 14, length: 3 },
+			{
+				type: 'token',
+				value: new Uint8Array([97, 98, 99]),
+				offset: 0,
+				length: 3,
+			},
+			{
+				type: 'token',
+				value: new Uint8Array([100, 101, 102]),
+				offset: 6,
+				length: 3,
+			},
+			{
+				type: 'token',
+				value: new Uint8Array([103, 104, 105]),
+				offset: 10,
+				length: 3,
+			},
+			{
+				type: 'token',
+				value: new Uint8Array([106, 107, 108]),
+				offset: 14,
+				length: 3,
+			},
 		]);
 	});
 
@@ -40,10 +70,15 @@ describe('Lexer', () => {
 		const tokens = lexer.tokenize(toBytes('1 2(Hello) "'));
 
 		expect(tokens).toEqual([
-			{ type: 'token',  value: new Uint8Array([49]), offset: 0, length: 1 },
-			{ type: 'token',  value: new Uint8Array([50]), offset: 2, length: 1 },
-			{ type: 'lstring', value: new Uint8Array([72, 101, 108, 108, 111]), offset: 3, length: 7 },
-			{ type: 'token',  value: new Uint8Array([34]), offset: 11, length: 1 },
+			{ type: 'token', value: new Uint8Array([49]), offset: 0, length: 1 },
+			{ type: 'token', value: new Uint8Array([50]), offset: 2, length: 1 },
+			{
+				type: 'lstring',
+				value: new Uint8Array([72, 101, 108, 108, 111]),
+				offset: 3,
+				length: 7,
+			},
+			{ type: 'token', value: new Uint8Array([34]), offset: 11, length: 1 },
 		]);
 	});
 
@@ -64,7 +99,9 @@ describe('Lexer', () => {
 		expect(tokens).toEqual([
 			{
 				type: 'lstring',
-				value: new Uint8Array([72, 101, 108, 108, 111, 32, 40, 119, 111, 114, 108, 100, 41]),
+				value: new Uint8Array([
+					72, 101, 108, 108, 111, 32, 40, 119, 111, 114, 108, 100, 41,
+				]),
 				offset: 0,
 				length: 15,
 			},
@@ -113,9 +150,19 @@ describe('Lexer', () => {
 		const tokens = lexer.tokenize(toBytes('<1704>Y( XY )Z<21>'));
 
 		expect(tokens).toEqual([
-			{ type: 'string', value: new Uint8Array([0x17, 0x04]), offset: 0, length: 6 },
+			{
+				type: 'string',
+				value: new Uint8Array([0x17, 0x04]),
+				offset: 0,
+				length: 6,
+			},
 			{ type: 'token', value: new Uint8Array([0x59]), offset: 6, length: 1 },
-			{ type: 'lstring', value: new Uint8Array([0x20, 0x58, 0x59, 0x20]), offset: 7, length: 6 },
+			{
+				type: 'lstring',
+				value: new Uint8Array([0x20, 0x58, 0x59, 0x20]),
+				offset: 7,
+				length: 6,
+			},
 			{ type: 'token', value: new Uint8Array([0x5a]), offset: 13, length: 1 },
 			{ type: 'string', value: new Uint8Array([0x21]), offset: 14, length: 4 },
 		]);
@@ -134,8 +181,18 @@ describe('Lexer', () => {
 		const tokens = lexer.tokenize(toBytes('abc % this is a comment\ndef'));
 
 		expect(tokens).toEqual([
-			{ type: 'token', value: new Uint8Array([97, 98, 99]), offset: 0, length: 3 },
-			{ type: 'token', value: new Uint8Array([100, 101, 102]), offset: 24, length: 3 },
+			{
+				type: 'token',
+				value: new Uint8Array([97, 98, 99]),
+				offset: 0,
+				length: 3,
+			},
+			{
+				type: 'token',
+				value: new Uint8Array([100, 101, 102]),
+				offset: 24,
+				length: 3,
+			},
 		]);
 	});
 
@@ -144,7 +201,12 @@ describe('Lexer', () => {
 		const tokens = lexer.tokenize(toBytes('abc % comment'));
 
 		expect(tokens).toEqual([
-			{ type: 'token', value: new Uint8Array([97, 98, 99]), offset: 0, length: 3 },
+			{
+				type: 'token',
+				value: new Uint8Array([97, 98, 99]),
+				offset: 0,
+				length: 3,
+			},
 		]);
 	});
 
@@ -163,7 +225,9 @@ describe('Lexer', () => {
 		expect(tokens.length).toBeGreaterThan(0);
 
 		// Ensure both string types are present.
-		const stringTokens = tokens.filter((t) => t.type === 'string' || t.type === 'lstring');
+		const stringTokens = tokens.filter(
+			(t) => t.type === 'string' || t.type === 'lstring',
+		);
 		expect(stringTokens.length).toBeGreaterThan(1);
 	});
 
@@ -196,10 +260,30 @@ ET
 		const strings = tokens.filter((t) => t.type === 'string');
 
 		expect(strings).toEqual([
-			{ type: 'string', value: new Uint8Array([0x00, 0x01]), offset: 2, length: 6 },
-			{ type: 'string', value: new Uint8Array([0x00, 0x3a]), offset: 9, length: 6 },
-			{ type: 'string', value: new Uint8Array([0x00, 0x02]), offset: 17, length: 6 },
-			{ type: 'string', value: new Uint8Array([0x00, 0x3b]), offset: 24, length: 6 },
+			{
+				type: 'string',
+				value: new Uint8Array([0x00, 0x01]),
+				offset: 2,
+				length: 6,
+			},
+			{
+				type: 'string',
+				value: new Uint8Array([0x00, 0x3a]),
+				offset: 9,
+				length: 6,
+			},
+			{
+				type: 'string',
+				value: new Uint8Array([0x00, 0x02]),
+				offset: 17,
+				length: 6,
+			},
+			{
+				type: 'string',
+				value: new Uint8Array([0x00, 0x3b]),
+				offset: 24,
+				length: 6,
+			},
 		]);
 	});
 
@@ -210,9 +294,24 @@ ET
 		const tokens = lexer.tokenize(toBytes(input));
 
 		expect(tokens).toEqual([
-			{ type: 'string', value: new Uint8Array([0x00, 0xaf]), offset: 0, length: 6 },
-			{ type: 'string', value: new Uint8Array([0xab, 0xcd]), offset: 6, length: 6 },
-			{ type: 'string', value: new Uint8Array([0x12, 0x34]), offset: 12, length: 6 },
+			{
+				type: 'string',
+				value: new Uint8Array([0x00, 0xaf]),
+				offset: 0,
+				length: 6,
+			},
+			{
+				type: 'string',
+				value: new Uint8Array([0xab, 0xcd]),
+				offset: 6,
+				length: 6,
+			},
+			{
+				type: 'string',
+				value: new Uint8Array([0x12, 0x34]),
+				offset: 12,
+				length: 6,
+			},
 		]);
 	});
 

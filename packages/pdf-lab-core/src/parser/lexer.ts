@@ -86,7 +86,7 @@ export class Lexer {
 						break;
 					default:
 						if (byte <= 32) {
-						if (token.value.length) this.pushToken(tokens, token, i);
+							if (token.value.length) this.pushToken(tokens, token, i);
 							token = {
 								type: 'token',
 								value: [],
@@ -187,9 +187,9 @@ export class Lexer {
 			length: offset - token.offset,
 		};
 
-		if (token.type === 'string' || token.type === 'lstring') ++uint8Token.length;
+		if (token.type === 'string' || token.type === 'lstring')
+			++uint8Token.length;
 
 		tokens.push(uint8Token);
 	}
 }
-

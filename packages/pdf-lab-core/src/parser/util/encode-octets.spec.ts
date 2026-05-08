@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import type { Encoding } from '../../encoding/types.js';
 import { encodeOctets } from './encode-octets.js'; // adjust path as needed
-import { Encoding } from '../../encoding/types.js';
 
 describe('encodeOctets', () => {
 	it('should map bytes using StandardEncoding (single-byte mapper)', () => {

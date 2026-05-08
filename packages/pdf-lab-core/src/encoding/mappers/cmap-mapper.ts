@@ -29,10 +29,14 @@ export class CMapMapper implements GlyphMapper {
 		}
 	}
 
+	public get name(): 'Identity-H' {
+		return 'Identity-H';
+	}
+
 	private parse(
 		source: Uint8Array<ArrayBufferLike> | Uint8ClampedArray<ArrayBufferLike>,
 	): Mapping[] {
-		const lexer = new Lexer('Identity-H');
+		const lexer = new Lexer();
 		const tokens = lexer.tokenize(source);
 
 		const mappings: Mapping[] = [];
@@ -42,7 +46,7 @@ export class CMapMapper implements GlyphMapper {
 			const token = tokens[i]!;
 			if (token.type !== 'token') continue;
 
-			const value = this.decodeUint16Array(token.value);
+			const value = this.decodeUint8Array(token.value);
 			if (value === 'beginbfchar') {
 				i += this.consumeMappings(mappings, tokens, 2, i + 1);
 			} else if (value === 'beginbfrange') {
@@ -66,7 +70,7 @@ export class CMapMapper implements GlyphMapper {
 			const token = tokens[i]!;
 
 			if (token.type === 'token') {
-				const value = this.decodeUint16Array(token.value);
+				const value = this.decodeUint8Array(token.value);
 				if (cardinality === 2 && value === 'endbfchar') {
 					return i - start + 1;
 				} else if (
@@ -86,7 +90,7 @@ export class CMapMapper implements GlyphMapper {
 				}
 			} else {
 				// String.
-				mapping.push(this.uint16ArrayToNumber(token.value));
+				mapping.push(this.uint8ArrayToNumber(token.value));
 				if (mapping.length >= cardinality) {
 					mappings.push([...mapping]);
 					(mapping as Array<number>).length = 0;
@@ -107,7 +111,7 @@ export class CMapMapper implements GlyphMapper {
 			const token = tokens[i]!;
 
 			if (token.type === 'token') {
-				const value = this.decodeUint16Array(token.value);
+				const value = this.decodeUint8Array(token.value);
 				if (range.length > 1) {
 					ranges.push([range[0], range[1]]);
 				}
@@ -116,7 +120,7 @@ export class CMapMapper implements GlyphMapper {
 				}
 			} else {
 				// String.
-				range.push(this.uint16ArrayToNumber(token.value));
+				range.push(this.uint8ArrayToNumber(token.value));
 			}
 		}
 
@@ -135,7 +139,7 @@ export class CMapMapper implements GlyphMapper {
 
 			if (
 				token.type === 'token' &&
-				this.decodeUint16Array(token.value) === ']'
+				this.decodeUint8Array(token.value) === ']'
 			) {
 				mappings.push(mapping);
 				return i - start + 1;
@@ -163,7 +167,7 @@ export class CMapMapper implements GlyphMapper {
 
 			if (
 				token.type === 'token' &&
-				this.decodeUint16Array(token.value) === ']'
+				this.decodeUint8Array(token.value) === ']'
 			) {
 				mappings.push(mapping);
 				return i - start + 1;
@@ -181,11 +185,11 @@ export class CMapMapper implements GlyphMapper {
 		return tokens.length - start + 1;
 	}
 
-	private decodeUint16Array(value: Uint16Array): string {
+	private decodeUint8Array(value: Uint8Array): string {
 		return String.fromCodePoint(...value);
 	}
 
-	private uint16ArrayToNumber(octets: Uint16Array): number {
+	private uint8ArrayToNumber(octets: Uint8Array): number {
 		let value = 0;
 		let nonZeroSeen = false;
 		let count = 0;
@@ -204,7 +208,7 @@ export class CMapMapper implements GlyphMapper {
 			++count;
 		}
 
-		return nonZeroSeen ? (value >>> 0) : 0;
+		return nonZeroSeen ? value >>> 0 : 0;
 	}
 
 	// The CMap tables can become very big. Instead of a (sparse) array, we
