@@ -28,10 +28,6 @@ export class SingleByteEncodingMapper implements GlyphMapper {
 				this._name = 'PDFDocEncoding',
 				this.encoding = [...PDFDocEncoding];
 				break;
-			case 'standardencoding':
-				this._name = 'StandardEncoding',
-				this.encoding = [...StandardEncoding];
-				break;
 			case 'symbolencoding':
 				this._name = 'SymbolEncoding',
 				this.encoding = [...SymbolEncoding];
@@ -45,7 +41,10 @@ export class SingleByteEncodingMapper implements GlyphMapper {
 				this.encoding = [...ZapfDingbatsEncoding];
 				break;
 			default:
-				throw new Error(`unsupported encoding '${encodingName}`);
+				/* case 'standardencoding': */
+				this._name = 'StandardEncoding',
+				this.encoding = [...StandardEncoding];
+				break;
 		}
 
 		if (differences) this.parseDifferences(differences);

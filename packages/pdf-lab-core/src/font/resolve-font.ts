@@ -1,6 +1,4 @@
-import { isStandardFont, type PDFRef, StandardFonts } from '@cantoo/pdf-lib';
-import type { CMapMapper } from '../encoding/mappers/cmap-mapper.js';
-import type { Encoding } from './../encoding/types.js';
+import { isStandardFont, StandardFonts } from '@cantoo/pdf-lib';
 import { fcMatch } from './fc-match.js';
 import { loadFont, loadFontFromPath, type OsType } from './load-font.js';
 import type { FontData, FontMap } from './types.js';
@@ -32,43 +30,6 @@ export type FontSubtype =
 	| 'TrueType'
 	| 'CIDFontType0'
 	| 'CIDFontType2';
-
-/**
- * Information about a font.
- */
-export type FontInfo = {
-	/**
-	 * The BaseFont. This often contains subset identifiers or a numbered
-	 * suffix.
-	 */
-	baseFont: string;
-	/**
-	 * The normalized font name without the subset identifier or numbered
-	 * suffix.
-	 */
-	fontName: string;
-	/**
-	 * The reference to the font dictionary.
-	 */
-	ref: PDFRef;
-	/**
-	 * The indicator for embedded fonts.
-	 */
-	embedded: boolean;
-	/**
-	 * The optional encoding.
-	 */
-	encoding?: Encoding;
-	// FIXME! This should become a type GlyphMapper.
-	/**
-	 * The optional glyph mapper.
-	 */
-	cmapMapper?: CMapMapper;
-	/**
-	 * The font subtype.
-	 */
-	subtype: FontSubtype;
-};
 
 const standardFontDescriptions: Record<string, FontDescription> = {
 	helvetica: {

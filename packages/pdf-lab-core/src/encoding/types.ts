@@ -12,3 +12,8 @@ export const StandardEncodings = [
  * The pre-defined PDF encodings.
  */
 export type Encoding = (typeof StandardEncodings)[number];
+
+/**
+ * The pre-defined PDF encodings in lowercase.
+ */
+export const lcStandardEncodings = StandardEncodings.map(e => e.toLowerCase());

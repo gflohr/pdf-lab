@@ -1,6 +1,7 @@
 import { PDFArray, PDFContext, PDFName, PDFNumber } from '@cantoo/pdf-lib';
 import { describe, expect, it } from 'vitest';
 import { SingleByteEncodingMapper } from './single-byte-encoding-mapper.js';
+import { Encoding } from '../types.js';
 
 describe('8-bit mappers', () => {
 	describe('basic', () => {
@@ -46,8 +47,12 @@ describe('8-bit mappers', () => {
 			expect(mapper).toBeInstanceOf(SingleByteEncodingMapper);
 		});
 
-		it('should throw an exception for unknown encodings', () => {
-			expect(() => new SingleByteEncodingMapper('AtariST')).toThrow();
+		it('should fall back to StandardEncoding for unknown encodings', () => {
+			const mapper = new SingleByteEncodingMapper('AtariST' as Encoding);
+
+			expect(mapper).toBeDefined();
+			expect(mapper).toBeInstanceOf(SingleByteEncodingMapper);
+			expect(mapper.name).toBe('StandardEncoding');
 		});
 	});
 

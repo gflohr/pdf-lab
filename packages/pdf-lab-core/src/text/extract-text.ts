@@ -81,15 +81,15 @@ export async function extractText(
 						break;
 					}
 				}
-				if (!match) glyphs.push(glyphBlock.glyphs[i]!);
+
+				if (!match) {
+					glyphs.push(glyphBlock.glyphs[i]!);
+					text += font.encodingMapper.lookup(glyphBlock.glyphs[i]!);
+				}
 			}
-		} else if (font.encoding) {
-			const mapper = new SingleByteEncodingMapper(font.encoding);
-			text = glyphBlock.glyphs.map((glyph) => mapper.lookup(glyph)).join('');
-			glyphs.push(...glyphBlock.glyphs);
 		} else {
-			// Hopeless case.
-			text = glyphBlock.glyphs.map(() => '\uFFFD').join('');
+			const mapper = font.encodingMapper;
+			text = [...glyphBlock.glyphs].map(glyph => mapper.lookup(glyph)).join('');
 			glyphs.push(...glyphBlock.glyphs);
 		}
 

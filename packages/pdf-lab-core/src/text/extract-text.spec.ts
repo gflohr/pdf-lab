@@ -16,9 +16,12 @@ describe('Text Extraction', () => {
 		let textBlocks: TextBlock[];
 
 		beforeAll(async () => {
-			const pdfBytes = await fs.readFile(
-				'../../assets/pdfs/standard-fonts-demo.pdf',
+			const filename = path.resolve(
+				import.meta.dirname,
+				'../../../../assets/pdfs/standard-fonts-demo.pdf',
 			);
+
+			const pdfBytes = await fs.readFile(filename);
 			const pdfLab = await PDFLab.from(pdfBytes);
 			const fonts = pdfLab.collectFonts();
 			// biome-ignore lint/complexity/useLiteralKeys: false positive.
@@ -38,7 +41,7 @@ describe('Text Extraction', () => {
 			expect(headline.pageNumber).toBe(0);
 			expect(headline.font.fontName).toBe('Helvetica-Bold');
 			expect(headline.font.subtype).toBe('Type1');
-			expect(headline.font.encoding).toBe('WinAnsiEncoding');
+			expect(headline.font.encodingMapper.name).toBe('WinAnsiEncoding');
 			expect(headline.font.embedded).toBeFalsy();
 		});
 
@@ -113,7 +116,7 @@ describe('Text Extraction', () => {
 		it('should only find text encoded in WinAnsiEncoding on pages 1-4', () => {
 			const pageTextBlocks = textBlocks.filter((b) => b.pageNumber < 4);
 			const encodings = [
-				...new Set(pageTextBlocks.map((b) => b.font.encoding)),
+				...new Set(pageTextBlocks.map((b) => b.font.encodingMapper.name)),
 			].sort();
 			expect(encodings).toStrictEqual(['WinAnsiEncoding']);
 		});
@@ -121,7 +124,7 @@ describe('Text Extraction', () => {
 		it('should only find text encoded in WinAnsiEncoding, SymbolEncoding, and ZapfDingbatsEncoding on page 5', () => {
 			const pageTextBlocks = textBlocks.filter((b) => b.pageNumber === 4);
 			const encodings = [
-				...new Set(pageTextBlocks.map((b) => b.font.encoding)),
+				...new Set(pageTextBlocks.map((b) => b.font.encodingMapper.name)),
 			].sort();
 			expect(encodings).toStrictEqual([
 				'SymbolEncoding',
@@ -160,7 +163,7 @@ describe('Text Extraction', () => {
 			expect(block?.font.fontName).toBe('NotoSans-Regular');
 			expect(block?.font.subtype).toBe('TrueType');
 			expect(block?.font.embedded).toBe(true);
-			expect(block?.font.encoding).not.toBeDefined();
+			expect(block?.font.encodingMapper.name).toBe('Identity-H');
 			expect(block?.font.ref.toString()).toBe('12 0 R');
 			expect(block?.font.glyphMapper).toBeDefined();
 			expect(block?.font.glyphMapper).toBeInstanceOf(CMapMapper);
@@ -175,7 +178,7 @@ describe('Text Extraction', () => {
 			expect(block?.font.fontName).toBe('NotoSerif-Regular');
 			expect(block?.font.subtype).toBe('TrueType');
 			expect(block?.font.embedded).toBe(true);
-			expect(block?.font.encoding).not.toBeDefined();
+			expect(block?.font.encodingMapper.name).toBe('Identity-H');
 			expect(block?.font.ref.toString()).toBe('13 0 R');
 			expect(block?.font.glyphMapper).toBeDefined();
 			expect(block?.font.glyphMapper).toBeInstanceOf(CMapMapper);
@@ -190,7 +193,7 @@ describe('Text Extraction', () => {
 			expect(block?.font.fontName).toBe('CourierNewPSMT');
 			expect(block?.font.subtype).toBe('TrueType');
 			expect(block?.font.embedded).toBe(true);
-			expect(block?.font.encoding).not.toBeDefined();
+			expect(block?.font.encodingMapper.name).toBe('Identity-H');
 			expect(block?.font.ref.toString()).toBe('14 0 R');
 			expect(block?.font.glyphMapper).toBeDefined();
 			expect(block?.font.glyphMapper).toBeInstanceOf(CMapMapper);
@@ -216,7 +219,7 @@ endbfchar
 			ref: fontRef,
 			embedded: true,
 			glyphMapper: mapper,
-		};
+		} as unknown as FontInfo;
 		const fonts = new Map<string, FontInfo>();
 		fonts.set(fontRef.toString(), fontInfo);
 		const resources: FontUsage[] = [{ F1: fontRef }];
@@ -229,11 +232,11 @@ endbfchar
 		it('should extract single-byte glyph IDs', async () => {
 			const glyphBlocks: GlyphBlock[] = [
 				{
-					glyphs: [0x01],
+					glyphs: new Uint8Array([0x01]),
 					fontResource: 'F1',
 					pageRef: PDFRef.of(123),
 					pageNumber: 0,
-				},
+				} as GlyphBlock,
 			];
 
 			vi.spyOn(extractGlyphModule, 'extractGlyphs').mockImplementation(
@@ -251,11 +254,11 @@ endbfchar
 		it('should extract double-byte glyph IDs', async () => {
 			const glyphBlocks: GlyphBlock[] = [
 				{
-					glyphs: [0x00, 0x01],
+					glyphs: new Uint8Array([0x00, 0x01]),
 					fontResource: 'F1',
 					pageRef: PDFRef.of(123),
 					pageNumber: 0,
-				},
+				} as unknown as GlyphBlock,
 			];
 
 			vi.spyOn(extractGlyphModule, 'extractGlyphs').mockImplementation(
@@ -301,7 +304,7 @@ endbfchar
 			expect(block?.font.fontName).toBe('NotoSans-Regular');
 			expect(block?.font.subtype).toBe('TrueType');
 			expect(block?.font.embedded).toBe(true);
-			expect(block?.font.encoding).not.toBeDefined();
+			expect(block?.font.encodingMapper.name).toBe('Identity');
 			expect(block?.font.ref.toString()).toBe('12 0 R');
 			expect(block?.font.glyphMapper).toBeDefined();
 			expect(block?.font.glyphMapper).toBeInstanceOf(CMapMapper);

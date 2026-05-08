@@ -35,9 +35,9 @@ export type FontInfo = {
 	embedded: boolean;
 
 	/**
-	 * The font subtype.
+	 * The font subtype. This can only be unset for Type0 fonts.
 	 */
-	subtype: FontSubtype;
+	subtype?: FontSubtype;
 
 	/**
 	 * The BaseFont. This often contains subset identifiers or a numbered
@@ -52,12 +52,13 @@ export type FontInfo = {
 	fontName?: string;
 
 	/**
-	 * The optional encoding.
+	 * The encoding mapper. You can get the name of the encoding with the
+	 * `name` property of the mapper.
 	 */
-	encoding?: Encoding;
+	encodingMapper: GlyphMapper;
 
 	/**
-	 * The optional glyph mapper.
+	 * The optional glyph mapper. FIXME! Rename to toUnicodeMapper!
 	 */
 	glyphMapper?: GlyphMapper;
 };
