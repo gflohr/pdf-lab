@@ -1,15 +1,8 @@
-import { SingleByteEncodingMapper } from '../encoding/mappers/single-byte-encoding-mapper.js';
 import { type Encoding, StandardEncodings } from '../encoding/types.js';
-import { coerceCodePoints } from '../encoding/util/coerce-code-points.js';
-import type { LiteralEncoding } from './types.js';
 import { encodeOctets } from './util/encode-octets.js';
 
 export class LiteralParser {
-	private encoding: LiteralEncoding;
-
-	constructor(_encoding: LiteralEncoding) {
-		this.encoding = _encoding;
-	}
+	constructor(private readonly encoding: Encoding) {}
 
 	/**
 	 * Parse a literal string. Literal strings are delimited by parentheses.
@@ -31,43 +24,6 @@ export class LiteralParser {
 			switch (octet) {
 				case 92:
 					i += this.consumeBackslashSequence(chars, octets, i + 1);
-					break;
-				case 0xfe: // Big-endian BOM FEFF?
-					if (
-						i === 0 &&
-						StandardEncodings.includes(this.encoding as Encoding) &&
-						octets[i + 1] === 0xff
-					) {
-						this.encoding = 'UTF-16BE';
-						++i;
-					} else {
-						chars.push(octet);
-					}
-					break;
-				case 0xff: // Little-endian BOM FFFE?
-					if (
-						i === 0 &&
-						StandardEncodings.includes(this.encoding as Encoding) &&
-						octets[i + 1] === 0xfe
-					) {
-						this.encoding = 'UTF-16LE';
-						++i;
-					} else {
-						chars.push(octet);
-					}
-					break;
-				case 0xef: // UTF-8 BOM 0xEFBBBF?
-					if (
-						i === 0 &&
-						StandardEncodings.includes(this.encoding as Encoding) &&
-						octets[i + 1] === 0xbb &&
-						octets[i + 2] === 0xbf
-					) {
-						this.encoding = 'UTF-8';
-						i += 2;
-					} else {
-						chars.push(octet);
-					}
 					break;
 				default:
 					chars.push(octet);

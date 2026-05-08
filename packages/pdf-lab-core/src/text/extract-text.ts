@@ -33,6 +33,14 @@ export type TextBlock = {
  * Extract text from a PDF document. This is best effort, and may not
  * catch all text blocks.
  *
+ * ## Edge Cases
+ *
+ * If both an Encoding was specified, and a `ToUnicode` CMap exists, the
+ * encoding "wins" for rendering text. That means that glyphs are selected
+ * according to the encoding, not the `ToUnicode` map. If a text block contains
+ * characters that are missing in the `ToUnicode `table, the specified encoding
+ * is used for text extraction purposes.
+ *
  * @param pdfDoc the input as a PDFDocument
  * @param fonts the fonts used as a `Map` (key: reference, value: `FontInfo`)
  * @param resources the font resources as an array of `FontUsage` objects

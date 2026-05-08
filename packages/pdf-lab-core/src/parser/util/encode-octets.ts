@@ -1,7 +1,6 @@
 import { SingleByteEncodingMapper } from '../../encoding/mappers/single-byte-encoding-mapper.js';
 import { type Encoding, StandardEncodings } from '../../encoding/types.js';
 import { coerceCodePoints } from '../../encoding/util/coerce-code-points.js';
-import type { LiteralEncoding } from '../types.js';
 
 /**
  * Encode an array of octets to a Uint16Array
@@ -19,7 +18,7 @@ import type { LiteralEncoding } from '../types.js';
  */
 export function encodeOctets(
 	octets: number[],
-	encoding: LiteralEncoding = 'StandardEncoding',
+	encoding: Encoding = 'StandardEncoding',
 ): Uint16Array {
 	if (StandardEncodings.includes(encoding as Encoding)) {
 		const mapper = new SingleByteEncodingMapper(encoding);
@@ -35,23 +34,8 @@ export function encodeOctets(
 		}
 
 		return new Uint16Array(outChars);
-	} else if (encoding.startsWith('Identity-')) {
+	} else {
+		// Treat everything else as Identity-H.
 		return new Uint16Array(octets);
 	}
-
-	let text: string;
-
-	if (encoding === 'UTF-16BE') {
-		// TextDecoder does NOT support utf-16be → convert to LE
-		const swapped = new Uint8Array(octets.length);
-		for (let i = 0; i < octets.length; i += 2) {
-			swapped[i] = octets[i + 1]!;
-			swapped[i + 1] = octets[i]!;
-		}
-		text = new TextDecoder('utf-16le').decode(swapped);
-	} else {
-		text = new TextDecoder(encoding).decode(new Uint8Array(octets));
-	}
-
-	return Uint16Array.from(Array.from(text, (c) => c.codePointAt(0)));
 }

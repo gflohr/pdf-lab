@@ -149,24 +149,4 @@ describe('Literal string parsing', () => {
 			expect(decodeUint16Array(cp)).toBe('∫');
 		});
 	});
-
-	describe('Multi-byte encodings', () => {
-		it('should encode the Euro sign in UTF-16BE', () => {
-			const parser = new LiteralParser('StandardEncoding');
-			const cp = parser.parse([0xfe, 0xff, 0x20, 0xac]);
-			expect(decodeUint16Array(cp)).toBe('€');
-		});
-
-		it('should encode the Euro sign in UTF-16LE', () => {
-			const parser = new LiteralParser('StandardEncoding');
-			const cp = parser.parse([0xff, 0xfe, 0xac, 0x20]);
-			expect(decodeUint16Array(cp)).toBe('€');
-		});
-
-		it('should encode the Euro sign in UTF-8', () => {
-			const parser = new LiteralParser('StandardEncoding');
-			const cp = parser.parse([0xef, 0xbb, 0xbf, 0xe2, 0x82, 0xac]);
-			expect(decodeUint16Array(cp)).toBe('€');
-		});
-	});
 })
