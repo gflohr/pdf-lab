@@ -1,5 +1,5 @@
 import fs from 'node:fs/promises';
-import { PDFArray, PDFDict, PDFDocument, PDFName, PDFPage, PDFRawStream, PDFRef, PDFStream, rgb, StandardFonts } from '@cantoo/pdf-lib';
+import { PDFArray, PDFDict, PDFDocument, PDFName, PDFNumber, PDFPage, PDFRawStream, PDFRef, PDFStream, rgb, StandardFonts } from '@cantoo/pdf-lib';
 import fontkit from '@pdf-lib/fontkit';
 
 async function genStandardFonts(): Promise<void> {
@@ -93,6 +93,13 @@ BT
 % When this text gets copied and pasted, it will "magically" change.
 (price: $5) Tj
 T*
+(What about characters that are missing in the CMap?) Tj
+T*
+/{times} 12 Tf
+% This text will be converted to uppercase by a /Differences table.
+% Additionally, the currency symbol is mapped to the Euro sign.
+(caps lock \\333) Tj
+T*
 ET
 Q
 `;
@@ -125,21 +132,31 @@ endcmap
 CMapName currentdict /CMap defineresource pop
 end
 `;
+
 async function genEncodingTest() {
 	const pdfDoc = await PDFDocument.create();
 	const context = pdfDoc.context;
 	const page = pdfDoc.addPage();
 
 	const helvetica = await pdfDoc.embedFont(StandardFonts.Helvetica);
+	const times = await pdfDoc.embedFont(StandardFonts.TimesRoman);
 
 	await pdfDoc.save();
 
 	const y = page.getSize().height - 50;
-	page.drawText('Test test', {
+	page.drawText('dummy', {
 		x: 50, y, size: 12, font: helvetica, color: rgb(0, 0, 0),
 	});
+	page.drawText('dummy', {
+		x: 50, y, size: 12, font: times, color: rgb(0, 0, 0),
+	});
+
 	const helveticaName = getFontNameByRef(page, helvetica.ref).decodeText();
-	const newContent = encodingTest.replace('{helvetica}', helveticaName);
+	const timesName = getFontNameByRef(page, times.ref).decodeText();
+
+	const newContent = encodingTest
+		.replace('{helvetica}', helveticaName)
+		.replace('{times}', timesName);
 
 	const contentStream = getContentStream(page);
 	contentStream.updateContents(new TextEncoder().encode(newContent));
@@ -149,6 +166,20 @@ async function genEncodingTest() {
 	const cmapRef = context.register(cmapStream);
 	const helveticaDict = context.lookupMaybe(helvetica.ref, PDFDict)!;
 	helveticaDict.set(PDFName.of('ToUnicode'), cmapRef);
+
+	const differences: (number | string)[] = [97];
+	for (let c = 'A'.codePointAt(0); c! <= 'Z'.codePointAt(0)!; ++c!) {
+		differences.push(String.fromCharCode(c!));
+	}
+	differences.push(0xdb, 'Euro');
+	const encodingDict = context.obj({
+		Type: PDFName.of('Encoding'),
+		BaseEncoding: PDFName.of('MacRomanEncoding'),
+		Differences: differences,
+	});
+	const encodingRef = context.register(encodingDict);
+	const timesDict = context.lookupMaybe(times.ref, PDFDict)!;
+	timesDict.set(PDFName.of('Encoding'), encodingRef);
 
 	const bytes = await pdfDoc.save();
 	const filename = './assets/pdfs/encoding-test.pdf';
