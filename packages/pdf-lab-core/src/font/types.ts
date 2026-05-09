@@ -58,9 +58,9 @@ export type FontInfo = {
 	encodingMapper: GlyphMapper;
 
 	/**
-	 * The optional glyph mapper. FIXME! Rename to toUnicodeMapper!
+	 * The optional ToUnicode mapper.
 	 */
-	glyphMapper?: GlyphMapper;
+	toUnicodeMapper?: GlyphMapper;
 };
 
 /**

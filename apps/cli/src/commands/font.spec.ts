@@ -45,8 +45,7 @@ describe('Font command', () => {
 				fontName: 'Helvetica',
 				embedded: false,
 				subtype: 'Type1',
-				encoding: 'MacRomanEncoding',
-				glyphMapper: new SingleByteEncodingMapper('MacRomanEncoding'),
+				encodingMapper: new SingleByteEncodingMapper('MacRomanEncoding'),
 			},
 			{
 				ref: PDFRef.of(43),
@@ -54,8 +53,7 @@ describe('Font command', () => {
 				fontName: 'Helvetica-Oblique',
 				embedded: false,
 				subtype: 'Type1',
-				encoding: 'WinAnsiEncoding',
-				glyphMapper: new SingleByteEncodingMapper('WinAnsiEncoding'),
+				encodingMapper: new SingleByteEncodingMapper('WinAnsiEncoding'),
 			},
 		];
 		fontInfoMap = new Map<string, FontInfo>();

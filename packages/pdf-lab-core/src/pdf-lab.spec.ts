@@ -89,6 +89,7 @@ describe('PDFLab', () => {
 				fontName: 'Helvetica',
 				embedded: false,
 				subtype: 'Type0',
+				encodingMapper: new SingleByteEncodingMapper('WinAnsiEncoding'),
 			},
 			{
 				ref: PDFRef.of(8),
@@ -96,6 +97,7 @@ describe('PDFLab', () => {
 				fontName: 'Helvetica-Oblique',
 				embedded: false,
 				subtype: 'Type0',
+				encodingMapper: new SingleByteEncodingMapper('WinAnsiEncoding'),
 			},
 			{
 				ref: PDFRef.of(9),
@@ -103,6 +105,7 @@ describe('PDFLab', () => {
 				fontName: 'Roboto',
 				embedded: true,
 				subtype: 'TrueType',
+				encodingMapper: new SingleByteEncodingMapper('WinAnsiEncoding'),
 			},
 		];
 		const fontInfoMap = new Map<string, FontInfo>();
@@ -142,19 +145,17 @@ describe('PDFLab', () => {
 				ref: PDFRef.of(42),
 				baseFont: 'Helvetica-1234',
 				fontName: 'Helvetica',
-				encoding: 'MacRomanEncoding',
 				embedded: false,
 				subtype: 'Type1',
-				glyphMapper: new SingleByteEncodingMapper('MacRomanEncoding'),
+				encodingMapper: new SingleByteEncodingMapper('MacRomanEncoding'),
 			});
 			fonts.set('43 0 R', {
 				ref: PDFRef.of(43),
 				baseFont: 'Times-Roman-5678',
 				fontName: 'Times-Roman',
-				encoding: 'WinAnsiEncoding',
 				embedded: false,
 				subtype: 'Type1',
-				glyphMapper: new SingleByteEncodingMapper('WinAnsiEncoding'),
+				encodingMapper: new SingleByteEncodingMapper('WinAnsiEncoding'),
 			});
 			const collectMock = vi
 				.spyOn(collectFont, 'default')

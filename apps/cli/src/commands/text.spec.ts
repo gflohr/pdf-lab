@@ -1,6 +1,6 @@
 import { PDFRef } from '@cantoo/pdf-lib';
 import * as yaml from 'js-yaml';
-import { PDFLab, type TextBlock } from 'pdf-lab-core';
+import { FontInfo, PDFLab, type TextBlock } from 'pdf-lab-core';
 import {
 	afterEach,
 	beforeEach,
@@ -12,7 +12,8 @@ import {
 } from 'vitest';
 import type { Arguments } from 'yargs';
 import { coerceOptions } from '../util/optspec.js';
-import { TextCommand } from './text.js';
+import { type OutputTextBlock, TextCommand } from './text.js';
+import { toFontInfoDto } from '../util/font-info-dto.js';
 
 vi.mock('../util/optspec.js');
 vi.mock('./load-input.js', () => ({
@@ -85,8 +86,8 @@ describe('Text Command', () => {
 					fontName: 'Helvetica',
 					embedded: false,
 					subtype: 'Type1',
-					encoding: 'MacRomanEncoding',
-				},
+					encodingMapper: { name: 'MacRomanEncoding' },
+				} as FontInfo,
 				pageNumber: 0,
 				glyphs: [],
 			},
@@ -98,17 +99,18 @@ describe('Text Command', () => {
 					fontName: 'Helvetica-Oblique',
 					embedded: false,
 					subtype: 'Type1',
-				},
+					encodingMapper: { name: 'WinAnsiEncoding' },
+				} as FontInfo,
 				pageNumber: 0,
 				glyphs: [],
 			},
 		];
-		const textBlocksDto = structuredClone<TextBlock[]>(textBlocks);
+		const textBlocksDto = structuredClone<TextBlock[]>(textBlocks) as unknown as OutputTextBlock[];
 
 		// Patch the object.
 		textBlocksDto.forEach((block) => {
-			block.font.ref = block.font.ref.tag as unknown as PDFRef;
-			delete (block as Record<string, unknown>).glyphs;
+			block.font = toFontInfoDto((block as unknown as TextBlock).font);
+			delete (block as { glyphs?: unknown }).glyphs;
 		});
 
 		it('should output text only', async () => {

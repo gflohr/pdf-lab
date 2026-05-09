@@ -15,6 +15,8 @@ import { deriveFontFlags } from './derive-font-flags.js';
 import type { OsType } from './load-font.js';
 import { resolveFont } from './resolve-font.js';
 import type { FontData, FontInfo } from './types.js';
+import { GlyphMapper } from '../encoding/mappers/glyph-mapper.js';
+import { OverlayMapper } from '../encoding/mappers/overlay-mapper.js';
 
 type Metrics = {
 	bbox: number[];
@@ -190,12 +192,7 @@ export abstract class FontEmbedder {
 			codeSpaceRange = '<00000000> <ffffffff>';
 		}
 
-		const mapper = this.fontInfo.glyphMapper;
-		if (typeof mapper === 'undefined') {
-			throw new Error(
-				`The font '${this.fontInfo.fontName}' does not use a standard encoding and does not have a ToUnicode map!`,
-			);
-		}
+		const mapper = new OverlayMapper(this.fontInfo.encodingMapper, this.fontInfo.toUnicodeMapper);
 
 		let cmap = `/CIDInit /ProcSet findresource begin
 12 dict begin
@@ -268,9 +265,14 @@ end
 	protected includeGlyphs() {
 		const subset = this.subset;
 
-		const mapper = this.fontInfo.glyphMapper;
-		if (!mapper) {
-			throw new Error('Cannot embed font without ToUnicode CMap!');
+		let mapper: GlyphMapper;
+		if (this.fontInfo.encodingMapper.name.match(/^Identity-/)) {
+			mapper = this.fontInfo.toUnicodeMapper!;
+			if (!mapper) {
+				throw new Error('Cannot embed font without ToUnicode CMap!');
+			}
+		} else {
+			mapper = this.fontInfo.encodingMapper;
 		}
 
 		const newGlyphId = 0;

@@ -75,7 +75,7 @@ function getFontInfo(
 			fontDescriptor.has(PDFName.of('FontFile3'));
 	}
 
-	const glyphMapper = getToUnicodeMapper(fontDict);
+	const toUnicodeMapper = getToUnicodeMapper(fontDict);
 	const baseFont = fontDict.lookupMaybe(PDFName.of('BaseFont'), PDFName)?.decodeText();
 	const encodingMapper = getEncodingMapper(fontDict, subtypeName, baseFont);
 
@@ -83,7 +83,7 @@ function getFontInfo(
 		ref: fontRef,
 		embedded,
 		subtype: subtypeName as FontSubtype,
-		glyphMapper,
+		toUnicodeMapper,
 		encodingMapper,
 	};
 	if (typeof baseFont !== 'undefined') {
@@ -120,7 +120,7 @@ function getFontType0Info(
 		descendantFontDescriptor.has(PDFName.of('FontFile3'));
 
 
-	const glyphMapper = getToUnicodeMapper(fontDict);
+	const toUnicodeMapper = getToUnicodeMapper(fontDict);
 	const baseFont = descendantFontDescriptor.lookupMaybe(PDFName.of('BaseFont'), PDFName)?.decodeText();
 	const encodingMapper = getEncodingMapper(fontDict, 'Type0', baseFont);
 	const subtype = descendantFontDescriptor.lookupMaybe(PDFName.of('Subtype'), PDFName)?.decodeText() as FontSubtype;
@@ -128,7 +128,7 @@ function getFontType0Info(
 		ref: fontRef,
 		embedded,
 		subtype,
-		glyphMapper,
+		toUnicodeMapper,
 		encodingMapper,
 	};
 	if (typeof baseFont !== 'undefined') {

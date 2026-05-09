@@ -33,7 +33,7 @@ describe('Type1 Font Embedder', () => {
 			ref: PDFRef.of(5),
 			embedded: false,
 			subtype: 'Type1',
-			glyphMapper: new SingleByteEncodingMapper('WinAnsiEncoding'),
+			encodingMapper: new SingleByteEncodingMapper('WinAnsiEncoding'),
 			baseFont: 'Helvetica',
 			fontName: 'Helvetica',
 		};

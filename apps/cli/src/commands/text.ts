@@ -26,7 +26,7 @@ const options: {
 const allOptions = { ...defaultOptions, ...options };
 export type ConfigOptions = InferredOptionTypes<typeof allOptions>;
 
-type OutputTextBlock = {
+export type OutputTextBlock = {
 	text: string;
 	font: FontInfoDto;
 	pageNumber: number;
@@ -79,6 +79,7 @@ export class TextCommand implements Command {
 		}
 
 		await this.doRun(input, configOptions);
+
 		return 0;
 	}
 }

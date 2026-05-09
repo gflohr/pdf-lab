@@ -205,7 +205,7 @@ describe('Collecting Fonts', () => {
 			const myFont = myFonts[0]!;
 			expect(myFont.baseFont).toMatch(/^[A-Z]{6}\+NotoSans-Regular$/);
 			expect(myFont.embedded).toBeTruthy();
-			expect(myFont.glyphMapper).toBeDefined();
+			expect(myFont.toUnicodeMapper).toBeDefined();
 			expect(myFont.encodingMapper).toBeDefined();
 			expect(myFont.encodingMapper.name).toBe('Identity-H');
 		});
@@ -217,12 +217,11 @@ describe('Collecting Fonts', () => {
 			const myFont = myFonts[0]!;
 			expect(myFont.baseFont).toMatch(/^[A-Z]{6}\+NotoSerif-Regular$/);
 			expect(myFont.embedded).toBeTruthy();
-			expect(myFont.glyphMapper).toBeDefined();
+			expect(myFont.toUnicodeMapper).toBeDefined();
 			expect(myFont.encodingMapper).toBeDefined();
 			expect(myFont.encodingMapper.name).toBe('Identity-H');
 		});
 
-		// FIXME! This should really be CourierNew without the suffix.
 		it('should find CourierNewPSMT', () => {
 			const myFonts = [...fonts].filter(([, font]) => font.fontName === 'CourierNewPSMT').map(([, font]) => font);
 
@@ -230,7 +229,7 @@ describe('Collecting Fonts', () => {
 			const myFont = myFonts[0]!;
 			expect(myFont.baseFont).toMatch(/^[A-Z]{6}\+CourierNewPSMT$/);
 			expect(myFont.embedded).toBeTruthy();
-			expect(myFont.glyphMapper).toBeDefined();
+			expect(myFont.toUnicodeMapper).toBeDefined();
 			expect(myFont.encodingMapper).toBeDefined();
 			expect(myFont.encodingMapper.name).toBe('Identity-H');
 		});

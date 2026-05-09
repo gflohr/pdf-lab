@@ -1,5 +1,4 @@
 import type { PDFDocument } from '@cantoo/pdf-lib';
-import { SingleByteEncodingMapper } from '../encoding/mappers/single-byte-encoding-mapper.js';
 import type { FontUsage } from '../font/collect-resources.js';
 import type { FontInfo } from '../font/types.js';
 import { extractGlyphs } from '../text/extract-glyphs.js';
@@ -61,8 +60,8 @@ export async function extractText(
 
 		let text: string = '';
 		const glyphs: number[] = [];
-		if (font.glyphMapper) {
-			const mapper = font.glyphMapper;
+		if (font.toUnicodeMapper) {
+			const mapper = font.toUnicodeMapper;
 			for (let i = 0; i < glyphBlock.glyphs.length; ++i) {
 				let glyphId = 0;
 				let match = false;

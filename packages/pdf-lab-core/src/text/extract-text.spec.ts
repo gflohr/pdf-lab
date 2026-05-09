@@ -165,8 +165,8 @@ describe('Text Extraction', () => {
 			expect(block?.font.embedded).toBe(true);
 			expect(block?.font.encodingMapper.name).toBe('Identity-H');
 			expect(block?.font.ref.toString()).toBe('12 0 R');
-			expect(block?.font.glyphMapper).toBeDefined();
-			expect(block?.font.glyphMapper).toBeInstanceOf(CMapMapper);
+			expect(block?.font.toUnicodeMapper).toBeDefined();
+			expect(block?.font.toUnicodeMapper).toBeInstanceOf(CMapMapper);
 		});
 
 		it('should find cyrillic text in TJ hex arrays', () => {
@@ -180,8 +180,8 @@ describe('Text Extraction', () => {
 			expect(block?.font.embedded).toBe(true);
 			expect(block?.font.encodingMapper.name).toBe('Identity-H');
 			expect(block?.font.ref.toString()).toBe('13 0 R');
-			expect(block?.font.glyphMapper).toBeDefined();
-			expect(block?.font.glyphMapper).toBeInstanceOf(CMapMapper);
+			expect(block?.font.toUnicodeMapper).toBeDefined();
+			expect(block?.font.toUnicodeMapper).toBeInstanceOf(CMapMapper);
 		});
 
 		it('should find text in Tj hex arrays', () => {
@@ -195,8 +195,8 @@ describe('Text Extraction', () => {
 			expect(block?.font.embedded).toBe(true);
 			expect(block?.font.encodingMapper.name).toBe('Identity-H');
 			expect(block?.font.ref.toString()).toBe('14 0 R');
-			expect(block?.font.glyphMapper).toBeDefined();
-			expect(block?.font.glyphMapper).toBeInstanceOf(CMapMapper);
+			expect(block?.font.toUnicodeMapper).toBeDefined();
+			expect(block?.font.toUnicodeMapper).toBeInstanceOf(CMapMapper);
 		});
 	});
 
@@ -218,7 +218,7 @@ endbfchar
 			fontName: 'Fancy',
 			ref: fontRef,
 			embedded: true,
-			glyphMapper: mapper,
+			toUnicodeMapper: mapper,
 		} as unknown as FontInfo;
 		const fonts = new Map<string, FontInfo>();
 		fonts.set(fontRef.toString(), fontInfo);
@@ -306,8 +306,8 @@ endbfchar
 			expect(block?.font.embedded).toBe(true);
 			expect(block?.font.encodingMapper.name).toBe('Identity');
 			expect(block?.font.ref.toString()).toBe('12 0 R');
-			expect(block?.font.glyphMapper).toBeDefined();
-			expect(block?.font.glyphMapper).toBeInstanceOf(CMapMapper);
+			expect(block?.font.toUnicodeMapper).toBeDefined();
+			expect(block?.font.toUnicodeMapper).toBeInstanceOf(CMapMapper);
 		});
 	});
 });
