@@ -10,6 +10,8 @@ import { PDFLab } from '../pdf-lab.js';
 import type { GlyphBlock } from './extract-glyphs.js';
 import * as extractGlyphModule from './extract-glyphs.js';
 import { extractText, type TextBlock } from './extract-text.js';
+import { SingleByteEncodingMapper } from '../encoding/mappers/single-byte-encoding-mapper.js';
+import { IdentityMapper } from '../encoding/mappers/identity-mapper.js';
 
 describe('Text Extraction', () => {
 	describe('standard fonts', () => {
@@ -218,8 +220,9 @@ endbfchar
 			fontName: 'Fancy',
 			ref: fontRef,
 			embedded: true,
+			encodingMapper: new IdentityMapper('Identity-H'),
 			toUnicodeMapper: mapper,
-		} as unknown as FontInfo;
+		};
 		const fonts = new Map<string, FontInfo>();
 		fonts.set(fontRef.toString(), fontInfo);
 		const resources: FontUsage[] = [{ F1: fontRef }];

@@ -2,6 +2,9 @@ import type { PDFDocument } from '@cantoo/pdf-lib';
 import type { FontUsage } from '../font/collect-resources.js';
 import type { FontInfo } from '../font/types.js';
 import { extractGlyphs } from '../text/extract-glyphs.js';
+import { OverlayMapper } from '../encoding/mappers/overlay-mapper.js';
+import { isStandardEncoding } from '../encoding/util/is-standard-encoding.js';
+import { octetsToGlyphIds } from '../encoding/util/octets-to-glyph-ids.js';
 
 /**
  * A block of text extracted from a `PDFDocument`.
@@ -58,39 +61,14 @@ export async function extractText(
 		// type definition will complicate things.
 		if (!font) continue;
 
-		let text: string = '';
-		const glyphs: number[] = [];
-		if (font.toUnicodeMapper) {
-			const mapper = font.toUnicodeMapper;
-			for (let i = 0; i < glyphBlock.glyphs.length; ++i) {
-				let glyphId = 0;
-				let match = false;
-				for (let j = 0; j < 4; ++j) {
-					const nextByte = glyphBlock.glyphs[i + j];
-					if (typeof nextByte === 'undefined') break;
-					glyphId = (glyphId << 8) | nextByte;
+		// If a Type1 font uses a `ToUnicode` CMap, that map is used for text
+		// extraction. In that case, we need an overlay mapper.
+		const mapper = isStandardEncoding(font.encodingMapper.name, true) && font.toUnicodeMapper ?
+			new OverlayMapper(font.encodingMapper, font.toUnicodeMapper) :
+			font.toUnicodeMapper ? font.toUnicodeMapper : font.encodingMapper;
 
-					const s = mapper.lookup(glyphId);
-					if (s !== '\uFFFD') {
-						i += j;
-						text ??= '';
-						text += s;
-						glyphs.push(glyphId);
-						match = true;
-						break;
-					}
-				}
-
-				if (!match) {
-					glyphs.push(glyphBlock.glyphs[i]!);
-					text += font.encodingMapper.lookup(glyphBlock.glyphs[i]!);
-				}
-			}
-		} else {
-			const mapper = font.encodingMapper;
-			text = [...glyphBlock.glyphs].map(glyph => mapper.lookup(glyph)).join('');
-			glyphs.push(...glyphBlock.glyphs);
-		}
+		const glyphs = octetsToGlyphIds(glyphBlock.glyphs, mapper);
+		const text = glyphs.map(glyph => mapper.lookup(glyph)).join('');
 
 		textBlocks.push({
 			text,

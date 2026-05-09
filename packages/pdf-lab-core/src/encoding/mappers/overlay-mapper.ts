@@ -8,6 +8,14 @@ export class OverlayMapper implements GlyphMapper {
 		return this.overlay?.name ?? this.fallback.name;
 	}
 
+	public get highest(): number {
+		if (this.overlay) {
+			return Math.max(this.overlay.highest, this.fallback.highest);
+		} else {
+			return this.fallback.highest;
+		}
+	}
+
 	public lookup(glyph: number): string {
 		if (this.overlay) {
 			const result = this.overlay.lookup(glyph);
