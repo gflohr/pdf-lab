@@ -63,12 +63,12 @@ function getFontInfo(
 	fontDict: PDFDict,
 	fontRef: PDFRef,
 ): FontInfo | undefined {
-	let embedded = false;
+	let embedded = subtypeName === 'Type3'; // Always embedded.
 	const fontDescriptor = fontDict.lookupMaybe(
 		PDFName.of('FontDescriptor'),
 		PDFDict,
 	);
-	if (fontDescriptor) {
+	if (!embedded && fontDescriptor) {
 		embedded =
 			fontDescriptor.has(PDFName.of('FontFile')) ||
 			fontDescriptor.has(PDFName.of('FontFile2')) ||
