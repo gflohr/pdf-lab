@@ -17,6 +17,9 @@ import { resolveFont } from './resolve-font.js';
 import type { FontData, FontInfo } from './types.js';
 import { GlyphMapper } from '../encoding/mappers/glyph-mapper.js';
 import { OverlayMapper } from '../encoding/mappers/overlay-mapper.js';
+import { StandardEncoding } from '../encoding/single-byte-encodings/standard.js';
+import { StandardEncodings } from '../encoding/types.js';
+import { isStandardEncoding } from '../encoding/util/is-standard-encoding.js';
 
 type Metrics = {
 	bbox: number[];
@@ -266,16 +269,16 @@ end
 		const subset = this.subset;
 
 		let mapper: GlyphMapper;
-		if (this.fontInfo.encodingMapper.name.match(/^Identity-/)) {
-			mapper = this.fontInfo.toUnicodeMapper!;
-			if (!mapper) {
-				throw new Error('Cannot embed font without ToUnicode CMap!');
-			}
-		} else {
+		const encoding = this.fontInfo.encodingMapper.name;
+		if (isStandardEncoding(encoding)) {
 			mapper = this.fontInfo.encodingMapper;
+		} else if (this.fontInfo.toUnicodeMapper) {
+			mapper = this.fontInfo.toUnicodeMapper;
+		} else {
+			throw new Error('Cannot embed font without ToUnicode CMap!');
 		}
 
-		const newGlyphId = 0;
+		let newGlyphId = 0;
 		this.glyphIds.forEach((glyphId) => {
 			const codePoint = this.coerceCodePoints(
 				mapper?.lookupCodePoints(glyphId),
@@ -283,7 +286,7 @@ end
 			const glyph = this.font.glyphForCodePoint(codePoint);
 			subset.includeGlyph(glyph);
 			this.glyphs.push(glyph);
-			this.glyphMapping[glyphId] = newGlyphId;
+			this.glyphMapping[glyphId] = ++newGlyphId;
 		});
 	}
 
@@ -490,11 +493,8 @@ end
 				out.push(...bytes.slice(cursor, block.offset));
 			}
 
-			const raw = decoder.decode(
-				bytes.slice(block.offset, block.offset + block.length),
-			);
-
-			const replaced = this.recodePDFString(raw);
+			// FIXME! This is wrong!!!
+			const replaced = this.recodePDFString(Array.from(block.glyphs));
 
 			for (let i = 0; i < replaced.length; i++) {
 				out.push(replaced.charCodeAt(i) & 0xff);
@@ -523,13 +523,23 @@ end
 		}
 	}
 
-	private recodePDFString(pdfString: string): string {
-		if (pdfString.length < 3) return '<>';
-		const operator = pdfString[0];
-		const operand = pdfString.slice(1, pdfString.length - 2);
+	private recodePDFString(glyphs: number[]): string {
+		const size = Object.keys(this.glyphMapping).length;
+		let padLength: number;
+		if (size <= 0xff) {
+			padLength = 2;
+		} else if (size <= 0xffff) {
+			padLength = 4;
+		} else if (size <= 0xffffff) {
+			padLength = 6;
+		} else {
+			padLength = 8;
+		}
 
-		console.log(`operator: '${operator}', operand: '${operand}'`);
+		const hexstring = '<' +
+			glyphs.map(id => id.toString(16).padStart(padLength, '0')).join('')
+			+ '>';
 
-		return '<01>';
+		return hexstring;
 	}
 }

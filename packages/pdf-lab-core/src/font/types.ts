@@ -1,4 +1,4 @@
-import type { PDFRef } from '@cantoo/pdf-lib';
+import type { PDFRef, PDFStream } from '@cantoo/pdf-lib';
 import type { GlyphMapper } from '../encoding/mappers/glyph-mapper.js';
 import type { Encoding } from '../encoding/types.js';
 
@@ -85,3 +85,13 @@ export type FontData = {
  * producer suffix stripped off) to font data.
  */
 export type FontMap = Record<string, FontData>;
+
+/**
+ * Patch instructions.
+ */
+export type PatchSet = {
+	stream: PDFStream;
+	offset: number;
+	length: number;
+	glyphs: Uint8Array;
+};

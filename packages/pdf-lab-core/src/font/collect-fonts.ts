@@ -18,6 +18,7 @@ import type { FontUsage } from './collect-resources.js';
 import type { FontInfo, FontSubtype } from './types.js';
 import { fontName } from './util/font-name.js';
 import { IdentityMapper } from '../encoding/mappers/identity-mapper.js';
+import { isStandardEncoding } from '../encoding/util/is-standard-encoding.js';
 
 /**
  * Collect all font contained in a PDF document.
@@ -184,15 +185,20 @@ function getEncoding(subtype: string, name?: string, baseFont?: string): string 
 			return 'SymbolEncoding';
 		} else if (lcBaseFont === 'zapfdingbats') {
 			return 'ZapfDingbatsEncoding';
-		} else if (name && lcStandardEncodings.includes(name.toLowerCase())) {
+		} else if (name && isStandardEncoding(name, true)) {
 			return name;
 		} else {
 			return 'StandardEncoding';
 		}
 	} else {
-		const lcName = name?.toLowerCase();
-		if (name && (lcStandardEncodings.includes(lcName!) || (lcName === 'identity-v'))) {
-			return name;
+		if (name) {
+			if (isStandardEncoding(name, true)) {
+				return name;
+			} else if (name.toLowerCase() === 'identity-v') {
+				return 'Identity-V';
+			} else {
+				return 'Identity-H'
+			}
 		} else {
 			return 'Identity-H';
 		}
