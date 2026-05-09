@@ -11,6 +11,12 @@ describe('Identity mapper', () => {
 			expect(mapper).toBeInstanceOf(IdentityMapper);
 			expect(mapper.lookupCodePoints(0x123)).toStrictEqual([0x123]);
 		});
+
+		it('should throw an exception, if the highest property is accessed', () => {
+			const mapper = new IdentityMapper('Identity-V');
+			expect(mapper).toBeDefined();
+			expect(() => mapper.highest).toThrow('Identity mappers do not support the property highest.');
+		});
 	});
 
 	describe('Differences', () => {

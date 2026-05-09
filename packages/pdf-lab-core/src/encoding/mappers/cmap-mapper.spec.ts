@@ -16,6 +16,7 @@ endbfchar
 `;
 			const cmap = new CMapMapper(source);
 			expect(cmap).toBeDefined();
+			expect(cmap.highest).toBe(0x21);
 			expect(cmap.lookup(0x21)).toBe('e');
 		});
 
@@ -27,6 +28,7 @@ endbfchar
 `;
 			const cmap = new CMapMapper(source);
 			expect(cmap).toBeDefined();
+			expect(cmap.highest).toBe(0x21);
 			expect(cmap.lookup(0x21)).toBe('e');
 		});
 	});
@@ -43,6 +45,7 @@ endbfchar
 `;
 			const cmap = new CMapMapper(source);
 			expect(cmap).toBeDefined();
+			expect(cmap.highest).toBe(0xabcd);
 			expect(cmap.lookup(0)).toBe('\uFFFD');
 			expect(cmap.lookup(0x21)).toBe('e');
 			expect(cmap.lookup(0x22)).toBe('\uFFFD');
@@ -62,6 +65,7 @@ endbfchar
 `;
 			const cmap = new CMapMapper(source);
 			expect(cmap).toBeDefined();
+			expect(cmap.highest).toBe(0xaf);
 			expect(cmap.lookup(0x21)).toBe('e');
 			expect(cmap.lookup(0xaf)).toBe('6');
 			expect(cmap.lookup(0xabcd)).toBe('\uFFFD');
@@ -70,14 +74,17 @@ endbfchar
 		it('should ignore incomplete range mappings', () => {
 			const source = `
 3 beginbfrange
-<0001> <0002> <00a0>
-<0021> <0022> <0100>
+% Unsorted on purpose. We want to test that the highest number is still
+% determined correctly.
 <0121> <0122> <0200>
+<0021> <0022> <0100>
+<0001> <0002> <00a0>
 <0200> <a000>
 endbfrange
 `;
 			const cmap = new CMapMapper(source);
 			expect(cmap).toBeDefined();
+			expect(cmap.highest).toBe(0x122);
 			expect(cmap.lookup(0x22)).toBe('\u0101');
 			expect(cmap.lookup(0x201)).toBe('\uFFFD');
 		});
@@ -90,6 +97,7 @@ endbfchar
 `;
 			const cmap = new CMapMapper(source);
 			expect(cmap).toBeDefined();
+			expect(cmap.highest).toBe(0x3af1);
 			expect(cmap.lookup(0x3af1)).toBe(String.fromCharCode(0x2003e));
 		});
 
@@ -102,6 +110,7 @@ endbfchar
 `;
 			const cmap = new CMapMapper(source);
 			expect(cmap).toBeDefined();
+			expect(cmap.highest).toBe(0x3af2);
 			expect(cmap.lookup(0x3af1)).toBe('\uFFFD');
 			expect(cmap.lookup(0x3af2)).toBe('\uFFFD');
 		});
@@ -114,6 +123,7 @@ endbfchar
 `;
 			const cmap = new CMapMapper(source);
 			expect(cmap).toBeDefined();
+			expect(cmap.highest).toBe(0x61);
 			expect(cmap.lookup(0x61)).toBe('ffl');
 		});
 
@@ -127,6 +137,7 @@ endbfchar
 `;
 			const cmap = new CMapMapper(source);
 			expect(cmap).toBeDefined();
+			expect(cmap.highest).toBe(0);
 			expect(cmap.lookup(0x61)).toBe('\uFFFD');
 		});
 	});
@@ -135,7 +146,7 @@ endbfchar
 		it('should parse range mappings', () => {
 			const source = `
 /PostScript /gibberish
-3 beginbfrange
+4 beginbfrange
 <0001> <0002> <00a0>
 <0021> <0022> <0100>
 <0121> <0122> <0200>
@@ -145,6 +156,7 @@ trailing garbage
 `;
 			const cmap = new CMapMapper(source);
 			expect(cmap).toBeDefined();
+			expect(cmap.highest).toBe(0xa000);
 			expect(cmap.lookup(0)).toBe('\uFFFD');
 			expect(cmap.lookup(0x21)).toBe('\u0100');
 			expect(cmap.lookup(0x22)).toBe('\u0101');
@@ -153,11 +165,12 @@ trailing garbage
 
 		it('should parse ligature ranges', () => {
 			const source = `
-beginbfrange
+1 beginbfrange
 <005f> <0061> [<00660066> <00660069> <00660066006C>]
 endbfrange`;
 			const cmap = new CMapMapper(source);
 			expect(cmap).toBeDefined();
+			expect(cmap.highest).toBe(0x61);
 			expect(cmap.lookup(0x5f)).toBe('ff');
 			expect(cmap.lookup(0x60)).toBe('fi');
 			expect(cmap.lookup(0x61)).toBe('ffl');
@@ -166,11 +179,12 @@ endbfrange`;
 
 		it('should ignore out-of-range glyphs', () => {
 			const source = `
-beginbfrange
+1 beginbfrange
 <005f> <0061> [<00660066> <00660069>]
 endbfrange`;
 			const cmap = new CMapMapper(source);
 			expect(cmap).toBeDefined();
+			expect(cmap.highest).toBe(0x61);
 			expect(cmap.lookup(0x5f)).toBe('ff');
 			expect(cmap.lookup(0x60)).toBe('fi');
 			expect(cmap.lookup(0x61)).toBe('\uFFFD');
@@ -178,11 +192,12 @@ endbfrange`;
 
 		it('should discard invalid ligature specifications', () => {
 			const source = `
-beginbfrange
+1beginbfrange
 <005f> <0061> I should not be here!
 endbfrange`;
 			const cmap = new CMapMapper(source);
 			expect(cmap).toBeDefined();
+			expect(cmap.highest).toBe(0);
 			expect(cmap.lookup(0x5f)).toBe('\uFFFD');
 			expect(cmap.lookup(0x60)).toBe('\uFFFD');
 			expect(cmap.lookup(0x61)).toBe('\uFFFD');
@@ -192,11 +207,12 @@ endbfrange`;
 			// We could also try to heal this error, but why bother repairing
 			// broken input?
 			const source = `
-beginbfrange
+1 beginbfrange
 <005f> <0061> [<00660066> <00660069> <00660066006C>
 endbfrange`;
 			const cmap = new CMapMapper(source);
 			expect(cmap).toBeDefined();
+			expect(cmap.highest).toBe(0);
 			expect(cmap.lookup(0x5f)).toBe('\uFFFD');
 			expect(cmap.lookup(0x60)).toBe('\uFFFD');
 			expect(cmap.lookup(0x61)).toBe('\uFFFD');
@@ -236,7 +252,7 @@ endbfchar
 	describe('Code point lookup API', () => {
 		it('should lookup code points', () => {
 			const source = `
-beginbfrange
+1 beginbfrange
 <005f> <0061> [<00660066> <00660069> <00660066006C>]
 endbfrange`;
 			const cmap = new CMapMapper(source);

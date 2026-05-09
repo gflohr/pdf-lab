@@ -38,6 +38,10 @@ export class IdentityMapper implements GlyphMapper {
 		return this._name;
 	}
 
+	public get highest(): number {
+		throw new Error('Identity mappers do not support the property highest.');
+	}
+
 	public lookup(glyph: number): string {
 		const codePoints = this.lookupCodePoints(glyph);
 		if (codePoints.length) {

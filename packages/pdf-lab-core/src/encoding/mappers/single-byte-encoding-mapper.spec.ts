@@ -10,6 +10,8 @@ describe('8-bit mappers', () => {
 
 			expect(mapper).toBeDefined();
 			expect(mapper).toBeInstanceOf(SingleByteEncodingMapper);
+			expect(mapper.name).toBe('MacExpertEncoding');
+			expect(mapper.highest).toBe(255);
 		});
 
 		it('should support the MacRoman encoding', () => {

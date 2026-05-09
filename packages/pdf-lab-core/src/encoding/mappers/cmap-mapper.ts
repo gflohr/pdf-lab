@@ -1,3 +1,4 @@
+import { last } from '@cantoo/pdf-lib';
 import { Lexer } from '../../parser/lexer.js';
 import type { Token } from '../../parser/types.js';
 import type { GlyphMapper } from './glyph-mapper.js';
@@ -11,6 +12,7 @@ type Range = [number, number];
 
 export class CMapMapper implements GlyphMapper {
 	private mappings: Mapping[];
+	private _highest: number;
 
 	constructor(
 		source:
@@ -24,6 +26,17 @@ export class CMapMapper implements GlyphMapper {
 
 		if (source instanceof Uint8Array) {
 			this.mappings = [...this.parse(source)].sort((a, b) => a[0] - b[0]);
+
+			if (this.mappings.length) {
+				const lastMapping = this.mappings[this.mappings.length - 1]!;
+				if (lastMapping?.length === 2) {
+					this._highest = lastMapping[0];
+				} else {
+					this._highest = lastMapping[1];
+				}
+			} else {
+				this._highest = 0;
+			}
 		} else {
 			throw new Error(`unsupported CMap source type '${typeof source}'`);
 		}
@@ -31,6 +44,10 @@ export class CMapMapper implements GlyphMapper {
 
 	public get name(): 'Identity-H' {
 		return 'Identity-H';
+	}
+
+	public get highest(): number {
+		return this._highest;
 	}
 
 	private parse(

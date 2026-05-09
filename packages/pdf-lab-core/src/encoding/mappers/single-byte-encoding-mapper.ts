@@ -54,6 +54,10 @@ export class SingleByteEncodingMapper implements GlyphMapper {
 		return this._name;
 	}
 
+	public get highest(): number {
+		return 255;
+	}
+
 	public lookup(glyph: number): string {
 		const codePoints = this.lookupCodePoints(glyph);
 		if (codePoints.length) {
