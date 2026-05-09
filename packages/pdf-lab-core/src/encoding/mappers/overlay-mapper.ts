@@ -20,15 +20,15 @@ export class OverlayMapper implements GlyphMapper {
 		return this.fallback.lookup(glyph);
 	}
 
-	public lookupCodepoints(glyph: number): number[] {
+	public lookupCodePoints(glyph: number): number[] {
 		if (this.overlay) {
-			const result = this.overlay.lookupCodepoints(glyph);
+			const result = this.overlay.lookupCodePoints(glyph);
 
 			if (result.length) {
 				return result;
 			}
 		}
 
-		return this.fallback.lookupCodepoints(glyph);
+		return this.fallback.lookupCodePoints(glyph);
 	}
 }

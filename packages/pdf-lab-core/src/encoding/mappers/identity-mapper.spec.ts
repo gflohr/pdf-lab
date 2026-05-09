@@ -9,7 +9,7 @@ describe('Identity mapper', () => {
 
 			expect(mapper).toBeDefined();
 			expect(mapper).toBeInstanceOf(IdentityMapper);
-			expect(mapper.lookupCodepoints(0x123)).toStrictEqual([0x123]);
+			expect(mapper.lookupCodePoints(0x123)).toStrictEqual([0x123]);
 		});
 	});
 

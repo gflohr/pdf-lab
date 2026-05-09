@@ -233,18 +233,18 @@ endbfchar
 		});
 	});
 
-	describe('Codepoint lookup API', () => {
-		it('should lookup codepoints', () => {
+	describe('Code point lookup API', () => {
+		it('should lookup code points', () => {
 			const source = `
 beginbfrange
 <005f> <0061> [<00660066> <00660069> <00660066006C>]
 endbfrange`;
 			const cmap = new CMapMapper(source);
 			expect(cmap).toBeDefined();
-			expect(cmap.lookupCodepoints(0x5f)).toStrictEqual([0x66, 0x66]);
-			expect(cmap.lookupCodepoints(0x60)).toStrictEqual([0x66, 0x69]);
-			expect(cmap.lookupCodepoints(0x61)).toStrictEqual([0x66, 0x66, 0x6c]);
-			expect(cmap.lookupCodepoints(0x62)).toStrictEqual([]);
+			expect(cmap.lookupCodePoints(0x5f)).toStrictEqual([0x66, 0x66]);
+			expect(cmap.lookupCodePoints(0x60)).toStrictEqual([0x66, 0x69]);
+			expect(cmap.lookupCodePoints(0x61)).toStrictEqual([0x66, 0x66, 0x6c]);
+			expect(cmap.lookupCodePoints(0x62)).toStrictEqual([]);
 		});
 	});
 });

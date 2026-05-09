@@ -22,7 +22,7 @@ describe('Literal string parsing', () => {
 			const cp = parser.parse(toOctets('böse'));
 			// The utf-8 'ö' is encoded with the octets 0xc3 and 0xb6.
 			// In the PDF StandardEncoding, this is /Atilde and /paragraph.
-			// And they have the codepoints \u02c6 and \u00b6.
+			// And they have the code points \u02c6 and \u00b6.
 			expect(cp).toStrictEqual(
 				new Uint16Array([0x62, 0x2c6, 0xb6, 0x73, 0x65]),
 			);

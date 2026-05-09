@@ -71,7 +71,7 @@ export type AdobeGlyph = {
 	n: string;
 
 	/**
-	 * Unicode code point or array of codepoints for composite characters.
+	 * Unicode code point or array of code points for composite characters.
 	 */
 	u: number | number[];
 

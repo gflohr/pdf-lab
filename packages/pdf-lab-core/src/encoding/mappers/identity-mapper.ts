@@ -39,15 +39,15 @@ export class IdentityMapper implements GlyphMapper {
 	}
 
 	public lookup(glyph: number): string {
-		const codepoints = this.lookupCodepoints(glyph);
-		if (codepoints.length) {
-			return codepoints.map((c) => String.fromCharCode(c)).join('');
+		const codePoints = this.lookupCodePoints(glyph);
+		if (codePoints.length) {
+			return codePoints.map((c) => String.fromCharCode(c)).join('');
 		} else {
 			return '\uFFFD';
 		}
 	}
 
-	public lookupCodepoints(glyph: number): number[] {
+	public lookupCodePoints(glyph: number): number[] {
 		if (this.differences[glyph]) {
 			const mapping = this.differences[glyph];
 			if (typeof mapping === 'number') {

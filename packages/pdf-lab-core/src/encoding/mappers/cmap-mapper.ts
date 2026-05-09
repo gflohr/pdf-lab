@@ -217,19 +217,19 @@ export class CMapMapper implements GlyphMapper {
 	// If no entry is found, the Unicode replacement character \uFFFD is
 	// returned.
 	public lookup(glyph: number): string {
-		const codepoints = this.lookupCodepoints(glyph);
-		if (codepoints.length) {
-			return codepoints.map((c) => String.fromCharCode(c)).join('');
+		const codePoints = this.lookupCodePoints(glyph);
+		if (codePoints.length) {
+			return codePoints.map((c) => String.fromCharCode(c)).join('');
 		} else {
 			return '\uFFFD';
 		}
 	}
 
-	// Does the same as lookup() but returns an array of codepoints. This is
+	// Does the same as lookup() but returns an array of code points. This is
 	// more convenient, when we want to select glyphs from a font, which may
 	// lack glyphs but provide an alternative (for example 'increment' for
 	// 'Delta').
-	public lookupCodepoints(glyph: number): number[] {
+	public lookupCodePoints(glyph: number): number[] {
 		let low = 0;
 		let high = this.mappings.length - 1;
 		while (high >= low) {
@@ -285,9 +285,9 @@ export class CMapMapper implements GlyphMapper {
 
 		// Validate surrogate pair
 		if (high >= 0xd800 && high <= 0xdbff && low >= 0xdc00 && low <= 0xdfff) {
-			const codepoint = ((high - 0xd800) << 10) + (low - 0xdc00) + 0x10000;
+			const codePoint = ((high - 0xd800) << 10) + (low - 0xdc00) + 0x10000;
 
-			return [codepoint];
+			return [codePoint];
 		}
 
 		// Invalid UTF-16.

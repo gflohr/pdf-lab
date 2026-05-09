@@ -8,7 +8,7 @@ describe('OverlayMapper', () => {
 		const fallback: GlyphMapper = {
 			name: 'WinAnsiEncoding',
 			lookup: vi.fn(),
-			lookupCodepoints: vi.fn(),
+			lookupCodePoints: vi.fn(),
 		};
 
 		const mapper = new OverlayMapper(fallback);
@@ -20,13 +20,13 @@ describe('OverlayMapper', () => {
 		const fallback: GlyphMapper = {
 			name: 'StandardEncoding',
 			lookup: vi.fn(),
-			lookupCodepoints: vi.fn(),
+			lookupCodePoints: vi.fn(),
 		};
 
 		const overlay: GlyphMapper = {
 			name: 'Identity-H',
 			lookup: vi.fn(),
-			lookupCodepoints: vi.fn(),
+			lookupCodePoints: vi.fn(),
 		};
 
 		const mapper = new OverlayMapper(fallback, overlay);
@@ -38,13 +38,13 @@ describe('OverlayMapper', () => {
 		const fallback: GlyphMapper = {
 			name: 'StandardEncoding',
 			lookup: vi.fn().mockReturnValue('fallback'),
-			lookupCodepoints: vi.fn(),
+			lookupCodePoints: vi.fn(),
 		};
 
 		const overlay: GlyphMapper = {
 			name: 'Identity-H',
 			lookup: vi.fn().mockReturnValue('overlay'),
-			lookupCodepoints: vi.fn(),
+			lookupCodePoints: vi.fn(),
 		};
 
 		const mapper = new OverlayMapper(fallback, overlay);
@@ -58,13 +58,13 @@ describe('OverlayMapper', () => {
 		const fallback: GlyphMapper = {
 			name: 'StandardEncoding',
 			lookup: vi.fn().mockReturnValue('fallback'),
-			lookupCodepoints: vi.fn(),
+			lookupCodePoints: vi.fn(),
 		};
 
 		const overlay: GlyphMapper = {
 			name: 'Identity-H',
 			lookup: vi.fn().mockReturnValue('\uFFFD'),
-			lookupCodepoints: vi.fn(),
+			lookupCodePoints: vi.fn(),
 		};
 
 		const mapper = new OverlayMapper(fallback, overlay);
@@ -78,7 +78,7 @@ describe('OverlayMapper', () => {
 		const fallback: GlyphMapper = {
 			name: 'MacRomanEncoding',
 			lookup: vi.fn().mockReturnValue('fallback'),
-			lookupCodepoints: vi.fn(),
+			lookupCodePoints: vi.fn(),
 		};
 
 		const mapper = new OverlayMapper(fallback);
@@ -87,56 +87,56 @@ describe('OverlayMapper', () => {
 		expect(fallback.lookup).toHaveBeenCalledWith(123);
 	});
 
-	it('should use overlay codepoints when available', () => {
+	it('should use overlay code points when available', () => {
 		const fallback: GlyphMapper = {
 			name: 'StandardEncoding',
 			lookup: vi.fn(),
-			lookupCodepoints: vi.fn().mockReturnValue([1, 2, 3]),
+			lookupCodePoints: vi.fn().mockReturnValue([1, 2, 3]),
 		};
 
 		const overlay: GlyphMapper = {
 			name: 'Identity-V',
 			lookup: vi.fn(),
-			lookupCodepoints: vi.fn().mockReturnValue([4, 5, 6]),
+			lookupCodePoints: vi.fn().mockReturnValue([4, 5, 6]),
 		};
 
 		const mapper = new OverlayMapper(fallback, overlay);
 
-		expect(mapper.lookupCodepoints(42)).toStrictEqual([4, 5, 6]);
-		expect(overlay.lookupCodepoints).toHaveBeenCalledWith(42);
-		expect(fallback.lookupCodepoints).not.toHaveBeenCalled();
+		expect(mapper.lookupCodePoints(42)).toStrictEqual([4, 5, 6]);
+		expect(overlay.lookupCodePoints).toHaveBeenCalledWith(42);
+		expect(fallback.lookupCodePoints).not.toHaveBeenCalled();
 	});
 
-	it('should fall back when overlay codepoints are empty', () => {
+	it('should fall back when overlay code points are empty', () => {
 		const fallback: GlyphMapper = {
 			name: 'StandardEncoding',
 			lookup: vi.fn(),
-			lookupCodepoints: vi.fn().mockReturnValue([1, 2, 3]),
+			lookupCodePoints: vi.fn().mockReturnValue([1, 2, 3]),
 		};
 
 		const overlay: GlyphMapper = {
 			name: 'Identity-V',
 			lookup: vi.fn(),
-			lookupCodepoints: vi.fn().mockReturnValue([]),
+			lookupCodePoints: vi.fn().mockReturnValue([]),
 		};
 
 		const mapper = new OverlayMapper(fallback, overlay);
 
-		expect(mapper.lookupCodepoints(42)).toStrictEqual([1, 2, 3]);
-		expect(overlay.lookupCodepoints).toHaveBeenCalledWith(42);
-		expect(fallback.lookupCodepoints).toHaveBeenCalledWith(42);
+		expect(mapper.lookupCodePoints(42)).toStrictEqual([1, 2, 3]);
+		expect(overlay.lookupCodePoints).toHaveBeenCalledWith(42);
+		expect(fallback.lookupCodePoints).toHaveBeenCalledWith(42);
 	});
 
-	it('should use fallback codepoints when no overlay is present', () => {
+	it('should use fallback code points when no overlay is present', () => {
 		const fallback: GlyphMapper = {
 			name: 'MacRomanEncoding',
 			lookup: vi.fn(),
-			lookupCodepoints: vi.fn().mockReturnValue([7, 8, 9]),
+			lookupCodePoints: vi.fn().mockReturnValue([7, 8, 9]),
 		};
 
 		const mapper = new OverlayMapper(fallback);
 
-		expect(mapper.lookupCodepoints(123)).toStrictEqual([7, 8, 9]);
-		expect(fallback.lookupCodepoints).toHaveBeenCalledWith(123);
+		expect(mapper.lookupCodePoints(123)).toStrictEqual([7, 8, 9]);
+		expect(fallback.lookupCodePoints).toHaveBeenCalledWith(123);
 	});
 });

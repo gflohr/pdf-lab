@@ -25,7 +25,7 @@ export function encodeOctets(
 		const outChars: number[] = [];
 
 		for (let i = 0; i < octets.length; ++i) {
-			const codePoints = mapper.lookupCodepoints(octets[i]!);
+			const codePoints = mapper.lookupCodePoints(octets[i]!);
 			if (codePoints.length) {
 				outChars.push(coerceCodePoints(codePoints));
 			} else {

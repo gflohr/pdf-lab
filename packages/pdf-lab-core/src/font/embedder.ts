@@ -214,7 +214,7 @@ endcodespacerange
 		this.glyphIds.forEach((fromCodePoint) => {
 			++glyphId;
 			const codePoint = this.coerceCodePoints(
-				mapper.lookupCodepoints(fromCodePoint),
+				mapper.lookupCodePoints(fromCodePoint),
 			);
 			const hexCodePoint = `<${codePoint.toString(16).padStart(4, '0')}>`;
 			const hexGlyphId = `<${glyphId.toString(16).padStart(glyphIdLength, '0')}>`;
@@ -278,7 +278,7 @@ end
 		const newGlyphId = 0;
 		this.glyphIds.forEach((glyphId) => {
 			const codePoint = this.coerceCodePoints(
-				mapper?.lookupCodepoints(glyphId),
+				mapper?.lookupCodePoints(glyphId),
 			);
 			const glyph = this.font.glyphForCodePoint(codePoint);
 			subset.includeGlyph(glyph);

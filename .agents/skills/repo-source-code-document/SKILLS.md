@@ -13,7 +13,7 @@ Documentation patterns for library source code in `/packages/core/src/`.
 
 ```typescript
 /**
- * Map glyphs to codepoints or strings.
+ * Map glyphs to code points or strings.
  */
 export interface GlyphMapper {
 	/**
@@ -25,7 +25,7 @@ export interface GlyphMapper {
 	 * Get the textual representation for a glyph as an array of Unicode
 	 * code points.
 	 */
-	lookupCodepoints(glyph: number): number[];
+	lookupCodePoints(glyph: number): number[];
 }
 ```
 

@@ -14,7 +14,7 @@
  * const fallbackCodes = glyph.f;
  * const isZapfDingbats = glyph.z;
  *
- * All codepoints in the PDF standard encodings map to exactly one Unicode
+ * All code points in the PDF standard encodings map to exactly one Unicode
  * code point. In other words, none of the corresponding glyphs is a composite
  * character, and the property `u` will always be of type `number` (and not
  * `number[]`).

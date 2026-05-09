@@ -20,9 +20,6 @@ vi.mock('pdf-lab-core', async (importActual) => {
 
 import { PDFRef } from '@cantoo/pdf-lib';
 import { type FontInfo, PDFLab } from 'pdf-lab-core';
-// Currently, this is not exported. The deep import is therefore needed
-// in the tests.
-import { SingleByteEncodingMapper } from '../../../../packages/pdf-lab-core/src/encoding/mappers/single-byte-encoding-mapper.js';
 import { type FontInfoDto, toFontInfoDto } from '../util/font-info-dto.js';
 import { FontCommand } from './font.js';
 
@@ -45,16 +42,16 @@ describe('Font command', () => {
 				fontName: 'Helvetica',
 				embedded: false,
 				subtype: 'Type1',
-				encodingMapper: new SingleByteEncodingMapper('MacRomanEncoding'),
-			},
+				encodingMapper: { name: 'MacRomanEncoding' },
+			} as FontInfo,
 			{
 				ref: PDFRef.of(43),
 				baseFont: 'ZYXWVU+Helvetica-Oblique',
 				fontName: 'Helvetica-Oblique',
 				embedded: false,
 				subtype: 'Type1',
-				encodingMapper: new SingleByteEncodingMapper('WinAnsiEncoding'),
-			},
+				encodingMapper: { name: 'WinAnsiEncoding' },
+			} as FontInfo,
 		];
 		fontInfoMap = new Map<string, FontInfo>();
 		fontInfoDtos = [];

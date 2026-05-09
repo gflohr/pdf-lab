@@ -80,7 +80,7 @@ is very similar.
 
 ### Key Takeaways
 
-* Glyph IDs are arbitrary and can rarely be mapped directly to codepoints
+* Glyph IDs are arbitrary and can rarely be mapped directly to code points
 * Encoding strings into hexcodes is the prevalent method for modern applications
 * Text can rarely be found in PDFs with tools like `grep`.
 
