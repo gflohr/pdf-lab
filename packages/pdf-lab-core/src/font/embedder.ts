@@ -46,6 +46,7 @@ export abstract class FontEmbedder {
 		private readonly _pdfDoc: PDFDocument,
 		private readonly _fontInfo: FontInfo,
 		private readonly _glyphBlocks: GlyphBlock[],
+		private readonly _subsetPrefixes: Set<string>,
 		private readonly _options: FontEmbedOptions,
 	) {
 		if (!this.options.fontkit) {
@@ -152,6 +153,10 @@ export abstract class FontEmbedder {
 
 	private get glyphMapper(): GlyphMapper {
 		return this._glyphMapper;
+	}
+
+	private get subsetPrefixes(): Set<string> {
+		return this._subsetPrefixes;
 	}
 
 	private async initialise() {
@@ -441,16 +446,21 @@ end
 		return context.register(fontDescriptor);
 	}
 
-	// FIXME! Check for collisions!
 	private generateSubsetPrefix(): string {
-		const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-		let result = '';
+		for (let n = 0; ; ++n) {
+			let value = n;
+			let prefix = '';
 
-		for (let i = 0; i < 6; i++) {
-			result += chars[Math.floor(Math.random() * chars.length)];
+			for (let i = 0; i < 6; ++i) {
+				prefix = String.fromCharCode(65 + (value % 26)) + prefix;
+				value = Math.floor(value / 26);
+			}
+
+			if (!this.subsetPrefixes.has(prefix)) {
+				this.subsetPrefixes.add(prefix);
+				return prefix;
+			}
 		}
-
-		return result;
 	}
 
 	private recodeGlyphBlocks(): PatchSet[] {

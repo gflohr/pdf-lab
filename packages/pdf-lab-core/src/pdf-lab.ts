@@ -1,4 +1,4 @@
-import { PDFDocument, PDFName, PDFRef, type PDFStream } from '@cantoo/pdf-lib';
+import { PDFDict, PDFDocument, PDFName, PDFRef, type PDFStream } from '@cantoo/pdf-lib';
 import collectFonts from './font/collect-fonts.js';
 import { collectResources, type FontUsage } from './font/collect-resources.js';
 import { Type1FontEmbedder } from './font/embedder/type1-embedder.js';
@@ -7,6 +7,7 @@ import { patchStream } from './font/patch-stream.js';
 import type { FontInfo, FontMap, PatchSet } from './font/types.js';
 import { extractGlyphs, type GlyphBlock } from './text/extract-glyphs.js';
 import { extractText, type TextBlock } from './text/extract-text.js';
+import collectSubsetPrefixes from './font/collect-subset-prefixes.js';
 
 /**
  * Options for embedding fonts.
@@ -174,6 +175,8 @@ export class PDFLab {
 			this.fonts = collectFonts(this.pdfDocument, this.fontUsage);
 		}
 
+		const subsetPrefixes = collectSubsetPrefixes(this.pdfDocument, this.fontUsage);
+
 		const fonts = [...this.fonts.values()].filter((f) => !f.embedded);
 		if (!fonts.length) {
 			return;
@@ -229,6 +232,7 @@ export class PDFLab {
 						this.pdfDocument,
 						font,
 						fontBlocks,
+						subsetPrefixes,
 						options,
 					);
 					break;

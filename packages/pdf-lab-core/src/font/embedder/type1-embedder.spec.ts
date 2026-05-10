@@ -43,6 +43,7 @@ describe('Type1 Font Embedder', () => {
 			pdfDoc,
 			fontInfo,
 			[] as GlyphBlock[],
+			new Set<string>(),
 			options,
 		);
 
