@@ -27,4 +27,14 @@ endbfchar
 			0x01, 0x02, 0x03, 0x04, 0x00, 0x05,
 		]);
 	});
+
+	it('should handle unexpected end of string', () => {
+		const source = `1 beginbfrange
+<0001> <0005> <0041>
+endbfchar
+	`;
+		const mapper = new CMapMapper(source);
+		const octets = new Uint8Array([0x00, 0x00, 0x00,]);
+		expect(octetsToGlyphIds(octets, mapper)).toStrictEqual([0x00, 0x00, 0x00]);
+	});
 });
