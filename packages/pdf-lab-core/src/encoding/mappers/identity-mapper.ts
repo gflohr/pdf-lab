@@ -39,7 +39,7 @@ export class IdentityMapper implements GlyphMapper {
 	}
 
 	public get highest(): number {
-		throw new Error('Identity mappers do not support the property highest.');
+		return 0xffff;
 	}
 
 	public lookup(glyph: number): string {

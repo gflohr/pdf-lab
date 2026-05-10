@@ -225,22 +225,6 @@ export abstract class FontEmbedder {
 	private createToUnicode(): string {
 		const numGlyphs = this.glyphIds.size;
 
-		let glyphIdLength: number;
-		let codeSpaceRange: string;
-		if (numGlyphs <= 0xff) {
-			glyphIdLength = 2;
-			codeSpaceRange = '<00> <ff>';
-		} else if (numGlyphs <= 0xffff) {
-			glyphIdLength = 4;
-			codeSpaceRange = '<0000> <ffff>';
-		} else if (numGlyphs <= 0xffffff) {
-			glyphIdLength = 6;
-			codeSpaceRange = '<000000> <ffffff>';
-		} else {
-			glyphIdLength = 8;
-			codeSpaceRange = '<00000000> <ffffffff>';
-		}
-
 		const mapper = new OverlayMapper(
 			this.fontInfo.encodingMapper,
 			this.fontInfo.toUnicodeMapper,
@@ -257,7 +241,7 @@ begincmap
 /CMapName /Adobe-Identity-UCS def
 /CMapType 2 def
 1 begincodespacerange
-${codeSpaceRange}
+<0000> <ffff>
 endcodespacerange
 ${this.glyphIds.size} beginbfchar
 `;
@@ -269,7 +253,7 @@ ${this.glyphIds.size} beginbfchar
 				mapper.lookupCodePoints(fromCodePoint),
 			);
 			const hexCodePoint = `<${codePoint.toString(16).padStart(4, '0')}>`;
-			const hexGlyphId = `<${glyphId.toString(16).padStart(glyphIdLength, '0')}>`;
+			const hexGlyphId = `<${glyphId.toString(16).padStart(4, '0')}>`;
 			cmap += `${hexGlyphId} ${hexCodePoint}\n`;
 		});
 
@@ -326,7 +310,6 @@ end
 			subset.includeGlyph(glyph);
 			this.glyphs.push(glyph);
 			this.glyphMapping[glyphId] = ++newGlyphId;
-console.log(`including glyph for id ${glyphId}, glyph.id: ${glyph.id}`);
 		});
 	}
 
@@ -429,32 +412,12 @@ console.log(`including glyph for id ${glyphId}, glyph.id: ${glyph.id}`);
 	}
 
 	protected computeWidths(): (number | number[])[] {
-		const glyphs = this.glyphs;
-
-		const widths: (number | number[])[] = [];
-		let currSection: number[] = [];
-
-		for (let idx = 0, len = glyphs.length; idx < len; idx++) {
-			const currGlyph = glyphs[idx];
-			const prevGlyph = glyphs[idx - 1];
-
-			const currGlyphId = this.glyphId(currGlyph);
-			const prevGlyphId = this.glyphId(prevGlyph);
-
-			if (idx === 0) {
-				widths.push(currGlyphId);
-			} else if (currGlyphId - prevGlyphId !== 1) {
-				widths.push(currSection);
-				widths.push(currGlyphId);
-				currSection = [];
-			}
-
-			currSection.push(currGlyph!.advanceWidth * this.scale);
-		}
-
-		widths.push(currSection);
-
-		return widths;
+		return [
+			1,
+			this.glyphs.map(
+				glyph => glyph.advanceWidth * this.scale,
+			),
+		];
 	}
 
 	protected async embedFontDescriptor(
@@ -524,21 +487,12 @@ console.log(`including glyph for id ${glyphId}, glyph.id: ${glyph.id}`);
 		}
 	}
 
-	// FIXME! Move this method somewhere else!
-	public recodeStream(blocks: GlyphBlock[]) {
-	}
-
 	private recodePDFString(glyphs: number[]): number[] {
-		const size = Object.keys(this.glyphMapping).length;
-
-		//const padLength =
-		//	size <= 0xff ? 2 : size <= 0xffff ? 4 : size <= 0xffffff ? 6 : 8;
-const padLength = 4;
 		const hexstring =
 			'<' +
 			glyphs
 				.map((id) => this.glyphMapping[id]!)
-				.map((id) => id.toString(16).padStart(padLength, '0'))
+				.map((id) => id.toString(16).padStart(4, '0'))
 				.join('') +
 			'>';
 
