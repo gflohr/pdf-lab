@@ -219,8 +219,8 @@ export class PDFLab {
 
 		const allPatchSets: PatchSet[] = [];
 		for (const font of fonts) {
-			const fontBlocks = glyphsInFont[font.ref.toString()];
-			if (typeof fontBlocks === 'undefined') continue;
+			// Make sure that we also embed unused fonts.
+			const fontBlocks = glyphsInFont[font.ref.toString()] ?? [];
 
 			let embedder: FontEmbedder;
 			switch (font.subtype) {
@@ -228,7 +228,7 @@ export class PDFLab {
 					embedder = new Type1FontEmbedder(
 						this.pdfDocument,
 						font,
-						glyphsInFont[font.ref.toString()]!,
+						fontBlocks,
 						options,
 					);
 					break;
