@@ -183,14 +183,7 @@ export class PDFLab {
 		);
 
 		const glyphBlocks = extractGlyphs(this.pdfDocument);
-		const glyphUsage: Record<string, Set<number>> = {};
 		const glyphsInFont: Record<string, GlyphBlock[]> = {};
-
-		// Make sure that there is an entry for every font.
-		for (const font of fonts) {
-			const ref = font.ref.toString();
-			if (refs.has(ref)) glyphUsage[ref] = new Set<number>();
-		}
 
 		// Aggregate all glyphs used.
 		for (const block of glyphBlocks) {
@@ -202,9 +195,6 @@ export class PDFLab {
 				const fontRef = font.toString();
 				glyphsInFont[fontRef] ??= [];
 				glyphsInFont[fontRef].push(block);
-				block.glyphs.forEach((g) => {
-					glyphUsage[fontRef]?.add(g);
-				});
 			}
 		}
 
@@ -231,7 +221,6 @@ export class PDFLab {
 					await new Type1FontEmbedder(
 						this.pdfDocument,
 						font,
-						glyphUsage[font.ref.toString()]!,
 						glyphsInFont[font.ref.toString()]!,
 						options,
 					).embed();

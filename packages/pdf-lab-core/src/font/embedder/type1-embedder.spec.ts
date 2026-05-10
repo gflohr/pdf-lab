@@ -7,6 +7,7 @@ import type { FontEmbedOptions } from '../../pdf-lab.js';
 import * as resolveFontModule from '../resolve-font.js';
 import type { FontInfo } from '../types.js';
 import { Type1FontEmbedder } from './type1-embedder.js';
+import type { GlyphBlock } from '../../text/extract-glyphs.js';
 
 const rootdir = '../..';
 const assetDir = `${rootdir}/assets`;
@@ -38,14 +39,10 @@ describe('Type1 Font Embedder', () => {
 			fontName: 'Helvetica',
 		};
 
-		const glyphIds = new Set([
-			84, 104, 105, 115, 32, 112, 97, 103, 101, 117, 72, 108, 118, 116, 99, 46,
-		]);
 		const embedder = new Type1FontEmbedder(
 			pdfDoc,
 			fontInfo,
-			glyphIds,
-			[],
+			[] as GlyphBlock[],
 			options,
 		);
 

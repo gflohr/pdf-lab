@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import type { FontEmbedOptions } from '../pdf-lab.js';
 import { FontEmbedder } from './embedder.js';
 import type { FontInfo } from './types.js';
+import type { GlyphBlock } from '../text/extract-glyphs.js';
 
 class TestFontEmbedder extends FontEmbedder {}
 
@@ -16,15 +17,13 @@ describe('FontEmbedder', () => {
 			ref: PDFRef.of(7),
 			embedded: false,
 			subtype: 'TrueType',
-		};
-
-		const glyphIds = new Set<number>([1, 2, 3]);
+		} as FontInfo;
 
 		it('throws if fontkit is missing', () => {
 			const options = {} as FontEmbedOptions;
 
 			expect(() => {
-				new TestFontEmbedder(pdfDoc, fontInfo, glyphIds, [], options);
+				new TestFontEmbedder(pdfDoc, fontInfo, [] as GlyphBlock[], options);
 			}).toThrow('You have to pass a fontkit instance in the embed options!');
 		});
 	});

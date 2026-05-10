@@ -20,6 +20,7 @@ import { OverlayMapper } from '../encoding/mappers/overlay-mapper.js';
 import { StandardEncoding } from '../encoding/single-byte-encodings/standard.js';
 import { StandardEncodings } from '../encoding/types.js';
 import { isStandardEncoding } from '../encoding/util/is-standard-encoding.js';
+import { octetsToGlyphIds } from '../encoding/util/octets-to-glyph-ids.js';
 
 type Metrics = {
 	bbox: number[];
@@ -37,13 +38,14 @@ export abstract class FontEmbedder {
 	private _font: fontkit.Font | undefined;
 	private _subset: fontkit.Subset | undefined;
 	private _scale: number | undefined;
+	private _glyphIds = new Set<number>();
 	private _glyphs: fontkit.Glyph[] = [];
 	private _glyphMapping: Record<string, number> = {};
+	private _glyphMapper: GlyphMapper;
 
 	constructor(
 		private readonly _pdfDoc: PDFDocument,
 		private readonly _fontInfo: FontInfo,
-		private readonly _glyphIds: Set<number>,
 		private readonly _glyphBlocks: GlyphBlock[],
 		private readonly _options: FontEmbedOptions,
 	) {
@@ -58,6 +60,40 @@ export abstract class FontEmbedder {
 		if (!fontDict) {
 			throw new Error(`PDF has no font dictionary '${fontRef.toString()}'!`);
 		}
+
+		// Determine the glyph mapper in use. Edge case: It is possible that
+		// a document uses a Type1 font and additionally has a ToUnicode
+		// table. In that case, the glyphs are selected based on the encoding
+		// only. But when extracting text, the ToUnicode CMap acts as an
+		// overlay. That has the absurd consequence that, when you copy and
+		// paste text from the PDF, the copied text differs from the text
+		// rendered.
+		//
+		// In the new document with the embedded font, this is no longer
+		// possible. The rendered glyphs always correspond to the textual
+		// content. In this case, we let the visual representation "win" and
+		// ignore a possible ToUnicode table.
+		//
+		// You can see such a case in the file assets/pdfs/mixed-content.pdf.
+		// It renders the string "price: $5", but when you copy and paste
+		// it, the text is German, and the price has changed.
+		if (isStandardEncoding(this.fontInfo.encodingMapper.name)) {
+			this._glyphMapper = this.fontInfo.encodingMapper;
+		} else if (this.fontInfo.toUnicodeMapper) {
+			this._glyphMapper = this.fontInfo.toUnicodeMapper;
+		} else {
+			const fontName = this.fontInfo.baseFont ?? '[unknown font]';
+			const fontRef = this.fontInfo.ref.toString();
+			throw new Error(`Cannot embed font '${fontName}' (object: ${fontRef}) without a ToUnicode CMap.`);
+		}
+
+		// Convert the byte streams of the extracted glyphs to glyph ids.
+		this.glyphBlocks.forEach(block => {
+			const glyphIds = octetsToGlyphIds(block.glyphs, this.glyphMapper);
+			glyphIds.forEach(glyphId => {
+				this.glyphIds.add(glyphId);
+			});
+		});
 	}
 
 	private get pdfDoc(): PDFDocument {
@@ -106,6 +142,10 @@ export abstract class FontEmbedder {
 
 	private get glyphMapping(): Record<string, number> {
 		return this._glyphMapping;
+	}
+
+	private get glyphMapper(): GlyphMapper {
+		return this._glyphMapper;
 	}
 
 	private async initialise() {
@@ -268,20 +308,10 @@ end
 	protected includeGlyphs() {
 		const subset = this.subset;
 
-		let mapper: GlyphMapper;
-		const encoding = this.fontInfo.encodingMapper.name;
-		if (isStandardEncoding(encoding)) {
-			mapper = this.fontInfo.encodingMapper;
-		} else if (this.fontInfo.toUnicodeMapper) {
-			mapper = this.fontInfo.toUnicodeMapper;
-		} else {
-			throw new Error('Cannot embed font without ToUnicode CMap!');
-		}
-
 		let newGlyphId = 0;
 		this.glyphIds.forEach((glyphId) => {
 			const codePoint = this.coerceCodePoints(
-				mapper?.lookupCodePoints(glyphId),
+				this.glyphMapper.lookupCodePoints(glyphId),
 			);
 			const glyph = this.font.glyphForCodePoint(codePoint);
 			subset.includeGlyph(glyph);
@@ -481,36 +511,29 @@ end
 		const decoded = decodePDFRawStream(stream);
 		const bytes = decoded.getBytes(0);
 
-		const decoder = new TextDecoder('latin1');
-
-		const out: number[] = [];
+		const chunks: number[][] = [];
 		let cursor = 0;
 
-		// Patch the streams in reverse direction. This ensures that the
-		// offsets are correct.
-		for (const block of blocks.reverse()) {
-			if (block.offset > cursor) {
-				out.push(...bytes.slice(cursor, block.offset));
-			}
-
-			// FIXME! This is wrong!!!
-			const replaced = this.recodePDFString(Array.from(block.glyphs));
-
-			for (let i = 0; i < replaced.length; i++) {
-				out.push(replaced.charCodeAt(i) & 0xff);
-			}
-
+		// Split the stream in chunks.
+		for (const block of blocks) {
+			// The chunk before the offset, even if empty.
+			const prefix = Array.from(bytes.slice(cursor, block.offset));
+			const chunk = Array.from(bytes.slice(block.offset, block.offset + block.length));
+			chunks.push(prefix, chunk);
 			cursor = block.offset + block.length;
 		}
+		const postfix = Array.from(bytes.slice(cursor, bytes.length - 1));
+		chunks.push(postfix);
 
-		if (cursor < bytes.length) {
-			out.push(...bytes.slice(cursor));
+		for (let i = 0; i < blocks.length; ++i) {
+			const glyphIds = octetsToGlyphIds(blocks[i]!.glyphs, this.glyphMapper);
+			chunks[1 + i * 2] = this.recodePDFString(glyphIds);
 		}
 
-		const newBytes = new Uint8Array(out);
+		const newBytes = new Uint8Array(chunks.flat());
 
 		if (this.options.compress) {
-			const compressed = this.pdfDoc.context.flateStream(newBytes);
+			const compressed = this.pdfDoc.context.flateStream(newBytes as Uint8Array);
 			stream.dict.set(PDFName.of('Filter'), PDFName.of('FlateDecode'));
 			stream.dict.set(
 				PDFName.of('Length'),
@@ -523,23 +546,24 @@ end
 		}
 	}
 
-	private recodePDFString(glyphs: number[]): string {
+	private recodePDFString(glyphs: number[]): number[] {
 		const size = Object.keys(this.glyphMapping).length;
-		let padLength: number;
-		if (size <= 0xff) {
-			padLength = 2;
-		} else if (size <= 0xffff) {
-			padLength = 4;
-		} else if (size <= 0xffffff) {
-			padLength = 6;
-		} else {
-			padLength = 8;
-		}
+
+		const padLength =
+			size <= 0xff ? 2 :
+			size <= 0xffff ? 4 :
+			size <= 0xffffff ? 6 :
+			8;
 
 		const hexstring = '<' +
-			glyphs.map(id => id.toString(16).padStart(padLength, '0')).join('')
+			glyphs.map(id => this.glyphMapping[id]!).map(id => id.toString(16).padStart(padLength, '0')).join('')
 			+ '>';
 
-		return hexstring;
+		const out: number[] = [];
+		for (let i = 0; i < hexstring.length; ++i) {
+			out.push(hexstring[i]!.charCodeAt(0));
+		}
+
+		return out;
 	}
 }
