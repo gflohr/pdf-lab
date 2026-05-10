@@ -18,7 +18,7 @@ import type { GlyphBlock } from '../text/extract-glyphs.js';
 import { deriveFontFlags } from './derive-font-flags.js';
 import type { OsType } from './load-font.js';
 import { resolveFont } from './resolve-font.js';
-import type { FontData, FontInfo } from './types.js';
+import type { FontData, FontInfo, PatchSet } from './types.js';
 import { LiteralParser } from '../parser/literal-parser.js';
 import { Encoding } from '../encoding/types.js';
 
@@ -180,7 +180,7 @@ export abstract class FontEmbedder {
 		this.initialised = true;
 	}
 
-	public async embed() {
+	public async embed(): Promise<PatchSet[]> {
 		await this.initialise();
 		this.fontDict.set(PDFName.of('Subtype'), PDFName.of('Type0'));
 		const subsetPrefix = this.generateSubsetPrefix();
@@ -191,12 +191,14 @@ export abstract class FontEmbedder {
 		const toUnicode = this.embedToUnicode();
 		this.fontDict.set(PDFName.of('ToUnicode'), toUnicode);
 
-		this.recodeTextBlocks();
+		const patchSets = this.recodeGlyphBlocks();
 
 		const cidFontDict = await this.embedCIDFontDict(baseFontName);
 		const descendantFonts = PDFArray.withContext(this.pdfDoc.context);
 		descendantFonts.push(cidFontDict);
 		this.fontDict.set(PDFName.of('DescendantFonts'), descendantFonts);
+
+		return patchSets;
 	}
 
 	private async resolveFont(): Promise<FontData> {
@@ -494,69 +496,33 @@ end
 		return result;
 	}
 
-	private recodeTextBlocks() {
-		const groups: GlyphBlock[][] = [];
+	private recodeGlyphBlocks(): PatchSet[] {
+		const patchSets: PatchSet[] = [];
 
-		this.glyphBlocks.forEach((block) => {
-			const streamId = block.streamId;
-			groups[streamId] ??= [];
-			groups[streamId].push(block);
-		});
+		for (const block of this.glyphBlocks) {
+			patchSets.push(this.recodeGlyphBlock(block));
+		}
 
-		groups.forEach((group) => {
-			this.recodeStream(group);
-		});
+		return patchSets;
 	}
 
-	private recodeStream(blocks: GlyphBlock[]) {
-		const first = blocks[0];
-		if (!first) return;
+	private recodeGlyphBlock(block: GlyphBlock): PatchSet {
+		const glyphIds = octetsToGlyphIds(block.glyphs, this.glyphMapper);
+		const decodedGlyphIds = block.type === 'lstring' ?
+			new LiteralParser(this.glyphMapper.name as Encoding).parse(glyphIds) : glyphIds;
 
-		const stream = first.stream;
-		const decoded = decodePDFRawStream(stream);
-		const bytes = decoded.getBytes(0);
+		const hexstring = this.recodePDFString(decodedGlyphIds);
 
-		const chunks: number[][] = [];
-		let cursor = 0;
-
-		// Split the stream in chunks.
-		for (const block of blocks) {
-			// The chunk before the offset, even if empty.
-			const prefix = Array.from(bytes.slice(cursor, block.offset));
-			const chunk = Array.from(
-				bytes.slice(block.offset, block.offset + block.length),
-			);
-			chunks.push(prefix, chunk);
-			cursor = block.offset + block.length;
+		return {
+			streamId: block.streamId,
+			offset: block.offset,
+			length: block.length,
+			hexstring,
 		}
-		const postfix = Array.from(bytes.slice(cursor, bytes.length - 1));
-		chunks.push(postfix);
+	}
 
-		for (let i = 0; i < blocks.length; ++i) {
-			const block = blocks[i]!;
-			const glyphIds = octetsToGlyphIds(block.glyphs, this.glyphMapper);
-			const decodedGlyphIds = block.type === 'lstring' ?
-				new LiteralParser(this.glyphMapper.name as Encoding).parse(glyphIds) : glyphIds;
-
-			chunks[1 + i * 2] = this.recodePDFString(decodedGlyphIds);
-		}
-
-		const newBytes = new Uint8Array(chunks.flat());
-
-		if (this.options.compress) {
-			const compressed = this.pdfDoc.context.flateStream(
-				newBytes as Uint8Array,
-			);
-			stream.dict.set(PDFName.of('Filter'), PDFName.of('FlateDecode'));
-			stream.dict.set(
-				PDFName.of('Length'),
-				PDFNumber.of(compressed.contents.length),
-			);
-			stream.updateContents(compressed.contents);
-		} else {
-			stream.updateContents(newBytes);
-			stream.dict.delete(PDFName.of('Filter'));
-		}
+	// FIXME! Move this method somewhere else!
+	public recodeStream(blocks: GlyphBlock[]) {
 	}
 
 	private recodePDFString(glyphs: number[]): number[] {

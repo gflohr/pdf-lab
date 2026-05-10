@@ -1,10 +1,13 @@
-import { PDFDocument, PDFName, PDFRef } from '@cantoo/pdf-lib';
+import { PDFDocument, PDFName, PDFRef, PDFStream } from '@cantoo/pdf-lib';
 import collectFonts from './font/collect-fonts.js';
 import { collectResources, type FontUsage } from './font/collect-resources.js';
 import { Type1FontEmbedder } from './font/embedder/type1-embedder.js';
-import type { FontInfo, FontMap } from './font/types.js';
+import type { FontInfo, FontMap, PatchSet } from './font/types.js';
 import { extractGlyphs, type GlyphBlock } from './text/extract-glyphs.js';
 import { extractText, type TextBlock } from './text/extract-text.js';
+import { FontEmbedder } from './font/embedder.js';
+import path from 'node:path';
+import { patchStream } from './font/patch-stream.js';
 
 /**
  * Options for embedding fonts.
@@ -185,7 +188,8 @@ export class PDFLab {
 		const glyphBlocks = extractGlyphs(this.pdfDocument);
 		const glyphsInFont: Record<string, GlyphBlock[]> = {};
 
-		// Aggregate all glyphs used.
+		// Aggregate all glyphs used, and remember the stream IDs.
+		const streams: PDFStream[] = [];
 		for (const block of glyphBlocks) {
 			const page = this.pdfDocument.getPage(block.pageNumber);
 			const { Font } = page.node.normalizedEntries();
@@ -196,6 +200,8 @@ export class PDFLab {
 				glyphsInFont[fontRef] ??= [];
 				glyphsInFont[fontRef].push(block);
 			}
+
+			streams[block.streamId] = block.stream;
 		}
 
 		// Normalize the fontMap.
@@ -212,23 +218,42 @@ export class PDFLab {
 			});
 		}
 
+		const allPatchSets: PatchSet[] = [];
 		for (const font of fonts) {
 			const fontBlocks = glyphsInFont[font.ref.toString()];
 			if (typeof fontBlocks === 'undefined') continue;
 
+			let embedder: FontEmbedder;
 			switch (font.subtype) {
 				case 'Type1':
-					await new Type1FontEmbedder(
+					 embedder = new Type1FontEmbedder(
 						this.pdfDocument,
 						font,
 						glyphsInFont[font.ref.toString()]!,
 						options,
-					).embed();
+					);
 					break;
 				default:
 					throw new Error(
 						`Embedding font sybtype ${font.subtype} not yet implemented`,
 					);
+			}
+
+			const patchSets = await embedder.embed();
+			allPatchSets.push(...patchSets);
+		}
+
+		const patchGroups: PatchSet[][] = [];
+
+		for (const patchSet of allPatchSets) {
+			patchGroups[patchSet.streamId] ??= [];
+			patchGroups[patchSet.streamId]!.push(patchSet);
+		}
+
+		for (let i = 0; i < patchGroups.length; ++i) {
+			const group = patchGroups[i];
+			if (group && streams[i]) {
+				patchStream(streams[i]!, this.pdfDocument.context, group, options.compress);
 			}
 		}
 	}

@@ -89,8 +89,24 @@ export type FontMap = Record<string, FontData>;
  * Patch instructions.
  */
 export type PatchSet = {
-	stream: PDFStream;
+	/**
+	 * The numerical ID of the `PDFStream`.
+	 */
+	streamId: number;
+
+	/**
+	 * The offset inside the stream to the first octet that has to be
+	 * replaced.
+	 */
 	offset: number;
+
+	/**
+	 * The number of octets to replace.
+	 */
 	length: number;
-	glyphs: Uint8Array;
+
+	/**
+	 * Replacement string as 8-bit characters.
+	 */
+	hexstring: number[];
 };
