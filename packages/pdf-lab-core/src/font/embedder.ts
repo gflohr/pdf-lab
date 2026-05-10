@@ -1,5 +1,4 @@
 import {
-	decodePDFRawStream,
 	PDFArray,
 	PDFDict,
 	type PDFDocument,
@@ -20,7 +19,7 @@ import type { OsType } from './load-font.js';
 import { resolveFont } from './resolve-font.js';
 import type { FontData, FontInfo, PatchSet } from './types.js';
 import { LiteralParser } from '../parser/literal-parser.js';
-import { Encoding } from '../encoding/types.js';
+import type { Encoding } from '../encoding/types.js';
 
 type Metrics = {
 	bbox: number[];
@@ -92,7 +91,10 @@ export abstract class FontEmbedder {
 		// Convert the byte streams of the extracted glyphs to glyph ids.
 		this.glyphBlocks.forEach((block) => {
 			const glyphIds = octetsToGlyphIds(block.glyphs, this.glyphMapper);
-			glyphIds.forEach((glyphId) => {
+			const decodedGlyphIds = block.type === 'lstring' ?
+				new LiteralParser(this.glyphMapper.name as Encoding).parse(glyphIds) : glyphIds;
+
+			decodedGlyphIds.forEach((glyphId) => {
 				this.glyphIds.add(glyphId);
 			});
 		});
@@ -257,7 +259,7 @@ begincmap
 1 begincodespacerange
 ${codeSpaceRange}
 endcodespacerange
-224 beginbfchar
+${this.glyphIds.size} beginbfchar
 `;
 
 		let glyphId = 0;
@@ -324,6 +326,7 @@ end
 			subset.includeGlyph(glyph);
 			this.glyphs.push(glyph);
 			this.glyphMapping[glyphId] = ++newGlyphId;
+console.log(`including glyph for id ${glyphId}, glyph.id: ${glyph.id}`);
 		});
 	}
 
@@ -528,9 +531,9 @@ end
 	private recodePDFString(glyphs: number[]): number[] {
 		const size = Object.keys(this.glyphMapping).length;
 
-		const padLength =
-			size <= 0xff ? 2 : size <= 0xffff ? 4 : size <= 0xffffff ? 6 : 8;
-
+		//const padLength =
+		//	size <= 0xff ? 2 : size <= 0xffff ? 4 : size <= 0xffffff ? 6 : 8;
+const padLength = 4;
 		const hexstring =
 			'<' +
 			glyphs
