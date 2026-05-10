@@ -19,6 +19,8 @@ import { deriveFontFlags } from './derive-font-flags.js';
 import type { OsType } from './load-font.js';
 import { resolveFont } from './resolve-font.js';
 import type { FontData, FontInfo } from './types.js';
+import { LiteralParser } from '../parser/literal-parser.js';
+import { Encoding } from '../encoding/types.js';
 
 type Metrics = {
 	bbox: number[];
@@ -531,8 +533,12 @@ end
 		chunks.push(postfix);
 
 		for (let i = 0; i < blocks.length; ++i) {
-			const glyphIds = octetsToGlyphIds(blocks[i]!.glyphs, this.glyphMapper);
-			chunks[1 + i * 2] = this.recodePDFString(glyphIds);
+			const block = blocks[i]!;
+			const glyphIds = octetsToGlyphIds(block.glyphs, this.glyphMapper);
+			const decodedGlyphIds = block.type === 'lstring' ?
+				new LiteralParser(this.glyphMapper.name as Encoding).parse(glyphIds) : glyphIds;
+
+			chunks[1 + i * 2] = this.recodePDFString(decodedGlyphIds);
 		}
 
 		const newBytes = new Uint8Array(chunks.flat());

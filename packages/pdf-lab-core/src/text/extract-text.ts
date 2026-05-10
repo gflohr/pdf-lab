@@ -5,6 +5,8 @@ import { octetsToGlyphIds } from '../encoding/util/octets-to-glyph-ids.js';
 import type { FontUsage } from '../font/collect-resources.js';
 import type { FontInfo } from '../font/types.js';
 import { extractGlyphs } from '../text/extract-glyphs.js';
+import { LiteralParser } from '../parser/literal-parser.js';
+import { Encoding } from '../encoding/types.js';
 
 /**
  * A block of text extracted from a `PDFDocument`.
@@ -71,7 +73,9 @@ export async function extractText(
 					: font.encodingMapper;
 
 		const glyphs = octetsToGlyphIds(glyphBlock.glyphs, mapper);
-		const text = glyphs.map((glyph) => mapper.lookup(glyph)).join('');
+		const decodedGlyphs = glyphBlock.type === 'lstring' ?
+			new LiteralParser(font.encodingMapper.name as Encoding).parse(glyphs) : glyphs;
+		const text = decodedGlyphs.map((glyph) => mapper.lookup(glyph)).join('');
 
 		textBlocks.push({
 			text,

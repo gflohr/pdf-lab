@@ -15,7 +15,7 @@ export class LiteralParser {
 	 * @param octets input bytes as numbers
 	 * @returns an array of unicode code points
 	 */
-	public parse(octets: number[]): Uint16Array {
+	public parse(octets: number[]): number[] {
 		const chars: number[] = [];
 
 		for (let i = 0; i < octets.length; ++i) {

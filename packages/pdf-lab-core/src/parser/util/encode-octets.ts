@@ -8,10 +8,6 @@ import { coerceCodePoints } from '../../encoding/util/coerce-code-points.js';
  * For all encodings except 'Identity-H' and 'Identity-V', these are Unicode
  * code points. For the identity encodings, they are glyph IDs.
  *
- * 16 bits are enough here. Although, PDFs can - of course - render characters
- * with a code point >\uffff. But they use glyph IDs which will always fit
- * into 16 bits.
- *
  * @param octets the input octets
  * @param encoding the encoding of the octets
  * @returns the encoded octets
@@ -19,7 +15,7 @@ import { coerceCodePoints } from '../../encoding/util/coerce-code-points.js';
 export function encodeOctets(
 	octets: number[],
 	encoding: Encoding = 'StandardEncoding',
-): Uint16Array {
+): number[] {
 	if (StandardEncodings.includes(encoding as Encoding)) {
 		const mapper = new SingleByteEncodingMapper(encoding);
 		const outChars: number[] = [];
@@ -33,9 +29,9 @@ export function encodeOctets(
 			}
 		}
 
-		return new Uint16Array(outChars);
+		return outChars;
 	} else {
 		// Treat everything else as Identity-H.
-		return new Uint16Array(octets);
+		return octets;
 	}
 }

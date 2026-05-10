@@ -9,7 +9,7 @@ describe('encodeOctets', () => {
 
 		const result = encodeOctets(octets, 'StandardEncoding');
 
-		expect(Array.from(result)).toStrictEqual([
+		expect(result).toStrictEqual([
 			0x62, 0x02c6, 0x00b6, 0x73, 0x65,
 		]);
 	});
@@ -19,7 +19,7 @@ describe('encodeOctets', () => {
 
 		const result = encodeOctets(octets, 'StandardEncoding');
 
-		expect(Array.from(result)).toStrictEqual([0x00]);
+		expect(result).toStrictEqual([0x00]);
 	});
 
 	it('should pass through octets for Identity-H encoding', () => {
@@ -27,7 +27,7 @@ describe('encodeOctets', () => {
 
 		const result = encodeOctets(octets, 'Identity-H' as Encoding);
 
-		expect(Array.from(result)).toStrictEqual([0x41, 0x42, 0x43]);
+		expect(result).toStrictEqual([0x41, 0x42, 0x43]);
 	});
 
 	it('should not swap bytes', () => {
@@ -35,6 +35,6 @@ describe('encodeOctets', () => {
 
 		const result = encodeOctets(octets, 'Identity-H' as Encoding);
 
-		expect(Array.from(result)).toStrictEqual([0xab, 0xcd]);
+		expect(result).toStrictEqual([0xab, 0xcd]);
 	});
 });
