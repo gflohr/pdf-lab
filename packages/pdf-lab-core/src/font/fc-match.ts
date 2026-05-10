@@ -30,7 +30,6 @@ export async function fcMatch(
 		const [filename, postScriptName] = stdout.split(' : ', 2);
 		if (typeof postScriptName === 'undefined') return;
 
-		console.log(`reading file ${filename}`);
 		const source = await readFile(filename!);
 
 		return { source, postScriptName };
