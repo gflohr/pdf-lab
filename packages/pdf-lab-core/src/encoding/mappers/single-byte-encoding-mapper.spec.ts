@@ -1,7 +1,7 @@
 import { PDFArray, PDFContext, PDFName, PDFNumber } from '@cantoo/pdf-lib';
 import { describe, expect, it } from 'vitest';
+import type { Encoding } from '../types.js';
 import { SingleByteEncodingMapper } from './single-byte-encoding-mapper.js';
-import { Encoding } from '../types.js';
 
 describe('8-bit mappers', () => {
 	describe('basic', () => {

@@ -7,8 +7,8 @@ import { StandardEncoding } from '../single-byte-encodings/standard.js';
 import { SymbolEncoding } from '../single-byte-encodings/symbol.js';
 import { WinAnsiEncoding } from '../single-byte-encodings/win-ansi.js';
 import { ZapfDingbatsEncoding } from '../single-byte-encodings/zapf-dingbats.js';
-import type { GlyphMapper } from './glyph-mapper.js';
 import type { Encoding } from '../types.js';
+import type { GlyphMapper } from './glyph-mapper.js';
 
 export class SingleByteEncodingMapper implements GlyphMapper {
 	private readonly encoding: string[];
@@ -25,24 +25,24 @@ export class SingleByteEncodingMapper implements GlyphMapper {
 				this.encoding = [...MacRomanEncoding];
 				break;
 			case 'pdfdocencoding':
-				this._name = 'PDFDocEncoding',
+				this._name = 'PDFDocEncoding';
 				this.encoding = [...PDFDocEncoding];
 				break;
 			case 'symbolencoding':
-				this._name = 'SymbolEncoding',
+				this._name = 'SymbolEncoding';
 				this.encoding = [...SymbolEncoding];
 				break;
 			case 'winansiencoding':
-				this._name = 'WinAnsiEncoding',
+				this._name = 'WinAnsiEncoding';
 				this.encoding = [...WinAnsiEncoding];
 				break;
 			case 'zapfdingbatsencoding':
-				this._name = 'ZapfDingbatsEncoding',
+				this._name = 'ZapfDingbatsEncoding';
 				this.encoding = [...ZapfDingbatsEncoding];
 				break;
 			default:
 				/* case 'standardencoding': */
-				this._name = 'StandardEncoding',
+				this._name = 'StandardEncoding';
 				this.encoding = [...StandardEncoding];
 				break;
 		}

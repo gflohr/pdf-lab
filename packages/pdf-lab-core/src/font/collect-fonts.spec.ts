@@ -1,10 +1,10 @@
-import { PDFDocument } from '@cantoo/pdf-lib';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
+import { PDFDocument } from '@cantoo/pdf-lib';
 import { beforeAll, describe, expect, it } from 'vitest';
 import collectFonts from './collect-fonts.js';
 import { collectResources } from './collect-resources.js';
-import { FontInfo } from './types.js';
+import type { FontInfo } from './types.js';
 
 describe('Collecting Fonts', () => {
 	describe('Type1 Fonts', () => {
@@ -26,7 +26,9 @@ describe('Collecting Fonts', () => {
 		});
 
 		it('should find Helvetica', () => {
-			const myFonts = [...fonts].filter(([, font]) => font.baseFont === 'Helvetica').map(([, font]) => font);
+			const myFonts = [...fonts]
+				.filter(([, font]) => font.baseFont === 'Helvetica')
+				.map(([, font]) => font);
 
 			expect(myFonts.length).toBe(1);
 			const myFont = myFonts[0]!;
@@ -37,7 +39,9 @@ describe('Collecting Fonts', () => {
 		});
 
 		it('should find Helvetica-Bold', () => {
-			const myFonts = [...fonts].filter(([, font]) => font.baseFont === 'Helvetica-Bold').map(([, font]) => font);
+			const myFonts = [...fonts]
+				.filter(([, font]) => font.baseFont === 'Helvetica-Bold')
+				.map(([, font]) => font);
 
 			expect(myFonts.length).toBe(1);
 			const myFont = myFonts[0]!;
@@ -48,7 +52,9 @@ describe('Collecting Fonts', () => {
 		});
 
 		it('should find Helvetica-Oblique', () => {
-			const myFonts = [...fonts].filter(([, font]) => font.baseFont === 'Helvetica-Oblique').map(([, font]) => font);
+			const myFonts = [...fonts]
+				.filter(([, font]) => font.baseFont === 'Helvetica-Oblique')
+				.map(([, font]) => font);
 
 			expect(myFonts.length).toBe(1);
 			const myFont = myFonts[0]!;
@@ -59,7 +65,9 @@ describe('Collecting Fonts', () => {
 		});
 
 		it('should find Helvetica-BoldOblique', () => {
-			const myFonts = [...fonts].filter(([, font]) => font.baseFont === 'Helvetica-BoldOblique').map(([, font]) => font);
+			const myFonts = [...fonts]
+				.filter(([, font]) => font.baseFont === 'Helvetica-BoldOblique')
+				.map(([, font]) => font);
 
 			expect(myFonts.length).toBe(1);
 			const myFont = myFonts[0]!;
@@ -70,7 +78,9 @@ describe('Collecting Fonts', () => {
 		});
 
 		it('should find Times-Roman', () => {
-			const myFonts = [...fonts].filter(([, font]) => font.baseFont === 'Times-Roman').map(([, font]) => font);
+			const myFonts = [...fonts]
+				.filter(([, font]) => font.baseFont === 'Times-Roman')
+				.map(([, font]) => font);
 
 			expect(myFonts.length).toBe(1);
 			const myFont = myFonts[0]!;
@@ -81,7 +91,9 @@ describe('Collecting Fonts', () => {
 		});
 
 		it('should find Times-Italic', () => {
-			const myFonts = [...fonts].filter(([, font]) => font.baseFont === 'Times-Italic').map(([, font]) => font);
+			const myFonts = [...fonts]
+				.filter(([, font]) => font.baseFont === 'Times-Italic')
+				.map(([, font]) => font);
 
 			expect(myFonts.length).toBe(1);
 			const myFont = myFonts[0]!;
@@ -92,7 +104,9 @@ describe('Collecting Fonts', () => {
 		});
 
 		it('should find Times-Bold', () => {
-			const myFonts = [...fonts].filter(([, font]) => font.baseFont === 'Times-Bold').map(([, font]) => font);
+			const myFonts = [...fonts]
+				.filter(([, font]) => font.baseFont === 'Times-Bold')
+				.map(([, font]) => font);
 
 			expect(myFonts.length).toBe(1);
 			const myFont = myFonts[0]!;
@@ -103,7 +117,9 @@ describe('Collecting Fonts', () => {
 		});
 
 		it('should find Times-BoldItalic', () => {
-			const myFonts = [...fonts].filter(([, font]) => font.baseFont === 'Times-BoldItalic').map(([, font]) => font);
+			const myFonts = [...fonts]
+				.filter(([, font]) => font.baseFont === 'Times-BoldItalic')
+				.map(([, font]) => font);
 
 			expect(myFonts.length).toBe(1);
 			const myFont = myFonts[0]!;
@@ -114,7 +130,9 @@ describe('Collecting Fonts', () => {
 		});
 
 		it('should find Courier', () => {
-			const myFonts = [...fonts].filter(([, font]) => font.baseFont === 'Courier').map(([, font]) => font);
+			const myFonts = [...fonts]
+				.filter(([, font]) => font.baseFont === 'Courier')
+				.map(([, font]) => font);
 
 			expect(myFonts.length).toBe(1);
 			const myFont = myFonts[0]!;
@@ -125,7 +143,9 @@ describe('Collecting Fonts', () => {
 		});
 
 		it('should find Courier-Bold', () => {
-			const myFonts = [...fonts].filter(([, font]) => font.baseFont === 'Courier-Bold').map(([, font]) => font);
+			const myFonts = [...fonts]
+				.filter(([, font]) => font.baseFont === 'Courier-Bold')
+				.map(([, font]) => font);
 
 			expect(myFonts.length).toBe(1);
 			const myFont = myFonts[0]!;
@@ -136,7 +156,9 @@ describe('Collecting Fonts', () => {
 		});
 
 		it('should find Courier-Oblique', () => {
-			const myFonts = [...fonts].filter(([, font]) => font.baseFont === 'Courier-Oblique').map(([, font]) => font);
+			const myFonts = [...fonts]
+				.filter(([, font]) => font.baseFont === 'Courier-Oblique')
+				.map(([, font]) => font);
 
 			expect(myFonts.length).toBe(1);
 			const myFont = myFonts[0]!;
@@ -147,7 +169,9 @@ describe('Collecting Fonts', () => {
 		});
 
 		it('should find Courier-BoldOblique', () => {
-			const myFonts = [...fonts].filter(([, font]) => font.baseFont === 'Courier-BoldOblique').map(([, font]) => font);
+			const myFonts = [...fonts]
+				.filter(([, font]) => font.baseFont === 'Courier-BoldOblique')
+				.map(([, font]) => font);
 
 			expect(myFonts.length).toBe(1);
 			const myFont = myFonts[0]!;
@@ -158,7 +182,9 @@ describe('Collecting Fonts', () => {
 		});
 
 		it('should find Symbol', () => {
-			const myFonts = [...fonts].filter(([, font]) => font.baseFont === 'Symbol').map(([, font]) => font);
+			const myFonts = [...fonts]
+				.filter(([, font]) => font.baseFont === 'Symbol')
+				.map(([, font]) => font);
 
 			expect(myFonts.length).toBe(1);
 			const myFont = myFonts[0]!;
@@ -169,7 +195,9 @@ describe('Collecting Fonts', () => {
 		});
 
 		it('should find ZapfDingbats', () => {
-			const myFonts = [...fonts].filter(([, font]) => font.baseFont === 'ZapfDingbats').map(([, font]) => font);
+			const myFonts = [...fonts]
+				.filter(([, font]) => font.baseFont === 'ZapfDingbats')
+				.map(([, font]) => font);
 
 			expect(myFonts.length).toBe(1);
 			const myFont = myFonts[0]!;
@@ -199,7 +227,9 @@ describe('Collecting Fonts', () => {
 		});
 
 		it('should find NotoSans-Regular', () => {
-			const myFonts = [...fonts].filter(([, font]) => font.fontName === 'NotoSans-Regular').map(([, font]) => font);
+			const myFonts = [...fonts]
+				.filter(([, font]) => font.fontName === 'NotoSans-Regular')
+				.map(([, font]) => font);
 
 			expect(myFonts.length).toBe(1);
 			const myFont = myFonts[0]!;
@@ -211,7 +241,9 @@ describe('Collecting Fonts', () => {
 		});
 
 		it('should find NotoSerif-Regular', () => {
-			const myFonts = [...fonts].filter(([, font]) => font.fontName === 'NotoSerif-Regular').map(([, font]) => font);
+			const myFonts = [...fonts]
+				.filter(([, font]) => font.fontName === 'NotoSerif-Regular')
+				.map(([, font]) => font);
 
 			expect(myFonts.length).toBe(1);
 			const myFont = myFonts[0]!;
@@ -223,7 +255,9 @@ describe('Collecting Fonts', () => {
 		});
 
 		it('should find CourierNewPSMT', () => {
-			const myFonts = [...fonts].filter(([, font]) => font.fontName === 'CourierNewPSMT').map(([, font]) => font);
+			const myFonts = [...fonts]
+				.filter(([, font]) => font.fontName === 'CourierNewPSMT')
+				.map(([, font]) => font);
 
 			expect(myFonts.length).toBe(1);
 			const myFont = myFonts[0]!;

@@ -1,11 +1,4 @@
-import {
-	beforeEach,
-	describe,
-	expect,
-	it,
-	type MockInstance,
-	vi,
-} from 'vitest';
+import { describe, expect, it, type MockInstance, vi } from 'vitest';
 import { loadInput } from './util/load-input.js';
 
 vi.mock('node:fs/promises', () => ({
@@ -19,12 +12,6 @@ import { TextCommand } from './commands/text.js';
 import { run } from './run.js';
 
 describe('pdf-lab-cli', () => {
-	let consoleErrorSpy: MockInstance<(...args: unknown[]) => void>;
-
-	beforeEach(() => {
-		consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-	});
-
 	describe('normal operation', () => {
 		it('should run the command', async () => {
 			const argv = ['text', 'sample.pdf'];

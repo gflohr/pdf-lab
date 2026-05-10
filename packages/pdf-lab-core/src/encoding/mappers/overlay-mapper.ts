@@ -2,7 +2,10 @@ import type { Encoding } from '../types.js';
 import type { GlyphMapper } from './glyph-mapper.js';
 
 export class OverlayMapper implements GlyphMapper {
-	constructor(private readonly fallback: GlyphMapper, private readonly overlay?: GlyphMapper) {}
+	constructor(
+		private readonly fallback: GlyphMapper,
+		private readonly overlay?: GlyphMapper,
+	) {}
 
 	public get name(): Encoding | 'Identity-H' | 'Identity-V' {
 		return this.overlay?.name ?? this.fallback.name;

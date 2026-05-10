@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
+import { CMapMapper } from '../mappers/cmap-mapper.js';
 import { SingleByteEncodingMapper } from '../mappers/single-byte-encoding-mapper.js';
 import { octetsToGlyphIds } from './octets-to-glyph-ids.js';
-import { CMapMapper } from '../mappers/cmap-mapper.js';
 
 describe('Convert octets to glyph IDs', () => {
 	it('should return 8-bit glyph IDs, if they exist', () => {
@@ -19,16 +19,12 @@ describe('Convert octets to glyph IDs', () => {
 endbfchar
 	`;
 		const mapper = new CMapMapper(source);
-		const octets = new Uint8Array(
-			[0x01,
-			0x00, 0x02,
-			0x00, 0x00, 0x03,
-			0x00, 0x00, 0x00, 0x04,
-			0x00, 0x00, 0x00, 0x00, 0x05],
-		);
+		const octets = new Uint8Array([
+			0x01, 0x00, 0x02, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00,
+			0x00, 0x00, 0x05,
+		]);
 		expect(octetsToGlyphIds(octets, mapper)).toStrictEqual([
-			0x01, 0x02, 0x03, 0x04, 0x00, 0x05
+			0x01, 0x02, 0x03, 0x04, 0x00, 0x05,
 		]);
 	});
-
 });

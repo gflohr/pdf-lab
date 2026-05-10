@@ -1,4 +1,8 @@
-import { type Encoding, lcStandardEncodings, StandardEncodings } from '../types.js';
+import {
+	type Encoding,
+	lcStandardEncodings,
+	StandardEncodings,
+} from '../types.js';
 
 export function isStandardEncoding(
 	value: string,

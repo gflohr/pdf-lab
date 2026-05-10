@@ -1,8 +1,7 @@
+import { PDFRef } from '@cantoo/pdf-lib';
 import type { FontInfo } from 'pdf-lab-core';
 import { describe, expect, it } from 'vitest';
-
 import { toFontInfoDto } from './font-info-dto.js';
-import { PDFRef } from '@cantoo/pdf-lib';
 
 describe('FontInfo DTO', () => {
 	it('should convert minimal font info structures', () => {
@@ -15,7 +14,7 @@ describe('FontInfo DTO', () => {
 		const fontInfoDto = {
 			embedded: true,
 			encoding: 'Identity-H',
-			ref: '42 0 R'
+			ref: '42 0 R',
 		};
 		expect(toFontInfoDto(fontInfo)).toStrictEqual(fontInfoDto);
 	});

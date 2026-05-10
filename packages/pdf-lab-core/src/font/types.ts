@@ -1,6 +1,5 @@
 import type { PDFRef, PDFStream } from '@cantoo/pdf-lib';
 import type { GlyphMapper } from '../encoding/mappers/glyph-mapper.js';
-import type { Encoding } from '../encoding/types.js';
 
 /**
  * The possible font subtypes.

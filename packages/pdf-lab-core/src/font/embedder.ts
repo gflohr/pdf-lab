@@ -9,18 +9,16 @@ import {
 	PDFString,
 } from '@cantoo/pdf-lib';
 import fontkit from '@pdf-lib/fontkit';
+import type { GlyphMapper } from '../encoding/mappers/glyph-mapper.js';
+import { OverlayMapper } from '../encoding/mappers/overlay-mapper.js';
+import { isStandardEncoding } from '../encoding/util/is-standard-encoding.js';
+import { octetsToGlyphIds } from '../encoding/util/octets-to-glyph-ids.js';
 import type { FontEmbedOptions } from '../pdf-lab.js';
 import type { GlyphBlock } from '../text/extract-glyphs.js';
 import { deriveFontFlags } from './derive-font-flags.js';
 import type { OsType } from './load-font.js';
 import { resolveFont } from './resolve-font.js';
 import type { FontData, FontInfo } from './types.js';
-import { GlyphMapper } from '../encoding/mappers/glyph-mapper.js';
-import { OverlayMapper } from '../encoding/mappers/overlay-mapper.js';
-import { StandardEncoding } from '../encoding/single-byte-encodings/standard.js';
-import { StandardEncodings } from '../encoding/types.js';
-import { isStandardEncoding } from '../encoding/util/is-standard-encoding.js';
-import { octetsToGlyphIds } from '../encoding/util/octets-to-glyph-ids.js';
 
 type Metrics = {
 	bbox: number[];
@@ -84,13 +82,15 @@ export abstract class FontEmbedder {
 		} else {
 			const fontName = this.fontInfo.baseFont ?? '[unknown font]';
 			const fontRef = this.fontInfo.ref.toString();
-			throw new Error(`Cannot embed font '${fontName}' (object: ${fontRef}) without a ToUnicode CMap.`);
+			throw new Error(
+				`Cannot embed font '${fontName}' (object: ${fontRef}) without a ToUnicode CMap.`,
+			);
 		}
 
 		// Convert the byte streams of the extracted glyphs to glyph ids.
-		this.glyphBlocks.forEach(block => {
+		this.glyphBlocks.forEach((block) => {
 			const glyphIds = octetsToGlyphIds(block.glyphs, this.glyphMapper);
-			glyphIds.forEach(glyphId => {
+			glyphIds.forEach((glyphId) => {
 				this.glyphIds.add(glyphId);
 			});
 		});
@@ -235,7 +235,10 @@ export abstract class FontEmbedder {
 			codeSpaceRange = '<00000000> <ffffffff>';
 		}
 
-		const mapper = new OverlayMapper(this.fontInfo.encodingMapper, this.fontInfo.toUnicodeMapper);
+		const mapper = new OverlayMapper(
+			this.fontInfo.encodingMapper,
+			this.fontInfo.toUnicodeMapper,
+		);
 
 		let cmap = `/CIDInit /ProcSet findresource begin
 12 dict begin
@@ -518,7 +521,9 @@ end
 		for (const block of blocks) {
 			// The chunk before the offset, even if empty.
 			const prefix = Array.from(bytes.slice(cursor, block.offset));
-			const chunk = Array.from(bytes.slice(block.offset, block.offset + block.length));
+			const chunk = Array.from(
+				bytes.slice(block.offset, block.offset + block.length),
+			);
 			chunks.push(prefix, chunk);
 			cursor = block.offset + block.length;
 		}
@@ -533,7 +538,9 @@ end
 		const newBytes = new Uint8Array(chunks.flat());
 
 		if (this.options.compress) {
-			const compressed = this.pdfDoc.context.flateStream(newBytes as Uint8Array);
+			const compressed = this.pdfDoc.context.flateStream(
+				newBytes as Uint8Array,
+			);
 			stream.dict.set(PDFName.of('Filter'), PDFName.of('FlateDecode'));
 			stream.dict.set(
 				PDFName.of('Length'),
@@ -550,14 +557,15 @@ end
 		const size = Object.keys(this.glyphMapping).length;
 
 		const padLength =
-			size <= 0xff ? 2 :
-			size <= 0xffff ? 4 :
-			size <= 0xffffff ? 6 :
-			8;
+			size <= 0xff ? 2 : size <= 0xffff ? 4 : size <= 0xffffff ? 6 : 8;
 
-		const hexstring = '<' +
-			glyphs.map(id => this.glyphMapping[id]!).map(id => id.toString(16).padStart(padLength, '0')).join('')
-			+ '>';
+		const hexstring =
+			'<' +
+			glyphs
+				.map((id) => this.glyphMapping[id]!)
+				.map((id) => id.toString(16).padStart(padLength, '0'))
+				.join('') +
+			'>';
 
 		const out: number[] = [];
 		for (let i = 0; i < hexstring.length; ++i) {

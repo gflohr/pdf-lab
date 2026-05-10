@@ -1,4 +1,4 @@
-import { type Encoding, StandardEncodings } from '../encoding/types.js';
+import type { Encoding } from '../encoding/types.js';
 import { encodeOctets } from './util/encode-octets.js';
 
 export class LiteralParser {

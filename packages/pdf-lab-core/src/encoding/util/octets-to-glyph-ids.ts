@@ -1,6 +1,9 @@
 import type { GlyphMapper } from '../mappers/glyph-mapper.js';
 
-export function octetsToGlyphIds(octets: Uint8Array, mapper: GlyphMapper): number[] {
+export function octetsToGlyphIds(
+	octets: Uint8Array,
+	mapper: GlyphMapper,
+): number[] {
 	const glyphs: number[] = [];
 	for (let i = 0; i < octets.length; ++i) {
 		let glyphId = 0;

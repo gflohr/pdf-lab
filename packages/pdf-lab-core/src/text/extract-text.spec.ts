@@ -4,14 +4,13 @@ import { afterEach } from 'node:test';
 import { type PDFDocument, PDFRef } from '@cantoo/pdf-lib';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { CMapMapper } from '../encoding/mappers/cmap-mapper.js';
+import { IdentityMapper } from '../encoding/mappers/identity-mapper.js';
 import type { FontUsage } from '../font/collect-resources.js';
 import type { FontInfo } from '../font/types.js';
 import { PDFLab } from '../pdf-lab.js';
 import type { GlyphBlock } from './extract-glyphs.js';
 import * as extractGlyphModule from './extract-glyphs.js';
 import { extractText, type TextBlock } from './extract-text.js';
-import { SingleByteEncodingMapper } from '../encoding/mappers/single-byte-encoding-mapper.js';
-import { IdentityMapper } from '../encoding/mappers/identity-mapper.js';
 
 describe('Text Extraction', () => {
 	describe('standard fonts', () => {

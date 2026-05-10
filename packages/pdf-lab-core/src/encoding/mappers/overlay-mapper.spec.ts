@@ -1,7 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
-
-import { OverlayMapper } from './overlay-mapper.js';
 import type { GlyphMapper } from './glyph-mapper.js';
+import { OverlayMapper } from './overlay-mapper.js';
 
 describe('OverlayMapper', () => {
 	it('should use the fallback mapper name when no overlay is present', () => {

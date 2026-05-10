@@ -1,10 +1,10 @@
 import type { PDFDocument } from '@cantoo/pdf-lib';
-import type { FontUsage } from '../font/collect-resources.js';
-import type { FontInfo } from '../font/types.js';
-import { extractGlyphs } from '../text/extract-glyphs.js';
 import { OverlayMapper } from '../encoding/mappers/overlay-mapper.js';
 import { isStandardEncoding } from '../encoding/util/is-standard-encoding.js';
 import { octetsToGlyphIds } from '../encoding/util/octets-to-glyph-ids.js';
+import type { FontUsage } from '../font/collect-resources.js';
+import type { FontInfo } from '../font/types.js';
+import { extractGlyphs } from '../text/extract-glyphs.js';
 
 /**
  * A block of text extracted from a `PDFDocument`.
@@ -63,12 +63,15 @@ export async function extractText(
 
 		// If a Type1 font uses a `ToUnicode` CMap, that map is used for text
 		// extraction. In that case, we need an overlay mapper.
-		const mapper = isStandardEncoding(font.encodingMapper.name, true) && font.toUnicodeMapper ?
-			new OverlayMapper(font.encodingMapper, font.toUnicodeMapper) :
-			font.toUnicodeMapper ? font.toUnicodeMapper : font.encodingMapper;
+		const mapper =
+			isStandardEncoding(font.encodingMapper.name, true) && font.toUnicodeMapper
+				? new OverlayMapper(font.encodingMapper, font.toUnicodeMapper)
+				: font.toUnicodeMapper
+					? font.toUnicodeMapper
+					: font.encodingMapper;
 
 		const glyphs = octetsToGlyphIds(glyphBlock.glyphs, mapper);
-		const text = glyphs.map(glyph => mapper.lookup(glyph)).join('');
+		const text = glyphs.map((glyph) => mapper.lookup(glyph)).join('');
 
 		textBlocks.push({
 			text,

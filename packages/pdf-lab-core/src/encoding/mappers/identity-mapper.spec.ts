@@ -1,6 +1,6 @@
+import { PDFArray, PDFContext, PDFName, PDFNumber } from '@cantoo/pdf-lib';
 import { describe, expect, it } from 'vitest';
 import { IdentityMapper } from './identity-mapper.js';
-import { PDFArray, PDFContext, PDFName, PDFNumber } from '@cantoo/pdf-lib';
 
 describe('Identity mapper', () => {
 	describe('basics', () => {
@@ -15,7 +15,9 @@ describe('Identity mapper', () => {
 		it('should throw an exception, if the highest property is accessed', () => {
 			const mapper = new IdentityMapper('Identity-V');
 			expect(mapper).toBeDefined();
-			expect(() => mapper.highest).toThrow('Identity mappers do not support the property highest.');
+			expect(() => mapper.highest).toThrow(
+				'Identity mappers do not support the property highest.',
+			);
 		});
 	});
 
@@ -29,10 +31,7 @@ describe('Identity mapper', () => {
 		differences.push(PDFNumber.of(0xdb));
 		differences.push(PDFName.of('Euro'));
 
-		const mapper = new IdentityMapper(
-			'Identity-H',
-			differences,
-		);
+		const mapper = new IdentityMapper('Identity-H', differences);
 
 		it('should honour the differences', () => {
 			expect(mapper.lookup('a'.codePointAt(0)!)).toBe('A');

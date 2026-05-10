@@ -1,6 +1,6 @@
 import { PDFRef } from '@cantoo/pdf-lib';
 import * as yaml from 'js-yaml';
-import { FontInfo, PDFLab, type TextBlock } from 'pdf-lab-core';
+import { type FontInfo, PDFLab, type TextBlock } from 'pdf-lab-core';
 import {
 	afterEach,
 	beforeEach,
@@ -11,9 +11,9 @@ import {
 	vi,
 } from 'vitest';
 import type { Arguments } from 'yargs';
+import { toFontInfoDto } from '../util/font-info-dto.js';
 import { coerceOptions } from '../util/optspec.js';
 import { type OutputTextBlock, TextCommand } from './text.js';
-import { toFontInfoDto } from '../util/font-info-dto.js';
 
 vi.mock('../util/optspec.js');
 vi.mock('./load-input.js', () => ({
@@ -105,7 +105,9 @@ describe('Text Command', () => {
 				glyphs: [],
 			},
 		];
-		const textBlocksDto = structuredClone<TextBlock[]>(textBlocks) as unknown as OutputTextBlock[];
+		const textBlocksDto = structuredClone<TextBlock[]>(
+			textBlocks,
+		) as unknown as OutputTextBlock[];
 
 		// Patch the object.
 		textBlocksDto.forEach((block) => {

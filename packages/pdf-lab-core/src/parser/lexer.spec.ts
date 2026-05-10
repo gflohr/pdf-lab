@@ -1,15 +1,8 @@
-import * as fs from 'node:fs/promises';
-import * as path from 'node:path';
-import { beforeAll, describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { Lexer } from './lexer.js';
-import type { Token } from './types.js';
 
 function toBytes(str: string): Uint8Array {
 	return new TextEncoder().encode(str);
-}
-
-function decodeUint8Array(codes: Uint8Array): string {
-	return new TextDecoder().decode(codes);
 }
 
 describe('Lexer', () => {

@@ -1,24 +1,22 @@
 import {
 	decodePDFRawStream,
-	isStandardFont,
 	PDFArray,
 	PDFDict,
 	type PDFDocument,
 	PDFName,
-	PDFObject,
 	PDFRawStream,
 	type PDFRef,
 	PDFStream,
 } from '@cantoo/pdf-lib';
 import { CMapMapper } from '../encoding/mappers/cmap-mapper.js';
 import type { GlyphMapper } from '../encoding/mappers/glyph-mapper.js';
+import { IdentityMapper } from '../encoding/mappers/identity-mapper.js';
 import { SingleByteEncodingMapper } from '../encoding/mappers/single-byte-encoding-mapper.js';
-import { type Encoding, lcStandardEncodings, StandardEncodings } from '../encoding/types.js';
+import type { Encoding } from '../encoding/types.js';
+import { isStandardEncoding } from '../encoding/util/is-standard-encoding.js';
 import type { FontUsage } from './collect-resources.js';
 import type { FontInfo, FontSubtype } from './types.js';
 import { fontName } from './util/font-name.js';
-import { IdentityMapper } from '../encoding/mappers/identity-mapper.js';
-import { isStandardEncoding } from '../encoding/util/is-standard-encoding.js';
 
 /**
  * Collect all font contained in a PDF document.
@@ -77,7 +75,9 @@ function getFontInfo(
 	}
 
 	const toUnicodeMapper = getToUnicodeMapper(fontDict);
-	const baseFont = fontDict.lookupMaybe(PDFName.of('BaseFont'), PDFName)?.decodeText();
+	const baseFont = fontDict
+		.lookupMaybe(PDFName.of('BaseFont'), PDFName)
+		?.decodeText();
 	const encodingMapper = getEncodingMapper(fontDict, subtypeName, baseFont);
 
 	const fontInfo: FontInfo = {
@@ -120,11 +120,14 @@ function getFontType0Info(
 		descendantFontDescriptor.has(PDFName.of('FontFile2')) ||
 		descendantFontDescriptor.has(PDFName.of('FontFile3'));
 
-
 	const toUnicodeMapper = getToUnicodeMapper(fontDict);
-	const baseFont = descendantFontDescriptor.lookupMaybe(PDFName.of('BaseFont'), PDFName)?.decodeText();
+	const baseFont = descendantFontDescriptor
+		.lookupMaybe(PDFName.of('BaseFont'), PDFName)
+		?.decodeText();
 	const encodingMapper = getEncodingMapper(fontDict, 'Type0', baseFont);
-	const subtype = descendantFontDescriptor.lookupMaybe(PDFName.of('Subtype'), PDFName)?.decodeText() as FontSubtype;
+	const subtype = descendantFontDescriptor
+		.lookupMaybe(PDFName.of('Subtype'), PDFName)
+		?.decodeText() as FontSubtype;
 	const fontInfo: FontInfo = {
 		ref: fontRef,
 		embedded,
@@ -140,7 +143,11 @@ function getFontType0Info(
 	return fontInfo;
 }
 
-function getEncodingMapper(fontDict: PDFDict, subtype: string, baseFont: string | undefined): GlyphMapper {
+function getEncodingMapper(
+	fontDict: PDFDict,
+	subtype: string,
+	baseFont: string | undefined,
+): GlyphMapper {
 	const encodingObj = fontDict.lookup(PDFName.of('Encoding'));
 	if (encodingObj instanceof PDFName) {
 		const name = encodingObj.decodeText();
@@ -151,12 +158,21 @@ function getEncodingMapper(fontDict: PDFDict, subtype: string, baseFont: string 
 			return new SingleByteEncodingMapper(encoding as Encoding);
 		}
 	} else if (encodingObj instanceof PDFDict) {
-		const pdfName = encodingObj.lookupMaybe(PDFName.of('BaseEncoding'), PDFName);
+		const pdfName = encodingObj.lookupMaybe(
+			PDFName.of('BaseEncoding'),
+			PDFName,
+		);
 		const encoding = getEncoding(subtype, pdfName?.decodeText(), baseFont);
-		const differences = encodingObj.lookupMaybe(PDFName.of('Differences'), PDFArray);
+		const differences = encodingObj.lookupMaybe(
+			PDFName.of('Differences'),
+			PDFArray,
+		);
 
 		if (encoding.toLowerCase().startsWith('identity-')) {
-			return new IdentityMapper(encoding as 'Identity-H' | 'Identity-V', differences);
+			return new IdentityMapper(
+				encoding as 'Identity-H' | 'Identity-V',
+				differences,
+			);
 		} else {
 			return new SingleByteEncodingMapper(encoding as Encoding, differences);
 		}
@@ -178,8 +194,12 @@ function getEncodingMapper(fontDict: PDFDict, subtype: string, baseFont: string 
 	}
 }
 
-function getEncoding(subtype: string, name?: string, baseFont?: string): string {
-	if(subtype === 'Type1') {
+function getEncoding(
+	subtype: string,
+	name?: string,
+	baseFont?: string,
+): string {
+	if (subtype === 'Type1') {
 		const lcBaseFont = baseFont?.toLowerCase();
 		if (lcBaseFont === 'symbol') {
 			return 'SymbolEncoding';
@@ -197,7 +217,7 @@ function getEncoding(subtype: string, name?: string, baseFont?: string): string 
 			} else if (name.toLowerCase() === 'identity-v') {
 				return 'Identity-V';
 			} else {
-				return 'Identity-H'
+				return 'Identity-H';
 			}
 		} else {
 			return 'Identity-H';

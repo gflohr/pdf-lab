@@ -1,4 +1,3 @@
-import { last } from '@cantoo/pdf-lib';
 import { Lexer } from '../../parser/lexer.js';
 import type { Token } from '../../parser/types.js';
 import type { GlyphMapper } from './glyph-mapper.js';
