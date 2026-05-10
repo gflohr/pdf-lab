@@ -34,7 +34,7 @@ endbfchar
 endbfchar
 	`;
 		const mapper = new CMapMapper(source);
-		const octets = new Uint8Array([0x00, 0x00, 0x00,]);
+		const octets = new Uint8Array([0x00, 0x00, 0x00]);
 		expect(octetsToGlyphIds(octets, mapper)).toStrictEqual([0x00, 0x00, 0x00]);
 	});
 });

@@ -1,9 +1,4 @@
-import {
-	PDFContext,
-	PDFDict,
-	PDFName,
-	PDFRawStream,
-} from '@cantoo/pdf-lib';
+import { PDFContext, PDFDict, PDFName, PDFRawStream } from '@cantoo/pdf-lib';
 import { describe, expect, it } from 'vitest';
 
 import { patchStream } from './patch-stream.js';
@@ -21,10 +16,7 @@ describe('patchStream', () => {
 			0x45, // E
 		]);
 
-		const stream = PDFRawStream.of(
-			PDFDict.withContext(context),
-			original,
-		);
+		const stream = PDFRawStream.of(PDFDict.withContext(context), original);
 
 		const patchSets: PatchSet[] = [
 			{
@@ -36,12 +28,7 @@ describe('patchStream', () => {
 			},
 		];
 
-		patchStream(
-			stream,
-			context,
-			patchSets,
-			false,
-		);
+		patchStream(stream, context, patchSets, false);
 
 		expect(Array.from(stream.getContents())).toStrictEqual([
 			0x41, // A
@@ -65,10 +52,7 @@ describe('patchStream', () => {
 			0x35, // 5
 		]);
 
-		const stream = PDFRawStream.of(
-			PDFDict.withContext(context),
-			original,
-		);
+		const stream = PDFRawStream.of(PDFDict.withContext(context), original);
 
 		const patchSets: PatchSet[] = [
 			{
@@ -85,12 +69,7 @@ describe('patchStream', () => {
 			},
 		];
 
-		patchStream(
-			stream,
-			context,
-			patchSets,
-			false,
-		);
+		patchStream(stream, context, patchSets, false);
 
 		expect(Array.from(stream.getContents())).toStrictEqual([
 			0x30, // 0
@@ -104,16 +83,9 @@ describe('patchStream', () => {
 	it('should compress the patched stream', () => {
 		const context = PDFContext.create();
 
-		const original = new Uint8Array([
-			0x41,
-			0x42,
-			0x43,
-		]);
+		const original = new Uint8Array([0x41, 0x42, 0x43]);
 
-		const stream = PDFRawStream.of(
-			PDFDict.withContext(context),
-			original,
-		);
+		const stream = PDFRawStream.of(PDFDict.withContext(context), original);
 
 		const patchSets: PatchSet[] = [
 			{
@@ -124,20 +96,14 @@ describe('patchStream', () => {
 			},
 		];
 
-		patchStream(
-			stream,
-			context,
-			patchSets,
-			true,
+		patchStream(stream, context, patchSets, true);
+
+		expect(stream.dict.get(PDFName.of('Filter'))).toBe(
+			PDFName.of('FlateDecode'),
 		);
 
-		expect(stream.dict.get(PDFName.of('Filter')))
-			.toBe(PDFName.of('FlateDecode'));
+		expect(stream.dict.get(PDFName.of('Length'))).toBeDefined();
 
-		expect(stream.dict.get(PDFName.of('Length')))
-			.toBeDefined();
-
-		expect(stream.getContents().length)
-			.toBeGreaterThan(0);
+		expect(stream.getContents().length).toBeGreaterThan(0);
 	});
 });

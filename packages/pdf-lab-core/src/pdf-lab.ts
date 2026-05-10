@@ -1,13 +1,12 @@
-import { PDFDocument, PDFName, PDFRef, PDFStream } from '@cantoo/pdf-lib';
+import { PDFDocument, PDFName, PDFRef, type PDFStream } from '@cantoo/pdf-lib';
 import collectFonts from './font/collect-fonts.js';
 import { collectResources, type FontUsage } from './font/collect-resources.js';
 import { Type1FontEmbedder } from './font/embedder/type1-embedder.js';
+import type { FontEmbedder } from './font/embedder.js';
+import { patchStream } from './font/patch-stream.js';
 import type { FontInfo, FontMap, PatchSet } from './font/types.js';
 import { extractGlyphs, type GlyphBlock } from './text/extract-glyphs.js';
 import { extractText, type TextBlock } from './text/extract-text.js';
-import { FontEmbedder } from './font/embedder.js';
-import path from 'node:path';
-import { patchStream } from './font/patch-stream.js';
 
 /**
  * Options for embedding fonts.
@@ -226,7 +225,7 @@ export class PDFLab {
 			let embedder: FontEmbedder;
 			switch (font.subtype) {
 				case 'Type1':
-					 embedder = new Type1FontEmbedder(
+					embedder = new Type1FontEmbedder(
 						this.pdfDocument,
 						font,
 						glyphsInFont[font.ref.toString()]!,
@@ -253,7 +252,12 @@ export class PDFLab {
 		for (let i = 0; i < patchGroups.length; ++i) {
 			const group = patchGroups[i];
 			if (group && streams[i]) {
-				patchStream(streams[i]!, this.pdfDocument.context, group, options.compress);
+				patchStream(
+					streams[i]!,
+					this.pdfDocument.context,
+					group,
+					options.compress,
+				);
 			}
 		}
 	}

@@ -10,16 +10,16 @@ import {
 import fontkit from '@pdf-lib/fontkit';
 import type { GlyphMapper } from '../encoding/mappers/glyph-mapper.js';
 import { OverlayMapper } from '../encoding/mappers/overlay-mapper.js';
+import type { Encoding } from '../encoding/types.js';
 import { isStandardEncoding } from '../encoding/util/is-standard-encoding.js';
 import { octetsToGlyphIds } from '../encoding/util/octets-to-glyph-ids.js';
+import { LiteralParser } from '../parser/literal-parser.js';
 import type { FontEmbedOptions } from '../pdf-lab.js';
 import type { GlyphBlock } from '../text/extract-glyphs.js';
 import { deriveFontFlags } from './derive-font-flags.js';
 import type { OsType } from './load-font.js';
 import { resolveFont } from './resolve-font.js';
 import type { FontData, FontInfo, PatchSet } from './types.js';
-import { LiteralParser } from '../parser/literal-parser.js';
-import type { Encoding } from '../encoding/types.js';
 
 type Metrics = {
 	bbox: number[];
@@ -91,8 +91,10 @@ export abstract class FontEmbedder {
 		// Convert the byte streams of the extracted glyphs to glyph ids.
 		this.glyphBlocks.forEach((block) => {
 			const glyphIds = octetsToGlyphIds(block.glyphs, this.glyphMapper);
-			const decodedGlyphIds = block.type === 'lstring' ?
-				new LiteralParser(this.glyphMapper.name as Encoding).parse(glyphIds) : glyphIds;
+			const decodedGlyphIds =
+				block.type === 'lstring'
+					? new LiteralParser(this.glyphMapper.name as Encoding).parse(glyphIds)
+					: glyphIds;
 
 			decodedGlyphIds.forEach((glyphId) => {
 				this.glyphIds.add(glyphId);
@@ -223,8 +225,6 @@ export abstract class FontEmbedder {
 	}
 
 	private createToUnicode(): string {
-		const numGlyphs = this.glyphIds.size;
-
 		const mapper = new OverlayMapper(
 			this.fontInfo.encodingMapper,
 			this.fontInfo.toUnicodeMapper,
@@ -412,12 +412,7 @@ end
 	}
 
 	protected computeWidths(): (number | number[])[] {
-		return [
-			1,
-			this.glyphs.map(
-				glyph => glyph.advanceWidth * this.scale,
-			),
-		];
+		return [1, this.glyphs.map((glyph) => glyph.advanceWidth * this.scale)];
 	}
 
 	protected async embedFontDescriptor(
@@ -446,10 +441,6 @@ end
 		return context.register(fontDescriptor);
 	}
 
-	private glyphId(glyph?: fontkit.Glyph): number {
-		return glyph ? glyph.id : -1;
-	}
-
 	// FIXME! Check for collisions!
 	private generateSubsetPrefix(): string {
 		const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -474,8 +465,10 @@ end
 
 	private recodeGlyphBlock(block: GlyphBlock): PatchSet {
 		const glyphIds = octetsToGlyphIds(block.glyphs, this.glyphMapper);
-		const decodedGlyphIds = block.type === 'lstring' ?
-			new LiteralParser(this.glyphMapper.name as Encoding).parse(glyphIds) : glyphIds;
+		const decodedGlyphIds =
+			block.type === 'lstring'
+				? new LiteralParser(this.glyphMapper.name as Encoding).parse(glyphIds)
+				: glyphIds;
 
 		const hexstring = this.recodePDFString(decodedGlyphIds);
 
@@ -484,7 +477,7 @@ end
 			offset: block.offset,
 			length: block.length,
 			hexstring,
-		}
+		};
 	}
 
 	private recodePDFString(glyphs: number[]): number[] {

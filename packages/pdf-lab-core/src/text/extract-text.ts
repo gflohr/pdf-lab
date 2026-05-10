@@ -1,12 +1,12 @@
 import type { PDFDocument } from '@cantoo/pdf-lib';
 import { OverlayMapper } from '../encoding/mappers/overlay-mapper.js';
+import type { Encoding } from '../encoding/types.js';
 import { isStandardEncoding } from '../encoding/util/is-standard-encoding.js';
 import { octetsToGlyphIds } from '../encoding/util/octets-to-glyph-ids.js';
 import type { FontUsage } from '../font/collect-resources.js';
 import type { FontInfo } from '../font/types.js';
-import { extractGlyphs } from '../text/extract-glyphs.js';
 import { LiteralParser } from '../parser/literal-parser.js';
-import { Encoding } from '../encoding/types.js';
+import { extractGlyphs } from '../text/extract-glyphs.js';
 
 /**
  * A block of text extracted from a `PDFDocument`.
@@ -73,8 +73,10 @@ export async function extractText(
 					: font.encodingMapper;
 
 		const glyphs = octetsToGlyphIds(glyphBlock.glyphs, mapper);
-		const decodedGlyphs = glyphBlock.type === 'lstring' ?
-			new LiteralParser(font.encodingMapper.name as Encoding).parse(glyphs) : glyphs;
+		const decodedGlyphs =
+			glyphBlock.type === 'lstring'
+				? new LiteralParser(font.encodingMapper.name as Encoding).parse(glyphs)
+				: glyphs;
 		const text = decodedGlyphs.map((glyph) => mapper.lookup(glyph)).join('');
 
 		textBlocks.push({

@@ -1,7 +1,19 @@
-import { decodePDFRawStream, type PDFContext, PDFName, PDFNumber, PDFRawStream, type PDFStream } from '@cantoo/pdf-lib';
+import {
+	decodePDFRawStream,
+	type PDFContext,
+	PDFName,
+	PDFNumber,
+	PDFRawStream,
+	type PDFStream,
+} from '@cantoo/pdf-lib';
 import type { PatchSet } from './types.js';
 
-export function patchStream(stream: PDFStream, context: PDFContext, patchSets: PatchSet[], compress: boolean, ) {
+export function patchStream(
+	stream: PDFStream,
+	context: PDFContext,
+	patchSets: PatchSet[],
+	compress: boolean,
+) {
 	// Sort the patch sets by offset.
 	const sorted = patchSets.sort((a, b): number => {
 		if (a.offset < b.offset) {
@@ -44,9 +56,7 @@ export function patchStream(stream: PDFStream, context: PDFContext, patchSets: P
 	const newBytes = new Uint8Array(chunks.flat());
 
 	if (compress) {
-			const compressed = context.flateStream(
-			newBytes as Uint8Array,
-		);
+		const compressed = context.flateStream(newBytes as Uint8Array);
 		stream.dict.set(PDFName.of('Filter'), PDFName.of('FlateDecode'));
 		stream.dict.set(
 			PDFName.of('Length'),

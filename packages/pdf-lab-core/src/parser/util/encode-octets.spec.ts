@@ -9,9 +9,7 @@ describe('encodeOctets', () => {
 
 		const result = encodeOctets(octets, 'StandardEncoding');
 
-		expect(result).toStrictEqual([
-			0x62, 0x02c6, 0x00b6, 0x73, 0x65,
-		]);
+		expect(result).toStrictEqual([0x62, 0x02c6, 0x00b6, 0x73, 0x65]);
 	});
 
 	it('should fall back to raw octet if mapper returns empty', () => {

@@ -1,4 +1,4 @@
-import type { PDFRef, PDFStream } from '@cantoo/pdf-lib';
+import type { PDFRef } from '@cantoo/pdf-lib';
 import type { GlyphMapper } from '../encoding/mappers/glyph-mapper.js';
 
 /**
