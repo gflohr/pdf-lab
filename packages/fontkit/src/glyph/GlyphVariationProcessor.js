@@ -31,9 +31,9 @@ export default class GlyphVariationProcessor {
 	normalizeCoords(coords) {
 		// the default mapping is linear along each axis, in two segments:
 		// from the minValue to defaultValue, and from defaultValue to maxValue.
-		let normalized = [];
-		for (var i = 0; i < this.font.fvar.axis.length; i++) {
-			let axis = this.font.fvar.axis[i];
+		const normalized = [];
+		for (let i = 0; i < this.font.fvar.axis.length; i++) {
+			const axis = this.font.fvar.axis[i];
 			if (coords[i] < axis.defaultValue) {
 				normalized.push(
 					(coords[i] - axis.defaultValue + Number.EPSILON) /
@@ -50,12 +50,12 @@ export default class GlyphVariationProcessor {
 		// if there is an avar table, the normalized value is calculated
 		// by interpolating between the two nearest mapped values.
 		if (this.font.avar) {
-			for (var i = 0; i < this.font.avar.segment.length; i++) {
-				let segment = this.font.avar.segment[i];
+			for (let i = 0; i < this.font.avar.segment.length; i++) {
+				const segment = this.font.avar.segment[i];
 				for (let j = 0; j < segment.correspondence.length; j++) {
-					let pair = segment.correspondence[j];
+					const pair = segment.correspondence[j];
 					if (j >= 1 && normalized[i] < pair.fromCoord) {
-						let prev = segment.correspondence[j - 1];
+						const prev = segment.correspondence[j - 1];
 						normalized[i] =
 							((normalized[i] - prev.fromCoord) *
 								(pair.toCoord - prev.toCoord) +
@@ -77,18 +77,18 @@ export default class GlyphVariationProcessor {
 			return;
 		}
 
-		let { gvar } = this.font;
+		const { gvar } = this.font;
 		if (gid >= gvar.glyphCount) {
 			return;
 		}
 
-		let offset = gvar.offsets[gid];
+		const offset = gvar.offsets[gid];
 		if (offset === gvar.offsets[gid + 1]) {
 			return;
 		}
 
 		// Read the gvar data for this glyph
-		let { stream } = this.font;
+		const { stream } = this.font;
 		stream.pos = offset;
 		if (stream.pos >= stream.length) {
 			return;
@@ -97,23 +97,24 @@ export default class GlyphVariationProcessor {
 		let tupleCount = stream.readUInt16BE();
 		let offsetToData = offset + stream.readUInt16BE();
 
+		let sharedPoints;
 		if (tupleCount & TUPLES_SHARE_POINT_NUMBERS) {
-			var here = stream.pos;
+			const here = stream.pos;
 			stream.pos = offsetToData;
-			var sharedPoints = this.decodePoints();
+			sharedPoints = this.decodePoints();
 			offsetToData = stream.pos;
 			stream.pos = here;
 		}
 
-		let origPoints = glyphPoints.map((pt) => pt.copy());
+		const origPoints = glyphPoints.map((pt) => pt.copy());
 
 		tupleCount &= TUPLE_COUNT_MASK;
 		for (let i = 0; i < tupleCount; i++) {
-			let tupleDataSize = stream.readUInt16BE();
-			let tupleIndex = stream.readUInt16BE();
+			const tupleDataSize = stream.readUInt16BE();
+			const tupleIndex = stream.readUInt16BE();
+			let tupleCoords = [];
 
 			if (tupleIndex & EMBEDDED_TUPLE_COORD) {
-				var tupleCoords = [];
 				for (let a = 0; a < gvar.axisCount; a++) {
 					tupleCoords.push(stream.readInt16BE() / 16384);
 				}
@@ -122,23 +123,25 @@ export default class GlyphVariationProcessor {
 					throw new Error('Invalid gvar table');
 				}
 
-				var tupleCoords = gvar.globalCoords[tupleIndex & TUPLE_INDEX_MASK];
+				tupleCoords = gvar.globalCoords[tupleIndex & TUPLE_INDEX_MASK];
 			}
 
+			let startCoords;
+			let endCoords;
 			if (tupleIndex & INTERMEDIATE_TUPLE) {
-				var startCoords = [];
+				startCoords = [];
 				for (let a = 0; a < gvar.axisCount; a++) {
 					startCoords.push(stream.readInt16BE() / 16384);
 				}
 
-				var endCoords = [];
+				endCoords = [];
 				for (let a = 0; a < gvar.axisCount; a++) {
 					endCoords.push(stream.readInt16BE() / 16384);
 				}
 			}
 
 			// Get the factor at which to apply this tuple
-			let factor = this.tupleFactor(
+			const factor = this.tupleFactor(
 				tupleIndex,
 				tupleCoords,
 				startCoords,
@@ -149,35 +152,37 @@ export default class GlyphVariationProcessor {
 				continue;
 			}
 
-			var here = stream.pos;
+			const here = stream.pos;
 			stream.pos = offsetToData;
 
+			let points;
 			if (tupleIndex & PRIVATE_POINT_NUMBERS) {
-				var points = this.decodePoints();
+				points = this.decodePoints();
 			} else {
-				var points = sharedPoints;
+				points = sharedPoints;
 			}
 
 			// points.length = 0 means there are deltas for all points
-			let nPoints = points.length === 0 ? glyphPoints.length : points.length;
-			let xDeltas = this.decodeDeltas(nPoints);
-			let yDeltas = this.decodeDeltas(nPoints);
+			const nPoints = points.length === 0 ? glyphPoints.length : points.length;
+			const xDeltas = this.decodeDeltas(nPoints);
+			const yDeltas = this.decodeDeltas(nPoints);
 
+			let point;
 			if (points.length === 0) {
 				// all points
 				for (let i = 0; i < glyphPoints.length; i++) {
-					var point = glyphPoints[i];
+					point = glyphPoints[i];
 					point.x += Math.round(xDeltas[i] * factor);
 					point.y += Math.round(yDeltas[i] * factor);
 				}
 			} else {
-				let outPoints = origPoints.map((pt) => pt.copy());
-				let hasDelta = glyphPoints.map(() => false);
+				const outPoints = origPoints.map((pt) => pt.copy());
+				const hasDelta = glyphPoints.map(() => false);
 
 				for (let i = 0; i < points.length; i++) {
-					let idx = points[i];
+					const idx = points[i];
 					if (idx < glyphPoints.length) {
-						let point = outPoints[idx];
+						point = outPoints[idx];
 						hasDelta[idx] = true;
 
 						point.x += Math.round(xDeltas[i] * factor);
@@ -188,8 +193,8 @@ export default class GlyphVariationProcessor {
 				this.interpolateMissingDeltas(outPoints, origPoints, hasDelta);
 
 				for (let i = 0; i < glyphPoints.length; i++) {
-					let deltaX = outPoints[i].x - origPoints[i].x;
-					let deltaY = outPoints[i].y - origPoints[i].y;
+					const deltaX = outPoints[i].x - origPoints[i].x;
+					const deltaY = outPoints[i].y - origPoints[i].y;
 
 					glyphPoints[i].x += deltaX;
 					glyphPoints[i].y += deltaY;
@@ -202,20 +207,20 @@ export default class GlyphVariationProcessor {
 	}
 
 	decodePoints() {
-		let stream = this.font.stream;
+		const stream = this.font.stream;
 		let count = stream.readUInt8();
 
 		if (count & POINTS_ARE_WORDS) {
 			count = ((count & POINT_RUN_COUNT_MASK) << 8) | stream.readUInt8();
 		}
 
-		let points = new Uint16Array(count);
+		const points = new Uint16Array(count);
 		let i = 0;
 		let point = 0;
 		while (i < count) {
-			let run = stream.readUInt8();
-			let runCount = (run & POINT_RUN_COUNT_MASK) + 1;
-			let fn = run & POINTS_ARE_WORDS ? stream.readUInt16 : stream.readUInt8;
+			const run = stream.readUInt8();
+			const runCount = (run & POINT_RUN_COUNT_MASK) + 1;
+			const fn = run & POINTS_ARE_WORDS ? stream.readUInt16 : stream.readUInt8;
 
 			for (let j = 0; j < runCount && i < count; j++) {
 				point += fn.call(stream);
@@ -227,18 +232,19 @@ export default class GlyphVariationProcessor {
 	}
 
 	decodeDeltas(count) {
-		let stream = this.font.stream;
+		const stream = this.font.stream;
 		let i = 0;
-		let deltas = new Int16Array(count);
+		const deltas = new Int16Array(count);
 
 		while (i < count) {
-			let run = stream.readUInt8();
-			let runCount = (run & DELTA_RUN_COUNT_MASK) + 1;
+			const run = stream.readUInt8();
+			const runCount = (run & DELTA_RUN_COUNT_MASK) + 1;
 
 			if (run & DELTAS_ARE_ZERO) {
 				i += runCount;
 			} else {
-				let fn = run & DELTAS_ARE_WORDS ? stream.readInt16BE : stream.readInt8;
+				const fn =
+					run & DELTAS_ARE_WORDS ? stream.readInt16BE : stream.readInt8;
 				for (let j = 0; j < runCount && i < count; j++) {
 					deltas[i++] = fn.call(stream);
 				}
@@ -249,8 +255,8 @@ export default class GlyphVariationProcessor {
 	}
 
 	tupleFactor(tupleIndex, tupleCoords, startCoords, endCoords) {
-		let normalized = this.normalizedCoords;
-		let { gvar } = this.font;
+		const normalized = this.normalizedCoords;
+		const { gvar } = this.font;
 		let factor = 1;
 
 		for (let i = 0; i < gvar.axisCount; i++) {
@@ -301,7 +307,7 @@ export default class GlyphVariationProcessor {
 
 		let point = 0;
 		while (point < points.length) {
-			let firstPoint = point;
+			const firstPoint = point;
 
 			// find the end point of the contour
 			let endPoint = point;
@@ -319,7 +325,7 @@ export default class GlyphVariationProcessor {
 				continue;
 			}
 
-			let firstDelta = point;
+			const firstDelta = point;
 			let curDelta = point;
 			point++;
 
@@ -375,24 +381,24 @@ export default class GlyphVariationProcessor {
 			return;
 		}
 
-		let iterable = ['x', 'y'];
+		const iterable = ['x', 'y'];
 		for (let i = 0; i < iterable.length; i++) {
-			let k = iterable[i];
+			const k = iterable[i];
 			if (inPoints[ref1][k] > inPoints[ref2][k]) {
-				var p = ref1;
+				const p = ref1;
 				ref1 = ref2;
 				ref2 = p;
 			}
 
-			let in1 = inPoints[ref1][k];
-			let in2 = inPoints[ref2][k];
-			let out1 = outPoints[ref1][k];
-			let out2 = outPoints[ref2][k];
+			const in1 = inPoints[ref1][k];
+			const in2 = inPoints[ref2][k];
+			const out1 = outPoints[ref1][k];
+			const out2 = outPoints[ref2][k];
 
 			// If the reference points have the same coordinate but different
 			// delta, inferred delta is zero.  Otherwise interpolate.
 			if (in1 !== in2 || out1 === out2) {
-				let scale = in1 === in2 ? 0 : (out2 - out1) / (in2 - in1);
+				const scale = in1 === in2 ? 0 : (out2 - out1) / (in2 - in1);
 
 				for (let p = p1; p <= p2; p++) {
 					let out = inPoints[p][k];
@@ -412,8 +418,8 @@ export default class GlyphVariationProcessor {
 	}
 
 	deltaShift(p1, p2, ref, inPoints, outPoints) {
-		let deltaX = outPoints[ref].x - inPoints[ref].x;
-		let deltaY = outPoints[ref].y - inPoints[ref].y;
+		const deltaX = outPoints[ref].x - inPoints[ref].x;
+		const deltaY = outPoints[ref].y - inPoints[ref].y;
 
 		if (deltaX === 0 && deltaY === 0) {
 			return;
@@ -436,7 +442,6 @@ export default class GlyphVariationProcessor {
 				idx = table.advanceWidthMapping.mapCount - 1;
 			}
 
-			let entryFormat = table.advanceWidthMapping.entryFormat;
 			({ outerIndex, innerIndex } = table.advanceWidthMapping.mapData[idx]);
 		} else {
 			outerIndex = 0;
@@ -453,13 +458,13 @@ export default class GlyphVariationProcessor {
 			return 0;
 		}
 
-		let varData = itemStore.itemVariationData[outerIndex];
+		const varData = itemStore.itemVariationData[outerIndex];
 		if (innerIndex >= varData.deltaSets.length) {
 			return 0;
 		}
 
-		let deltaSet = varData.deltaSets[innerIndex];
-		let blendVector = this.getBlendVector(itemStore, outerIndex);
+		const deltaSet = varData.deltaSets[innerIndex];
+		const blendVector = this.getBlendVector(itemStore, outerIndex);
 		let netAdjustment = 0;
 
 		for (let master = 0; master < varData.regionIndexCount; master++) {
@@ -470,23 +475,23 @@ export default class GlyphVariationProcessor {
 	}
 
 	getBlendVector(itemStore, outerIndex) {
-		let varData = itemStore.itemVariationData[outerIndex];
+		const varData = itemStore.itemVariationData[outerIndex];
 		if (this.blendVectors.has(varData)) {
 			return this.blendVectors.get(varData);
 		}
 
-		let normalizedCoords = this.normalizedCoords;
-		let blendVector = [];
+		const normalizedCoords = this.normalizedCoords;
+		const blendVector = [];
 
 		// outer loop steps through master designs to be blended
 		for (let master = 0; master < varData.regionIndexCount; master++) {
 			let scalar = 1;
-			let regionIndex = varData.regionIndexes[master];
-			let axes = itemStore.variationRegionList.variationRegions[regionIndex];
+			const regionIndex = varData.regionIndexes[master];
+			const axes = itemStore.variationRegionList.variationRegions[regionIndex];
 
 			// inner loop steps through axes in this region
 			for (let j = 0; j < axes.length; j++) {
-				let axis = axes[j];
+				const axis = axes[j];
 				let axisScalar;
 
 				// compute the scalar contribution of this axis

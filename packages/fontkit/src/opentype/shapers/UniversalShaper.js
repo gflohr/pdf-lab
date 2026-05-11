@@ -1,11 +1,13 @@
-import DefaultShaper from './DefaultShaper';
+import DefaultShaper from './DefaultShaper.js';
 import StateMachine from 'dfa';
 import UnicodeTrie from 'unicode-trie';
 import pako from 'pako';
 import * as base64 from 'base64-arraybuffer';
-import GlyphInfo from '../GlyphInfo';
+import GlyphInfo from '../GlyphInfo.js';
 
+// biome-ignore lint/correctness/useImportExtensions: breaks
 import base64DeflatedUseData from './use.json';
+// biome-ignore lint/correctness/useImportExtensions: breaks
 import base64DeflatedTrie from './trieUse.json';
 
 // Trie is serialized as a Buffer in node, but here

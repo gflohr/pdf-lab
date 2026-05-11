@@ -18,7 +18,7 @@ export default class UnicodeLayoutEngine {
 		let clusterStart = 0;
 		let clusterEnd = 0;
 		for (let index = 0; index < glyphs.length; index++) {
-			let glyph = glyphs[index];
+			const glyph = glyphs[index];
 			if (glyph.isMark) {
 				// TODO: handle ligatures
 				clusterEnd = index;
@@ -39,8 +39,8 @@ export default class UnicodeLayoutEngine {
 	}
 
 	positionCluster(glyphs, positions, clusterStart, clusterEnd) {
-		let base = glyphs[clusterStart];
-		let baseBox = base.cbox.copy();
+		const base = glyphs[clusterStart];
+		const baseBox = base.cbox.copy();
 
 		// adjust bounding box for ligature glyphs
 		if (base.codePoints.length > 1) {
@@ -51,15 +51,15 @@ export default class UnicodeLayoutEngine {
 
 		let xOffset = -positions[clusterStart].xAdvance;
 		let yOffset = 0;
-		let yGap = this.font.unitsPerEm / 16;
+		const yGap = this.font.unitsPerEm / 16;
 
 		// position each of the mark glyphs relative to the base glyph
 		for (let index = clusterStart + 1; index <= clusterEnd; index++) {
-			let mark = glyphs[index];
-			let markBox = mark.cbox;
-			let position = positions[index];
+			const mark = glyphs[index];
+			const markBox = mark.cbox;
+			const position = positions[index];
 
-			let combiningClass = this.getCombiningClass(mark.codePoints[0]);
+			const combiningClass = this.getCombiningClass(mark.codePoints[0]);
 
 			if (combiningClass !== 'Not_Reordered') {
 				position.xOffset = position.yOffset = 0;
@@ -144,7 +144,7 @@ export default class UnicodeLayoutEngine {
 	}
 
 	getCombiningClass(codePoint) {
-		let combiningClass = unicode.getCombiningClass(codePoint);
+		const combiningClass = unicode.getCombiningClass(codePoint);
 
 		// Thai / Lao need some per-character work
 		if ((codePoint & ~0xff) === 0x0e00) {

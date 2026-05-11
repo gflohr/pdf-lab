@@ -6,6 +6,7 @@ import UnicodeTrie from 'unicode-trie';
 import * as Script from '../../layout/Script';
 import GlyphInfo from '../GlyphInfo';
 import DefaultShaper from './DefaultShaper';
+// biome-ignore lint/correctness/useImportExtensions: breaks
 import base64DeflatedIndicMachine from './indic.json';
 import {
 	CATEGORIES,
@@ -15,8 +16,10 @@ import {
 	INDIC_DECOMPOSITIONS,
 	JOINER_FLAGS,
 	POSITIONS,
-} from './indic-data';
+} from './indic-data.js';
+// biome-ignore lint/correctness/useImportExtensions: breaks
 import base64DeflatedTrie from './trieIndic.json';
+// biome-ignore lint/correctness/useImportExtensions: breaks
 import base64DeflatedUseData from './use.json';
 
 // Trie is serialized as a Buffer in node, but here

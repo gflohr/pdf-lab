@@ -1,5 +1,5 @@
 import r from '@pdf-lib/restructure';
-import { LookupTable } from './aat';
+import { LookupTable } from './aat.js';
 
 let BslnSubtable = new r.VersionedStruct('format', {
 	0: {

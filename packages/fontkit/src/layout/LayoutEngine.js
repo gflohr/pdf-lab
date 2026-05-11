@@ -1,11 +1,10 @@
-import KernProcessor from './KernProcessor';
-import UnicodeLayoutEngine from './UnicodeLayoutEngine';
-import GlyphRun from './GlyphRun';
-import GlyphPosition from './GlyphPosition';
-import * as Script from './Script';
-import unicode from '@pdf-lib/unicode-properties';
-import AATLayoutEngine from '../aat/AATLayoutEngine';
-import OTLayoutEngine from '../opentype/OTLayoutEngine';
+import AATLayoutEngine from '../aat/AATLayoutEngine.js';
+import OTLayoutEngine from '../opentype/OTLayoutEngine.js';
+import GlyphPosition from './GlyphPosition.js';
+import GlyphRun from './GlyphRun.js';
+import KernProcessor from './KernProcessor.js';
+import * as Script from './Script.js';
+import UnicodeLayoutEngine from './UnicodeLayoutEngine.js';
 
 export default class LayoutEngine {
 	constructor(font) {
@@ -32,28 +31,35 @@ export default class LayoutEngine {
 		}
 
 		// Map string to glyphs if needed
+		let glyphs;
 		if (typeof string === 'string') {
 			// Attempt to detect the script from the string if not provided.
 			if (script == null) {
 				script = Script.forString(string);
 			}
 
-			var glyphs = this.font.glyphsForString(string);
+			glyphs = this.font.glyphsForString(string);
 		} else {
 			// Attempt to detect the script from the glyph code points if not provided.
 			if (script == null) {
-				let codePoints = [];
-				for (let glyph of string) {
+				const codePoints = [];
+				for (const glyph of string) {
 					codePoints.push(...glyph.codePoints);
 				}
 
 				script = Script.forCodePoints(codePoints);
 			}
 
-			var glyphs = string;
+			glyphs = string;
 		}
 
-		let glyphRun = new GlyphRun(glyphs, features, script, language, direction);
+		const glyphRun = new GlyphRun(
+			glyphs,
+			features,
+			script,
+			language,
+			direction,
+		);
 
 		// Return early if there are no glyphs
 		if (glyphs.length === 0) {
@@ -62,7 +68,7 @@ export default class LayoutEngine {
 		}
 
 		// Setup the advanced layout engine
-		if (this.engine && this.engine.setup) {
+		if (this.engine?.setup) {
 			this.engine.setup(glyphRun);
 		}
 
@@ -73,7 +79,7 @@ export default class LayoutEngine {
 		this.hideDefaultIgnorables(glyphRun.glyphs, glyphRun.positions);
 
 		// Let the layout engine clean up any state it might have
-		if (this.engine && this.engine.cleanup) {
+		if (this.engine?.cleanup) {
 			this.engine.cleanup();
 		}
 
@@ -82,7 +88,7 @@ export default class LayoutEngine {
 
 	substitute(glyphRun) {
 		// Call the advanced layout engine to make substitutions
-		if (this.engine && this.engine.substitute) {
+		if (this.engine?.substitute) {
 			this.engine.substitute(glyphRun);
 		}
 	}
@@ -95,7 +101,7 @@ export default class LayoutEngine {
 		let positioned = null;
 
 		// Call the advanced layout engine. Returns the features applied.
-		if (this.engine && this.engine.position) {
+		if (this.engine?.position) {
 			positioned = this.engine.position(glyphRun);
 		}
 
@@ -113,7 +119,7 @@ export default class LayoutEngine {
 
 		// if kerning is not supported by GPOS, do kerning with the TrueType/AAT kern table
 		if (
-			(!positioned || !positioned.kern) &&
+			(!positioned?.kern) &&
 			glyphRun.features.kern !== false &&
 			this.font.kern
 		) {
@@ -127,7 +133,7 @@ export default class LayoutEngine {
 	}
 
 	hideDefaultIgnorables(glyphs, positions) {
-		let space = this.font.glyphForCodePoint(0x20);
+		const space = this.font.glyphForCodePoint(0x20);
 		for (let i = 0; i < glyphs.length; i++) {
 			if (this.isDefaultIgnorable(glyphs[i].codePoints[0])) {
 				glyphs[i] = space;
@@ -141,7 +147,7 @@ export default class LayoutEngine {
 		// From DerivedCoreProperties.txt in the Unicode database,
 		// minus U+115F, U+1160, U+3164 and U+FFA0, which is what
 		// Harfbuzz and Uniscribe do.
-		let plane = ch >> 16;
+		const plane = ch >> 16;
 		if (plane === 0) {
 			// BMP
 			switch (ch >> 8) {
@@ -184,7 +190,7 @@ export default class LayoutEngine {
 	}
 
 	getAvailableFeatures(script, language) {
-		let features = [];
+		const features = [];
 
 		if (this.engine) {
 			features.push(...this.engine.getAvailableFeatures(script, language));
@@ -198,15 +204,15 @@ export default class LayoutEngine {
 	}
 
 	stringsForGlyph(gid) {
-		let result = new Set();
+		const result = new Set();
 
-		let codePoints = this.font._cmapProcessor.codePointsForGlyph(gid);
-		for (let codePoint of codePoints) {
+		const codePoints = this.font._cmapProcessor.codePointsForGlyph(gid);
+		for (const codePoint of codePoints) {
 			result.add(String.fromCodePoint(codePoint));
 		}
 
 		if (this.engine && this.engine.stringsForGlyph) {
-			for (let string of this.engine.stringsForGlyph(gid)) {
+			for (const string of this.engine.stringsForGlyph(gid)) {
 				result.add(string);
 			}
 		}

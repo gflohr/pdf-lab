@@ -1,4 +1,4 @@
-import { binarySearch } from '../utils';
+import { binarySearch } from '../utils.js';
 
 export default class KernProcessor {
 	constructor(font) {
@@ -7,8 +7,8 @@ export default class KernProcessor {
 
 	process(glyphs, positions) {
 		for (let glyphIndex = 0; glyphIndex < glyphs.length - 1; glyphIndex++) {
-			let left = glyphs[glyphIndex].id;
-			let right = glyphs[glyphIndex + 1].id;
+			const left = glyphs[glyphIndex].id;
+			const right = glyphs[glyphIndex + 1].id;
 			positions[glyphIndex].xAdvance += this.getKerning(left, right);
 		}
 	}
@@ -16,7 +16,7 @@ export default class KernProcessor {
 	getKerning(left, right) {
 		let res = 0;
 
-		for (let table of this.kern.tables) {
+		for (const table of this.kern.tables) {
 			if (table.coverage.crossStream) {
 				continue;
 			}
@@ -39,20 +39,22 @@ export default class KernProcessor {
 			}
 
 			let val = 0;
-			let s = table.subtable;
+			const s = table.subtable;
 			switch (table.format) {
-				case 0:
-					let pairIdx = binarySearch(s.pairs, function (pair) {
-						return left - pair.left || right - pair.right;
-					});
+				case 0: {
+					const pairIdx = binarySearch(
+						s.pairs,
+						(pair) => left - pair.left || right - pair.right,
+					);
 
 					if (pairIdx >= 0) {
 						val = s.pairs[pairIdx].value;
 					}
 
 					break;
+				}
 
-				case 2:
+				case 2: {
 					let leftOffset = 0,
 						rightOffset = 0;
 					if (
@@ -71,9 +73,10 @@ export default class KernProcessor {
 						rightOffset = s.rightTable.offsets[right - s.rightTable.firstGlyph];
 					}
 
-					let index = (leftOffset + rightOffset - s.array.off) / 2;
+					const index = (leftOffset + rightOffset - s.array.off) / 2;
 					val = s.array.values.get(index);
 					break;
+				}
 
 				case 3:
 					if (left >= s.glyphCount || right >= s.glyphCount) {

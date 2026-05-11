@@ -1,4 +1,4 @@
-import TTFGlyph from './TTFGlyph';
+import TTFGlyph from './TTFGlyph.js';
 
 /**
  * Represents a TrueType glyph in the WOFF2 format, which compresses glyphs differently.

@@ -1,5 +1,5 @@
-import TTFGlyph from './TTFGlyph';
 import r from '@pdf-lib/restructure';
+import TTFGlyph from './TTFGlyph.js';
 
 let SBIXImage = new r.Struct({
 	originX: r.uint16,
@@ -21,8 +21,11 @@ export default class SBIXGlyph extends TTFGlyph {
 	 * @return {object}
 	 */
 	getImageForSize(size) {
+		// FIXME! This looks suspicious! If no table with ppem >= size is
+		// found, table is the last table. Is that correct?
+		let table;
 		for (let i = 0; i < this._font.sbix.imageTables.length; i++) {
-			var table = this._font.sbix.imageTables[i];
+			table = this._font.sbix.imageTables[i];
 			if (table.ppem >= size) {
 				break;
 			}

@@ -134,10 +134,10 @@ const UNICODE_SCRIPTS = {
 };
 
 const OPENTYPE_SCRIPTS = {};
-for (let script in UNICODE_SCRIPTS) {
-	let tag = UNICODE_SCRIPTS[script];
+for (const script in UNICODE_SCRIPTS) {
+	const tag = UNICODE_SCRIPTS[script];
 	if (Array.isArray(tag)) {
-		for (let t of tag) {
+		for (const t of tag) {
 			OPENTYPE_SCRIPTS[t] = script;
 		}
 	} else {
@@ -154,14 +154,14 @@ export function fromOpenType(tag) {
 }
 
 export function forString(string) {
-	let len = string.length;
+	const len = string.length;
 	let idx = 0;
 	while (idx < len) {
 		let code = string.charCodeAt(idx++);
 
 		// Check if this is a high surrogate
 		if (0xd800 <= code && code <= 0xdbff && idx < len) {
-			let next = string.charCodeAt(idx);
+			const next = string.charCodeAt(idx);
 
 			// Check if this is a low surrogate
 			if (0xdc00 <= next && next <= 0xdfff) {
@@ -170,7 +170,7 @@ export function forString(string) {
 			}
 		}
 
-		let script = unicode.getScript(code);
+		const script = unicode.getScript(code);
 		if (script !== 'Common' && script !== 'Inherited' && script !== 'Unknown') {
 			return UNICODE_SCRIPTS[script];
 		}
@@ -181,8 +181,8 @@ export function forString(string) {
 
 export function forCodePoints(codePoints) {
 	for (let i = 0; i < codePoints.length; i++) {
-		let codePoint = codePoints[i];
-		let script = unicode.getScript(codePoint);
+		const codePoint = codePoints[i];
+		const script = unicode.getScript(codePoint);
 		if (script !== 'Common' && script !== 'Inherited' && script !== 'Unknown') {
 			return UNICODE_SCRIPTS[script];
 		}

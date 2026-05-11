@@ -1,7 +1,7 @@
-import { cache } from '../decorators';
-import Path from './Path';
 import unicode from '@pdf-lib/unicode-properties';
-import StandardNames from './StandardNames';
+import { cache } from '../decorators.js';
+import Path from './Path.js';
+import StandardNames from './StandardNames.js';
 
 /**
  * Glyph objects represent a glyph in the font. They have various properties for accessing metrics and
@@ -51,8 +51,8 @@ export default class Glyph {
 			return table.metrics.get(this.id);
 		}
 
-		let metric = table.metrics.get(table.metrics.length - 1);
-		let res = {
+		const metric = table.metrics.get(table.metrics.length - 1);
+		const res = {
 			advance: metric ? metric.advance : 0,
 			bearing: table.bearings.get(this.id - table.metrics.length) || 0,
 		};
@@ -69,23 +69,29 @@ export default class Glyph {
 			this._font.hmtx,
 		);
 
-		// For vertical metrics, use vmtx if available, or fall back to global data from OS/2 or hhea
-		if (this._font.vmtx) {
-			var { advance: advanceHeight, bearing: topBearing } =
-				this._getTableMetrics(this._font.vmtx);
-		} else {
-			let os2;
-			if (typeof cbox === 'undefined' || cbox === null) {
-				({ cbox } = this);
-			}
+		// 1. Declare these here so they are available to the whole function scope
+		let advanceHeight;
+		let topBearing;
 
-			if ((os2 = this._font['OS/2']) && os2.version > 0) {
-				var advanceHeight = Math.abs(os2.typoAscender - os2.typoDescender);
-				var topBearing = os2.typoAscender - cbox.maxY;
+		// For vertical metrics, use vmtx if available, or fall back to global data
+		if (this._font.vmtx) {
+			const metrics = this._getTableMetrics(this._font.vmtx);
+			advanceHeight = metrics.advance;
+			topBearing = metrics.bearing;
+		} else {
+			// 2. Clean up cbox check
+			const localCbox = cbox === undefined || cbox === null ? this.cbox : cbox;
+
+			// 3. Extract assignment from the 'if' condition
+			const os2 = this._font['OS/2'];
+
+			if (os2 && os2.version > 0) {
+				advanceHeight = Math.abs(os2.typoAscender - os2.typoDescender);
+				topBearing = os2.typoAscender - localCbox.maxY;
 			} else {
-				let { hhea } = this._font;
-				var advanceHeight = Math.abs(hhea.ascent - hhea.descent);
-				var topBearing = hhea.ascent - cbox.maxY;
+				const { hhea } = this._font;
+				advanceHeight = Math.abs(hhea.ascent - hhea.descent);
+				topBearing = hhea.ascent - localCbox.maxY;
 			}
 		}
 
@@ -96,12 +102,15 @@ export default class Glyph {
 			);
 		}
 
-		return (this._metrics = {
+		// 4. Cache and return
+		this._metrics = {
 			advanceWidth,
 			advanceHeight,
 			leftBearing,
 			topBearing,
-		});
+		};
+
+		return this._metrics;
 	}
 
 	/**
@@ -147,7 +156,7 @@ export default class Glyph {
 	 * @return {Path}
 	 */
 	getScaledPath(size) {
-		let scale = (1 / this._font.unitsPerEm) * size;
+		const scale = (1 / this._font.unitsPerEm) * size;
 		return this.path.scale(scale);
 	}
 
@@ -169,10 +178,12 @@ export default class Glyph {
 		return this._getMetrics().advanceHeight;
 	}
 
-	get ligatureCaretPositions() {}
+	get ligatureCaretPositions() {
+		return undefined;
+	}
 
 	_getName() {
-		let { post } = this._font;
+		const { post } = this._font;
 		if (!post) {
 			return null;
 		}
@@ -181,13 +192,14 @@ export default class Glyph {
 			case 1:
 				return StandardNames[this.id];
 
-			case 2:
-				let id = post.glyphNameIndex[this.id];
+			case 2: {
+				const id = post.glyphNameIndex[this.id];
 				if (id < StandardNames.length) {
 					return StandardNames[id];
 				}
 
 				return post.names[id - StandardNames.length];
+			}
 
 			case 2.5:
 				return StandardNames[this.id + post.offsets[this.id]];
@@ -214,10 +226,10 @@ export default class Glyph {
 	render(ctx, size) {
 		ctx.save();
 
-		let scale = (1 / this._font.head.unitsPerEm) * size;
+		const scale = (1 / this._font.head.unitsPerEm) * size;
 		ctx.scale(scale, scale);
 
-		let fn = this.path.toFunction();
+		const fn = this.path.toFunction();
 		fn(ctx);
 		ctx.fill();
 

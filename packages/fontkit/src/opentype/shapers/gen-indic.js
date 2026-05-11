@@ -5,7 +5,7 @@ import compile from 'dfa/compile';
 import pako from 'pako';
 import * as base64 from 'base64-arraybuffer';
 
-import { CATEGORIES, POSITIONS, CONSONANT_FLAGS } from './indic-data';
+import { CATEGORIES, POSITIONS, CONSONANT_FLAGS } from './indic-data.js';
 
 const CATEGORY_MAP = {
 	Avagraha: 'Symbol',

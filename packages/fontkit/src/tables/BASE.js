@@ -6,8 +6,8 @@ import {
 	Coverage,
 	ClassDef,
 	Device,
-} from './opentype';
-import { ItemVariationStore } from './variations';
+} from './opentype.js';
+import { ItemVariationStore } from './variations.js';
 
 let BaseCoord = new r.VersionedStruct(r.uint16, {
 	1: {

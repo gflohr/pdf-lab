@@ -1,12 +1,14 @@
-import DefaultShaper from './DefaultShaper';
 import unicode from '@pdf-lib/unicode-properties';
-import UnicodeTrie from 'unicode-trie';
-import pako from 'pako';
 import * as base64 from 'base64-arraybuffer';
+import pako from 'pako';
+import UnicodeTrie from 'unicode-trie';
+import DefaultShaper from './DefaultShaper.js';
 
 // Trie is serialized as a Buffer in node, but here
 // we may be running in a browser so we make an Uint8Array
+// biome-ignore lint/correctness/useImportExtensions: breaks
 import base64DeflatedTrie from './trie.json';
+
 const trieData = pako.inflate(base64.decode(base64DeflatedTrie));
 const trie = new UnicodeTrie(trieData);
 
@@ -118,7 +120,7 @@ export default class ArabicShaper extends DefaultShaper {
 	static planFeatures(plan) {
 		plan.add(['ccmp', 'locl']);
 		for (let i = 0; i < FEATURES.length; i++) {
-			let feature = FEATURES[i];
+			const feature = FEATURES[i];
 			plan.addStage(feature, false);
 		}
 
@@ -126,17 +128,17 @@ export default class ArabicShaper extends DefaultShaper {
 	}
 
 	static assignFeatures(plan, glyphs) {
-		super.assignFeatures(plan, glyphs);
+		DefaultShaper.assignFeatures(plan, glyphs);
 
 		let prev = -1;
 		let state = 0;
-		let actions = [];
+		const actions = [];
 
 		// Apply the state machine to map glyphs to features
 		for (let i = 0; i < glyphs.length; i++) {
 			let curAction, prevAction;
-			var glyph = glyphs[i];
-			let type = getShapingClass(glyph.codePoints[0]);
+			const glyph = glyphs[i];
+			const type = getShapingClass(glyph.codePoints[0]);
 			if (type === ShapingClasses.Transparent) {
 				actions[i] = NONE;
 				continue;
@@ -154,9 +156,9 @@ export default class ArabicShaper extends DefaultShaper {
 
 		// Apply the chosen features to their respective glyphs
 		for (let index = 0; index < glyphs.length; index++) {
-			let feature;
-			var glyph = glyphs[index];
-			if ((feature = actions[index])) {
+			let feature = actions[index];
+			const glyph = glyphs[index];
+			if (feature) {
 				glyph.features[feature] = true;
 			}
 		}
@@ -164,12 +166,12 @@ export default class ArabicShaper extends DefaultShaper {
 }
 
 function getShapingClass(codePoint) {
-	let res = trie.get(codePoint);
+	const res = trie.get(codePoint);
 	if (res) {
 		return res - 1;
 	}
 
-	let category = unicode.getCategory(codePoint);
+	const category = unicode.getCategory(codePoint);
 	if (category === 'Mn' || category === 'Me' || category === 'Cf') {
 		return ShapingClasses.Transparent;
 	}
