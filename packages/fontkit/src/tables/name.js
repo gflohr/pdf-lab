@@ -96,7 +96,8 @@ NameTable.process = function (stream) {
 
 		let obj = records[key];
 		if (record.nameID >= 256) {
-			obj = obj[record.nameID] || (obj[record.nameID] = {});
+			obj[record.nameID] ||= {};
+			obj = obj[record.nameID];
 		}
 
 		if (
