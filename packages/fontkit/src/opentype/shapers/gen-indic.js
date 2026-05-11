@@ -1,11 +1,11 @@
-import codepoints from 'codepoints';
-import fs from 'fs';
-import UnicodeTrieBuilder from 'unicode-trie/builder';
-import compile from 'dfa/compile';
-import pako from 'pako';
 import * as base64 from 'base64-arraybuffer';
+import codepoints from 'codepoints';
+import compile from 'dfa/compile';
+import fs from 'fs';
+import pako from 'pako';
+import UnicodeTrieBuilder from 'unicode-trie/builder';
 
-import { CATEGORIES, POSITIONS, CONSONANT_FLAGS } from './indic-data.js';
+import { CATEGORIES, CONSONANT_FLAGS, POSITIONS } from './indic-data.js';
 
 const CATEGORY_MAP = {
 	Avagraha: 'Symbol',
@@ -45,52 +45,52 @@ const CATEGORY_MAP = {
 };
 
 const OVERRIDES = {
-	0x0953: 'SM',
-	0x0954: 'SM',
-	0x0a72: 'C',
-	0x0a73: 'C',
-	0x1cf5: 'C',
-	0x1cf6: 'C',
-	0x1ce2: 'A',
-	0x1ce3: 'A',
-	0x1ce4: 'A',
-	0x1ce5: 'A',
-	0x1ce6: 'A',
-	0x1ce7: 'A',
-	0x1ce8: 'A',
-	0x1ced: 'A',
-	0xa8f2: 'Symbol',
-	0xa8f3: 'Symbol',
-	0xa8f4: 'Symbol',
-	0xa8f5: 'Symbol',
-	0xa8f6: 'Symbol',
-	0xa8f7: 'Symbol',
-	0x1ce9: 'Symbol',
-	0x1cea: 'Symbol',
-	0x1ceb: 'Symbol',
-	0x1cec: 'Symbol',
-	0x1cee: 'Symbol',
-	0x1cef: 'Symbol',
-	0x1cf0: 'Symbol',
-	0x1cf1: 'Symbol',
-	0x17c6: 'N',
-	0x2010: 'Placeholder',
-	0x2011: 'Placeholder',
-	0x25cc: 'Dotted_Circle',
+	2387: 'SM',
+	2388: 'SM',
+	2674: 'C',
+	2675: 'C',
+	7413: 'C',
+	7414: 'C',
+	7394: 'A',
+	7395: 'A',
+	7396: 'A',
+	7397: 'A',
+	7398: 'A',
+	7399: 'A',
+	7400: 'A',
+	7405: 'A',
+	43250: 'Symbol',
+	43251: 'Symbol',
+	43252: 'Symbol',
+	43253: 'Symbol',
+	43254: 'Symbol',
+	43255: 'Symbol',
+	7401: 'Symbol',
+	7402: 'Symbol',
+	7403: 'Symbol',
+	7404: 'Symbol',
+	7406: 'Symbol',
+	7407: 'Symbol',
+	7408: 'Symbol',
+	7409: 'Symbol',
+	6086: 'N',
+	8208: 'Placeholder',
+	8209: 'Placeholder',
+	9676: 'Dotted_Circle',
 
 	// Ra
-	0x0930: 'Ra', // Devanagari
-	0x09b0: 'Ra', // Bengali
-	0x09f0: 'Ra', // Bengali
-	0x0a30: 'Ra', // Gurmukhi - No Reph
-	0x0ab0: 'Ra', // Gujarati
-	0x0b30: 'Ra', // Oriya
-	0x0bb0: 'Ra', // Tamil - No Reph
-	0x0c30: 'Ra', // Telugu - Reph formed only with ZWJ
-	0x0cb0: 'Ra', // Kannada
-	0x0d30: 'Ra', // Malayalam - No Reph, Logical Repha
-	0x0dbb: 'Ra', // Sinhala - Reph formed only with ZWJ
-	0x179a: 'Ra', // Khmer - No Reph, Visual Repha
+	2352: 'Ra', // Devanagari
+	2480: 'Ra', // Bengali
+	2544: 'Ra', // Bengali
+	2608: 'Ra', // Gurmukhi - No Reph
+	2736: 'Ra', // Gujarati
+	2864: 'Ra', // Oriya
+	2992: 'Ra', // Tamil - No Reph
+	3120: 'Ra', // Telugu - Reph formed only with ZWJ
+	3248: 'Ra', // Kannada
+	3376: 'Ra', // Malayalam - No Reph, Logical Repha
+	3515: 'Ra', // Sinhala - Reph formed only with ZWJ
+	6042: 'Ra', // Khmer - No Reph, Visual Repha
 };
 
 const POSITION_MAP = {
@@ -226,20 +226,20 @@ function getPosition(codepoint, category) {
 	return Math.log2(POSITIONS[position]);
 }
 
-let symbols = {};
-for (let c in CATEGORIES) {
+const symbols = {};
+for (const c in CATEGORIES) {
 	symbols[c] = Math.log2(CATEGORIES[c]);
 }
 
-let trie = new UnicodeTrieBuilder();
+const trie = new UnicodeTrieBuilder();
 for (let i = 0; i < codepoints.length; i++) {
-	let codepoint = codepoints[i];
+	const codepoint = codepoints[i];
 	if (codepoint) {
-		let category =
+		const category =
 			OVERRIDES[codepoint.code] ||
 			CATEGORY_MAP[codepoint.indicSyllabicCategory] ||
 			'X';
-		let position = getPosition(codepoint, category);
+		const position = getPosition(codepoint, category);
 
 		trie.set(codepoint.code, (symbols[category] << 8) | position);
 	}
@@ -253,7 +253,7 @@ const jsonBase64DeflatedTrie = JSON.stringify(
 );
 fs.writeFileSync(trieFilePath, jsonBase64DeflatedTrie);
 
-let stateMachine = compile(
+const stateMachine = compile(
 	fs.readFileSync(__dirname + '/indic.machine', 'utf8'),
 	symbols,
 );

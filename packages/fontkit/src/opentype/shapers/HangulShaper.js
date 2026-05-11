@@ -1,5 +1,5 @@
-import DefaultShaper from './DefaultShaper';
 import GlyphInfo from '../GlyphInfo';
+import DefaultShaper from './DefaultShaper';
 
 /**
  * This is a shaper for the Hangul script, used by the Korean language.
@@ -34,9 +34,9 @@ export default class HangulShaper extends DefaultShaper {
 		let i = 0;
 		while (i < glyphs.length) {
 			let action;
-			let glyph = glyphs[i];
-			let code = glyph.codePoints[0];
-			let type = getType(code);
+			const glyph = glyphs[i];
+			const code = glyph.codePoints[0];
+			const type = getType(code);
 
 			[action, state] = STATE_TABLE[state][type];
 
@@ -190,14 +190,14 @@ function getGlyph(font, code, features) {
 }
 
 function decompose(glyphs, i, font) {
-	let glyph = glyphs[i];
-	let code = glyph.codePoints[0];
+	const glyph = glyphs[i];
+	const code = glyph.codePoints[0];
 
 	let s = code - HANGUL_BASE;
-	let t = T_BASE + (s % T_COUNT);
+	const t = T_BASE + (s % T_COUNT);
 	s = (s / T_COUNT) | 0;
-	let l = (L_BASE + s / V_COUNT) | 0;
-	let v = V_BASE + (s % V_COUNT);
+	const l = (L_BASE + s / V_COUNT) | 0;
+	const v = V_BASE + (s % V_COUNT);
 
 	// Don't decompose if all of the components are not available
 	if (
@@ -210,16 +210,16 @@ function decompose(glyphs, i, font) {
 
 	// Replace the current glyph with decomposed L, V, and T glyphs,
 	// and apply the proper OpenType features to each component.
-	let ljmo = getGlyph(font, l, glyph.features);
+	const ljmo = getGlyph(font, l, glyph.features);
 	ljmo.features.ljmo = true;
 
-	let vjmo = getGlyph(font, v, glyph.features);
+	const vjmo = getGlyph(font, v, glyph.features);
 	vjmo.features.vjmo = true;
 
-	let insert = [ljmo, vjmo];
+	const insert = [ljmo, vjmo];
 
 	if (t > T_BASE) {
-		let tjmo = getGlyph(font, t, glyph.features);
+		const tjmo = getGlyph(font, t, glyph.features);
 		tjmo.features.tjmo = true;
 		insert.push(tjmo);
 	}
@@ -229,12 +229,12 @@ function decompose(glyphs, i, font) {
 }
 
 function compose(glyphs, i, font) {
-	let glyph = glyphs[i];
-	let code = glyphs[i].codePoints[0];
-	let type = getType(code);
+	const glyph = glyphs[i];
+	const code = glyphs[i].codePoints[0];
+	const type = getType(code);
 
-	let prev = glyphs[i - 1].codePoints[0];
-	let prevType = getType(prev);
+	const prev = glyphs[i - 1].codePoints[0];
+	const prevType = getType(prev);
 
 	// Figure out what type of syllable we're dealing with
 	let lv, ljmo, vjmo, tjmo;
@@ -254,8 +254,8 @@ function compose(glyphs, i, font) {
 			tjmo = glyph;
 		}
 
-		let l = ljmo.codePoints[0];
-		let v = vjmo.codePoints[0];
+		const l = ljmo.codePoints[0];
+		const v = vjmo.codePoints[0];
 
 		// Make sure L and V are combining characters
 		if (isCombiningL(l) && isCombiningV(v)) {
@@ -263,14 +263,14 @@ function compose(glyphs, i, font) {
 		}
 	}
 
-	let t = (tjmo && tjmo.codePoints[0]) || T_BASE;
+	const t = (tjmo && tjmo.codePoints[0]) || T_BASE;
 	if (lv != null && (t === T_BASE || isCombiningT(t))) {
-		let s = lv + (t - T_BASE);
+		const s = lv + (t - T_BASE);
 
 		// Replace with a composed glyph if supported by the font,
 		// otherwise apply the proper OpenType features to each component.
 		if (font.hasGlyphForCodePoint(s)) {
-			let del = prevType === V ? 3 : 2;
+			const del = prevType === V ? 3 : 2;
 			glyphs.splice(i - del + 1, del, getGlyph(font, s, glyph.features));
 			return i - del + 1;
 		}
@@ -311,30 +311,30 @@ function getLength(code) {
 }
 
 function reorderToneMark(glyphs, i, font) {
-	let glyph = glyphs[i];
-	let code = glyphs[i].codePoints[0];
+	const glyph = glyphs[i];
+	const code = glyphs[i].codePoints[0];
 
 	// Move tone mark to the beginning of the previous syllable, unless it is zero width
 	if (font.glyphForCodePoint(code).advanceWidth === 0) {
 		return;
 	}
 
-	let prev = glyphs[i - 1].codePoints[0];
-	let len = getLength(prev);
+	const prev = glyphs[i - 1].codePoints[0];
+	const len = getLength(prev);
 
 	glyphs.splice(i, 1);
 	return glyphs.splice(i - len, 0, glyph);
 }
 
 function insertDottedCircle(glyphs, i, font) {
-	let glyph = glyphs[i];
-	let code = glyphs[i].codePoints[0];
+	const glyph = glyphs[i];
+	const code = glyphs[i].codePoints[0];
 
 	if (font.hasGlyphForCodePoint(DOTTED_CIRCLE)) {
-		let dottedCircle = getGlyph(font, DOTTED_CIRCLE, glyph.features);
+		const dottedCircle = getGlyph(font, DOTTED_CIRCLE, glyph.features);
 
 		// If the tone mark is zero width, insert the dotted circle before, otherwise after
-		let idx = font.glyphForCodePoint(code).advanceWidth === 0 ? i : i + 1;
+		const idx = font.glyphForCodePoint(code).advanceWidth === 0 ? i : i + 1;
 		glyphs.splice(idx, 0, dottedCircle);
 		i++;
 	}

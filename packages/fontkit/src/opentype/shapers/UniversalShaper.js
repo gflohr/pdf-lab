@@ -1,14 +1,13 @@
-import DefaultShaper from './DefaultShaper.js';
-import StateMachine from 'dfa';
-import UnicodeTrie from 'unicode-trie';
-import pako from 'pako';
 import * as base64 from 'base64-arraybuffer';
+import StateMachine from 'dfa';
+import pako from 'pako';
+import UnicodeTrie from 'unicode-trie';
 import GlyphInfo from '../GlyphInfo.js';
-
-// biome-ignore lint/correctness/useImportExtensions: breaks
-import base64DeflatedUseData from './use.json';
+import DefaultShaper from './DefaultShaper.js';
 // biome-ignore lint/correctness/useImportExtensions: breaks
 import base64DeflatedTrie from './trieUse.json';
+// biome-ignore lint/correctness/useImportExtensions: breaks
+import base64DeflatedUseData from './use.json';
 
 // Trie is serialized as a Buffer in node, but here
 // we may be running in a browser so we make an Uint8Array
@@ -62,10 +61,10 @@ export default class UniversalShaper extends DefaultShaper {
 		// Decompose split vowels
 		// TODO: do this in a more general unicode normalizer
 		for (let i = glyphs.length - 1; i >= 0; i--) {
-			let codepoint = glyphs[i].codePoints[0];
+			const codepoint = glyphs[i].codePoints[0];
 			if (decompositions[codepoint]) {
-				let decomposed = decompositions[codepoint].map((c) => {
-					let g = plan.font.glyphForCodePoint(c);
+				const decomposed = decompositions[codepoint].map((c) => {
+					const g = plan.font.glyphForCodePoint(c);
 					return new GlyphInfo(plan.font, g.id, [c], glyphs[i].features);
 				});
 
@@ -89,7 +88,9 @@ class USEInfo {
 
 function setupSyllables(font, glyphs) {
 	let syllable = 0;
-	for (let [start, end, tags] of stateMachine.match(glyphs.map(useCategory))) {
+	for (const [start, end, tags] of stateMachine.match(
+		glyphs.map(useCategory),
+	)) {
 		++syllable;
 
 		// Create shaper info
@@ -102,7 +103,7 @@ function setupSyllables(font, glyphs) {
 		}
 
 		// Assign rphf feature
-		let limit =
+		const limit =
 			glyphs[start].shaperInfo.category === 'R' ? 1 : Math.min(3, end - start);
 		for (let i = start; i < start + limit; i++) {
 			glyphs[i].features.rphf = true;
@@ -111,13 +112,13 @@ function setupSyllables(font, glyphs) {
 }
 
 function clearSubstitutionFlags(font, glyphs) {
-	for (let glyph of glyphs) {
+	for (const glyph of glyphs) {
 		glyph.substituted = false;
 	}
 }
 
 function recordRphf(font, glyphs) {
-	for (let glyph of glyphs) {
+	for (const glyph of glyphs) {
 		if (glyph.substituted && glyph.features.rphf) {
 			// Mark a substituted repha.
 			glyph.shaperInfo.category = 'R';
@@ -126,7 +127,7 @@ function recordRphf(font, glyphs) {
 }
 
 function recordPref(font, glyphs) {
-	for (let glyph of glyphs) {
+	for (const glyph of glyphs) {
 		if (glyph.substituted) {
 			// Mark a substituted pref as VPre, as they behave the same way.
 			glyph.shaperInfo.category = 'VPre';
@@ -135,7 +136,7 @@ function recordPref(font, glyphs) {
 }
 
 function reorder(font, glyphs) {
-	let dottedCircle = font.glyphForCodePoint(0x25cc).id;
+	const dottedCircle = font.glyphForCodePoint(0x25cc).id;
 
 	for (
 		let start = 0, end = nextSyllable(glyphs, 0);
@@ -144,7 +145,7 @@ function reorder(font, glyphs) {
 	) {
 		let i, j;
 		let info = glyphs[start].shaperInfo;
-		let type = info.syllableType;
+		const type = info.syllableType;
 
 		// Only a few syllable types need reordering.
 		if (
@@ -157,7 +158,7 @@ function reorder(font, glyphs) {
 
 		// Insert a dotted circle glyph in broken clusters.
 		if (type === 'broken_cluster' && dottedCircle) {
-			let g = new GlyphInfo(font, dottedCircle, [0x25cc]);
+			const g = new GlyphInfo(font, dottedCircle, [0x25cc]);
 			g.shaperInfo = info;
 
 			// Insert after possible Repha.
@@ -208,7 +209,7 @@ function reorder(font, glyphs) {
 
 function nextSyllable(glyphs, start) {
 	if (start >= glyphs.length) return start;
-	let syllable = glyphs[start].shaperInfo.syllable;
+	const syllable = glyphs[start].shaperInfo.syllable;
 	while (
 		++start < glyphs.length &&
 		glyphs[start].shaperInfo.syllable === syllable

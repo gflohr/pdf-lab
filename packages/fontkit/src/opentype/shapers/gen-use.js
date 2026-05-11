@@ -1,9 +1,9 @@
-import codepoints from 'codepoints';
-import fs from 'fs';
-import UnicodeTrieBuilder from 'unicode-trie/builder';
-import compile from 'dfa/compile';
-import pako from 'pako';
 import * as base64 from 'base64-arraybuffer';
+import codepoints from 'codepoints';
+import compile from 'dfa/compile';
+import fs from 'fs';
+import pako from 'pako';
+import UnicodeTrieBuilder from 'unicode-trie/builder';
 
 const CATEGORIES = {
 	B: [
@@ -102,35 +102,35 @@ const USE_POSITIONS = {
 };
 
 const UISC_OVERRIDE = {
-	0x17dd: 'Vowel_Dependent',
-	0x1ce2: 'Cantillation_Mark',
-	0x1ce3: 'Cantillation_Mark',
-	0x1ce4: 'Cantillation_Mark',
-	0x1ce5: 'Cantillation_Mark',
-	0x1ce6: 'Cantillation_Mark',
-	0x1ce7: 'Cantillation_Mark',
-	0x1ce8: 'Cantillation_Mark',
-	0x1ced: 'Tone_Mark',
+	6109: 'Vowel_Dependent',
+	7394: 'Cantillation_Mark',
+	7395: 'Cantillation_Mark',
+	7396: 'Cantillation_Mark',
+	7397: 'Cantillation_Mark',
+	7398: 'Cantillation_Mark',
+	7399: 'Cantillation_Mark',
+	7400: 'Cantillation_Mark',
+	7405: 'Tone_Mark',
 };
 
 const UIPC_OVERRIDE = {
-	0x1b6c: 'Bottom',
-	0x953: 'Not_Applicable',
-	0x954: 'Not_Applicable',
-	0x103c: 'Left',
-	0xa926: 'Top',
-	0xa927: 'Top',
-	0xa928: 'Top',
-	0xa929: 'Top',
-	0xa92a: 'Top',
-	0x111ca: 'Bottom',
-	0x11300: 'Top',
-	0x1133c: 'Bottom',
-	0x1171e: 'Left',
-	0x1cf2: 'Right',
-	0x1cf3: 'Right',
-	0x1cf8: 'Top',
-	0x1cf9: 'Top',
+	7020: 'Bottom',
+	2387: 'Not_Applicable',
+	2388: 'Not_Applicable',
+	4156: 'Left',
+	43302: 'Top',
+	43303: 'Top',
+	43304: 'Top',
+	43305: 'Top',
+	43306: 'Top',
+	70090: 'Bottom',
+	70400: 'Top',
+	70460: 'Bottom',
+	71454: 'Left',
+	7410: 'Right',
+	7411: 'Right',
+	7416: 'Top',
+	7417: 'Top',
 };
 
 function check(pattern, value) {
@@ -152,7 +152,7 @@ function matches(pattern, code) {
 		pattern = { UISC: pattern };
 	}
 
-	for (let key in pattern) {
+	for (const key in pattern) {
 		if (!check(pattern[key], code[key])) {
 			return false;
 		}
@@ -170,10 +170,10 @@ function getUIPC(code) {
 }
 
 function getPositionalCategory(code, USE) {
-	let UIPC = getUIPC(code);
-	let pos = USE_POSITIONS[USE];
+	const UIPC = getUIPC(code);
+	const pos = USE_POSITIONS[USE];
 	if (pos) {
-		for (let key in pos) {
+		for (const key in pos) {
 			if (pos[key].indexOf(UIPC) !== -1) {
 				return USE + key;
 			}
@@ -184,8 +184,8 @@ function getPositionalCategory(code, USE) {
 }
 
 function getCategory(code) {
-	for (let category in CATEGORIES) {
-		for (let pattern of CATEGORIES[category]) {
+	for (const category in CATEGORIES) {
+		for (const pattern of CATEGORIES[category]) {
 			if (
 				matches(pattern, {
 					UISC: getUISC(code),
@@ -201,14 +201,14 @@ function getCategory(code) {
 	return null;
 }
 
-let trie = new UnicodeTrieBuilder();
-let symbols = {};
+const trie = new UnicodeTrieBuilder();
+const symbols = {};
 let numSymbols = 0;
-let decompositions = {};
+const decompositions = {};
 for (let i = 0; i < codepoints.length; i++) {
-	let codepoint = codepoints[i];
+	const codepoint = codepoints[i];
 	if (codepoint) {
-		let category = getCategory(codepoint);
+		const category = getCategory(codepoint);
 		if (!(category in symbols)) {
 			symbols[category] = numSymbols++;
 		}
@@ -225,9 +225,9 @@ for (let i = 0; i < codepoints.length; i++) {
 }
 
 function decompose(code) {
-	let decomposition = [];
-	let codepoint = codepoints[code];
-	for (let c of codepoint.decomposition) {
+	const decomposition = [];
+	const codepoint = codepoints[code];
+	for (const c of codepoint.decomposition) {
 		let codes = decompose(c);
 		codes = codes.length > 0 ? codes : [c];
 		decomposition.push(...codes);
@@ -244,11 +244,11 @@ const jsonBase64DeflatedTrie = JSON.stringify(
 );
 fs.writeFileSync(trieFilePath, jsonBase64DeflatedTrie);
 
-let stateMachine = compile(
+const stateMachine = compile(
 	fs.readFileSync(__dirname + '/use.machine', 'utf8'),
 	symbols,
 );
-let json = Object.assign(
+const json = Object.assign(
 	{
 		categories: Object.keys(symbols),
 		decompositions: decompositions,

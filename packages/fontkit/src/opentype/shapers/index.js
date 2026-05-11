@@ -1,5 +1,5 @@
-import DefaultShaper from './DefaultShaper';
 import ArabicShaper from './ArabicShaper';
+import DefaultShaper from './DefaultShaper';
 import HangulShaper from './HangulShaper';
 import IndicShaper from './IndicShaper';
 import UniversalShaper from './UniversalShaper';
@@ -91,8 +91,8 @@ export function choose(script) {
 		script = [script];
 	}
 
-	for (let s of script) {
-		let shaper = SHAPERS[s];
+	for (const s of script) {
+		const shaper = SHAPERS[s];
 		if (shaper) {
 			return shaper;
 		}

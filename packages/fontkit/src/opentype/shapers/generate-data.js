@@ -2,13 +2,14 @@
 // This script generates a UnicodeTrie containing shaping data derived
 // from Unicode properties (currently just for the Arabic shaper).
 //
+
+import * as base64 from 'base64-arraybuffer';
 import codepoints from 'codepoints';
 import fs from 'fs';
-import UnicodeTrieBuilder from 'unicode-trie/builder';
 import pako from 'pako';
-import * as base64 from 'base64-arraybuffer';
+import UnicodeTrieBuilder from 'unicode-trie/builder';
 
-let ShapingClasses = {
+const ShapingClasses = {
 	Non_Joining: 0,
 	Left_Joining: 1,
 	Right_Joining: 2,
@@ -19,9 +20,9 @@ let ShapingClasses = {
 	Transparent: 6,
 };
 
-let trie = new UnicodeTrieBuilder();
+const trie = new UnicodeTrieBuilder();
 for (let i = 0; i < codepoints.length; i++) {
-	let codepoint = codepoints[i];
+	const codepoint = codepoints[i];
 	if (codepoint) {
 		if (
 			codepoint.joiningGroup === 'ALAPH' ||
