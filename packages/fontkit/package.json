@@ -7,7 +7,7 @@
 	"module": "dist/fontkit.es.js",
 	"types": "fontkit.d.ts",
 	"scripts": {
-		"make": "node Makefile.js",
+		"build": "node Makefile.js",
 		"clean": "node Makefile.js clean",
 		"check": "biome check",
 		"check:fix": "biome check --write",
