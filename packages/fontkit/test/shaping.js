@@ -6,9 +6,9 @@ describe('shaping', () => {
 	const fontCache = {};
 	const test = (description, font, text, output) => {
 		it(description, () => {
-			const f =
-				fontCache[font] ||
-				(fontCache[font] = fontkit.openSync(__dirname + '/data/' + font));
+			// biome-ignore lint/style/useTemplate: fix later
+			fontCache[font] ||= fontkit.openSync(__dirname + '/data/' + font);
+			const f = fontCache[font];
 			const { glyphs, positions } = f.layout(text);
 
 			// Generate a compact string representation of the results
