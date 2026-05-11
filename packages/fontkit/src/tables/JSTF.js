@@ -1,7 +1,6 @@
 import r from '@pdf-lib/restructure';
-import { GPOSLookup } from './GPOS';
+import { GPOSLookup } from './GPOS.js';
 import {
-	ClassDef,
 	Coverage,
 	Device,
 	FeatureList,

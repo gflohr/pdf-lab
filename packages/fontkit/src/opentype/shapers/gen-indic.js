@@ -255,7 +255,7 @@ const jsonBase64DeflatedTrie = JSON.stringify(
 fs.writeFileSync(trieFilePath, `${jsonBase64DeflatedTrie}\n`);
 
 const stateMachine = compile(
-// biome-ignore lint/style/useTemplate: breaks things
+	// biome-ignore lint/style/useTemplate: breaks things
 	fs.readFileSync(__dirname + '/indic.machine', 'utf8'),
 	symbols,
 );
