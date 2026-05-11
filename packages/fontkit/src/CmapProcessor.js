@@ -1,9 +1,7 @@
-import { binarySearch } from './utils';
-import { getEncoding } from './encodings';
-import { cache } from './decorators';
-import { range } from './utils';
-
 import iconv from 'iconv-lite';
+import { cache } from './decorators.js';
+import { getEncoding } from './encodings.js';
+import { binarySearch, range } from './utils.js';
 
 export default class CmapProcessor {
 	constructor(cmapTable) {
@@ -26,8 +24,8 @@ export default class CmapProcessor {
 		// If not unicode cmap was found, and iconv-lite is installed,
 		// take the first table with a supported encoding.
 		if (!this.cmap && iconv) {
-			for (let cmap of cmapTable.tables) {
-				let encoding = getEncoding(
+			for (const cmap of cmapTable.tables) {
+				const encoding = getEncoding(
 					cmap.platformID,
 					cmap.encodingID,
 					cmap.table.language - 1,
@@ -50,8 +48,8 @@ export default class CmapProcessor {
 	}
 
 	findSubtable(cmapTable, pairs) {
-		for (let [platformID, encodingID] of pairs) {
-			for (let cmap of cmapTable.tables) {
+		for (const [platformID, encodingID] of pairs) {
+			for (const cmap of cmapTable.tables) {
 				if (cmap.platformID === platformID && cmap.encodingID === encodingID) {
 					return cmap.table;
 				}
@@ -65,7 +63,7 @@ export default class CmapProcessor {
 		// If there is no Unicode cmap in this font, we need to re-encode
 		// the codepoint in the encoding that the cmap supports.
 		if (this.encoding) {
-			let buf = iconv.encode(String.fromCodePoint(codepoint), this.encoding);
+			const buf = iconv.encode(String.fromCodePoint(codepoint), this.encoding);
 			codepoint = 0;
 			for (let i = 0; i < buf.length; i++) {
 				codepoint = (codepoint << 8) | buf[i];
@@ -73,13 +71,13 @@ export default class CmapProcessor {
 
 			// Otherwise, try to get a Unicode variation selector for this codepoint if one is provided.
 		} else if (variationSelector) {
-			let gid = this.getVariationSelector(codepoint, variationSelector);
+			const gid = this.getVariationSelector(codepoint, variationSelector);
 			if (gid) {
 				return gid;
 			}
 		}
 
-		let cmap = this.cmap;
+		const cmap = this.cmap;
 		switch (cmap.version) {
 			case 0:
 				return cmap.codeMap.get(codepoint) || 0;
@@ -88,20 +86,20 @@ export default class CmapProcessor {
 				let min = 0;
 				let max = cmap.segCount - 1;
 				while (min <= max) {
-					let mid = (min + max) >> 1;
+					const mid = (min + max) >> 1;
 
 					if (codepoint < cmap.startCode.get(mid)) {
 						max = mid - 1;
 					} else if (codepoint > cmap.endCode.get(mid)) {
 						min = mid + 1;
 					} else {
-						let rangeOffset = cmap.idRangeOffset.get(mid);
+						const rangeOffset = cmap.idRangeOffset.get(mid);
 						let gid;
 
 						if (rangeOffset === 0) {
 							gid = codepoint + cmap.idDelta.get(mid);
 						} else {
-							let index =
+							const index =
 								rangeOffset / 2 +
 								(codepoint - cmap.startCode.get(mid)) -
 								(cmap.segCount - mid);
@@ -130,8 +128,8 @@ export default class CmapProcessor {
 				let min = 0;
 				let max = cmap.nGroups - 1;
 				while (min <= max) {
-					let mid = (min + max) >> 1;
-					let group = cmap.groups.get(mid);
+					const mid = (min + max) >> 1;
+					const group = cmap.groups.get(mid);
 
 					if (codepoint < group.startCharCode) {
 						max = mid - 1;
@@ -162,9 +160,9 @@ export default class CmapProcessor {
 			return 0;
 		}
 
-		let selectors = this.uvs.varSelectors.toArray();
+		const selectors = this.uvs.varSelectors.toArray();
 		let i = binarySearch(selectors, (x) => variationSelector - x.varSelector);
-		let sel = selectors[i];
+		const sel = selectors[i];
 
 		if (i !== -1 && sel.defaultUVS) {
 			i = binarySearch(sel.defaultUVS, (x) =>
@@ -188,17 +186,17 @@ export default class CmapProcessor {
 
 	@cache
 	getCharacterSet() {
-		let cmap = this.cmap;
+		const cmap = this.cmap;
 		switch (cmap.version) {
 			case 0:
 				return range(0, cmap.codeMap.length);
 
 			case 4: {
-				let res = [];
-				let endCodes = cmap.endCode.toArray();
+				const res = [];
+				const endCodes = cmap.endCode.toArray();
 				for (let i = 0; i < endCodes.length; i++) {
-					let tail = endCodes[i] + 1;
-					let start = cmap.startCode.get(i);
+					const tail = endCodes[i] + 1;
+					const start = cmap.startCode.get(i);
 					res.push(...range(start, tail));
 				}
 
@@ -214,8 +212,8 @@ export default class CmapProcessor {
 
 			case 12:
 			case 13: {
-				let res = [];
-				for (let group of cmap.groups.toArray()) {
+				const res = [];
+				for (const group of cmap.groups.toArray()) {
 					res.push(...range(group.startCharCode, group.endCharCode + 1));
 				}
 
@@ -232,10 +230,10 @@ export default class CmapProcessor {
 
 	@cache
 	codePointsForGlyph(gid) {
-		let cmap = this.cmap;
+		const cmap = this.cmap;
 		switch (cmap.version) {
 			case 0: {
-				let res = [];
+				const res = [];
 				for (let i = 0; i < 256; i++) {
 					if (cmap.codeMap.get(i) === gid) {
 						res.push(i);
@@ -246,19 +244,19 @@ export default class CmapProcessor {
 			}
 
 			case 4: {
-				let res = [];
+				const res = [];
 				for (let i = 0; i < cmap.segCount; i++) {
-					let end = cmap.endCode.get(i);
-					let start = cmap.startCode.get(i);
-					let rangeOffset = cmap.idRangeOffset.get(i);
-					let delta = cmap.idDelta.get(i);
+					const end = cmap.endCode.get(i);
+					const start = cmap.startCode.get(i);
+					const rangeOffset = cmap.idRangeOffset.get(i);
+					const delta = cmap.idDelta.get(i);
 
-					for (var c = start; c <= end; c++) {
+					for (let c = start; c <= end; c++) {
 						let g = 0;
 						if (rangeOffset === 0) {
 							g = c + delta;
 						} else {
-							let index = rangeOffset / 2 + (c - start) - (cmap.segCount - i);
+							const index = rangeOffset / 2 + (c - start) - (cmap.segCount - i);
 							g = cmap.glyphIndexArray.get(index) || 0;
 							if (g !== 0) {
 								g += delta;
@@ -275,8 +273,8 @@ export default class CmapProcessor {
 			}
 
 			case 12: {
-				let res = [];
-				for (let group of cmap.groups.toArray()) {
+				const res = [];
+				for (const group of cmap.groups.toArray()) {
 					if (
 						gid >= group.glyphID &&
 						gid <= group.glyphID + (group.endCharCode - group.startCharCode)
@@ -289,8 +287,8 @@ export default class CmapProcessor {
 			}
 
 			case 13: {
-				let res = [];
-				for (let group of cmap.groups.toArray()) {
+				const res = [];
+				for (const group of cmap.groups.toArray()) {
 					if (gid === group.glyphID) {
 						res.push(...range(group.startCharCode, group.endCharCode + 1));
 					}

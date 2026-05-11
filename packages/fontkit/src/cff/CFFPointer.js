@@ -30,7 +30,7 @@ export default class CFFPointer extends r.Pointer {
 
 		let ptr = null;
 		this.offsetType = {
-			encode: (stream, val) => (ptr = val),
+			encode: (_stream, val) => (ptr = val),
 		};
 
 		super.encode(stream, value, ctx);

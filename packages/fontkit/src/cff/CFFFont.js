@@ -1,8 +1,5 @@
-import r from '@pdf-lib/restructure';
-import CFFIndex from './CFFIndex';
-import CFFTop from './CFFTop';
-import CFFPrivateDict from './CFFPrivateDict';
-import standardStrings from './CFFStandardStrings';
+import standardStrings from './CFFStandardStrings.js';
+import CFFTop from './CFFTop.js';
 
 class CFFFont {
 	constructor(stream) {
@@ -15,10 +12,9 @@ class CFFFont {
 	}
 
 	decode() {
-		let start = this.stream.pos;
-		let top = CFFTop.decode(this.stream);
-		for (let key in top) {
-			let val = top[key];
+		const top = CFFTop.decode(this.stream);
+		for (const key in top) {
+			const val = top[key];
 			this[key] = val;
 		}
 
@@ -78,7 +74,7 @@ class CFFFont {
 			return null;
 		}
 
-		let { charset } = this.topDict;
+		const { charset } = this.topDict;
 		if (Array.isArray(charset)) {
 			return charset[gid];
 		}
@@ -96,7 +92,7 @@ class CFFFont {
 			case 1:
 			case 2:
 				for (let i = 0; i < charset.ranges.length; i++) {
-					let range = charset.ranges[i];
+					const range = charset.ranges[i];
 					if (range.offset <= gid && gid <= range.offset + range.nLeft) {
 						return this.string(range.first + (gid - range.offset));
 					}
@@ -118,21 +114,26 @@ class CFFFont {
 
 			case 3:
 			case 4:
-				let { ranges } = this.topDict.FDSelect;
-				let low = 0;
-				let high = ranges.length - 1;
+				{
+					const { ranges } = this.topDict.FDSelect;
+					let low = 0;
+					let high = ranges.length - 1;
 
-				while (low <= high) {
-					let mid = (low + high) >> 1;
+					while (low <= high) {
+						const mid = (low + high) >> 1;
 
-					if (gid < ranges[mid].first) {
-						high = mid - 1;
-					} else if (mid < high && gid > ranges[mid + 1].first) {
-						low = mid + 1;
-					} else {
-						return ranges[mid].fd;
+						if (gid < ranges[mid].first) {
+							high = mid - 1;
+						} else if (mid < high && gid > ranges[mid + 1].first) {
+							low = mid + 1;
+						} else {
+							return ranges[mid].fd;
+						}
 					}
 				}
+				throw new Error(
+					`Unknown FDSelect version: ${this.topDict.FDSelect.version}`,
+				);
 			default:
 				throw new Error(
 					`Unknown FDSelect version: ${this.topDict.FDSelect.version}`,
@@ -142,7 +143,7 @@ class CFFFont {
 
 	privateDictForGlyph(gid) {
 		if (this.topDict.FDSelect) {
-			let fd = this.fdForGlyph(gid);
+			const fd = this.fdForGlyph(gid);
 			if (this.topDict.FDArray[fd]) {
 				return this.topDict.FDArray[fd].Private;
 			}

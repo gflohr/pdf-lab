@@ -470,10 +470,10 @@ for (let i = 1; i <= 99; i++) {
 	];
 }
 
-// create inverse mapping
-let AATMapping = {};
-for (let ot in OTMapping) {
-	let aat = OTMapping[ot];
+// Create inverse mapping.
+const AATMapping = {};
+for (const ot in OTMapping) {
+	const aat = OTMapping[ot];
 	if (AATMapping[aat[0]] == null) {
 		AATMapping[aat[0]] = {};
 	}

@@ -1,12 +1,10 @@
-import AATLookupTable from './AATLookupTable';
+import AATLookupTable from './AATLookupTable.js';
 
 const START_OF_TEXT_STATE = 0;
-const START_OF_LINE_STATE = 1;
 
 const END_OF_TEXT_CLASS = 0;
 const OUT_OF_BOUNDS_CLASS = 1;
 const DELETED_GLYPH_CLASS = 2;
-const END_OF_LINE_CLASS = 3;
 
 const DONT_ADVANCE = 0x4000;
 
@@ -19,7 +17,7 @@ export default class AATStateMachine {
 	process(glyphs, reverse, processEntry) {
 		let currentState = START_OF_TEXT_STATE; // START_OF_LINE_STATE is used for kashida glyph insertions sometimes I think?
 		let index = reverse ? glyphs.length - 1 : 0;
-		let dir = reverse ? -1 : 1;
+		const dir = reverse ? -1 : 1;
 
 		while (
 			(dir === 1 && index <= glyphs.length) ||
@@ -44,9 +42,9 @@ export default class AATStateMachine {
 				}
 			}
 
-			let row = this.stateTable.stateArray.getItem(currentState);
-			let entryIndex = row[classCode];
-			let entry = this.stateTable.entryTable.getItem(entryIndex);
+			const row = this.stateTable.stateArray.getItem(currentState);
+			const entryIndex = row[classCode];
+			const entry = this.stateTable.entryTable.getItem(entryIndex);
 
 			if (
 				classCode !== END_OF_TEXT_CLASS &&
@@ -76,16 +74,16 @@ export default class AATStateMachine {
 
 		visited.add(state);
 
-		let { nClasses, stateArray, entryTable } = this.stateTable;
-		let row = stateArray.getItem(state);
+		const { nClasses, stateArray, entryTable } = this.stateTable;
+		const row = stateArray.getItem(state);
 
 		// Skip predefined classes
 		for (let classCode = 4; classCode < nClasses; classCode++) {
-			let entryIndex = row[classCode];
-			let entry = entryTable.getItem(entryIndex);
+			const entryIndex = row[classCode];
+			const entry = entryTable.getItem(entryIndex);
 
 			// Try all glyphs in the class
-			for (let glyph of this.lookupTable.glyphsForValue(classCode)) {
+			for (const glyph of this.lookupTable.glyphsForValue(classCode)) {
 				if (opts.enter) {
 					opts.enter(glyph, entry);
 				}

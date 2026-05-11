@@ -1,14 +1,13 @@
-import isEqual from 'deep-equal';
-import r from '@pdf-lib/restructure';
-import CFFOperand from './CFFOperand';
 import { PropertyDescriptor } from '@pdf-lib/restructure/src/utils';
+import isEqual from 'deep-equal';
+import CFFOperand from './CFFOperand.js';
 
 export default class CFFDict {
 	constructor(ops = []) {
 		this.ops = ops;
 		this.fields = {};
-		for (let field of ops) {
-			let key = Array.isArray(field[0])
+		for (const field of ops) {
+			const key = Array.isArray(field[0])
 				? (field[0][0] << 8) | field[0][1]
 				: field[0];
 			this.fields[key] = field;
@@ -55,8 +54,8 @@ export default class CFFDict {
 	}
 
 	decode(stream, parent) {
-		let end = stream.pos + parent.length;
-		let ret = {};
+		const end = stream.pos + parent.length;
+		const ret = {};
 		let operands = [];
 
 		// define hidden properties
@@ -66,8 +65,8 @@ export default class CFFDict {
 		});
 
 		// fill in defaults
-		for (let key in this.fields) {
-			let field = this.fields[key];
+		for (const key in this.fields) {
+			const field = this.fields[key];
 			ret[field[1]] = field[3];
 		}
 
@@ -78,12 +77,12 @@ export default class CFFDict {
 					b = (b << 8) | stream.readUInt8();
 				}
 
-				let field = this.fields[b];
+				const field = this.fields[b];
 				if (!field) {
 					throw new Error(`Unknown operator ${b}`);
 				}
 
-				let val = this.decodeOperands(field[2], stream, ret, operands);
+				const val = this.decodeOperands(field[2], stream, ret, operands);
 				if (val != null) {
 					if (val instanceof PropertyDescriptor) {
 						Object.defineProperty(ret, field[1], val);
@@ -102,7 +101,7 @@ export default class CFFDict {
 	}
 
 	size(dict, parent, includePointers = true) {
-		let ctx = {
+		const ctx = {
 			parent,
 			val: dict,
 			pointerSize: 0,
@@ -111,19 +110,19 @@ export default class CFFDict {
 
 		let len = 0;
 
-		for (let k in this.fields) {
-			let field = this.fields[k];
-			let val = dict[field[1]];
+		for (const k in this.fields) {
+			const field = this.fields[k];
+			const val = dict[field[1]];
 			if (val == null || isEqual(val, field[3])) {
 				continue;
 			}
 
-			let operands = this.encodeOperands(field[2], null, ctx, val);
-			for (let op of operands) {
+			const operands = this.encodeOperands(field[2], null, ctx, val);
+			for (const op of operands) {
 				len += CFFOperand.size(op);
 			}
 
-			let key = Array.isArray(field[0]) ? field[0] : [field[0]];
+			const key = Array.isArray(field[0]) ? field[0] : [field[0]];
 			len += key.length;
 		}
 
@@ -135,7 +134,7 @@ export default class CFFDict {
 	}
 
 	encode(stream, dict, parent) {
-		let ctx = {
+		const ctx = {
 			pointers: [],
 			startOffset: stream.pos,
 			parent,
@@ -145,26 +144,26 @@ export default class CFFDict {
 
 		ctx.pointerOffset = stream.pos + this.size(dict, ctx, false);
 
-		for (let field of this.ops) {
-			let val = dict[field[1]];
+		for (const field of this.ops) {
+			const val = dict[field[1]];
 			if (val == null || isEqual(val, field[3])) {
 				continue;
 			}
 
-			let operands = this.encodeOperands(field[2], stream, ctx, val);
-			for (let op of operands) {
+			const operands = this.encodeOperands(field[2], stream, ctx, val);
+			for (const op of operands) {
 				CFFOperand.encode(stream, op);
 			}
 
-			let key = Array.isArray(field[0]) ? field[0] : [field[0]];
-			for (let op of key) {
+			const key = Array.isArray(field[0]) ? field[0] : [field[0]];
+			for (const op of key) {
 				stream.writeUInt8(op);
 			}
 		}
 
 		let i = 0;
 		while (i < ctx.pointers.length) {
-			let ptr = ctx.pointers[i++];
+			const ptr = ctx.pointers[i++];
 			ptr.type.encode(stream, ptr.val, ptr.parent);
 		}
 
