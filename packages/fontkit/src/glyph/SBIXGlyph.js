@@ -1,7 +1,7 @@
 import r from '@pdf-lib/restructure';
 import TTFGlyph from './TTFGlyph.js';
 
-let SBIXImage = new r.Struct({
+const SBIXImage = new r.Struct({
 	originX: r.uint16,
 	originY: r.uint16,
 	type: new r.String(4),
@@ -31,9 +31,9 @@ export default class SBIXGlyph extends TTFGlyph {
 			}
 		}
 
-		let offsets = table.imageOffsets;
-		let start = offsets[this.id];
-		let end = offsets[this.id + 1];
+		const offsets = table.imageOffsets;
+		const start = offsets[this.id];
+		const end = offsets[this.id + 1];
 
 		if (start === end) {
 			return null;
@@ -44,9 +44,9 @@ export default class SBIXGlyph extends TTFGlyph {
 	}
 
 	render(ctx, size) {
-		let img = this.getImageForSize(size);
+		const img = this.getImageForSize(size);
 		if (img != null) {
-			let scale = size / this._font.unitsPerEm;
+			const scale = size / this._font.unitsPerEm;
 			ctx.image(img.data, {
 				height: size,
 				x: img.originX,

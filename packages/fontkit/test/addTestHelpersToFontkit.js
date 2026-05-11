@@ -1,18 +1,18 @@
 import fs from 'fs';
 import fontkit from '../src';
 
-fontkit.openSync = function (filename, postscriptName) {
-	let buffer = fs.readFileSync(filename);
+fontkit.openSync = (filename, postscriptName) => {
+	const buffer = fs.readFileSync(filename);
 	return fontkit.create(buffer, postscriptName);
 };
 
-fontkit.open = function (filename, postscriptName, callback) {
+fontkit.open = (filename, postscriptName, callback) => {
 	if (typeof postscriptName === 'function') {
 		callback = postscriptName;
 		postscriptName = null;
 	}
 
-	fs.readFile(filename, function (err, buffer) {
+	fs.readFile(filename, (err, buffer) => {
 		if (err) {
 			return callback(err);
 		}

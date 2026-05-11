@@ -1,32 +1,32 @@
 import './addTestHelpersToFontkit';
-import fontkit from '../src';
+import r from '@pdf-lib/restructure';
 import assert from 'assert';
 import concat from 'concat-stream';
-import CFFFont from '../src/cff/CFFFont';
-import r from '@pdf-lib/restructure';
-import CFFGlyph from '../src/glyph/CFFGlyph';
 import fs from 'fs';
+import fontkit from '../src';
+import CFFFont from '../src/cff/CFFFont';
+import CFFGlyph from '../src/glyph/CFFGlyph';
 
-describe('font subsetting', function () {
-	describe('truetype subsetting', function () {
-		let font = fontkit.openSync(
+describe('font subsetting', () => {
+	describe('truetype subsetting', () => {
+		const font = fontkit.openSync(
 			__dirname + '/data/OpenSans/OpenSans-Regular.ttf',
 		);
 
-		it('should create a TTFSubset instance', function () {
-			let subset = font.createSubset();
+		it('should create a TTFSubset instance', () => {
+			const subset = font.createSubset();
 			assert.equal(subset.constructor.name, 'TTFSubset');
 		});
 
-		it('should produce a subset', function (done) {
-			let subset = font.createSubset();
-			for (let glyph of font.glyphsForString('hello')) {
+		it('should produce a subset', (done) => {
+			const subset = font.createSubset();
+			for (const glyph of font.glyphsForString('hello')) {
 				subset.includeGlyph(glyph);
 			}
 
 			subset.encodeStream().pipe(
-				concat(function (buf) {
-					let f = fontkit.create(buf);
+				concat((buf) => {
+					const f = fontkit.create(buf);
 					assert.equal(f.numGlyphs, 5);
 					assert.equal(
 						f.getGlyph(1).path.toSVG(),
@@ -37,18 +37,18 @@ describe('font subsetting', function () {
 			);
 		});
 
-		it('should re-encode variation glyphs', function (done) {
+		it('should re-encode variation glyphs', (done) => {
 			if (!fs.existsSync('/Library/Fonts/Skia.ttf')) return done();
 
-			let font = fontkit.openSync('/Library/Fonts/Skia.ttf', 'Bold');
-			let subset = font.createSubset();
-			for (let glyph of font.glyphsForString('e')) {
+			const font = fontkit.openSync('/Library/Fonts/Skia.ttf', 'Bold');
+			const subset = font.createSubset();
+			for (const glyph of font.glyphsForString('e')) {
 				subset.includeGlyph(glyph);
 			}
 
 			subset.encodeStream().pipe(
-				concat(function (buf) {
-					let f = fontkit.create(buf);
+				concat((buf) => {
+					const f = fontkit.create(buf);
 					assert.equal(
 						f.getGlyph(1).path.toSVG(),
 						font.glyphsForString('e')[0].path.toSVG(),
@@ -58,13 +58,13 @@ describe('font subsetting', function () {
 			);
 		});
 
-		it('should handle composite glyphs', function (done) {
-			let subset = font.createSubset();
+		it('should handle composite glyphs', (done) => {
+			const subset = font.createSubset();
 			subset.includeGlyph(font.glyphsForString('é')[0]);
 
 			subset.encodeStream().pipe(
-				concat(function (buf) {
-					let f = fontkit.create(buf);
+				concat((buf) => {
+					const f = fontkit.create(buf);
 					assert.equal(f.numGlyphs, 4);
 					assert.equal(
 						f.getGlyph(1).path.toSVG(),
@@ -76,29 +76,29 @@ describe('font subsetting', function () {
 		});
 	});
 
-	describe('CFF subsetting', function () {
-		let font = fontkit.openSync(
+	describe('CFF subsetting', () => {
+		const font = fontkit.openSync(
 			__dirname + '/data/SourceSansPro/SourceSansPro-Regular.otf',
 		);
 
-		it('should create a CFFSubset instance', function () {
-			let subset = font.createSubset();
+		it('should create a CFFSubset instance', () => {
+			const subset = font.createSubset();
 			return assert.equal(subset.constructor.name, 'CFFSubset');
 		});
 
-		it('should produce a subset', function (done) {
-			let subset = font.createSubset();
-			let iterable = font.glyphsForString('hello');
+		it('should produce a subset', (done) => {
+			const subset = font.createSubset();
+			const iterable = font.glyphsForString('hello');
 			for (let i = 0; i < iterable.length; i++) {
-				let glyph = iterable[i];
+				const glyph = iterable[i];
 				subset.includeGlyph(glyph);
 			}
 
 			return subset.encodeStream().pipe(
-				concat(function (buf) {
-					let stream = new r.DecodeStream(buf);
-					let cff = new CFFFont(stream);
-					let glyph = new CFFGlyph(1, [], { stream, 'CFF ': cff });
+				concat((buf) => {
+					const stream = new r.DecodeStream(buf);
+					const cff = new CFFFont(stream);
+					const glyph = new CFFGlyph(1, [], { stream, 'CFF ': cff });
 					assert.equal(
 						glyph.path.toSVG(),
 						font.glyphsForString('h')[0].path.toSVG(),
@@ -108,22 +108,22 @@ describe('font subsetting', function () {
 			);
 		});
 
-		it('should handle CID fonts', function (done) {
-			let f = fontkit.openSync(
+		it('should handle CID fonts', (done) => {
+			const f = fontkit.openSync(
 				__dirname + '/data/NotoSansCJK/NotoSansCJKkr-Regular.otf',
 			);
-			let subset = f.createSubset();
-			let iterable = f.glyphsForString('갈휸');
+			const subset = f.createSubset();
+			const iterable = f.glyphsForString('갈휸');
 			for (let i = 0; i < iterable.length; i++) {
-				let glyph = iterable[i];
+				const glyph = iterable[i];
 				subset.includeGlyph(glyph);
 			}
 
 			return subset.encodeStream().pipe(
-				concat(function (buf) {
-					let stream = new r.DecodeStream(buf);
-					let cff = new CFFFont(stream);
-					let glyph = new CFFGlyph(1, [], { stream, 'CFF ': cff });
+				concat((buf) => {
+					const stream = new r.DecodeStream(buf);
+					const cff = new CFFFont(stream);
+					const glyph = new CFFGlyph(1, [], { stream, 'CFF ': cff });
 					assert.equal(
 						glyph.path.toSVG(),
 						f.glyphsForString('갈')[0].path.toSVG(),

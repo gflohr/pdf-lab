@@ -1,17 +1,17 @@
 import './addTestHelpersToFontkit';
-import fontkit from '../src';
 import assert from 'assert';
 import fs from 'fs';
+import fontkit from '../src';
 
-describe('variations', function () {
-	describe('Skia', function () {
+describe('variations', () => {
+	describe('Skia', () => {
 		if (!fs.existsSync('/Library/Fonts/Skia.ttf')) {
 			return;
 		}
-		let font = fontkit.openSync('/Library/Fonts/Skia.ttf');
+		const font = fontkit.openSync('/Library/Fonts/Skia.ttf');
 
-		it('should get available variation axes', function () {
-			let axes = font.variationAxes;
+		it('should get available variation axes', () => {
+			const axes = font.variationAxes;
 			assert.deepEqual(Object.keys(axes), ['wght', 'wdth']);
 			assert.equal(axes.wght.name, 'Weight');
 			assert.equal(axes.wdth.name, 'Width');
@@ -20,8 +20,8 @@ describe('variations', function () {
 			return assert.equal(Math.round(axes.wght.max * 100) / 100, 3.2);
 		});
 
-		it('should get named variation instances', function () {
-			let named = font.namedVariations;
+		it('should get named variation instances', () => {
+			const named = font.namedVariations;
 			assert.deepEqual(Object.keys(named), [
 				'Black',
 				'Extended',
@@ -39,31 +39,31 @@ describe('variations', function () {
 			return assert.equal(named.Bold.wdth, 1);
 		});
 
-		it('should get a variation by name', function () {
-			let variation = font.getVariation('Bold');
+		it('should get a variation by name', () => {
+			const variation = font.getVariation('Bold');
 			assert.equal(variation.constructor.name, 'TTFFont');
 
-			let glyph = variation.getGlyph(68); // D
+			const glyph = variation.getGlyph(68); // D
 			return assert.equal(
 				glyph.path.toSVG(),
 				'M1438 662Q1438 486 1351.5 353Q1265 220 1127 139Q1007 68 857 31Q707 -6 508 -6Q415 -6 303.5 -3.5Q192 -1 179 -1Q179 9 181 211Q183 413 183 683Q183 795 182 963Q181 1131 179 1339Q195 1339 312 1340Q429 1341 476 1341Q695 1341 859.5 1304Q1024 1267 1150 1187Q1296 1094 1367 963Q1438 832 1438 662ZM1098 673Q1098 773 1053.5 856Q1009 939 915 996Q831 1047 731.5 1066.5Q632 1086 543 1086Q533 1086 521.5 1086Q510 1086 507 1086Q506 984 506 892Q506 800 506 741Q506 689 506 572.5Q506 456 507 254Q516 254 523 254Q530 254 540 254Q630 254 730.5 276.5Q831 299 896 337Q997 395 1047.5 479Q1098 563 1098 673Z',
 			);
 		});
 
-		it('should get a variation by settings', function () {
-			let variation = font.getVariation({ wght: 0.5 });
+		it('should get a variation by settings', () => {
+			const variation = font.getVariation({ wght: 0.5 });
 			assert.equal(variation.constructor.name, 'TTFFont');
 
-			let glyph = variation.getGlyph(68); // D
+			const glyph = variation.getGlyph(68); // D
 			return assert.equal(
 				glyph.path.toSVG(),
 				'M1259 662Q1259 496 1181.5 361.5Q1104 227 967 138Q848 64 716 29.5Q584 -5 408 -5Q365 -5 305.5 -4Q246 -3 220 -2Q220 42 221 207.5Q222 373 222 668Q222 853 221 1043.5Q220 1234 220 1339Q243 1340 288 1340Q333 1340 372 1340Q567 1340 721.5 1301.5Q876 1263 988 1188Q1125 1098 1192 964.5Q1259 831 1259 662ZM1175 662Q1175 813 1115 933.5Q1055 1054 922 1139Q813 1208 678 1240.5Q543 1273 371 1273Q355 1273 333.5 1273Q312 1273 303 1273Q303 1189 302 1047.5Q301 906 301 760Q301 510 301.5 351Q302 192 303 62Q320 62 337.5 62Q355 62 371 62Q532 62 665.5 89.5Q799 117 901 180Q1038 266 1106.5 388.5Q1175 511 1175 662Z',
 			);
 		});
 
-		it('interpolates points without delta values', function () {
-			let variation = font.getVariation('Bold');
-			let glyph = variation.glyphForCodePoint('Q'.charCodeAt());
+		it('interpolates points without delta values', () => {
+			const variation = font.getVariation('Bold');
+			const glyph = variation.glyphForCodePoint('Q'.charCodeAt());
 
 			return assert.equal(
 				glyph.path.toSVG(),
@@ -71,18 +71,20 @@ describe('variations', function () {
 			);
 		});
 
-		it('recomputes cbox and advance width', function () {
-			let variation = font.getVariation('Bold');
-			let glyph = variation.getGlyph(68); // D
+		it('recomputes cbox and advance width', () => {
+			const variation = font.getVariation('Bold');
+			const glyph = variation.getGlyph(68); // D
 
 			assert.equal(Math.round(glyph.advanceWidth * 100) / 100, 1540);
 			return assert.equal(Math.round(glyph.cbox.minX * 100) / 100, 179);
 		});
 	});
 
-	describe('truetype variations', function () {
-		it('should support sharing all points', function () {
-			let font = fontkit.openSync(__dirname + '/data/fonttest/TestGVAROne.ttf');
+	describe('truetype variations', () => {
+		it('should support sharing all points', () => {
+			const font = fontkit.openSync(
+				__dirname + '/data/fonttest/TestGVAROne.ttf',
+			);
 
 			assert.equal(
 				font.getVariation({ wght: 300 }).glyphsForString('彌')[0].path.toSVG(),
@@ -90,8 +92,10 @@ describe('variations', function () {
 			);
 		});
 
-		it('should support sharing enumerated points', function () {
-			let font = fontkit.openSync(__dirname + '/data/fonttest/TestGVARTwo.ttf');
+		it('should support sharing enumerated points', () => {
+			const font = fontkit.openSync(
+				__dirname + '/data/fonttest/TestGVARTwo.ttf',
+			);
 
 			assert.equal(
 				font.getVariation({ wght: 300 }).glyphsForString('彌')[0].path.toSVG(),
@@ -99,8 +103,8 @@ describe('variations', function () {
 			);
 		});
 
-		it('should support sharing no points', function () {
-			let font = fontkit.openSync(
+		it('should support sharing no points', () => {
+			const font = fontkit.openSync(
 				__dirname + '/data/fonttest/TestGVARThree.ttf',
 			);
 
@@ -110,8 +114,8 @@ describe('variations', function () {
 			);
 		});
 
-		it('should use the HVAR table when available for variation metrics', function () {
-			let font = fontkit.openSync(
+		it('should use the HVAR table when available for variation metrics', () => {
+			const font = fontkit.openSync(
 				__dirname + '/data/fonttest/TestGVARFour.ttf',
 			);
 
@@ -123,8 +127,10 @@ describe('variations', function () {
 			);
 		});
 
-		it('should fall back to the last entry in an HVAR table', function () {
-			let font = fontkit.openSync(__dirname + '/data/fonttest/TestHVARTwo.ttf');
+		it('should fall back to the last entry in an HVAR table', () => {
+			const font = fontkit.openSync(
+				__dirname + '/data/fonttest/TestHVARTwo.ttf',
+			);
 
 			assert.equal(
 				Math.round(
@@ -134,22 +140,22 @@ describe('variations', function () {
 			);
 		});
 
-		it('should support adjusting GPOS mark anchor points for variations', function () {
-			let font = fontkit.openSync(__dirname + '/data/Mada/Mada-VF.ttf', {
+		it('should support adjusting GPOS mark anchor points for variations', () => {
+			const font = fontkit.openSync(__dirname + '/data/Mada/Mada-VF.ttf', {
 				wght: 900,
 			});
-			let run = font.layout('ف');
+			const run = font.layout('ف');
 			assert.equal(Math.floor(run.positions[0].xOffset), 639);
 			assert.equal(Math.floor(run.positions[0].yOffset), 542);
 		});
 	});
 
-	describe('CFF2 variations', function () {
-		let font = fontkit.openSync(
+	describe('CFF2 variations', () => {
+		const font = fontkit.openSync(
 			__dirname + '/data/fonttest/AdobeVFPrototype-Subset.otf',
 		);
 
-		it('applies variations to CFF2 glyphs', function () {
+		it('applies variations to CFF2 glyphs', () => {
 			assert.equal(
 				font.getVariation({ wght: 100 }).glyphsForString('$')[0].path.toSVG(),
 				'M245.82 14.61C187.88 14.61 147.25 26.89 101.25 68.2L141.87 23.46L116.86 116.93C110.69 142.99 95.97 149.44 81.44 149.44C65.26 149.44 55.63 141.35 52.46 125.72C71.02 40.17 137.46 -13 244.46 -13C347.69 -13 435.51 46.25 435.51 156.16C435.51 229.42 405.44 295.15 271.16 349.44L247 358.79C159.98 393.45 118.52 438.64 118.52 505.55C118.52 592.21 177.71 637.22 261.9 637.22C310.84 637.22 346.11 625.66 389.56 584.63L347.76 628.64L372.77 535.16C380.4 510.11 394.48 502.66 408.47 502.66C423.83 502.66 434.27 510.48 437.17 526.38C418.07 613.84 347.53 665.1 258.91 665.1C160.66 665.1 78.39 606.22 78.39 499.85C78.39 414.41 128.01 361.14 223.54 320.5L260.54 304.59C366.66 258.56 395.38 216.91 395.38 152.46C395.38 65.35 333.64 14.61 245.82 14.61ZM267.35 330.74L267.35 758.74L240.46 758.74L240.46 330.74L267.35 330.74ZM240.18 -115L267.08 -115L267.08 330.74L240.18 330.74L240.18 -115Z',
@@ -161,8 +167,8 @@ describe('variations', function () {
 			);
 		});
 
-		it('substitutes GSUB features depending on variations', function () {
-			let glyph = font.getVariation({ wght: 900 }).layout('$').glyphs[0];
+		it('substitutes GSUB features depending on variations', () => {
+			const glyph = font.getVariation({ wght: 900 }).layout('$').glyphs[0];
 			assert.equal(glyph.name, 'dollar.nostroke');
 			assert.equal(
 				glyph.path.toSVG(),

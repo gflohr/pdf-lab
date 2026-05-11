@@ -1,25 +1,25 @@
 import './addTestHelpersToFontkit';
-import fontkit from '../src';
 import assert from 'assert';
+import fontkit from '../src';
 
-describe('fontkit', function () {
+describe('fontkit', () => {
 	it('should open a font asynchronously', () =>
 		fontkit.open(
 			__dirname + '/data/OpenSans/OpenSans-Regular.ttf',
-			function (err, font) {
+			(err, font) => {
 				assert.equal(err, null);
 				return assert.equal(font.constructor.name, 'TTFFont');
 			},
 		));
 
-	it('should open a font synchronously', function () {
-		let font = fontkit.openSync(
+	it('should open a font synchronously', () => {
+		const font = fontkit.openSync(
 			__dirname + '/data/OpenSans/OpenSans-Regular.ttf',
 		);
 		return assert.equal(font.constructor.name, 'TTFFont');
 	});
 
-	it('should open fonts of different formats', function () {
+	it('should open fonts of different formats', () => {
 		let font = fontkit.openSync(
 			__dirname + '/data/OpenSans/OpenSans-Regular.ttf',
 		);
@@ -59,31 +59,31 @@ describe('fontkit', function () {
 		assert.equal(font.constructor.name, 'WOFF2Font');
 	});
 
-	it('should open fonts lacking PostScript name', function () {
-		let font = fontkit.openSync(
+	it('should open fonts lacking PostScript name', () => {
+		const font = fontkit.openSync(
 			__dirname + '/data/Mada/Mada-Regular.subset1.ttf',
 		);
 		assert.equal(font.postscriptName, null);
 	});
 
-	it('should error when opening an invalid font asynchronously', function () {
-		fontkit.open(__filename, function (err, font) {
+	it('should error when opening an invalid font asynchronously', () => {
+		fontkit.open(__filename, (err, font) => {
 			assert(err instanceof Error);
 			assert.equal(err.message, 'Unknown font format');
 		});
 	});
 
-	it('should error when opening an invalid font synchronously', function () {
+	it('should error when opening an invalid font synchronously', () => {
 		assert.throws(() => fontkit.openSync(__filename), /Unknown font format/);
 	});
 
-	it('should get collection objects for ttc fonts', function () {
-		let collection = fontkit.openSync(
+	it('should get collection objects for ttc fonts', () => {
+		const collection = fontkit.openSync(
 			__dirname + '/data/NotoSans/NotoSans.ttc',
 		);
 		assert.equal(collection.constructor.name, 'TrueTypeCollection');
 
-		let names = collection.fonts.map((f) => f.postscriptName);
+		const names = collection.fonts.map((f) => f.postscriptName);
 		assert.deepEqual(names, [
 			'NotoSans-Bold',
 			'NotoSans',
@@ -91,17 +91,17 @@ describe('fontkit', function () {
 			'NotoSans-BoldItalic',
 		]);
 
-		let font = collection.getFont('NotoSans-Italic');
+		const font = collection.getFont('NotoSans-Italic');
 		return assert.equal(font.postscriptName, 'NotoSans-Italic');
 	});
 
-	it('should get collection objects for dfonts', function () {
-		let collection = fontkit.openSync(
+	it('should get collection objects for dfonts', () => {
+		const collection = fontkit.openSync(
 			__dirname + '/data/NotoSans/NotoSans.dfont',
 		);
 		assert.equal(collection.constructor.name, 'DFont');
 
-		let names = collection.fonts.map((f) => f.postscriptName);
+		const names = collection.fonts.map((f) => f.postscriptName);
 		assert.deepEqual(names, [
 			'NotoSans',
 			'NotoSans-Bold',
@@ -109,7 +109,7 @@ describe('fontkit', function () {
 			'NotoSans-BoldItalic',
 		]);
 
-		let font = collection.getFont('NotoSans-Italic');
+		const font = collection.getFont('NotoSans-Italic');
 		return assert.equal(font.postscriptName, 'NotoSans-Italic');
 	});
 });

@@ -1,15 +1,15 @@
 import './addTestHelpersToFontkit';
-import fontkit from '../src';
 import assert from 'assert';
+import fontkit from '../src';
 import BBox from '../src/glyph/BBox';
 
-describe('metadata', function () {
-	let font = fontkit.openSync(
+describe('metadata', () => {
+	const font = fontkit.openSync(
 		__dirname + '/data/NotoSans/NotoSans.ttc',
 		'NotoSans',
 	);
 
-	it('has metadata properties', function () {
+	it('has metadata properties', () => {
 		assert.equal(font.fullName, 'Noto Sans');
 		assert.equal(font.postscriptName, 'NotoSans');
 		assert.equal(font.familyName, 'Noto Sans');
@@ -21,7 +21,7 @@ describe('metadata', function () {
 		return assert.equal(font.version, 'Version 1.05 uh');
 	});
 
-	it('exposes some metrics', function () {
+	it('exposes some metrics', () => {
 		assert.equal(font.unitsPerEm, 2048);
 		assert.equal(font.ascent | 0, 2189);
 		assert.equal(font.descent | 0, -600);
@@ -35,10 +35,10 @@ describe('metadata', function () {
 		return assert.deepEqual(font.bbox, new BBox(-1268, -600, 2952, 2189));
 	});
 
-	it('exposes tables directly', function () {
-		let iterable = ['head', 'hhea', 'OS/2', 'post'];
+	it('exposes tables directly', () => {
+		const iterable = ['head', 'hhea', 'OS/2', 'post'];
 		for (let i = 0; i < iterable.length; i++) {
-			let table = iterable[i];
+			const table = iterable[i];
 			assert.equal(typeof font[table], 'object');
 		}
 	});

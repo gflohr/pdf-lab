@@ -22,7 +22,7 @@ class Point {
 	}
 }
 
-let Glyf = new r.Struct({
+const Glyf = new r.Struct({
 	numberOfContours: r.int16, // if negative, this is a composite glyph
 	xMin: r.int16,
 	yMin: r.int16,
@@ -40,10 +40,10 @@ let Glyf = new r.Struct({
  */
 export default class TTFGlyphEncoder {
 	encodeSimple(path, instructions = []) {
-		let endPtsOfContours = [];
-		let xPoints = [];
-		let yPoints = [];
-		let flags = [];
+		const endPtsOfContours = [];
+		const xPoints = [];
+		const yPoints = [];
+		const flags = [];
 		let same = 0;
 		let lastX = 0,
 			lastY = 0,
@@ -51,21 +51,21 @@ export default class TTFGlyphEncoder {
 		let pointCount = 0;
 
 		for (let i = 0; i < path.commands.length; i++) {
-			let c = path.commands[i];
+			const c = path.commands[i];
 
 			for (let j = 0; j < c.args.length; j += 2) {
-				let x = c.args[j];
-				let y = c.args[j + 1];
+				const x = c.args[j];
+				const y = c.args[j + 1];
 				let flag = 0;
 
 				// If the ending point of a quadratic curve is the midpoint
 				// between the control point and the control point of the next
 				// quadratic curve, we can omit the ending point.
 				if (c.command === 'quadraticCurveTo' && j === 2) {
-					let next = path.commands[i + 1];
+					const next = path.commands[i + 1];
 					if (next && next.command === 'quadraticCurveTo') {
-						let midX = (lastX + next.args[0]) / 2;
-						let midY = (lastY + next.args[1]) / 2;
+						const midX = (lastX + next.args[0]) / 2;
+						const midY = (lastY + next.args[1]) / 2;
 
 						if (x === midX && y === midY) {
 							continue;
@@ -126,8 +126,8 @@ export default class TTFGlyphEncoder {
 			endPtsOfContours.push(pointCount - 1);
 		}
 
-		let bbox = path.bbox;
-		let glyf = {
+		const bbox = path.bbox;
+		const glyf = {
 			numberOfContours: endPtsOfContours.length,
 			xMin: bbox.minX,
 			yMin: bbox.minY,
@@ -140,10 +140,10 @@ export default class TTFGlyphEncoder {
 			yPoints: yPoints,
 		};
 
-		let size = Glyf.size(glyf);
-		let tail = 4 - (size % 4);
+		const size = Glyf.size(glyf);
+		const tail = 4 - (size % 4);
 
-		let stream = new r.EncodeStream(size + tail);
+		const stream = new r.EncodeStream(size + tail);
 		Glyf.encode(stream, glyf);
 
 		// Align to 4-byte length

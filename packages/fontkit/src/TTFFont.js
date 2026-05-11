@@ -1,18 +1,18 @@
 import r from '@pdf-lib/restructure';
-import { cache } from './decorators';
 import fontkit from './base';
-import Directory from './tables/directory';
-import tables from './tables';
 import CmapProcessor from './CmapProcessor';
-import LayoutEngine from './layout/LayoutEngine';
-import TTFGlyph from './glyph/TTFGlyph';
+import { cache } from './decorators';
+import BBox from './glyph/BBox';
 import CFFGlyph from './glyph/CFFGlyph';
-import SBIXGlyph from './glyph/SBIXGlyph';
 import COLRGlyph from './glyph/COLRGlyph';
 import GlyphVariationProcessor from './glyph/GlyphVariationProcessor';
-import TTFSubset from './subset/TTFSubset';
+import SBIXGlyph from './glyph/SBIXGlyph';
+import TTFGlyph from './glyph/TTFGlyph';
+import LayoutEngine from './layout/LayoutEngine';
 import CFFSubset from './subset/CFFSubset';
-import BBox from './glyph/BBox';
+import TTFSubset from './subset/TTFSubset';
+import tables from './tables';
+import Directory from './tables/directory';
 
 /**
  * This is the base class for all SFNT-based font formats in fontkit.
@@ -20,7 +20,7 @@ import BBox from './glyph/BBox';
  */
 export default class TTFFont {
 	static probe(buffer) {
-		let format = buffer.toString('ascii', 0, 4);
+		const format = buffer.toString('ascii', 0, 4);
 		return (
 			format === 'true' ||
 			format === 'OTTO' ||
@@ -38,8 +38,8 @@ export default class TTFFont {
 		this._decodeDirectory();
 
 		// define properties for each table to lazily parse
-		for (let tag in this.directory.tables) {
-			let table = this.directory.tables[tag];
+		for (const tag in this.directory.tables) {
+			const table = this.directory.tables[tag];
 			if (tables[tag] && table.length > 0) {
 				Object.defineProperty(this, tag, {
 					get: this._getTable.bind(this, table),
@@ -64,7 +64,7 @@ export default class TTFFont {
 	}
 
 	_getTableStream(tag) {
-		let table = this.directory.tables[tag];
+		const table = this.directory.tables[tag];
 		if (table) {
 			this.stream.pos = table.offset;
 			return this.stream;
@@ -80,10 +80,10 @@ export default class TTFFont {
 	}
 
 	_decodeTable(table) {
-		let pos = this.stream.pos;
+		const pos = this.stream.pos;
 
-		let stream = this._getTableStream(table.tag);
-		let result = tables[table.tag].decode(stream, this, table.length);
+		const stream = this._getTableStream(table.tag);
+		const result = tables[table.tag].decode(stream, this, table.length);
 
 		this.stream.pos = pos;
 		return result;
@@ -94,9 +94,9 @@ export default class TTFFont {
 	 * @type {string}
 	 */
 	get postscriptName() {
-		let name = this.name.records.postscriptName;
+		const name = this.name.records.postscriptName;
 		if (name) {
-			let lang = Object.keys(name)[0];
+			const lang = Object.keys(name)[0];
 			return name[lang];
 		}
 
@@ -109,7 +109,7 @@ export default class TTFFont {
 	 * @return {string}
 	 */
 	getName(key, lang = 'en') {
-		let record = this.name.records[key];
+		const record = this.name.records[key];
 		if (record) {
 			return record[lang];
 		}
@@ -211,7 +211,7 @@ export default class TTFFont {
 	 * @type {number}
 	 */
 	get capHeight() {
-		let os2 = this['OS/2'];
+		const os2 = this['OS/2'];
 		return os2 ? os2.capHeight : this.ascent;
 	}
 
@@ -221,7 +221,7 @@ export default class TTFFont {
 	 * @type {number}
 	 */
 	get xHeight() {
-		let os2 = this['OS/2'];
+		const os2 = this['OS/2'];
 		return os2 ? os2.xHeight : 0;
 	}
 
@@ -297,8 +297,8 @@ export default class TTFFont {
 	 * @return {Glyph[]}
 	 */
 	glyphsForString(string) {
-		let glyphs = [];
-		let len = string.length;
+		const glyphs = [];
+		const len = string.length;
 		let idx = 0;
 		let last = -1;
 		let state = -1;
@@ -311,7 +311,7 @@ export default class TTFFont {
 				// Decode the next codepoint from UTF 16
 				code = string.charCodeAt(idx++);
 				if (0xd800 <= code && code <= 0xdbff && idx < len) {
-					let next = string.charCodeAt(idx);
+					const next = string.charCodeAt(idx);
 					if (0xdc00 <= next && next <= 0xdfff) {
 						idx++;
 						code = ((code & 0x3ff) << 10) + (next & 0x3ff) + 0x10000;
@@ -450,12 +450,12 @@ export default class TTFFont {
 	 */
 	@cache
 	get variationAxes() {
-		let res = {};
+		const res = {};
 		if (!this.fvar) {
 			return res;
 		}
 
-		for (let axis of this.fvar.axis) {
+		for (const axis of this.fvar.axis) {
 			res[axis.axisTag.trim()] = {
 				name: axis.name.en,
 				min: axis.minValue,
@@ -476,15 +476,15 @@ export default class TTFFont {
 	 */
 	@cache
 	get namedVariations() {
-		let res = {};
+		const res = {};
 		if (!this.fvar) {
 			return res;
 		}
 
-		for (let instance of this.fvar.instance) {
-			let settings = {};
+		for (const instance of this.fvar.instance) {
+			const settings = {};
 			for (let i = 0; i < this.fvar.axis.length; i++) {
-				let axis = this.fvar.axis[i];
+				const axis = this.fvar.axis[i];
 				settings[axis.axisTag.trim()] = instance.coord[i];
 			}
 
@@ -526,8 +526,8 @@ export default class TTFFont {
 		}
 
 		// normalize the coordinates
-		let coords = this.fvar.axis.map((axis, i) => {
-			let axisTag = axis.axisTag.trim();
+		const coords = this.fvar.axis.map((axis, i) => {
+			const axisTag = axis.axisTag.trim();
 			if (axisTag in settings) {
 				return Math.max(
 					axis.minValue,
@@ -538,10 +538,10 @@ export default class TTFFont {
 			}
 		});
 
-		let stream = new r.DecodeStream(this.stream.buffer);
+		const stream = new r.DecodeStream(this.stream.buffer);
 		stream.pos = this._directoryPos;
 
-		let font = new TTFFont(stream, coords);
+		const font = new TTFFont(stream, coords);
 		font._tables = this._tables;
 
 		return font;

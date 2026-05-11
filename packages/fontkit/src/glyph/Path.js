@@ -36,8 +36,8 @@ export default class Path {
 	 * @return {string}
 	 */
 	toSVG() {
-		let cmds = this.commands.map((c) => {
-			let args = c.args.map((arg) => Math.round(arg * 100) / 100);
+		const cmds = this.commands.map((c) => {
+			const args = c.args.map((arg) => Math.round(arg * 100) / 100);
 			return `${SVG_COMMANDS[c.command]}${args.join(' ')}`;
 		});
 
@@ -53,8 +53,8 @@ export default class Path {
 	 */
 	get cbox() {
 		if (!this._cbox) {
-			let cbox = new BBox();
-			for (let command of this.commands) {
+			const cbox = new BBox();
+			for (const command of this.commands) {
 				for (let i = 0; i < command.args.length; i += 2) {
 					cbox.addPoint(command.args[i], command.args[i + 1]);
 				}
@@ -76,28 +76,29 @@ export default class Path {
 			return this._bbox;
 		}
 
-		let bbox = new BBox();
+		const bbox = new BBox();
 		let cx = 0,
 			cy = 0;
 
-		let f = (t) =>
-			Math.pow(1 - t, 3) * p0[i] +
-			3 * Math.pow(1 - t, 2) * t * p1[i] +
-			3 * (1 - t) * Math.pow(t, 2) * p2[i] +
-			Math.pow(t, 3) * p3[i];
+		const f = (t) =>
+			(1 - t) ** 3 * p0[i] +
+			3 * (1 - t) ** 2 * t * p1[i] +
+			3 * (1 - t) * t ** 2 * p2[i] +
+			t ** 3 * p3[i];
 
 		for (let c of this.commands) {
 			switch (c.command) {
 				case 'moveTo':
-				case 'lineTo':
-					let [x, y] = c.args;
+				case 'lineTo': {
+					const [x, y] = c.args;
 					bbox.addPoint(x, y);
 					cx = x;
 					cy = y;
 					break;
+				}
 
 				case 'quadraticCurveTo':
-				case 'bezierCurveTo':
+				case 'bezierCurveTo': {
 					if (c.command === 'quadraticCurveTo') {
 						// http://fontforge.org/bezier.html
 						var [qp1x, qp1y, p3x, p3y] = c.args;
@@ -118,8 +119,8 @@ export default class Path {
 					var p3 = [p3x, p3y];
 
 					for (var i = 0; i <= 1; i++) {
-						let b = 6 * p0[i] - 12 * p1[i] + 6 * p2[i];
-						let a = -3 * p0[i] + 9 * p1[i] - 9 * p2[i] + 3 * p3[i];
+						const b = 6 * p0[i] - 12 * p1[i] + 6 * p2[i];
+						const a = -3 * p0[i] + 9 * p1[i] - 9 * p2[i] + 3 * p3[i];
 						c = 3 * p1[i] - 3 * p0[i];
 
 						if (a === 0) {
@@ -127,7 +128,7 @@ export default class Path {
 								continue;
 							}
 
-							let t = -c / b;
+							const t = -c / b;
 							if (0 < t && t < 1) {
 								if (i === 0) {
 									bbox.addPoint(f(t), bbox.maxY);
@@ -139,12 +140,12 @@ export default class Path {
 							continue;
 						}
 
-						let b2ac = Math.pow(b, 2) - 4 * c * a;
+						const b2ac = b ** 2 - 4 * c * a;
 						if (b2ac < 0) {
 							continue;
 						}
 
-						let t1 = (-b + Math.sqrt(b2ac)) / (2 * a);
+						const t1 = (-b + Math.sqrt(b2ac)) / (2 * a);
 						if (0 < t1 && t1 < 1) {
 							if (i === 0) {
 								bbox.addPoint(f(t1), bbox.maxY);
@@ -153,7 +154,7 @@ export default class Path {
 							}
 						}
 
-						let t2 = (-b - Math.sqrt(b2ac)) / (2 * a);
+						const t2 = (-b - Math.sqrt(b2ac)) / (2 * a);
 						if (0 < t2 && t2 < 1) {
 							if (i === 0) {
 								bbox.addPoint(f(t2), bbox.maxY);
@@ -166,6 +167,7 @@ export default class Path {
 					cx = p3x;
 					cy = p3y;
 					break;
+				}
 			}
 		}
 
@@ -178,12 +180,12 @@ export default class Path {
 	 * @return {Path}
 	 */
 	mapPoints(fn) {
-		let path = new Path();
+		const path = new Path();
 
-		for (let c of this.commands) {
-			let args = [];
+		for (const c of this.commands) {
+			const args = [];
 			for (let i = 0; i < c.args.length; i += 2) {
-				let [x, y] = fn(c.args[i], c.args[i + 1]);
+				const [x, y] = fn(c.args[i], c.args[i + 1]);
 				args.push(x, y);
 			}
 
@@ -215,8 +217,8 @@ export default class Path {
 	 * Rotates the path by the given angle (in radians).
 	 */
 	rotate(angle) {
-		let cos = Math.cos(angle);
-		let sin = Math.sin(angle);
+		const cos = Math.cos(angle);
+		const sin = Math.sin(angle);
 		return this.transform(cos, sin, -sin, cos, 0, 0);
 	}
 
@@ -228,7 +230,7 @@ export default class Path {
 	}
 }
 
-for (let command of [
+for (const command of [
 	'moveTo',
 	'lineTo',
 	'quadraticCurveTo',

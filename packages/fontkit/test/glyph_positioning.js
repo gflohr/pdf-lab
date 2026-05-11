@@ -1,10 +1,10 @@
 import './addTestHelpersToFontkit';
-import fontkit from '../src';
 import assert from 'assert';
+import fontkit from '../src';
 
-describe('glyph positioning', function () {
-	describe('basic positioning', function () {
-		let font = fontkit.openSync(
+describe('glyph positioning', () => {
+	describe('basic positioning', () => {
+		const font = fontkit.openSync(
 			__dirname + '/data/SourceSansPro/SourceSansPro-Regular.otf',
 		);
 
@@ -12,21 +12,21 @@ describe('glyph positioning', function () {
 			assert.equal(font.getGlyph(5).advanceWidth, 615));
 	});
 
-	describe('opentype positioning', function () {
-		let font = fontkit.openSync(
+	describe('opentype positioning', () => {
+		const font = fontkit.openSync(
 			__dirname + '/data/SourceSansPro/SourceSansPro-Regular.otf',
 		);
 
-		it('should apply opentype GPOS features', function () {
-			let { positions } = font.layout('Twitter');
+		it('should apply opentype GPOS features', () => {
+			const { positions } = font.layout('Twitter');
 			return assert.deepEqual(
 				positions.map((p) => p.xAdvance),
 				[502, 718, 246, 318, 324, 496, 347],
 			);
 		});
 
-		it('should ignore duplicate features', function () {
-			let { positions } = font.layout('Twitter', ['kern', 'kern']);
+		it('should ignore duplicate features', () => {
+			const { positions } = font.layout('Twitter', ['kern', 'kern']);
 			return assert.deepEqual(
 				positions.map((p) => p.xAdvance),
 				[502, 718, 246, 318, 324, 496, 347],
@@ -34,11 +34,11 @@ describe('glyph positioning', function () {
 		});
 	});
 
-	describe('AAT features', function () {
-		let font = fontkit.openSync(__dirname + '/data/Play/Play-Regular.ttf');
+	describe('AAT features', () => {
+		const font = fontkit.openSync(__dirname + '/data/Play/Play-Regular.ttf');
 
-		it('should apply kerning by default', function () {
-			let { positions } = font.layout('Twitter');
+		it('should apply kerning by default', () => {
+			const { positions } = font.layout('Twitter');
 			return assert.deepEqual(
 				positions.map((p) => p.xAdvance),
 				[535, 792, 246, 372, 402, 535, 351],

@@ -119,7 +119,7 @@ export default class LayoutEngine {
 
 		// if kerning is not supported by GPOS, do kerning with the TrueType/AAT kern table
 		if (
-			(!positioned?.kern) &&
+			!positioned?.kern &&
 			glyphRun.features.kern !== false &&
 			this.font.kern
 		) {
