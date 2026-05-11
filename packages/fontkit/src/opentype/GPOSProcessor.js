@@ -1,8 +1,8 @@
-import OTProcessor from './OTProcessor';
+import OTProcessor from './OTProcessor.js';
 
 export default class GPOSProcessor extends OTProcessor {
 	applyPositionValue(sequenceIndex, value) {
-		let position = this.positions[this.glyphIterator.peekIndex(sequenceIndex)];
+		const position = this.positions[this.glyphIterator.peekIndex(sequenceIndex)];
 		if (value.xAdvance != null) {
 			position.xAdvance += value.xAdvance;
 		}
