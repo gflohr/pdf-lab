@@ -1,5 +1,5 @@
-import * as AATFeatureMap from './AATFeatureMap';
 import * as Script from '../layout/Script';
+import * as AATFeatureMap from './AATFeatureMap';
 import AATMorxProcessor from './AATMorxProcessor';
 
 export default class AATLayoutEngine {
