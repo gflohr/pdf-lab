@@ -238,6 +238,7 @@ const GPOSLookup = new r.VersionedStruct('lookupType', {
 		// Extension Positioning
 		posFormat: r.uint16,
 		lookupType: r.uint16, // cannot also be 9
+		// biome-ignore lint/correctness/noInvalidUseBeforeDeclaration: fix later
 		extension: new r.Pointer(r.uint32, GPOSLookup),
 	},
 });

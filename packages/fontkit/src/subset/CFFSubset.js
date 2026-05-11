@@ -69,7 +69,6 @@ export default class CFFSubset extends Subset {
 			topDict.FDSelect.fds.push(topDict.FDArray.length - 1);
 
 			const glyph = this.font.getGlyph(gid);
-			const path = glyph.path; // this causes the glyph to be parsed
 			for (const subr in glyph._usedSubrs) {
 				used_subrs[used_subrs.length - 1][subr] = true;
 			}
@@ -78,7 +77,7 @@ export default class CFFSubset extends Subset {
 		for (let i = 0; i < topDict.FDArray.length; i++) {
 			const dict = topDict.FDArray[i];
 			delete dict.FontName;
-			if (dict.Private && dict.Private.Subrs) {
+			if (dict.Private?.Subrs) {
 				dict.Private = Object.assign({}, dict.Private);
 				dict.Private.Subrs = this.subsetSubrs(
 					dict.Private.Subrs,
