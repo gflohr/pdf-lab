@@ -8,6 +8,7 @@ const REPEAT = 1 << 3;
 const SAME_X = 1 << 4;
 const SAME_Y = 1 << 5;
 
+// biome-ignore lint/complexity/noStaticOnlyClass: fix later
 class Point {
 	static size(val) {
 		return val >= 0 && val <= 255 ? 1 : 2;

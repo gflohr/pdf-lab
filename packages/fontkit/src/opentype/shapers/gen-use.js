@@ -257,7 +257,6 @@ const json = Object.assign(
 	stateMachine,
 );
 
-// biome-ignore lint/style/useTemplate: breaks things
 const useFilePath = __dirname + '/use.json';
 const useJsonBytes = JSON.stringify(json)
 	.split('')

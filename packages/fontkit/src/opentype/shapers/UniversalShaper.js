@@ -111,13 +111,13 @@ function setupSyllables(_font, glyphs) {
 	}
 }
 
-function clearSubstitutionFlags(font, glyphs) {
+function clearSubstitutionFlags(_font, glyphs) {
 	for (const glyph of glyphs) {
 		glyph.substituted = false;
 	}
 }
 
-function recordRphf(font, glyphs) {
+function recordRphf(_font, glyphs) {
 	for (const glyph of glyphs) {
 		if (glyph.substituted && glyph.features.rphf) {
 			// Mark a substituted repha.
@@ -126,7 +126,7 @@ function recordRphf(font, glyphs) {
 	}
 }
 
-function recordPref(font, glyphs) {
+function recordPref(_font, glyphs) {
 	for (const glyph of glyphs) {
 		if (glyph.substituted) {
 			// Mark a substituted pref as VPre, as they behave the same way.
