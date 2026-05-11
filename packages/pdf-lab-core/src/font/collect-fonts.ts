@@ -1,6 +1,5 @@
 import {
 	decodePDFRawStream,
-	isStandardFont,
 	PDFArray,
 	PDFDict,
 	type PDFDocument,
@@ -11,14 +10,13 @@ import {
 } from '@cantoo/pdf-lib';
 import { CMapMapper } from '../encoding/mappers/cmap-mapper.js';
 import type { GlyphMapper } from '../encoding/mappers/glyph-mapper.js';
+import { IdentityMapper } from '../encoding/mappers/identity-mapper.js';
 import { SingleByteEncodingMapper } from '../encoding/mappers/single-byte-encoding-mapper.js';
+import type { Encoding } from '../encoding/types.js';
+import { isStandardEncoding } from '../encoding/util/is-standard-encoding.js';
 import type { FontUsage } from './collect-resources.js';
-import {
-	type Encoding,
-	type FontInfo,
-	type FontSubtype,
-	StandardEncodings,
-} from './types.js';
+import type { FontInfo, FontSubtype } from './types.js';
+import { fontName } from './util/font-name.js';
 
 /**
  * Collect all font contained in a PDF document.
@@ -59,90 +57,41 @@ export default function collectFonts(
 	return fonts;
 }
 
-function getFontName(baseName: string): string {
-	// Strip subset prefix (ABCDEF+).
-	let fontName = baseName.replace(/^[A-Z]{6}\+/, '');
-
-	// Strip numerical suffix.
-	fontName = fontName.replace(/-[0-9]+$/, '');
-
-	return fontName;
-}
-
 function getFontInfo(
 	subtypeName: string,
 	fontDict: PDFDict,
 	fontRef: PDFRef,
 ): FontInfo | undefined {
-	let embedded = false;
+	let embedded = subtypeName === 'Type3'; // Always embedded.
 	const fontDescriptor = fontDict.lookupMaybe(
 		PDFName.of('FontDescriptor'),
 		PDFDict,
 	);
-	if (fontDescriptor) {
+	if (!embedded && fontDescriptor) {
 		embedded =
 			fontDescriptor.has(PDFName.of('FontFile')) ||
 			fontDescriptor.has(PDFName.of('FontFile2')) ||
 			fontDescriptor.has(PDFName.of('FontFile3'));
 	}
 
-	let glyphMapper: GlyphMapper | undefined;
-	const toUnicodeStream = fontDict.lookup(PDFName.of('ToUnicode'));
-	if (toUnicodeStream && toUnicodeStream instanceof PDFRawStream) {
-		const data = decodePDFRawStream(toUnicodeStream).decode();
-		glyphMapper = new CMapMapper(data);
-	} else if (toUnicodeStream && toUnicodeStream instanceof PDFStream) {
-		glyphMapper = new CMapMapper(toUnicodeStream.getContents());
-	}
-
-	let encoding: string | undefined;
-	const encodingPDFName = fontDict.lookupMaybe(PDFName.of('Encoding'), PDFName);
-	if (encodingPDFName) {
-		const decoded = encodingPDFName.decodeText();
-		const canonical = StandardEncodings.find(
-			(e) => e.toLowerCase() === decoded.toLowerCase(),
-		);
-		if (canonical) {
-			encoding = canonical;
-		}
-	} else {
-		const baseFont = fontDict.lookupMaybe(PDFName.of('BaseFont'), PDFName);
-		if (baseFont && isStandardFont(baseFont.decodeText())) {
-			const baseFontName = baseFont.decodeText();
-			if (baseFontName === 'Symbol') {
-				encoding = 'SymbolEncoding';
-			} else if (baseFontName === 'ZapfDingbats') {
-				encoding = 'ZapfDingbatsEncoding';
-			} else {
-				encoding = 'StandardEncoding';
-			}
-		}
-	}
-
-	if (!glyphMapper) {
-		if (typeof encoding === 'undefined') {
-			glyphMapper = new SingleByteEncodingMapper('StandardEncoding');
-		} else {
-			glyphMapper = new SingleByteEncodingMapper(encoding);
-		}
-	}
-
+	const toUnicodeMapper = getToUnicodeMapper(fontDict);
 	const baseFont = fontDict
 		.lookupMaybe(PDFName.of('BaseFont'), PDFName)
 		?.decodeText();
+	const encodingMapper = getEncodingMapper(fontDict, subtypeName, baseFont);
+
 	const fontInfo: FontInfo = {
 		ref: fontRef,
 		embedded,
 		subtype: subtypeName as FontSubtype,
-		glyphMapper,
+		toUnicodeMapper,
+		encodingMapper,
 	};
 	if (typeof baseFont !== 'undefined') {
 		fontInfo.baseFont = baseFont;
-		fontInfo.fontName = getFontName(baseFont);
+		fontInfo.fontName = fontName(baseFont);
 	}
-	if (typeof encoding !== 'undefined') {
-		fontInfo.encoding = encoding as Encoding;
-	}
+
 	return fontInfo;
 }
 
@@ -171,33 +120,117 @@ function getFontType0Info(
 		descendantFontDescriptor.has(PDFName.of('FontFile2')) ||
 		descendantFontDescriptor.has(PDFName.of('FontFile3'));
 
+	const toUnicodeMapper = getToUnicodeMapper(fontDict);
+	const baseFont = descendantFontDescriptor
+		.lookupMaybe(PDFName.of('BaseFont'), PDFName)
+		?.decodeText();
+	const encodingMapper = getEncodingMapper(fontDict, 'Type0', baseFont);
+	const subtype = descendantFontDescriptor
+		.lookupMaybe(PDFName.of('Subtype'), PDFName)
+		?.decodeText() as FontSubtype;
 	const fontInfo: FontInfo = {
 		ref: fontRef,
 		embedded,
-		subtype: 'Type0',
+		subtype,
+		toUnicodeMapper,
+		encodingMapper,
 	};
-
-	const baseFont = fontDict
-		.lookupMaybe(PDFName.of('BaseFont'), PDFName)
-		?.decodeText();
 	if (typeof baseFont !== 'undefined') {
 		fontInfo.baseFont = baseFont;
-		fontInfo.fontName = getFontName(baseFont);
-	}
-
-	const toUnicodeStream = fontDict.lookup(PDFName.of('ToUnicode'));
-	if (toUnicodeStream && toUnicodeStream instanceof PDFRawStream) {
-		const data = decodePDFRawStream(toUnicodeStream).decode();
-		fontInfo.glyphMapper = new CMapMapper(data);
-	} else if (toUnicodeStream && toUnicodeStream instanceof PDFStream) {
-		fontInfo.glyphMapper = new CMapMapper(toUnicodeStream.getContents());
+		fontInfo.fontName = fontName(baseFont);
 	}
 
 	return fontInfo;
 }
 
-function isStandardEncoding(encoding: string): boolean {
-	return StandardEncodings.map((e) => e.toLocaleLowerCase()).includes(
-		encoding.toLowerCase(),
-	);
+function getEncodingMapper(
+	fontDict: PDFDict,
+	subtype: string,
+	baseFont: string | undefined,
+): GlyphMapper {
+	const encodingObj = fontDict.lookup(PDFName.of('Encoding'));
+	if (encodingObj instanceof PDFName) {
+		const name = encodingObj.decodeText();
+		const encoding = getEncoding(subtype, name, baseFont);
+		if (encoding.toLowerCase().startsWith('identity-')) {
+			return new IdentityMapper(encoding as 'Identity-H' | 'Identity-V');
+		} else {
+			return new SingleByteEncodingMapper(encoding as Encoding);
+		}
+	} else if (encodingObj instanceof PDFDict) {
+		const pdfName = encodingObj.lookupMaybe(
+			PDFName.of('BaseEncoding'),
+			PDFName,
+		);
+		const encoding = getEncoding(subtype, pdfName?.decodeText(), baseFont);
+		const differences = encodingObj.lookupMaybe(
+			PDFName.of('Differences'),
+			PDFArray,
+		);
+
+		if (encoding.toLowerCase().startsWith('identity-')) {
+			return new IdentityMapper(
+				encoding as 'Identity-H' | 'Identity-V',
+				differences,
+			);
+		} else {
+			return new SingleByteEncodingMapper(encoding as Encoding, differences);
+		}
+	} else if (subtype === 'Type1') {
+		const lcBaseFont = baseFont?.toLowerCase();
+		if (lcBaseFont) {
+			if (lcBaseFont === 'symbol') {
+				return new SingleByteEncodingMapper('SymbolEncoding');
+			} else if (lcBaseFont === 'zapfdingbats') {
+				return new SingleByteEncodingMapper('ZapfDingbatsEncoding');
+			} else {
+				return new SingleByteEncodingMapper('StandardEncoding');
+			}
+		} else {
+			return new SingleByteEncodingMapper('StandardEncoding');
+		}
+	} else {
+		return new IdentityMapper('Identity-H');
+	}
+}
+
+function getEncoding(
+	subtype: string,
+	name?: string,
+	baseFont?: string,
+): string {
+	if (subtype === 'Type1') {
+		const lcBaseFont = baseFont?.toLowerCase();
+		if (lcBaseFont === 'symbol') {
+			return 'SymbolEncoding';
+		} else if (lcBaseFont === 'zapfdingbats') {
+			return 'ZapfDingbatsEncoding';
+		} else if (name && isStandardEncoding(name, true)) {
+			return name;
+		} else {
+			return 'StandardEncoding';
+		}
+	} else {
+		if (name) {
+			if (isStandardEncoding(name, true)) {
+				return name;
+			} else if (name.toLowerCase() === 'identity-v') {
+				return 'Identity-V';
+			} else {
+				return 'Identity-H';
+			}
+		} else {
+			return 'Identity-H';
+		}
+	}
+}
+
+function getToUnicodeMapper(fontDict: PDFDict): GlyphMapper | undefined {
+	const toUnicodeStream = fontDict.lookup(PDFName.of('ToUnicode'));
+	if (toUnicodeStream && toUnicodeStream instanceof PDFRawStream) {
+		const data = decodePDFRawStream(toUnicodeStream).decode();
+		return new CMapMapper(data);
+	} else if (toUnicodeStream && toUnicodeStream instanceof PDFStream) {
+		return new CMapMapper(toUnicodeStream.getContents());
+	}
 }

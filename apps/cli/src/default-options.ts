@@ -1,5 +1,5 @@
 import { Textdomain } from '@esgettext/runtime';
-import type { OptSpec } from './optspec.js';
+import type { OptSpec } from './util/optspec.js';
 
 const gtx = Textdomain.getInstance('pdf-lab');
 

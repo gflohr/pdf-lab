@@ -5,7 +5,7 @@
 // test, therefore would have to do a large write to file descriptor 1
 // which is not feasible.
 //
-// What the function addresses is a problem writing large schema data
+// What the function addresses is a problem writing large amounts of data
 // (around 90 kb) to the console. If that is piped to a program like `jq`
 // the output gets truncated to 64k bytes when you just do a
 // conventional `process.stdout.write()`.
@@ -19,25 +19,6 @@ import * as util from 'node:util';
 const CHUNK_SIZE = 16 * 1024;
 
 const finished = util.promisify(stream.finished);
-
-export const safeStdoutWrite = async (output: string) => {
-	let offset = 0;
-
-	while (offset < output.length) {
-		const chunk = output.slice(offset, offset + CHUNK_SIZE);
-		const canContinue = process.stdout.write(chunk);
-
-		if (!canContinue) {
-			await once(process.stdout, 'drain');
-		}
-
-		offset += CHUNK_SIZE;
-	}
-
-	process.stdout.end();
-
-	await finished(process.stdout);
-};
 
 export const safeStdoutBufferWrite = async (output: Uint8Array) => {
 	let offset = 0;

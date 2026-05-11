@@ -1,5 +1,4 @@
 {
-	"files": [],
 	"compilerOptions": {
 		"target": "ES2022",
 		"module": "ESNext",
@@ -13,10 +12,6 @@
 		"sourceMap": true,
 		"rootDir": ".",
 		"outDir": "dist",
-		"paths": {
-			"pdf-lab-core": ["./packages/pdf-lab-core/src"],
-			"pdf-lab-core/*": ["./packages/pdf-lab-core/src/*"]
-		},
 		"types": ["node"]
 	},
 	"include": [],

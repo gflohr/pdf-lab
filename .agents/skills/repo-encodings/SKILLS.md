@@ -2,7 +2,7 @@
 name: repo-encodings
 description: >
   Teaches AI agents about the different ways how glyph IDs may be mapped to
-	Unicode codepoints. The mapping can also be indirect via glyph names contained
+	Unicode code points. The mapping can also be indirect via glyph names contained
 	in the Adobe Glyph List (AGL) specification.
 ---
 
@@ -54,11 +54,11 @@ Unicode and the pre-defined PDF encoding.
 
 ### Structure and Location
 
-The pre-defined encodings are not defined in terms of codepoints but in terms
+The pre-defined encodings are not defined in terms of code points but in terms
 of glyph names from the Adobe Glyph List Specification. The mapping to Unicode
 is therefore indirects. The glyph ID used in the PDF is first mapped to
 a Adobe glyph name. And the glyph name is then mapped to one or more
-Unicode codepoints.
+Unicode code points.
 
 The encodigns are stored in `packages/core/src/encoding/single-byte-encodings`.
 They are represented of arrays for 256 strings. The special glyph name
@@ -73,7 +73,7 @@ that map single glyph IDs to Unicode code points or a range of glyph IDs to
 a range of Unicode code points. CMap tables have a a lot more semantics, but
 they are out of the scope of this software.
 
-Glyphs can also be mapped to a sequence of codepoints. Example:
+Glyphs can also be mapped to a sequence of c s. Example:
 
 ```
 beginbfrange
@@ -89,4 +89,4 @@ the ligatures "fi" and "ffl".
 
 * `ToUnicode` mappings in form of CMap tables are the modern standard way of mapping glyphs to Unicode code points.
 * CMap tables are not to be confused with "cmap" tables present in TrueType font programs
-* One glyph may be mapped to a sequence of codepoints for ligatures
+* One glyph may be mapped to a sequence of code points for ligatures

@@ -1,32 +1,88 @@
+import * as os from 'node:os';
 import { Textdomain } from '@esgettext/runtime';
+import fontkit from '@pdf-lib/fontkit';
 import * as yaml from 'js-yaml';
-import { PDFLab } from 'pdf-lab-core';
+import { type FontInfo, PDFLab } from 'pdf-lab-core';
 import type { Arguments, InferredOptionTypes } from 'yargs';
 import type { Command } from '../command.js';
 import { defaultOptions } from '../default-options.js';
-import { coerceOptions, type OptSpec } from '../optspec.js';
-import { Package } from '../package.js';
 import { toFontInfoDto } from '../util/font-info-dto.js';
+import { fontMapSpec } from '../util/font-map-spec.js';
+import { coerceOptions, type OptSpec } from '../util/optspec.js';
+import { writeOutput } from '../util/write-output.js';
 
 const gtx = Textdomain.getInstance('pdf-lab');
 
 const options: {
+	embed: OptSpec;
 	list: OptSpec;
+	output: OptSpec;
+	'base-font': OptSpec;
+	font: OptSpec;
 	format: OptSpec;
+	'font-map': OptSpec;
+	'fc-match': OptSpec;
+	compress: OptSpec;
 } = {
+	embed: {
+		group: gtx._('Mode of Operation'),
+		alias: ['e'],
+		type: 'boolean',
+		conflicts: ['list'],
+		describe: gtx._('embed fonts'),
+	},
 	list: {
 		group: gtx._('Mode of Operation'),
 		alias: ['l'],
 		type: 'boolean',
+		conflicts: ['embed'],
 		describe: gtx._('list fonts'),
+	},
+	output: {
+		group: gtx._('Output location'),
+		alias: ['o'],
+		type: 'string',
+		default: '-',
+		describe: gtx._("output file location ('-' for standard output)"),
+	},
+	'base-font': {
+		group: gtx._('Selection of Fonts'),
+		alias: ['b'],
+		type: 'string',
+		multi: true,
+		describe: gtx._('limit to base-font(s)'),
+	},
+	font: {
+		group: gtx._('Selection of Fonts'),
+		alias: ['b', 'font-name'],
+		type: 'string',
+		multi: true,
+		describe: gtx._('limit to font-name'),
 	},
 	format: {
 		group: gtx._('Listing Output Format'),
-		alias: ['f'],
 		type: 'string',
 		choices: ['text', 'json', 'yaml'],
 		default: 'text',
 		describe: gtx._('the output format'),
+	},
+	'fc-match': {
+		group: gtx._('Font Embedding Options'),
+		type: 'string',
+		default: 'fc-match',
+		describe: gtx._("path to the 'fc-match' program"),
+	},
+	'font-map': {
+		group: gtx._('Font Embedding Options'),
+		type: 'string',
+		multi: true,
+		describe: gtx._('font mapping (FONT_NAME:PATH[:POSTSCRIPT_NAME]'),
+	},
+	compress: {
+		group: gtx._('Font Embedding Options'),
+		type: 'boolean',
+		default: true,
+		describe: gtx._('compress embedded fonts'),
 	},
 };
 
@@ -46,10 +102,48 @@ export class FontCommand implements Command {
 		return options;
 	}
 
-	private listFonts(lab: PDFLab, format: string) {
+	private getFonts(
+		lab: PDFLab,
+		configOptions: ConfigOptions,
+	): Map<string, FontInfo> {
 		const fonts = lab.collectFonts();
 
-		if (format === 'text') {
+		const fontNames = configOptions.font as string[] | undefined;
+		const baseFonts = configOptions['base-font'] as string[] | undefined;
+
+		if (baseFonts || fontNames) {
+			return new Map(
+				[...fonts.entries()].filter(
+					([, font]) =>
+						(font.fontName !== undefined &&
+							fontNames?.includes(font.fontName)) ??
+						(font.baseFont !== undefined && baseFonts?.includes(font.baseFont)),
+				),
+			);
+		}
+
+		return fonts;
+	}
+
+	private async embedFonts(lab: PDFLab, configOptions: ConfigOptions) {
+		const fonts = this.getFonts(lab, configOptions);
+		const refs = [...fonts.values()].map((f) => f.ref);
+		const fontMap = fontMapSpec((configOptions['font-map'] ?? []) as string[]);
+
+		await lab.embedFonts(refs, {
+			fontMap,
+			fcMatch: configOptions['fc-match'] as string,
+			platform: os.platform(),
+			fontkit,
+		});
+
+		await writeOutput(configOptions.output as string, lab);
+	}
+
+	private listFonts(lab: PDFLab, configOptions: ConfigOptions) {
+		const fonts = this.getFonts(lab, configOptions);
+
+		if (configOptions.format === 'text') {
 			const uniqueFontNames = new Set(
 				[...fonts.values()].map((v) => v.fontName),
 			);
@@ -61,7 +155,7 @@ export class FontCommand implements Command {
 
 		const fontsDto = [...fonts.values()].map(toFontInfoDto);
 
-		if (format === 'yaml') {
+		if (configOptions.format === 'yaml') {
 			console.log(yaml.dump(fontsDto));
 		} else {
 			console.log(JSON.stringify(fontsDto));
@@ -72,7 +166,9 @@ export class FontCommand implements Command {
 		const lab = await PDFLab.from(input);
 
 		if (configOptions.list) {
-			this.listFonts(lab, configOptions.format as string);
+			this.listFonts(lab, configOptions);
+		} else if (configOptions.embed) {
+			await this.embedFonts(lab, configOptions);
 		} else {
 			throw new Error(gtx._('nothing to do'));
 		}
@@ -86,18 +182,7 @@ export class FontCommand implements Command {
 			return 1;
 		}
 
-		try {
-			await this.doRun(input, configOptions);
-			return 0;
-		} catch (e) {
-			console.error(
-				gtx._x('{programName}: {error}', {
-					programName: Package.name,
-					error: e,
-				}),
-			);
-
-			return 1;
-		}
+		await this.doRun(input, configOptions);
+		return 0;
 	}
 }

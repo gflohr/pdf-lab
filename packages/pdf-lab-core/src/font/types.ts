@@ -1,21 +1,6 @@
 import type { PDFRef } from '@cantoo/pdf-lib';
 import type { GlyphMapper } from '../encoding/mappers/glyph-mapper.js';
 
-// FIXME! That does not fit here!
-export const StandardEncodings = [
-	'StandardEncoding',
-	'MacRomanEncoding',
-	'WinAnsiEncoding',
-	'MacExpertEncoding',
-	'SymbolEncoding',
-	'ZapfDingbatsEncoding',
-] as const;
-
-/**
- * The pre-defined PDF encodings.
- */
-export type Encoding = (typeof StandardEncodings)[number];
-
 /**
  * The possible font subtypes.
  */
@@ -38,14 +23,20 @@ export type FontInfo = {
 	ref: PDFRef;
 
 	/**
+	 * The resource name mapping. For each page that references the font,
+	 * the resource name used is stored.
+	 */
+	//resourceNames: Record<number, string>;
+
+	/**
 	 * The indicator for embedded fonts.
 	 */
 	embedded: boolean;
 
 	/**
-	 * The font subtype.
+	 * The font subtype. This can only be unset for Type0 fonts.
 	 */
-	subtype: FontSubtype;
+	subtype?: FontSubtype;
 
 	/**
 	 * The BaseFont. This often contains subset identifiers or a numbered
@@ -60,12 +51,62 @@ export type FontInfo = {
 	fontName?: string;
 
 	/**
-	 * The optional encoding.
+	 * The encoding mapper. You can get the name of the encoding with the
+	 * `name` property of the mapper.
 	 */
-	encoding?: Encoding;
+	encodingMapper: GlyphMapper;
 
 	/**
-	 * The optional glyph mapper.
+	 * The optional ToUnicode mapper.
 	 */
-	glyphMapper?: GlyphMapper;
+	toUnicodeMapper?: GlyphMapper;
+};
+
+/**
+ * The type for font data reference.
+ */
+export type FontData = {
+	/**
+	 * The source of the font data. This can either be a file system path
+	 * from where the font data gets loaded or the raw data bytes.
+	 */
+	source: string | ArrayBuffer | Uint8Array<ArrayBufferLike>;
+
+	/**
+	 * The optional PostScript name. This is only relevant, if the font
+	 * is a TrueType collection (`.ttc`) file.
+	 */
+	postScriptName?: string;
+};
+
+/**
+ * The font mapping data. This maps font names (with a subset prefix and a
+ * producer suffix stripped off) to font data.
+ */
+export type FontMap = Record<string, FontData>;
+
+/**
+ * Patch instructions.
+ */
+export type PatchSet = {
+	/**
+	 * The numerical ID of the `PDFStream`.
+	 */
+	streamId: number;
+
+	/**
+	 * The offset inside the stream to the first octet that has to be
+	 * replaced.
+	 */
+	offset: number;
+
+	/**
+	 * The number of octets to replace.
+	 */
+	length: number;
+
+	/**
+	 * Replacement string as 8-bit characters.
+	 */
+	hexstring: number[];
 };

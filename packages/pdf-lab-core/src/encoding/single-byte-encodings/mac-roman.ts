@@ -14,7 +14,7 @@
  * const fallbackCodes = glyph.f;
  * const isZapfDingbats = glyph.z;
  *
- * All codepoints in the PDF standard encodings map to exactly one Unicode
+ * All code points in the PDF standard encodings map to exactly one Unicode
  * code point. In other words, none of the corresponding glyphs is a composite
  * character, and the property `u` will always be of type `number` (and not
  * `number[]`).
@@ -239,7 +239,7 @@ export const MacRomanEncoding = [
 	'ydieresis', // Octal: 0330, decimal: 216, hexadecimal: 0xd8.
 	'Ydieresis', // Octal: 0331, decimal: 217, hexadecimal: 0xd9.
 	'fraction', // Octal: 0332, decimal: 218, hexadecimal: 0xda.
-	'Euro1', // Octal: 0333, decimal: 219, hexadecimal: 0xdb.
+	'currency', // Octal: 0333, decimal: 219, hexadecimal: 0xdb.
 	'guilsinglleft', // Octal: 0334, decimal: 220, hexadecimal: 0xdc.
 	'guilsinglright', // Octal: 0335, decimal: 221, hexadecimal: 0xdd.
 	'fi', // Octal: 0336, decimal: 222, hexadecimal: 0xde.

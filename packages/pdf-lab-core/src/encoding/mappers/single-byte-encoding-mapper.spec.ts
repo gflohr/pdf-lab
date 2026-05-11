@@ -1,4 +1,6 @@
+import { PDFArray, PDFContext, PDFName, PDFNumber } from '@cantoo/pdf-lib';
 import { describe, expect, it } from 'vitest';
+import type { Encoding } from '../types.js';
 import { SingleByteEncodingMapper } from './single-byte-encoding-mapper.js';
 
 describe('8-bit mappers', () => {
@@ -8,6 +10,8 @@ describe('8-bit mappers', () => {
 
 			expect(mapper).toBeDefined();
 			expect(mapper).toBeInstanceOf(SingleByteEncodingMapper);
+			expect(mapper.name).toBe('MacExpertEncoding');
+			expect(mapper.highest).toBe(255);
 		});
 
 		it('should support the MacRoman encoding', () => {
@@ -45,8 +49,12 @@ describe('8-bit mappers', () => {
 			expect(mapper).toBeInstanceOf(SingleByteEncodingMapper);
 		});
 
-		it('should throw an exception for unknown encodings', () => {
-			expect(() => new SingleByteEncodingMapper('AtariST')).toThrow();
+		it('should fall back to StandardEncoding for unknown encodings', () => {
+			const mapper = new SingleByteEncodingMapper('AtariST' as Encoding);
+
+			expect(mapper).toBeDefined();
+			expect(mapper).toBeInstanceOf(SingleByteEncodingMapper);
+			expect(mapper.name).toBe('StandardEncoding');
 		});
 	});
 
@@ -131,6 +139,38 @@ describe('8-bit mappers', () => {
 
 		it('should not find the character 0x19', () => {
 			expect(mapper.lookup(0x19)).toBe('\uFFFD');
+		});
+	});
+
+	describe('Differences', () => {
+		const context = PDFContext.create();
+		const differences = PDFArray.withContext(context);
+		differences.push(PDFNumber.of('a'.codePointAt(0)!));
+		for (let c = 'A'.codePointAt(0); c! <= 'Z'.codePointAt(0)!; ++c!) {
+			differences.push(PDFName.of(String.fromCharCode(c!)));
+		}
+		differences.push(PDFNumber.of(0xdb));
+		differences.push(PDFName.of('Euro'));
+
+		const mapper = new SingleByteEncodingMapper(
+			'MacRomanEncoding',
+			differences,
+		);
+
+		it('should honour the differences', () => {
+			expect(mapper.lookup('a'.codePointAt(0)!)).toBe('A');
+			expect(mapper.lookup('z'.codePointAt(0)!)).toBe('Z');
+			expect(mapper.lookup(0xdb)).toBe('€');
+		});
+
+		it('should not modify the targets of the mappings', () => {
+			expect(mapper.lookup('A'.codePointAt(0)!)).toBe('A');
+			expect(mapper.lookup('Z'.codePointAt(0)!)).toBe('Z');
+		});
+
+		it('should not modify mappings that are not involved', () => {
+			expect(mapper.lookup('5'.codePointAt(0)!)).toBe('5');
+			expect(mapper.lookup(0xa7)).toBe('ß');
 		});
 	});
 });

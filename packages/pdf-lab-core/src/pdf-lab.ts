@@ -1,13 +1,81 @@
-import { PDFDocument } from '@cantoo/pdf-lib';
+import { PDFDict, PDFDocument, PDFName, PDFRef, type PDFStream } from '@cantoo/pdf-lib';
 import collectFonts from './font/collect-fonts.js';
 import { collectResources, type FontUsage } from './font/collect-resources.js';
-import type { FontInfo } from './font/types.js';
+import { Type1FontEmbedder } from './font/embedder/type1-embedder.js';
+import type { FontEmbedder } from './font/embedder.js';
+import { patchStream } from './font/patch-stream.js';
+import type { FontInfo, FontMap, PatchSet } from './font/types.js';
+import { extractGlyphs, type GlyphBlock } from './text/extract-glyphs.js';
+import { extractText, type TextBlock } from './text/extract-text.js';
+import collectSubsetPrefixes from './font/collect-subset-prefixes.js';
+
+/**
+ * Options for embedding fonts.
+ */
+export type FontEmbedOptions = {
+	/**
+	 * Map font names to paths/buffers and optional PostScript names.
+	 */
+	fontMap?: FontMap;
+
+	/**
+	 * Path to the 'fc-match' program. Default: 'fc-match'.
+	 */
+	fcMatch?: string;
+
+	/**
+	 * Compress font streams. Default: true.
+	 */
+	compress?: boolean;
+
+	/**
+	 * Operating system as returned by os.platform() or undefined for the
+	 * browser.
+	 */
+
+	platform?: string;
+	/**
+	 * A fontkit instance, see `@pdf-lib/fontkit`.
+	 */
+
+	/**
+	 * FIXME! Create a stub type that covers all functionality that we need.
+	 */
+	fontkit?: unknown;
+};
 
 export class PDFLab {
 	private fonts: Map<string, FontInfo> | undefined;
 	private fontUsage: FontUsage[] | undefined;
 
-	private constructor(private readonly pdfDoc: PDFDocument) {}
+	private constructor(private readonly _pdfDoc: PDFDocument) {}
+
+	/**
+	 * Returns the internally used `PDFDocument`. Changing the structure of
+	 * this document, and then calling other `PDFLab` methods, may result in
+	 * undefined behaviour and is strongly discouraged.
+	 *
+	 * @return the internally used `PDFDocument`
+	 */
+	public get pdfDocument(): PDFDocument {
+		return this._pdfDoc;
+	}
+
+	/**
+	 * Serialises the internally used PDF into a sequence of bytes. As a side
+	 * effect, it also updates internal structures of the `PDFDocument` into
+	 * a stable version.
+	 *
+	 * The method is a thin wrapper around the `save()` method of `PDFDocument`.
+	 * Fine-tuning the saving process can be achieved by getting the
+	 * `pdfDocument`, and then calling the `save()` method with the desired
+	 * options.
+	 *
+	 * @returns
+	 */
+	public async save(): Promise<Uint8Array> {
+		return this.pdfDocument.save({ useObjectStreams: false });
+	}
 
 	/**
 	 * Creates a `PDFLab` instance from a variety of PDF-like inputs and
@@ -83,15 +151,152 @@ export class PDFLab {
 		return new PDFLab(pdfDoc);
 	}
 
-	public collectFonts(): Map<string, FontInfo> {
+	/**
+	 * Embed multiple fonts, but only if the are not already embedded.
+	 * If no references were passed, all currently missing fonts are
+	 * embedded.
+	 *
+	 * @param references font references (try `collectFonts()`)
+	 * @param options control the font embedding
+	 */
+	public async embedFonts(
+		references?: PDFRef[],
+		options: FontEmbedOptions = {},
+	) {
+		options.fontMap ??= {};
+		options.fcMatch ??= 'fc-match';
+		options.compress ??= true;
+
 		if (!this.fontUsage) {
-			this.fontUsage = collectResources(this.pdfDoc);
+			this.fontUsage = collectResources(this.pdfDocument);
 		}
 
 		if (!this.fonts) {
-			this.fonts = collectFonts(this.pdfDoc, this.fontUsage);
+			this.fonts = collectFonts(this.pdfDocument, this.fontUsage);
+		}
+
+		const subsetPrefixes = collectSubsetPrefixes(this.pdfDocument, this.fontUsage);
+
+		const fonts = [...this.fonts.values()].filter((f) => !f.embedded);
+		if (!fonts.length) {
+			return;
+		}
+
+		const refs = new Set<string>(
+			references?.map((ref) => ref.toString()) ??
+				fonts.map((f) => f.ref.toString()),
+		);
+
+		const glyphBlocks = extractGlyphs(this.pdfDocument);
+		const glyphsInFont: Record<string, GlyphBlock[]> = {};
+
+		// Aggregate all glyphs used, and remember the stream IDs.
+		const streams: PDFStream[] = [];
+		for (const block of glyphBlocks) {
+			const page = this.pdfDocument.getPage(block.pageNumber);
+			const { Font } = page.node.normalizedEntries();
+
+			const font = Font.get(PDFName.of(block.fontResource));
+			if (font instanceof PDFRef && refs.has(font.toString())) {
+				const fontRef = font.toString();
+				glyphsInFont[fontRef] ??= [];
+				glyphsInFont[fontRef].push(block);
+			}
+
+			streams[block.streamId] = block.stream;
+		}
+
+		// Normalize the fontMap.
+		if (typeof options.fontMap !== 'undefined') {
+			const fontMap = options.fontMap;
+			Object.keys(fontMap).forEach((key) => {
+				const entry = fontMap[key]!;
+				delete fontMap[key];
+				const lcKey = key.toLowerCase();
+				if (Object.hasOwn(fontMap, lcKey)) {
+					throw new Error(`font-mapping has duplicate key '${key}'!`);
+				}
+				fontMap[lcKey] = entry;
+			});
+		}
+
+		const allPatchSets: PatchSet[] = [];
+		for (const font of fonts) {
+			// Make sure that we also embed unused fonts.
+			const fontBlocks = glyphsInFont[font.ref.toString()] ?? [];
+
+			let embedder: FontEmbedder;
+			switch (font.subtype) {
+				case 'Type1':
+					embedder = new Type1FontEmbedder(
+						this.pdfDocument,
+						font,
+						fontBlocks,
+						subsetPrefixes,
+						options,
+					);
+					break;
+				default:
+					throw new Error(
+						`Embedding font sybtype ${font.subtype} not yet implemented`,
+					);
+			}
+
+			const patchSets = await embedder.embed();
+			allPatchSets.push(...patchSets);
+		}
+
+		const patchGroups: PatchSet[][] = [];
+
+		for (const patchSet of allPatchSets) {
+			patchGroups[patchSet.streamId] ??= [];
+			patchGroups[patchSet.streamId]!.push(patchSet);
+		}
+
+		for (let i = 0; i < patchGroups.length; ++i) {
+			const group = patchGroups[i];
+			if (group && streams[i]) {
+				patchStream(
+					streams[i]!,
+					this.pdfDocument.context,
+					group,
+					options.compress,
+				);
+			}
+		}
+	}
+
+	/**
+	 * Collects all fonts used in the PDF.
+	 *
+	 * @returns a `Map` with keys as `PDFRef` (reference of the font) and values as `FontInfo`
+	 */
+	public collectFonts(): Map<string, FontInfo> {
+		if (!this.fontUsage) {
+			this.fontUsage = collectResources(this.pdfDocument);
+		}
+
+		if (!this.fonts) {
+			this.fonts = collectFonts(this.pdfDocument, this.fontUsage);
 		}
 
 		return this.fonts;
+	}
+
+	/**
+	 * Extract all tags from the PDF.
+	 *
+	 * @returns an array of `TextBlock` objects.
+	 */
+	public async extractText(): Promise<TextBlock[]> {
+		if (!this.fontUsage) {
+			this.fontUsage = collectResources(this.pdfDocument);
+		}
+
+		if (!this.fonts) {
+			this.fonts = collectFonts(this.pdfDocument, this.fontUsage);
+		}
+
+		return await extractText(this.pdfDocument, this.fonts, this.fontUsage);
 	}
 }

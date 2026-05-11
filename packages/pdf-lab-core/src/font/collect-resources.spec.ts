@@ -1,4 +1,4 @@
-import { PDFDocument, PDFName, PDFRef, StandardFonts } from '@cantoo/pdf-lib';
+import { PDFDocument, StandardFonts } from '@cantoo/pdf-lib';
 import { describe, expect, it } from 'vitest';
 import { collectResources } from './collect-resources.js';
 

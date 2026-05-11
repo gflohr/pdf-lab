@@ -81,6 +81,50 @@ describe('PDFLab', () => {
 		});
 	});
 
+	describe('embed fonts', () => {
+		const fontInfos: FontInfo[] = [
+			{
+				ref: PDFRef.of(7),
+				baseFont: 'Helvetica',
+				fontName: 'Helvetica',
+				embedded: false,
+				subtype: 'Type0',
+				encodingMapper: new SingleByteEncodingMapper('WinAnsiEncoding'),
+			},
+			{
+				ref: PDFRef.of(8),
+				baseFont: 'Helvetica-Oblique',
+				fontName: 'Helvetica-Oblique',
+				embedded: false,
+				subtype: 'Type0',
+				encodingMapper: new SingleByteEncodingMapper('WinAnsiEncoding'),
+			},
+			{
+				ref: PDFRef.of(9),
+				baseFont: 'Roboto',
+				fontName: 'Roboto',
+				embedded: true,
+				subtype: 'TrueType',
+				encodingMapper: new SingleByteEncodingMapper('WinAnsiEncoding'),
+			},
+		];
+		const fontInfoMap = new Map<string, FontInfo>();
+		fontInfos.forEach((f) => {
+			fontInfoMap.set(f.ref.toString(), f);
+		});
+
+		it.skip('should embed all fonts', async () => {
+			const lab = await makePDFLab();
+			const collectMock = vi
+				.spyOn(collectFont, 'default')
+				.mockReturnValue(fontInfoMap);
+
+			await lab.embedFonts();
+
+			expect(collectMock).toHaveBeenCalledTimes(1);
+		});
+	});
+
 	describe('collect fonts', () => {
 		it('should call the collectFont() implementation', async () => {
 			const lab = await makePDFLab();
@@ -101,19 +145,17 @@ describe('PDFLab', () => {
 				ref: PDFRef.of(42),
 				baseFont: 'Helvetica-1234',
 				fontName: 'Helvetica',
-				encoding: 'MacRomanEncoding',
 				embedded: false,
 				subtype: 'Type1',
-				glyphMapper: new SingleByteEncodingMapper('MacRomanEncoding'),
+				encodingMapper: new SingleByteEncodingMapper('MacRomanEncoding'),
 			});
 			fonts.set('43 0 R', {
 				ref: PDFRef.of(43),
 				baseFont: 'Times-Roman-5678',
 				fontName: 'Times-Roman',
-				encoding: 'WinAnsiEncoding',
 				embedded: false,
 				subtype: 'Type1',
-				glyphMapper: new SingleByteEncodingMapper('WinAnsiEncoding'),
+				encodingMapper: new SingleByteEncodingMapper('WinAnsiEncoding'),
 			});
 			const collectMock = vi
 				.spyOn(collectFont, 'default')

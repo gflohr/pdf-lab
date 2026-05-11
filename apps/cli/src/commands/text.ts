@@ -1,12 +1,11 @@
 import { Textdomain } from '@esgettext/runtime';
 import * as yaml from 'js-yaml';
-import { TextExtractor } from 'pdf-lab-core';
+import { PDFLab } from 'pdf-lab-core';
 import type { Arguments, InferredOptionTypes } from 'yargs';
 import type { Command } from '../command.js';
 import { defaultOptions } from '../default-options.js';
-import { coerceOptions, type OptSpec } from '../optspec.js';
-import { Package } from '../package.js';
 import { type FontInfoDto, toFontInfoDto } from '../util/font-info-dto.js';
+import { coerceOptions, type OptSpec } from '../util/optspec.js';
 
 const gtx = Textdomain.getInstance('pdf-lab');
 
@@ -26,9 +25,9 @@ const options: {
 const allOptions = { ...defaultOptions, ...options };
 export type ConfigOptions = InferredOptionTypes<typeof allOptions>;
 
-type OutputTextBlock = {
+export type OutputTextBlock = {
 	text: string;
-	font: FontInfoDto,
+	font: FontInfoDto;
 	pageNumber: number;
 };
 
@@ -46,9 +45,9 @@ export class TextCommand implements Command {
 	}
 
 	private async doRun(input: Buffer, configOptions: ConfigOptions) {
-		const extractor = new TextExtractor();
+		const lab = await PDFLab.from(input);
 
-		const blocks = await extractor.extract(input);
+		const blocks = await lab.extractText();
 		if (configOptions.format === 'text') {
 			console.log(blocks.map((b) => b.text).join('\n'));
 			return;
@@ -78,18 +77,8 @@ export class TextCommand implements Command {
 			return 1;
 		}
 
-		try {
-			await this.doRun(input, configOptions);
-			return 0;
-		} catch (e) {
-			console.error(
-				gtx._x('{programName}: {error}', {
-					programName: Package.name,
-					error: e,
-				}),
-			);
+		await this.doRun(input, configOptions);
 
-			return 1;
-		}
+		return 0;
 	}
 }

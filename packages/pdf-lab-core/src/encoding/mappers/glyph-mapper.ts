@@ -1,4 +1,8 @@
+import type { Encoding } from '../types.js';
+
 export interface GlyphMapper {
+	name: Encoding | 'Identity-H' | 'Identity-V';
+	highest: number;
 	lookup(glyph: number): string;
-	lookupCodepoints(glyph: number): number[];
+	lookupCodePoints(glyph: number): number[];
 }

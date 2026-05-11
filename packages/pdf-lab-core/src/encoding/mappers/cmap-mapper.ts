@@ -1,4 +1,5 @@
-import { Lexer, type Token } from '../../parser/lexer.js';
+import { Lexer } from '../../parser/lexer.js';
+import type { Token } from '../../parser/types.js';
 import type { GlyphMapper } from './glyph-mapper.js';
 
 type Mapping =
@@ -6,9 +7,11 @@ type Mapping =
 	| [number, number, number]
 	| [number, number, number[][]]
 	| [number, number[]];
+type Range = [number, number];
 
 export class CMapMapper implements GlyphMapper {
 	private mappings: Mapping[];
+	private _highest: number;
 
 	constructor(
 		source:
@@ -22,9 +25,28 @@ export class CMapMapper implements GlyphMapper {
 
 		if (source instanceof Uint8Array) {
 			this.mappings = [...this.parse(source)].sort((a, b) => a[0] - b[0]);
+
+			if (this.mappings.length) {
+				const lastMapping = this.mappings[this.mappings.length - 1]!;
+				if (lastMapping?.length === 2) {
+					this._highest = lastMapping[0];
+				} else {
+					this._highest = lastMapping[1];
+				}
+			} else {
+				this._highest = 0;
+			}
 		} else {
 			throw new Error(`unsupported CMap source type '${typeof source}'`);
 		}
+	}
+
+	public get name(): 'Identity-H' {
+		return 'Identity-H';
+	}
+
+	public get highest(): number {
+		return this._highest;
 	}
 
 	private parse(
@@ -34,16 +56,19 @@ export class CMapMapper implements GlyphMapper {
 		const tokens = lexer.tokenize(source);
 
 		const mappings: Mapping[] = [];
+		const ranges: Range[] = [];
 
 		for (let i = 0; i < tokens.length; ++i) {
 			const token = tokens[i]!;
 			if (token.type !== 'token') continue;
 
-			const value = this.decodeNumberArray(token.value);
+			const value = this.decodeUint8Array(token.value);
 			if (value === 'beginbfchar') {
 				i += this.consumeMappings(mappings, tokens, 2, i + 1);
 			} else if (value === 'beginbfrange') {
 				i += this.consumeMappings(mappings, tokens, 3, i + 1);
+			} else if (value === 'begincodespacerange') {
+				i += this.consumeRanges(ranges, tokens, i + 1);
 			}
 		}
 
@@ -61,7 +86,7 @@ export class CMapMapper implements GlyphMapper {
 			const token = tokens[i]!;
 
 			if (token.type === 'token') {
-				const value = this.decodeNumberArray(token.value);
+				const value = this.decodeUint8Array(token.value);
 				if (cardinality === 2 && value === 'endbfchar') {
 					return i - start + 1;
 				} else if (
@@ -81,11 +106,37 @@ export class CMapMapper implements GlyphMapper {
 				}
 			} else {
 				// String.
-				mapping.push(this.numberArrayToNumber(token.value));
+				mapping.push(this.uint8ArrayToNumber(token.value));
 				if (mapping.length >= cardinality) {
 					mappings.push([...mapping]);
 					(mapping as Array<number>).length = 0;
 				}
+			}
+		}
+
+		return tokens.length - start + 1;
+	}
+
+	private consumeRanges(
+		ranges: Range[],
+		tokens: Token[],
+		start: number,
+	): number {
+		const range: Range = [] as unknown as Range;
+		for (let i = start; i < tokens.length; ++i) {
+			const token = tokens[i]!;
+
+			if (token.type === 'token') {
+				const value = this.decodeUint8Array(token.value);
+				if (range.length > 1) {
+					ranges.push([range[0], range[1]]);
+				}
+				if (value === 'endcodespacerange') {
+					return i - start + 1;
+				}
+			} else {
+				// String.
+				range.push(this.uint8ArrayToNumber(token.value));
 			}
 		}
 
@@ -104,7 +155,7 @@ export class CMapMapper implements GlyphMapper {
 
 			if (
 				token.type === 'token' &&
-				this.decodeNumberArray(token.value) === ']'
+				this.decodeUint8Array(token.value) === ']'
 			) {
 				mappings.push(mapping);
 				return i - start + 1;
@@ -132,7 +183,7 @@ export class CMapMapper implements GlyphMapper {
 
 			if (
 				token.type === 'token' &&
-				this.decodeNumberArray(token.value) === ']'
+				this.decodeUint8Array(token.value) === ']'
 			) {
 				mappings.push(mapping);
 				return i - start + 1;
@@ -150,19 +201,30 @@ export class CMapMapper implements GlyphMapper {
 		return tokens.length - start + 1;
 	}
 
-	private decodeNumberArray(value: number[]): string {
-		return value.map((c) => String.fromCharCode(c)).join('');
+	private decodeUint8Array(value: Uint8Array): string {
+		return String.fromCodePoint(...value);
 	}
 
-	private numberArrayToNumber(octets: number[]): number {
-		let factor = 1;
+	private uint8ArrayToNumber(octets: Uint8Array): number {
 		let value = 0;
-		octets.reverse().forEach((octet) => {
-			value += factor * octet;
-			factor *= 256;
-		});
+		let nonZeroSeen = false;
+		let count = 0;
 
-		return value;
+		for (let i = 0; i < octets.length; ++i) {
+			const octet = octets[i]! & 0xff;
+
+			if (!nonZeroSeen) {
+				if (octet === 0) continue;
+				nonZeroSeen = true;
+			}
+
+			if (count >= 4) return 0;
+
+			value = (value << 8) | octet;
+			++count;
+		}
+
+		return nonZeroSeen ? value >>> 0 : 0;
 	}
 
 	// The CMap tables can become very big. Instead of a (sparse) array, we
@@ -171,19 +233,19 @@ export class CMapMapper implements GlyphMapper {
 	// If no entry is found, the Unicode replacement character \uFFFD is
 	// returned.
 	public lookup(glyph: number): string {
-		const codepoints = this.lookupCodepoints(glyph);
-		if (codepoints.length) {
-			return codepoints.map((c) => String.fromCharCode(c)).join('');
+		const codePoints = this.lookupCodePoints(glyph);
+		if (codePoints.length) {
+			return codePoints.map((c) => String.fromCharCode(c)).join('');
 		} else {
 			return '\uFFFD';
 		}
 	}
 
-	// Does the same as lookup() but returns an array of codepoints. This is
+	// Does the same as lookup() but returns an array of code points. This is
 	// more convenient, when we want to select glyphs from a font, which may
 	// lack glyphs but provide an alternative (for example 'increment' for
 	// 'Delta').
-	public lookupCodepoints(glyph: number): number[] {
+	public lookupCodePoints(glyph: number): number[] {
 		let low = 0;
 		let high = this.mappings.length - 1;
 		while (high >= low) {
@@ -239,9 +301,9 @@ export class CMapMapper implements GlyphMapper {
 
 		// Validate surrogate pair
 		if (high >= 0xd800 && high <= 0xdbff && low >= 0xdc00 && low <= 0xdfff) {
-			const codepoint = ((high - 0xd800) << 10) + (low - 0xdc00) + 0x10000;
+			const codePoint = ((high - 0xd800) << 10) + (low - 0xdc00) + 0x10000;
 
-			return [codepoint];
+			return [codePoint];
 		}
 
 		// Invalid UTF-16.

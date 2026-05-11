@@ -11,8 +11,18 @@ describe('Lexer', () => {
 		const tokens = lexer.tokenize(toBytes('abc def'));
 
 		expect(tokens).toEqual([
-			{ type: 'token', value: [97, 98, 99] },
-			{ type: 'token', value: [100, 101, 102] },
+			{
+				type: 'token',
+				value: new Uint8Array([97, 98, 99]),
+				offset: 0,
+				length: 3,
+			},
+			{
+				type: 'token',
+				value: new Uint8Array([100, 101, 102]),
+				offset: 4,
+				length: 3,
+			},
 		]);
 	});
 
@@ -21,10 +31,30 @@ describe('Lexer', () => {
 		const tokens = lexer.tokenize(toBytes('abc   def\tghi\njkl'));
 
 		expect(tokens).toEqual([
-			{ type: 'token', value: [97, 98, 99] },
-			{ type: 'token', value: [100, 101, 102] },
-			{ type: 'token', value: [103, 104, 105] },
-			{ type: 'token', value: [106, 107, 108] },
+			{
+				type: 'token',
+				value: new Uint8Array([97, 98, 99]),
+				offset: 0,
+				length: 3,
+			},
+			{
+				type: 'token',
+				value: new Uint8Array([100, 101, 102]),
+				offset: 6,
+				length: 3,
+			},
+			{
+				type: 'token',
+				value: new Uint8Array([103, 104, 105]),
+				offset: 10,
+				length: 3,
+			},
+			{
+				type: 'token',
+				value: new Uint8Array([106, 107, 108]),
+				offset: 14,
+				length: 3,
+			},
 		]);
 	});
 
@@ -33,10 +63,15 @@ describe('Lexer', () => {
 		const tokens = lexer.tokenize(toBytes('1 2(Hello) "'));
 
 		expect(tokens).toEqual([
-			{ type: 'token', value: [49] },
-			{ type: 'token', value: [50] },
-			{ type: 'string', value: [72, 101, 108, 108, 111] },
-			{ type: 'token', value: [34] },
+			{ type: 'token', value: new Uint8Array([49]), offset: 0, length: 1 },
+			{ type: 'token', value: new Uint8Array([50]), offset: 2, length: 1 },
+			{
+				type: 'lstring',
+				value: new Uint8Array([72, 101, 108, 108, 111]),
+				offset: 3,
+				length: 7,
+			},
+			{ type: 'token', value: new Uint8Array([34]), offset: 11, length: 1 },
 		]);
 	});
 
@@ -45,8 +80,9 @@ describe('Lexer', () => {
 		const tokens = lexer.tokenize(toBytes('(Hel\\)lo)'));
 
 		expect(tokens.length).toBe(1);
-		expect(tokens[0].type).toBe('string');
-		expect(tokens[0].value.length).toBeGreaterThan(0);
+		const token = tokens[0]!;
+		expect(token.type).toBe('lstring');
+		expect(token.value.length).toBeGreaterThan(0);
 	});
 
 	it('handles nested parentheses', () => {
@@ -55,8 +91,12 @@ describe('Lexer', () => {
 
 		expect(tokens).toEqual([
 			{
-				type: 'string',
-				value: [72, 101, 108, 108, 111, 32, 40, 119, 111, 114, 108, 100, 41],
+				type: 'lstring',
+				value: new Uint8Array([
+					72, 101, 108, 108, 111, 32, 40, 119, 111, 114, 108, 100, 41,
+				]),
+				offset: 0,
+				length: 15,
 			},
 		]);
 	});
@@ -67,11 +107,13 @@ describe('Lexer', () => {
 
 		expect(tokens).toEqual([
 			{
-				type: 'string',
-				value: [
+				type: 'lstring',
+				value: new Uint8Array([
 					68, 101, 101, 112, 101, 114, 32, 40, 97, 110, 100, 32, 40, 100, 101,
 					101, 112, 101, 114, 41, 41,
-				],
+				]),
+				offset: 0,
+				length: 23,
 			},
 		]);
 	});
@@ -82,24 +124,40 @@ describe('Lexer', () => {
 
 		expect(tokens).toEqual([
 			{
-				type: 'string',
-				value: [],
+				type: 'lstring',
+				value: new Uint8Array([]),
+				offset: 0,
+				length: 2,
 			},
 			{
 				type: 'token',
-				value: [84, 106],
+				value: new Uint8Array([84, 106]),
+				offset: 3,
+				length: 2,
 			},
 		]);
 	});
 
-	it('parses hex strings', () => {
+	it('parses hex strings and literal strings', () => {
 		const lexer = new Lexer();
-		const tokens = lexer.tokenize(toBytes('<1704>Y<1359>'));
+		const tokens = lexer.tokenize(toBytes('<1704>Y( XY )Z<21>'));
 
 		expect(tokens).toEqual([
-			{ type: 'string', value: [0x17, 0x04] },
-			{ type: 'token', value: [89] },
-			{ type: 'string', value: [0x13, 0x59] },
+			{
+				type: 'string',
+				value: new Uint8Array([0x17, 0x04]),
+				offset: 0,
+				length: 6,
+			},
+			{ type: 'token', value: new Uint8Array([0x59]), offset: 6, length: 1 },
+			{
+				type: 'lstring',
+				value: new Uint8Array([0x20, 0x58, 0x59, 0x20]),
+				offset: 7,
+				length: 6,
+			},
+			{ type: 'token', value: new Uint8Array([0x5a]), offset: 13, length: 1 },
+			{ type: 'string', value: new Uint8Array([0x21]), offset: 14, length: 4 },
 		]);
 	});
 
@@ -108,7 +166,7 @@ describe('Lexer', () => {
 		const tokens = lexer.tokenize(toBytes('<48 65 6c 6c 6f>'));
 
 		expect(tokens.length).toBe(1);
-		expect(tokens[0].value).toEqual([72, 101, 108, 108, 111]);
+		expect(tokens[0]!.value).toEqual(new Uint8Array([72, 101, 108, 108, 111]));
 	});
 
 	it('handles comments', () => {
@@ -116,8 +174,18 @@ describe('Lexer', () => {
 		const tokens = lexer.tokenize(toBytes('abc % this is a comment\ndef'));
 
 		expect(tokens).toEqual([
-			{ type: 'token', value: [97, 98, 99] },
-			{ type: 'token', value: [100, 101, 102] },
+			{
+				type: 'token',
+				value: new Uint8Array([97, 98, 99]),
+				offset: 0,
+				length: 3,
+			},
+			{
+				type: 'token',
+				value: new Uint8Array([100, 101, 102]),
+				offset: 24,
+				length: 3,
+			},
 		]);
 	});
 
@@ -125,7 +193,14 @@ describe('Lexer', () => {
 		const lexer = new Lexer();
 		const tokens = lexer.tokenize(toBytes('abc % comment'));
 
-		expect(tokens).toEqual([{ type: 'token', value: [97, 98, 99] }]);
+		expect(tokens).toEqual([
+			{
+				type: 'token',
+				value: new Uint8Array([97, 98, 99]),
+				offset: 0,
+				length: 3,
+			},
+		]);
 	});
 
 	it('handles mixed content (realistic PDF snippet)', () => {
@@ -143,26 +218,93 @@ describe('Lexer', () => {
 		expect(tokens.length).toBeGreaterThan(0);
 
 		// Ensure both string types are present.
-		const stringTokens = tokens.filter((t) => t.type === 'string');
+		const stringTokens = tokens.filter(
+			(t) => t.type === 'string' || t.type === 'lstring',
+		);
 		expect(stringTokens.length).toBeGreaterThan(1);
+	});
+
+	it('handles strings with glyph positioning', () => {
+		const lexer = new Lexer();
+		const input = `BT
+/F1 12 Tf
+[<0102>2<0303>1<04>] TJ
+ET
+`;
+
+		const tokens = lexer.tokenize(toBytes(input));
+
+		expect(tokens.length).toBeGreaterThan(0);
+
+		// Ensure both string types are present.
+		const stringTokens = tokens.filter((t) => t.type === 'string');
+		expect(stringTokens.length).toBe(3);
 	});
 
 	it('handles CMap bfchar entries', () => {
 		const lexer = new Lexer();
 		const input = `
-      <0001> <003a>
-      <0002> <003B>
-    `;
+	<0001> <003a>
+	<0002> <003B>
+`;
 
 		const tokens = lexer.tokenize(toBytes(input));
 
 		const strings = tokens.filter((t) => t.type === 'string');
 
 		expect(strings).toEqual([
-			{ type: 'string', value: [0x00, 0x01] },
-			{ type: 'string', value: [0x00, 0x3a] },
-			{ type: 'string', value: [0x00, 0x02] },
-			{ type: 'string', value: [0x00, 0x3b] },
+			{
+				type: 'string',
+				value: new Uint8Array([0x00, 0x01]),
+				offset: 2,
+				length: 6,
+			},
+			{
+				type: 'string',
+				value: new Uint8Array([0x00, 0x3a]),
+				offset: 9,
+				length: 6,
+			},
+			{
+				type: 'string',
+				value: new Uint8Array([0x00, 0x02]),
+				offset: 17,
+				length: 6,
+			},
+			{
+				type: 'string',
+				value: new Uint8Array([0x00, 0x3b]),
+				offset: 24,
+				length: 6,
+			},
+		]);
+	});
+
+	it('handles 8-bit values correctly', () => {
+		const lexer = new Lexer();
+		const input = '<00af><abcd><1234>';
+
+		const tokens = lexer.tokenize(toBytes(input));
+
+		expect(tokens).toEqual([
+			{
+				type: 'string',
+				value: new Uint8Array([0x00, 0xaf]),
+				offset: 0,
+				length: 6,
+			},
+			{
+				type: 'string',
+				value: new Uint8Array([0xab, 0xcd]),
+				offset: 6,
+				length: 6,
+			},
+			{
+				type: 'string',
+				value: new Uint8Array([0x12, 0x34]),
+				offset: 12,
+				length: 6,
+			},
 		]);
 	});
 
@@ -171,5 +313,43 @@ describe('Lexer', () => {
 		const tokens = lexer.tokenize(toBytes('<123>'));
 
 		expect(tokens.length).toBeGreaterThan(0);
+	});
+
+	describe('Location parsing', () => {
+		it('should store the locations of simple strings', () => {
+			const lexer = new Lexer();
+			const input = `BT
+/F1 12 Tf
+(Hello) Tj
+ET
+`;
+
+			const tokens = lexer.tokenize(toBytes(input));
+			expect(tokens.length).toBeGreaterThan(0);
+
+			const stringTokens = tokens.filter((t) => t.type === 'lstring');
+			expect(stringTokens.length).toBe(1);
+			const token = stringTokens[0]!;
+			expect(token.offset).toBe(13);
+			expect(token.length).toBe(7);
+		});
+
+		it('should store the locations of hex strings', () => {
+			const lexer = new Lexer();
+			const input = `BT
+/F1 12 Tf
+<0102030304> Tj
+ET
+`;
+
+			const tokens = lexer.tokenize(toBytes(input));
+			expect(tokens.length).toBeGreaterThan(0);
+
+			const stringTokens = tokens.filter((t) => t.type === 'string');
+			expect(stringTokens.length).toBe(1);
+			const token = stringTokens[0]!;
+			expect(token.offset).toBe(13);
+			expect(token.length).toBe(12);
+		});
 	});
 });

@@ -9,7 +9,6 @@ if (import.meta.url === url.pathToFileURL(process.argv[1]!).href) {
 		.then((exitCode) => process.exit(exitCode))
 		.catch((err) => {
 			console.error(err);
-			console.error('there was an error');
 			process.exit(2);
 		});
 }
