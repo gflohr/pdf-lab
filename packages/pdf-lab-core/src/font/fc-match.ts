@@ -18,7 +18,7 @@ export async function fcMatch(
 	const execFileAsync = promisify(execFile);
 
 	try {
-		// Strip-off vendor suffixes.
+		// Strip off vendor suffixes.
 		const fontName = desc.fontName.replace(/PSMT$/i, '').replace(/MT$/i, '');
 		const query = `${fontName}:slant=${desc.style}:weight=${desc.weight}:width=${desc.width}`;
 		const { stdout } = await execFileAsync(fcMatchPath, [
