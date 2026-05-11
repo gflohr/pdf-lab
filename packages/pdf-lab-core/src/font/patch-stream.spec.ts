@@ -35,6 +35,7 @@ describe('patchStream', () => {
 			0x78, // x
 			0x79, // y
 			0x44, // D
+			0x45, // E
 		]);
 
 		expect(stream.dict.has(PDFName.of('Filter'))).toBe(false);
@@ -77,6 +78,7 @@ describe('patchStream', () => {
 			0x33, // 3
 			0x62, // b
 			0x63, // c
+			0x35, // 5
 		]);
 	});
 

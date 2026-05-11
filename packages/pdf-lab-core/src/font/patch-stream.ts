@@ -46,7 +46,7 @@ export function patchStream(
 		chunks.push(prefix, chunk);
 		cursor = patchSet.offset + patchSet.length;
 	}
-	const postfix = Array.from(bytes.slice(cursor, bytes.length - 1));
+	const postfix = Array.from(bytes.slice(cursor, bytes.length));
 	chunks.push(postfix);
 
 	for (let i = 0; i < patchSets.length; ++i) {
