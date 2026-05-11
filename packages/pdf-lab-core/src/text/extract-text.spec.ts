@@ -1,8 +1,7 @@
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
-import { afterEach } from 'node:test';
 import { type PDFDocument, PDFRef } from '@cantoo/pdf-lib';
-import { beforeAll, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { CMapMapper } from '../encoding/mappers/cmap-mapper.js';
 import { IdentityMapper } from '../encoding/mappers/identity-mapper.js';
 import type { FontUsage } from '../font/collect-resources.js';
