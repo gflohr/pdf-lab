@@ -20,7 +20,9 @@ export default class CFFSubset extends Subset {
 			this.charstrings.push(this.cff.getCharString(gid));
 
 			const glyph = this.font.getGlyph(gid);
-			const path = glyph.path; // this causes the glyph to be parsed
+
+			// FIXME! The getter must have a side-effect. This is not good.
+			glyph.path; // this causes the glyph to be parsed
 
 			for (const subr in glyph._usedGsubrs) {
 				gsubrs[subr] = true;
