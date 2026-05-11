@@ -263,7 +263,7 @@ function compose(glyphs, i, font) {
 		}
 	}
 
-	const t = (tjmo?.codePoints[0]) || T_BASE;
+	const t = tjmo?.codePoints[0] || T_BASE;
 	if (lv != null && (t === T_BASE || isCombiningT(t))) {
 		const s = lv + (t - T_BASE);
 

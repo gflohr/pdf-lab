@@ -24,9 +24,9 @@ export default class ShapingPlan {
 	 * Ignores features that have already been applied.
 	 */
 	_addFeatures(features, global) {
-		let stageIndex = this.stages.length - 1;
-		let stage = this.stages[stageIndex];
-		for (let feature of features) {
+		const stageIndex = this.stages.length - 1;
+		const stage = this.stages[stageIndex];
+		for (const feature of features) {
 			if (this.allFeatures[feature] == null) {
 				stage.push(feature);
 				this.allFeatures[feature] = stageIndex;
@@ -76,11 +76,11 @@ export default class ShapingPlan {
 		if (Array.isArray(features)) {
 			this.add(features);
 		} else if (typeof features === 'object') {
-			for (let tag in features) {
+			for (const tag in features) {
 				if (features[tag]) {
 					this.add(tag);
 				} else if (this.allFeatures[tag] != null) {
-					let stage = this.stages[this.allFeatures[tag]];
+					const stage = this.stages[this.allFeatures[tag]];
 					stage.splice(stage.indexOf(tag), 1);
 					delete this.allFeatures[tag];
 					delete this.globalFeatures[tag];
@@ -93,8 +93,8 @@ export default class ShapingPlan {
 	 * Assigns the global features to the given glyphs
 	 */
 	assignGlobalFeatures(glyphs) {
-		for (let glyph of glyphs) {
-			for (let feature in this.globalFeatures) {
+		for (const glyph of glyphs) {
+			for (const feature in this.globalFeatures) {
 				glyph.features[feature] = true;
 			}
 		}
@@ -104,7 +104,7 @@ export default class ShapingPlan {
 	 * Executes the planned stages using the given OTProcessor
 	 */
 	process(processor, glyphs, positions) {
-		for (let stage of this.stages) {
+		for (const stage of this.stages) {
 			if (typeof stage === 'function') {
 				if (!positions) {
 					stage(this.font, glyphs, this);
