@@ -3,7 +3,7 @@
  * the results are lazily computed once, and then cached.
  * @private
  */
-export function cache(target, key, descriptor) {
+export function cache(_target, key, descriptor) {
 	if (descriptor.get) {
 		const get = descriptor.get;
 		descriptor.get = function () {

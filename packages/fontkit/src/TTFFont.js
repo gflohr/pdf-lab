@@ -11,8 +11,8 @@ import TTFGlyph from './glyph/TTFGlyph.js';
 import LayoutEngine from './layout/LayoutEngine.js';
 import CFFSubset from './subset/CFFSubset.js';
 import TTFSubset from './subset/TTFSubset.js';
-import tables from './tables/index.js';
 import Directory from './tables/directory.js';
+import tables from './tables/index.js';
 
 /**
  * This is the base class for all SFNT-based font formats in fontkit.
