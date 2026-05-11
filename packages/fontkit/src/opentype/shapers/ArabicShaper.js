@@ -5,7 +5,7 @@ import UnicodeTrie from 'unicode-trie';
 import DefaultShaper from './DefaultShaper.js';
 
 // Trie is serialized as a Buffer in node, but here
-// we may be running in a browser so we make an Uint8Array
+// we may be running in a browser so we make an Uint8Array.
 // biome-ignore lint/correctness/useImportExtensions: breaks
 import base64DeflatedTrie from './trie.json';
 
