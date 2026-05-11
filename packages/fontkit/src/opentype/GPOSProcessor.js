@@ -81,6 +81,7 @@ export default class GPOSProcessor extends OTProcessor {
 				return true;
 			}
 
+			// biome-ignore lint/suspicious/noFallthroughSwitchClause: requires testing
 			case 2: {
 				// Pair Adjustment Positioning
 				let nextGlyph = this.glyphIterator.peek();
