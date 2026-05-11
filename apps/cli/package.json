@@ -51,7 +51,7 @@
 	"dependencies": {
 		"@esgettext/runtime": "^1.3.10",
 		"@pdf-lib/fontkit": "^1.1.1",
-		"@valibot/i18n": "^1.1.0",
+		"@valibot/i18n": "^1.2.0",
 		"pdf-lab-core": "workspace:*",
 		"valibot": "^1.4.0",
 		"yargs": "^18.0.0"
