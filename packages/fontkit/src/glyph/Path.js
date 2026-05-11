@@ -1,4 +1,4 @@
-import BBox from './BBox';
+import BBox from './BBox.js';
 
 const SVG_COMMANDS = {
 	moveTo: 'M',
@@ -28,7 +28,7 @@ export default class Path {
 	 */
 	toFunction() {
 		return (ctx) =>
-			this.commands.forEach((c) => ctx[c.command].apply(ctx, c.args));
+			this.commands.forEach((c) => { ctx[c.command].apply(ctx, c.args) });
 	}
 
 	/**
@@ -99,26 +99,34 @@ export default class Path {
 
 				case 'quadraticCurveTo':
 				case 'bezierCurveTo': {
+					let qp1x;
+					let qp1y;
+					let p3x;
+					let p3y;
+					let cp1x;
+					let cp1y;
+					let cp2x;
+					let cp2y;
 					if (c.command === 'quadraticCurveTo') {
 						// http://fontforge.org/bezier.html
-						var [qp1x, qp1y, p3x, p3y] = c.args;
-						var cp1x = cx + (2 / 3) * (qp1x - cx); // CP1 = QP0 + 2/3 * (QP1-QP0)
-						var cp1y = cy + (2 / 3) * (qp1y - cy);
-						var cp2x = p3x + (2 / 3) * (qp1x - p3x); // CP2 = QP2 + 2/3 * (QP1-QP2)
-						var cp2y = p3y + (2 / 3) * (qp1y - p3y);
+						[qp1x, qp1y, p3x, p3y] = c.args;
+						cp1x = cx + (2 / 3) * (qp1x - cx); // CP1 = QP0 + 2/3 * (QP1-QP0)
+						cp1y = cy + (2 / 3) * (qp1y - cy);
+						cp2x = p3x + (2 / 3) * (qp1x - p3x); // CP2 = QP2 + 2/3 * (QP1-QP2)
+						cp2y = p3y + (2 / 3) * (qp1y - p3y);
 					} else {
-						var [cp1x, cp1y, cp2x, cp2y, p3x, p3y] = c.args;
+						[cp1x, cp1y, cp2x, cp2y, p3x, p3y] = c.args;
 					}
 
 					// http://blog.hackers-cafe.net/2009/06/how-to-calculate-bezier-curves-bounding.html
 					bbox.addPoint(p3x, p3y);
 
-					var p0 = [cx, cy];
-					var p1 = [cp1x, cp1y];
-					var p2 = [cp2x, cp2y];
-					var p3 = [p3x, p3y];
+					const p0 = [cx, cy];
+					const p1 = [cp1x, cp1y];
+					const p2 = [cp2x, cp2y];
+					const p3 = [p3x, p3y];
 
-					for (var i = 0; i <= 1; i++) {
+					for (let i = 0; i <= 1; i++) {
 						const b = 6 * p0[i] - 12 * p1[i] + 6 * p2[i];
 						const a = -3 * p0[i] + 9 * p1[i] - 9 * p2[i] + 3 * p3[i];
 						c = 3 * p1[i] - 3 * p0[i];
@@ -171,7 +179,9 @@ export default class Path {
 			}
 		}
 
-		return (this._bbox = Object.freeze(bbox));
+		this._bbox = Object.freeze(bbox);
+
+		return this._bbox;
 	}
 
 	/**
