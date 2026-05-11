@@ -326,13 +326,15 @@ export default class OTProcessor {
 
 	getClassID(glyph, classDef) {
 		switch (classDef.version) {
-			case 1: // Class array
-				let i = glyph - classDef.startGlyph;
+			case 1: {
+				// Class array
+				const i = glyph - classDef.startGlyph;
 				if (i >= 0 && i < classDef.classValueArray.length) {
 					return classDef.classValueArray[i];
 				}
 
 				break;
+			}
 
 			case 2:
 				for (const range of classDef.classRangeRecord) {
@@ -366,7 +368,7 @@ export default class OTProcessor {
 				}
 
 				set = table.ruleSets[index];
-				for (let rule of set) {
+				for (const rule of set) {
 					if (this.sequenceMatches(1, rule.input)) {
 						return this.applyLookupList(rule.lookupRecords);
 					}
@@ -415,7 +417,7 @@ export default class OTProcessor {
 				}
 
 				set = table.chainRuleSets[index];
-				for (let rule of set) {
+				for (const rule of set) {
 					if (
 						this.sequenceMatches(-rule.backtrack.length, rule.backtrack) &&
 						this.sequenceMatches(1, rule.input) &&
@@ -427,18 +429,18 @@ export default class OTProcessor {
 
 				break;
 
-			case 2:
+			case 2: {
 				if (this.coverageIndex(table.coverage) === -1) {
 					return false;
 				}
 
 				index = this.getClassID(this.glyphIterator.cur.id, table.inputClassDef);
-				let rules = table.chainClassSet[index];
+				const rules = table.chainClassSet[index];
 				if (!rules) {
 					return false;
 				}
 
-				for (let rule of rules) {
+				for (const rule of rules) {
 					if (
 						this.classSequenceMatches(
 							-rule.backtrack.length,
@@ -457,6 +459,7 @@ export default class OTProcessor {
 				}
 
 				break;
+			}
 
 			case 3:
 				if (
