@@ -6,7 +6,9 @@ import {
 	FeatureList,
 	LookupList,
 	ScriptList,
+// biome-ignore lint/correctness/useImportExtensions: investigate
 } from './opentype';
+// biome-ignore lint/correctness/useImportExtensions: investigate
 import { FeatureVariations } from './variations';
 
 const Sequence = new r.Array(r.uint16, r.uint16);
