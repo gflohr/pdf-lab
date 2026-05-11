@@ -86,7 +86,7 @@ class USEInfo {
 	}
 }
 
-function setupSyllables(font, glyphs) {
+function setupSyllables(_font, glyphs) {
 	let syllable = 0;
 	for (const [start, end, tags] of stateMachine.match(
 		glyphs.map(useCategory),

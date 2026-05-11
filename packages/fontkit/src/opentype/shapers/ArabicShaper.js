@@ -6,7 +6,7 @@ import DefaultShaper from './DefaultShaper.js';
 
 // Trie is serialized as a Buffer in node, but here
 // we may be running in a browser so we make an Uint8Array.
-// biome-ignore lint/correctness/useImportExtensions: breaks
+// biome-ignore lint/correctness/useImportExtensions: breaks things
 import base64DeflatedTrie from './trie.json';
 
 const trieData = pako.inflate(base64.decode(base64DeflatedTrie));
