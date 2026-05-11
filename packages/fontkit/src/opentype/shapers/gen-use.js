@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/style/useTemplate: fix later, once rollup is updated */
 import * as base64 from 'base64-arraybuffer';
 import codepoints from 'codepoints';
 import compile from 'dfa/compile';
@@ -242,7 +243,7 @@ const trieFilePath = __dirname + '/trieUse.json';
 const jsonBase64DeflatedTrie = JSON.stringify(
 	base64.encode(pako.deflate(trie.toBuffer())),
 );
-fs.writeFileSync(trieFilePath, jsonBase64DeflatedTrie);
+fs.writeFileSync(trieFilePath, `${jsonBase64DeflatedTrie}\n`);
 
 const stateMachine = compile(
 	fs.readFileSync(__dirname + '/use.machine', 'utf8'),
