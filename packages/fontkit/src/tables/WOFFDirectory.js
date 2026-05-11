@@ -1,5 +1,4 @@
 import r from '@pdf-lib/restructure';
-import tables from './';
 
 const WOFFDirectoryEntry = new r.Struct({
 	tag: new r.String(4),

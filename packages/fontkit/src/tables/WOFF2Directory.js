@@ -5,7 +5,6 @@ const Base128 = {
 		let result = 0;
 		const iterable = [0, 1, 2, 3, 4];
 		for (let j = 0; j < iterable.length; j++) {
-			const i = iterable[j];
 			const code = stream.readUInt8();
 
 			// If any of the top seven bits are set then we're about to overflow.
@@ -127,7 +126,9 @@ WOFF2Directory.process = function () {
 		tables[table.tag] = table;
 	}
 
-	return (this.tables = tables);
+	this.tables = tables;
+
+	return tables;
 };
 
 export default WOFF2Directory;
