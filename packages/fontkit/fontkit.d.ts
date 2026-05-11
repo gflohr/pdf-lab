@@ -75,6 +75,7 @@ export interface Path {
 	 * Compiles the path to a JavaScript function that can be applied with a
 	 * graphics context in order to render the path.
 	 */
+	// biome-ignore lint/complexity/noBannedTypes: needs investigation
 	toFunction(): Function;
 
 	/**
@@ -123,6 +124,7 @@ export interface Glyph {
 	 * Renders the glyph to the given graphics context, at the specified
 	 * font size.
 	 */
+	// biome-ignore lint/suspicious/noExplicitAny: needs investigation
 	render(context: any, size: number): void;
 
 	// Color Glyph Properties/Methods
@@ -137,6 +139,7 @@ export interface Glyph {
 	 * For COLR glyphs, which are vector based, this returns an array of objects
 	 * representing the glyphs and colors for each layer in render order.
 	 */
+	// biome-ignore lint/suspicious/noExplicitAny: needs investigation
 	layers: any[];
 }
 
@@ -226,6 +229,7 @@ export interface GlyphRun {
 export interface SubsetStream {
 	on: (
 		eventType: 'data' | 'end',
+		// biome-ignore lint/suspicious/noExplicitAny: needs investigation
 		callback: (data: Uint8Array) => any,
 	) => SubsetStream;
 }
@@ -573,6 +577,7 @@ export interface Font {
 	numGlyphs: number /** Number of glyphs in the font */;
 	characterSet: number[] /** Array of all of the unicode code points supported by the font */;
 	availableFeatures: (keyof TypeFeatures)[] /** OpenType feature tags (or mapped AAT tags) supported by the font */;
+	// biome-ignore lint/suspicious/noExplicitAny: needs investigation
 	cff: any;
 	'OS/2': { sFamilyClass: number };
 	head: { macStyle: { italic: boolean } };

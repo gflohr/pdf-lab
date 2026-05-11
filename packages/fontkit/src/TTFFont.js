@@ -527,8 +527,8 @@ export default class TTFFont {
 			);
 		}
 
-		// normalize the coordinates
-		const coords = this.fvar.axis.map((axis, i) => {
+		// Normalize the coordinates.
+		const coords = this.fvar.axis.map(axis => {
 			const axisTag = axis.axisTag.trim();
 			if (axisTag in settings) {
 				return Math.max(
