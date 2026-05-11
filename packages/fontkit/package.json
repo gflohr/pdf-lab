@@ -12,6 +12,7 @@
 		"check": "biome check",
 		"check:fix": "biome check --write",
 		"test": "MODULE_TYPE=commonjs mocha",
+		"pretest": "pnpm run build",
 		"coverage": "cross-env BABEL_ENV=cover nyc mocha"
 	},
 	"dependencies": {
