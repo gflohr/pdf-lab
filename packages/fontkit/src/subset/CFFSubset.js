@@ -1,7 +1,6 @@
-import CFFPrivateDict from '../cff/CFFPrivateDict';
-import standardStrings from '../cff/CFFStandardStrings';
-import CFFTop from '../cff/CFFTop';
-import Subset from './Subset';
+import standardStrings from '../cff/CFFStandardStrings.js';
+import CFFTop from '../cff/CFFTop.js';
+import Subset from './Subset.js';
 
 export default class CFFSubset extends Subset {
 	constructor(font) {
@@ -102,7 +101,7 @@ export default class CFFSubset extends Subset {
 		}
 
 		const privateDict = Object.assign({}, this.cff.topDict.Private);
-		if (this.cff.topDict.Private && this.cff.topDict.Private.Subrs) {
+		if (this.cff.topDict.Private?.Subrs) {
 			privateDict.Subrs = this.subsetSubrs(
 				this.cff.topDict.Private.Subrs,
 				used_subrs,
