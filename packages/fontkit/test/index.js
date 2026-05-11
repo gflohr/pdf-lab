@@ -1,10 +1,11 @@
-import './addTestHelpersToFontkit';
-import assert from 'assert';
-import fontkit from '../src';
+import './addTestHelpersToFontkit.js';
+import assert from 'node:assert';
+import fontkit from '../src/index.js';
 
 describe('fontkit', () => {
 	it('should open a font asynchronously', () =>
 		fontkit.open(
+			// biome-ignore lint/style/useTemplate: breaks things
 			__dirname + '/data/OpenSans/OpenSans-Regular.ttf',
 			(err, font) => {
 				assert.equal(err, null);
@@ -14,6 +15,7 @@ describe('fontkit', () => {
 
 	it('should open a font synchronously', () => {
 		const font = fontkit.openSync(
+			// biome-ignore lint/style/useTemplate: breaks things
 			__dirname + '/data/OpenSans/OpenSans-Regular.ttf',
 		);
 		return assert.equal(font.constructor.name, 'TTFFont');
@@ -21,39 +23,47 @@ describe('fontkit', () => {
 
 	it('should open fonts of different formats', () => {
 		let font = fontkit.openSync(
+			// biome-ignore lint/style/useTemplate: breaks things
 			__dirname + '/data/OpenSans/OpenSans-Regular.ttf',
 		);
 		assert.equal(font.constructor.name, 'TTFFont');
 
 		font = fontkit.openSync(
+			// biome-ignore lint/style/useTemplate: breaks things
 			__dirname + '/data/SourceSansPro/SourceSansPro-Regular.otf',
 		);
 		assert.equal(font.constructor.name, 'TTFFont');
 
+		// biome-ignore lint/style/useTemplate: breaks things
 		font = fontkit.openSync(__dirname + '/data/NotoSans/NotoSans.ttc');
 		assert.equal(font.constructor.name, 'TrueTypeCollection');
 
 		font = fontkit.openSync(
+			// biome-ignore lint/style/useTemplate: breaks things
 			__dirname + '/data/NotoSans/NotoSans.ttc',
 			'NotoSans',
 		);
 		assert.equal(font.constructor.name, 'TTFFont');
 
+		// biome-ignore lint/style/useTemplate: breaks things
 		font = fontkit.openSync(__dirname + '/data/NotoSans/NotoSans.dfont');
 		assert.equal(font.constructor.name, 'DFont');
 
 		font = fontkit.openSync(
+			// biome-ignore lint/style/useTemplate: breaks things
 			__dirname + '/data/NotoSans/NotoSans.dfont',
 			'NotoSans',
 		);
 		assert.equal(font.constructor.name, 'TTFFont');
 
 		font = fontkit.openSync(
+			// biome-ignore lint/style/useTemplate: breaks things
 			__dirname + '/data/SourceSansPro/SourceSansPro-Regular.woff',
 		);
 		assert.equal(font.constructor.name, 'WOFFFont');
 
 		font = fontkit.openSync(
+			// biome-ignore lint/style/useTemplate: breaks things
 			__dirname + '/data/SourceSansPro/SourceSansPro-Regular.woff2',
 		);
 		assert.equal(font.constructor.name, 'WOFF2Font');
@@ -61,13 +71,14 @@ describe('fontkit', () => {
 
 	it('should open fonts lacking PostScript name', () => {
 		const font = fontkit.openSync(
+			// biome-ignore lint/style/useTemplate: breaks things
 			__dirname + '/data/Mada/Mada-Regular.subset1.ttf',
 		);
 		assert.equal(font.postscriptName, null);
 	});
 
 	it('should error when opening an invalid font asynchronously', () => {
-		fontkit.open(__filename, (err, font) => {
+		fontkit.open(__filename, (err) => {
 			assert(err instanceof Error);
 			assert.equal(err.message, 'Unknown font format');
 		});
@@ -79,6 +90,7 @@ describe('fontkit', () => {
 
 	it('should get collection objects for ttc fonts', () => {
 		const collection = fontkit.openSync(
+			// biome-ignore lint/style/useTemplate: breaks things
 			__dirname + '/data/NotoSans/NotoSans.ttc',
 		);
 		assert.equal(collection.constructor.name, 'TrueTypeCollection');
@@ -97,6 +109,7 @@ describe('fontkit', () => {
 
 	it('should get collection objects for dfonts', () => {
 		const collection = fontkit.openSync(
+			// biome-ignore lint/style/useTemplate: breaks things
 			__dirname + '/data/NotoSans/NotoSans.dfont',
 		);
 		assert.equal(collection.constructor.name, 'DFont');

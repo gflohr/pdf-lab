@@ -6,8 +6,9 @@ require('shelljs/make');
 config.fatal = true;
 config.verbose = true;
 
-const { execFileSync } = require('child_process');
+const { execFileSync } = require('node:child_process');
 
+// biome-ignore lint/correctness/useImportExtensions: breaks things
 const packageJson = require('./package.json');
 
 target.all = () => {

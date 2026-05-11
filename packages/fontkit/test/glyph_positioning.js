@@ -1,10 +1,11 @@
-import './addTestHelpersToFontkit';
-import assert from 'assert';
-import fontkit from '../src';
+import './addTestHelpersToFontkit.js';
+import assert from 'node:assert';
+import fontkit from '../src/index.js';
 
 describe('glyph positioning', () => {
 	describe('basic positioning', () => {
 		const font = fontkit.openSync(
+			// biome-ignore lint/style/useTemplate: breaks things
 			__dirname + '/data/SourceSansPro/SourceSansPro-Regular.otf',
 		);
 
@@ -14,6 +15,7 @@ describe('glyph positioning', () => {
 
 	describe('opentype positioning', () => {
 		const font = fontkit.openSync(
+			// biome-ignore lint/style/useTemplate: breaks things
 			__dirname + '/data/SourceSansPro/SourceSansPro-Regular.otf',
 		);
 
@@ -35,6 +37,7 @@ describe('glyph positioning', () => {
 	});
 
 	describe('AAT features', () => {
+		// biome-ignore lint/style/useTemplate: breaks things
 		const font = fontkit.openSync(__dirname + '/data/Play/Play-Regular.ttf');
 
 		it('should apply kerning by default', () => {

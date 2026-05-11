@@ -1,10 +1,11 @@
-import './addTestHelpersToFontkit';
-import assert from 'assert';
-import fontkit from '../src';
-import BBox from '../src/glyph/BBox';
+import assert from 'node:assert';
+import fontkit from '../src/index.js';
+import './addTestHelpersToFontkit.js';
+import BBox from '../src/glyph/BBox.js';
 
 describe('metadata', () => {
 	const font = fontkit.openSync(
+		// biome-ignore lint/style/useTemplate: breaks things
 		__dirname + '/data/NotoSans/NotoSans.ttc',
 		'NotoSans',
 	);

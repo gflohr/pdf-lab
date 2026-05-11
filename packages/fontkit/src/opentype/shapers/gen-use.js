@@ -1,8 +1,8 @@
 /** biome-ignore-all lint/style/useTemplate: fix later, once rollup is updated */
+import fs from 'node:fs';
 import * as base64 from 'base64-arraybuffer';
 import codepoints from 'codepoints';
 import compile from 'dfa/compile';
-import fs from 'fs';
 import pako from 'pako';
 import UnicodeTrieBuilder from 'unicode-trie/builder';
 

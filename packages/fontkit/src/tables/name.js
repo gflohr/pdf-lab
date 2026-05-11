@@ -1,5 +1,5 @@
 import r from '@pdf-lib/restructure';
-import { getEncoding, LANGUAGES } from '../encodings';
+import { getEncoding, LANGUAGES } from '../encodings.js';
 
 const NameRecord = new r.Struct({
 	platformID: r.uint16,
@@ -67,7 +67,7 @@ const NAMES = [
 	'wwsSubfamilyName',
 ];
 
-NameTable.process = function (stream) {
+NameTable.process = function () {
 	var records = {};
 	for (const record of this.records) {
 		// find out what language this is for
@@ -82,7 +82,7 @@ NameTable.process = function (stream) {
 		}
 
 		if (language == null) {
-			language = record.platformID + '-' + record.languageID;
+			language = `${record.platformID}-${record.languageID}`;
 		}
 
 		// if the nameID is >= 256, it is a font feature record (AAT)

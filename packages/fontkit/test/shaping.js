@@ -31,6 +31,7 @@ describe('shaping', () => {
 	};
 
 	describe('general shaping tests', () => {
+		// biome-ignore lint/style/useTemplate: breaks things
 		const font = fontkit.openSync(__dirname + '/data/amiri/amiri-regular.ttf');
 
 		it('should use correct script and language when features are not specified', () => {
@@ -114,6 +115,7 @@ describe('shaping', () => {
 
 	describe('hangul shaper', () => {
 		const font = fontkit.openSync(
+			// biome-ignore lint/style/useTemplate: breaks things
 			__dirname + '/data/NotoSansCJK/NotoSansCJKkr-Regular.otf',
 		);
 

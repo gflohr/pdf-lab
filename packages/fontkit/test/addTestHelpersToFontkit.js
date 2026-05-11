@@ -1,5 +1,5 @@
-import fs from 'fs';
-import fontkit from '../src';
+import fs from 'node:fs';
+import fontkit from '../src/index.js';
 
 fontkit.openSync = (filename, postscriptName) => {
 	const buffer = fs.readFileSync(filename);

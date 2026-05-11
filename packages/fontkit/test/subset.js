@@ -1,15 +1,16 @@
-import './addTestHelpersToFontkit';
+import assert from 'node:assert';
+import fs from 'node:fs';
 import r from '@pdf-lib/restructure';
-import assert from 'assert';
 import concat from 'concat-stream';
-import fs from 'fs';
-import fontkit from '../src';
-import CFFFont from '../src/cff/CFFFont';
-import CFFGlyph from '../src/glyph/CFFGlyph';
+import CFFFont from '../src/cff/CFFFont.js';
+import CFFGlyph from '../src/glyph/CFFGlyph.js';
+import './addTestHelpersToFontkit.js';
+import fontkit from '../src/index.js';
 
 describe('font subsetting', () => {
 	describe('truetype subsetting', () => {
 		const font = fontkit.openSync(
+			// biome-ignore lint/style/useTemplate: breaks things
 			__dirname + '/data/OpenSans/OpenSans-Regular.ttf',
 		);
 
@@ -78,6 +79,7 @@ describe('font subsetting', () => {
 
 	describe('CFF subsetting', () => {
 		const font = fontkit.openSync(
+			// biome-ignore lint/style/useTemplate: breaks things
 			__dirname + '/data/SourceSansPro/SourceSansPro-Regular.otf',
 		);
 
@@ -110,6 +112,7 @@ describe('font subsetting', () => {
 
 		it('should handle CID fonts', (done) => {
 			const f = fontkit.openSync(
+				// biome-ignore lint/style/useTemplate: breaks things
 				__dirname + '/data/NotoSansCJK/NotoSansCJKkr-Regular.otf',
 			);
 			const subset = f.createSubset();

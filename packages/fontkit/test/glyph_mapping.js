@@ -1,10 +1,11 @@
-import './addTestHelpersToFontkit';
-import assert from 'assert';
-import fontkit from '../src';
+import './addTestHelpersToFontkit.js';
+import assert from 'node:assert';
+import fontkit from '../src/index.js';
 
 describe('character to glyph mapping', () => {
 	describe('basic cmap handling', () => {
 		const font = fontkit.openSync(
+			// biome-ignore lint/style/useTemplate: breaks things
 			__dirname + '/data/OpenSans/OpenSans-Regular.ttf',
 		);
 
@@ -40,6 +41,7 @@ describe('character to glyph mapping', () => {
 
 		it('should support unicode variation selectors', () => {
 			const font = fontkit.openSync(
+				// biome-ignore lint/style/useTemplate: breaks things
 				__dirname + '/data/fonttest/TestCMAP14.otf',
 			);
 			const glyphs = font.glyphsForString(
@@ -53,6 +55,7 @@ describe('character to glyph mapping', () => {
 
 		it('should support legacy encodings when no unicode cmap is found', () => {
 			const font = fontkit.openSync(
+				// biome-ignore lint/style/useTemplate: breaks things
 				__dirname + '/data/fonttest/TestCMAPMacTurkish.ttf',
 			);
 			const glyphs = font.glyphsForString('“ABÇĞIİÖŞÜ”');
@@ -65,6 +68,7 @@ describe('character to glyph mapping', () => {
 
 	describe('opentype features', () => {
 		const font = fontkit.openSync(
+			// biome-ignore lint/style/useTemplate: breaks things
 			__dirname + '/data/SourceSansPro/SourceSansPro-Regular.otf',
 		);
 
@@ -129,6 +133,7 @@ describe('character to glyph mapping', () => {
 	});
 
 	describe('AAT features', () => {
+		// biome-ignore lint/style/useTemplate: breaks things
 		const font = fontkit.openSync(__dirname + '/data/Play/Play-Regular.ttf');
 
 		it('should list available features', () =>
@@ -183,6 +188,7 @@ describe('character to glyph mapping', () => {
 		});
 
 		it('should apply indic reordering features', () => {
+			// biome-ignore lint/style/useTemplate: breaks things
 			const f = fontkit.openSync(__dirname + '/data/Khmer/Khmer.ttf');
 			const { glyphs } = f.layout('ខ្ញុំអាចញ៉ាំកញ្ចក់បាន ដោយគ្មានបញ្ហា');
 			assert.deepEqual(
@@ -233,6 +239,7 @@ describe('character to glyph mapping', () => {
 	describe('glyph id to strings', () => {
 		it('should return strings from cmap that map to a given glyph', () => {
 			const font = fontkit.openSync(
+				// biome-ignore lint/style/useTemplate: breaks things
 				__dirname + '/data/OpenSans/OpenSans-Regular.ttf',
 			);
 			const strings = font.stringsForGlyph(68);
@@ -240,6 +247,7 @@ describe('character to glyph mapping', () => {
 		});
 
 		it('should return strings from AAT morx table that map to the given glyph', () => {
+			// biome-ignore lint/style/useTemplate: breaks things
 			const font = fontkit.openSync(__dirname + '/data/Play/Play-Regular.ttf');
 			const strings = font.stringsForGlyph(767);
 			assert.deepEqual(strings, ['ffi']);

@@ -1,13 +1,15 @@
-import './addTestHelpersToFontkit';
-import assert from 'assert';
-import fontkit from '../src';
-import BBox from '../src/glyph/BBox';
+import './addTestHelpersToFontkit.js';
+import assert from 'node:assert';
+import BBox from '../src/glyph/BBox.js';
+import fontkit from '../src/index.js';
 
 describe('glyphs', () => {
 	describe('truetype glyphs', () => {
 		const font = fontkit.openSync(
+			// biome-ignore lint/style/useTemplate: breaks things
 			__dirname + '/data/OpenSans/OpenSans-Regular.ttf',
 		);
+		// biome-ignore lint/style/useTemplate: breaks things
 		const mada = fontkit.openSync(__dirname + '/data/Mada/Mada-VF.ttf');
 
 		it('should get a TTFGlyph', () => {
@@ -83,6 +85,7 @@ describe('glyphs', () => {
 
 	describe('CFF glyphs', () => {
 		const font = fontkit.openSync(
+			// biome-ignore lint/style/useTemplate: breaks things
 			__dirname + '/data/SourceSansPro/SourceSansPro-Regular.otf',
 		);
 
@@ -117,6 +120,7 @@ describe('glyphs', () => {
 
 	describe('SBIX glyphs', () => {
 		const font = fontkit.openSync(
+			// biome-ignore lint/style/useTemplate: breaks things
 			__dirname + '/data/ss-emoji/ss-emoji-apple.ttf',
 		);
 
@@ -149,6 +153,7 @@ describe('glyphs', () => {
 
 	describe('COLR glyphs', () => {
 		const font = fontkit.openSync(
+			// biome-ignore lint/style/useTemplate: breaks things
 			__dirname + '/data/ss-emoji/ss-emoji-microsoft.ttf',
 		);
 
@@ -193,6 +198,7 @@ describe('glyphs', () => {
 
 	describe('WOFF glyphs', () => {
 		const font = fontkit.openSync(
+			// biome-ignore lint/style/useTemplate: breaks things
 			__dirname + '/data/SourceSansPro/SourceSansPro-Regular.woff',
 		);
 
@@ -217,6 +223,7 @@ describe('glyphs', () => {
 
 	describe('WOFF2 glyph', () => {
 		const font = fontkit.openSync(
+			// biome-ignore lint/style/useTemplate: breaks things
 			__dirname + '/data/SourceSansPro/SourceSansPro-Regular.woff2',
 		);
 
