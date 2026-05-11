@@ -1,6 +1,6 @@
-import './addTestHelpersToFontkit';
-import assert from 'assert';
-import fontkit from '../src';
+import './addTestHelpersToFontkit.js';
+import assert from 'node:assert';
+import fontkit from '../src/index.js';
 
 describe('shaping', () => {
 	const fontCache = {};
