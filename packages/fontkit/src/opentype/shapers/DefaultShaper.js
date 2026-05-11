@@ -15,14 +15,18 @@ export default class DefaultShaper {
 	static zeroMarkWidths = 'AFTER_GPOS';
 	static plan(plan, glyphs, features) {
 		// Plan the features we want to apply
-		DefaultShaper.planPreprocessing(plan);
+		// biome-ignore lint/complexity/noThisInStatic: needs rewrite
+		this.planPreprocessing(plan);
+		// biome-ignore lint/complexity/noThisInStatic: needs rewrite
 		this.planFeatures(plan);
+		// biome-ignore lint/complexity/noThisInStatic: needs rewrite
 		this.planPostprocessing(plan, features);
 
 		// Assign the global features to all the glyphs
 		plan.assignGlobalFeatures(glyphs);
 
 		// Assign local features to glyphs
+		// biome-ignore lint/complexity/noThisInStatic: needs rewrite
 		this.assignFeatures(plan, glyphs);
 	}
 
