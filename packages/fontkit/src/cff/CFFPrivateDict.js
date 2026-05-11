@@ -1,10 +1,11 @@
-import CFFDict from './CFFDict';
-import CFFIndex from './CFFIndex';
-import CFFPointer from './CFFPointer';
+import CFFDict from './CFFDict.js';
+import CFFIndex from './CFFIndex.js';
+import CFFPointer from './CFFPointer.js';
 
+// biome-ignore lint/complexity/noStaticOnlyClass: needs better checking
 class CFFBlendOp {
-	static decode(stream, parent, operands) {
-		let numBlends = operands.pop();
+	static decode(_stream, _parent, operands) {
+		const numBlends = operands.pop();
 
 		// TODO: actually blend. For now just consume the deltas
 		// since we don't use any of the values anyway.
