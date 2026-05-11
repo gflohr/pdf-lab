@@ -1,6 +1,6 @@
 import r from '@pdf-lib/restructure';
 
-let VerticalOrigin = new r.Struct({
+const VerticalOrigin = new r.Struct({
 	glyphIndex: r.uint16,
 	vertOriginY: r.int16,
 });

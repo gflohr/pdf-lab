@@ -3,10 +3,10 @@ import r from '@pdf-lib/restructure';
 const Base128 = {
 	decode(stream) {
 		let result = 0;
-		let iterable = [0, 1, 2, 3, 4];
+		const iterable = [0, 1, 2, 3, 4];
 		for (let j = 0; j < iterable.length; j++) {
-			let i = iterable[j];
-			let code = stream.readUInt8();
+			const i = iterable[j];
+			const code = stream.readUInt8();
 
 			// If any of the top seven bits are set then we're about to overflow.
 			if (result & 0xe0000000) {
@@ -23,7 +23,7 @@ const Base128 = {
 	},
 };
 
-let knownTags = [
+const knownTags = [
 	'cmap',
 	'head',
 	'hhea',
@@ -89,7 +89,7 @@ let knownTags = [
 	'Sill',
 ];
 
-let WOFF2DirectoryEntry = new r.Struct({
+const WOFF2DirectoryEntry = new r.Struct({
 	flags: r.uint8,
 	customTag: new r.Optional(new r.String(4), (t) => (t.flags & 0x3f) === 0x3f),
 	tag: (t) => t.customTag || knownTags[t.flags & 0x3f], // || (() => { throw new Error(`Bad tag: ${flags & 0x3f}`); })(); },
@@ -102,7 +102,7 @@ let WOFF2DirectoryEntry = new r.Struct({
 	transformLength: new r.Optional(Base128, (t) => t.transformed),
 });
 
-let WOFF2Directory = new r.Struct({
+const WOFF2Directory = new r.Struct({
 	tag: new r.String(4), // should be 'wOF2'
 	flavor: r.uint32,
 	length: r.uint32,
@@ -121,9 +121,9 @@ let WOFF2Directory = new r.Struct({
 });
 
 WOFF2Directory.process = function () {
-	let tables = {};
+	const tables = {};
 	for (let i = 0; i < this.tables.length; i++) {
-		let table = this.tables[i];
+		const table = this.tables[i];
 		tables[table.tag] = table;
 	}
 

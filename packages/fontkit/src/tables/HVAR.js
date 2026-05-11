@@ -26,7 +26,7 @@ class VariableSizeNumber {
 	}
 }
 
-let MapDataEntry = new r.Struct({
+const MapDataEntry = new r.Struct({
 	entry: new VariableSizeNumber(
 		(t) => ((t.parent.entryFormat & 0x0030) >> 4) + 1,
 	),
@@ -35,7 +35,7 @@ let MapDataEntry = new r.Struct({
 		t.entry & ((1 << ((t.parent.entryFormat & 0x000f) + 1)) - 1),
 });
 
-let DeltaSetIndexMap = new r.Struct({
+const DeltaSetIndexMap = new r.Struct({
 	entryFormat: r.uint16,
 	mapCount: r.uint16,
 	mapData: new r.Array(MapDataEntry, 'mapCount'),

@@ -11,7 +11,7 @@ class UnboundedArrayAccessor {
 
 	getItem(index) {
 		if (this._items[index] == null) {
-			let pos = this.stream.pos;
+			const pos = this.stream.pos;
 			this.stream.pos = this.base + this.type.size(null, this.parent) * index;
 			this._items[index] = this.type.decode(this.stream, this.parent);
 			this.stream.pos = pos;
@@ -35,7 +35,7 @@ export class UnboundedArray extends r.Array {
 	}
 }
 
-export let LookupTable = function (ValueType = r.uint16) {
+export const LookupTable = (ValueType = r.uint16) => {
 	// Helper class that makes internal structures invisible to pointers
 	class Shadow {
 		constructor(type) {
@@ -60,7 +60,7 @@ export let LookupTable = function (ValueType = r.uint16) {
 
 	ValueType = new Shadow(ValueType);
 
-	let BinarySearchHeader = new r.Struct({
+	const BinarySearchHeader = new r.Struct({
 		unitSize: r.uint16,
 		nUnits: r.uint16,
 		searchRange: r.uint16,
@@ -68,13 +68,13 @@ export let LookupTable = function (ValueType = r.uint16) {
 		rangeShift: r.uint16,
 	});
 
-	let LookupSegmentSingle = new r.Struct({
+	const LookupSegmentSingle = new r.Struct({
 		lastGlyph: r.uint16,
 		firstGlyph: r.uint16,
 		value: ValueType,
 	});
 
-	let LookupSegmentArray = new r.Struct({
+	const LookupSegmentArray = new r.Struct({
 		lastGlyph: r.uint16,
 		firstGlyph: r.uint16,
 		values: new r.Pointer(
@@ -84,7 +84,7 @@ export let LookupTable = function (ValueType = r.uint16) {
 		),
 	});
 
-	let LookupSingle = new r.Struct({
+	const LookupSingle = new r.Struct({
 		glyph: r.uint16,
 		value: ValueType,
 	});
@@ -120,7 +120,7 @@ export let LookupTable = function (ValueType = r.uint16) {
 };
 
 export function StateTable(entryData = {}, lookupType = r.uint16) {
-	let entry = Object.assign(
+	const entry = Object.assign(
 		{
 			newState: r.uint16,
 			flags: r.uint16,
@@ -128,10 +128,12 @@ export function StateTable(entryData = {}, lookupType = r.uint16) {
 		entryData,
 	);
 
-	let Entry = new r.Struct(entry);
-	let StateArray = new UnboundedArray(new r.Array(r.uint16, (t) => t.nClasses));
+	const Entry = new r.Struct(entry);
+	const StateArray = new UnboundedArray(
+		new r.Array(r.uint16, (t) => t.nClasses),
+	);
 
-	let StateHeader = new r.Struct({
+	const StateHeader = new r.Struct({
 		nClasses: r.uint32,
 		classTable: new r.Pointer(r.uint32, new LookupTable(lookupType)),
 		stateArray: new r.Pointer(r.uint32, StateArray),
@@ -143,7 +145,7 @@ export function StateTable(entryData = {}, lookupType = r.uint16) {
 
 // This is the old version of the StateTable structure
 export function StateTable1(entryData = {}, lookupType = r.uint16) {
-	let ClassLookupTable = new r.Struct({
+	const ClassLookupTable = new r.Struct({
 		version() {
 			return 8;
 		}, // simulate LookupTable
@@ -151,7 +153,7 @@ export function StateTable1(entryData = {}, lookupType = r.uint16) {
 		values: new r.Array(r.uint8, r.uint16),
 	});
 
-	let entry = Object.assign(
+	const entry = Object.assign(
 		{
 			newStateOffset: r.uint16,
 			// convert offset to stateArray index
@@ -164,10 +166,12 @@ export function StateTable1(entryData = {}, lookupType = r.uint16) {
 		entryData,
 	);
 
-	let Entry = new r.Struct(entry);
-	let StateArray = new UnboundedArray(new r.Array(r.uint8, (t) => t.nClasses));
+	const Entry = new r.Struct(entry);
+	const StateArray = new UnboundedArray(
+		new r.Array(r.uint8, (t) => t.nClasses),
+	);
 
-	let StateHeader1 = new r.Struct({
+	const StateHeader1 = new r.Struct({
 		nClasses: r.uint16,
 		classTable: new r.Pointer(r.uint16, ClassLookupTable),
 		stateArray: new r.Pointer(r.uint16, StateArray),

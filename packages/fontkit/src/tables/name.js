@@ -1,7 +1,7 @@
 import r from '@pdf-lib/restructure';
 import { getEncoding, LANGUAGES } from '../encodings';
 
-let NameRecord = new r.Struct({
+const NameRecord = new r.Struct({
 	platformID: r.uint16,
 	encodingID: r.uint16,
 	languageID: r.uint16,
@@ -16,7 +16,7 @@ let NameRecord = new r.Struct({
 	),
 });
 
-let LangTagRecord = new r.Struct({
+const LangTagRecord = new r.Struct({
 	length: r.uint16,
 	tag: new r.Pointer(r.uint16, new r.String('length', 'utf16be'), {
 		type: 'parent',
@@ -69,7 +69,7 @@ const NAMES = [
 
 NameTable.process = function (stream) {
 	var records = {};
-	for (let record of this.records) {
+	for (const record of this.records) {
 		// find out what language this is for
 		let language = LANGUAGES[record.platformID][record.languageID];
 
@@ -86,7 +86,7 @@ NameTable.process = function (stream) {
 		}
 
 		// if the nameID is >= 256, it is a font feature record (AAT)
-		let key =
+		const key =
 			record.nameID >= 256
 				? 'fontFeatures'
 				: NAMES[record.nameID] || record.nameID;
@@ -114,9 +114,9 @@ NameTable.preEncode = function () {
 	if (Array.isArray(this.records)) return;
 	this.version = 0;
 
-	let records = [];
-	for (let key in this.records) {
-		let val = this.records[key];
+	const records = [];
+	for (const key in this.records) {
+		const val = this.records[key];
 		if (key === 'fontFeatures') continue;
 
 		records.push({

@@ -1,4 +1,4 @@
-let tables = {};
+const tables = {};
 export default tables;
 
 // Required Tables
@@ -23,9 +23,9 @@ tables.post = post;
 // TrueType Outlines
 import cvt from './cvt';
 import fpgm from './fpgm';
+import glyf from './glyf';
 import loca from './loca';
 import prep from './prep';
-import glyf from './glyf';
 
 tables.fpgm = fpgm;
 tables.loca = loca;
@@ -41,11 +41,11 @@ tables['CFF '] = CFFFont;
 tables['CFF2'] = CFFFont;
 tables.VORG = VORG;
 
+import COLR from './COLR';
+import CPAL from './CPAL';
 // Bitmap Glyphs
 import EBLC from './EBLC';
 import sbix from './sbix';
-import COLR from './COLR';
-import CPAL from './CPAL';
 
 tables.EBLC = EBLC;
 tables.CBLC = tables.EBLC;

@@ -1,7 +1,7 @@
 import r from '@pdf-lib/restructure';
 import tables from './';
 
-let WOFFDirectoryEntry = new r.Struct({
+const WOFFDirectoryEntry = new r.Struct({
 	tag: new r.String(4),
 	offset: new r.Pointer(r.uint32, 'void', { type: 'global' }),
 	compLength: r.uint32,
@@ -9,7 +9,7 @@ let WOFFDirectoryEntry = new r.Struct({
 	origChecksum: r.uint32,
 });
 
-let WOFFDirectory = new r.Struct({
+const WOFFDirectory = new r.Struct({
 	tag: new r.String(4), // should be 'wOFF'
 	flavor: r.uint32,
 	length: r.uint32,
@@ -27,8 +27,8 @@ let WOFFDirectory = new r.Struct({
 });
 
 WOFFDirectory.process = function () {
-	let tables = {};
-	for (let table of this.tables) {
+	const tables = {};
+	for (const table of this.tables) {
 		tables[table.tag] = table;
 	}
 

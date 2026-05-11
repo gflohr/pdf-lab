@@ -1,14 +1,14 @@
 import r from '@pdf-lib/restructure';
 import Tables from './';
 
-let TableEntry = new r.Struct({
+const TableEntry = new r.Struct({
 	tag: new r.String(4),
 	checkSum: r.uint32,
 	offset: new r.Pointer(r.uint32, 'void', { type: 'global' }),
 	length: r.uint32,
 });
 
-let Directory = new r.Struct({
+const Directory = new r.Struct({
 	tag: new r.String(4),
 	numTables: r.uint16,
 	searchRange: r.uint16,
@@ -18,8 +18,8 @@ let Directory = new r.Struct({
 });
 
 Directory.process = function () {
-	let tables = {};
-	for (let table of this.tables) {
+	const tables = {};
+	for (const table of this.tables) {
 		tables[table.tag] = table;
 	}
 
@@ -27,9 +27,9 @@ Directory.process = function () {
 };
 
 Directory.preEncode = function (stream) {
-	let tables = [];
-	for (let tag in this.tables) {
-		let table = this.tables[tag];
+	const tables = [];
+	for (const tag in this.tables) {
+		const table = this.tables[tag];
 		if (table) {
 			tables.push({
 				tag: tag,
@@ -44,8 +44,8 @@ Directory.preEncode = function (stream) {
 	this.numTables = tables.length;
 	this.tables = tables;
 
-	let maxExponentFor2 = Math.floor(Math.log(this.numTables) / Math.LN2);
-	let maxPowerOf2 = Math.pow(2, maxExponentFor2);
+	const maxExponentFor2 = Math.floor(Math.log(this.numTables) / Math.LN2);
+	const maxPowerOf2 = 2 ** maxExponentFor2;
 
 	this.searchRange = maxPowerOf2 * 16;
 	this.entrySelector = Math.log(maxPowerOf2) / Math.LN2;

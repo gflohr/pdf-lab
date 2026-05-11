@@ -1,28 +1,28 @@
 import r from '@pdf-lib/restructure';
 import {
-	ScriptList,
+	ChainingContext,
+	ClassDef,
+	Context,
+	Coverage,
+	Device,
 	FeatureList,
 	LookupList,
-	Coverage,
-	ClassDef,
-	Device,
-	Context,
-	ChainingContext,
+	ScriptList,
 } from './opentype';
 import { FeatureVariations } from './variations';
 
-let Sequence = new r.Array(r.uint16, r.uint16);
-let AlternateSet = Sequence;
+const Sequence = new r.Array(r.uint16, r.uint16);
+const AlternateSet = Sequence;
 
-let Ligature = new r.Struct({
+const Ligature = new r.Struct({
 	glyph: r.uint16,
 	compCount: r.uint16,
 	components: new r.Array(r.uint16, (t) => t.compCount - 1),
 });
 
-let LigatureSet = new r.Array(new r.Pointer(r.uint16, Ligature), r.uint16);
+const LigatureSet = new r.Array(new r.Pointer(r.uint16, Ligature), r.uint16);
 
-let GSUBLookup = new r.VersionedStruct('lookupType', {
+const GSUBLookup = new r.VersionedStruct('lookupType', {
 	1: new r.VersionedStruct(r.uint16, {
 		// Single Substitution
 		1: {
@@ -104,8 +104,8 @@ export default new r.VersionedStruct(r.uint32, {
 		lookupList: new r.Pointer(r.uint16, new LookupList(GSUBLookup)),
 	},
 
-	0x00010000: {},
-	0x00010001: {
+	65536: {},
+	65537: {
 		featureVariations: new r.Pointer(r.uint32, FeatureVariations),
 	},
 });

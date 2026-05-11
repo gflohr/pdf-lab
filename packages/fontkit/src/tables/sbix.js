@@ -1,6 +1,6 @@
 import r from '@pdf-lib/restructure';
 
-let ImageTable = new r.Struct({
+const ImageTable = new r.Struct({
 	ppem: r.uint16,
 	resolution: r.uint16,
 	imageOffsets: new r.Array(

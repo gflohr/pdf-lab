@@ -1,13 +1,13 @@
 import r from '@pdf-lib/restructure';
 
-let shortFrac = new r.Fixed(16, 'BE', 14);
+const shortFrac = new r.Fixed(16, 'BE', 14);
 
-let Correspondence = new r.Struct({
+const Correspondence = new r.Struct({
 	fromCoord: shortFrac,
 	toCoord: shortFrac,
 });
 
-let Segment = new r.Struct({
+const Segment = new r.Struct({
 	pairCount: r.uint16,
 	correspondence: new r.Array(Correspondence, 'pairCount'),
 });

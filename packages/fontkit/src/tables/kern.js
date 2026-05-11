@@ -1,19 +1,19 @@
 import r from '@pdf-lib/restructure';
 
-let KernPair = new r.Struct({
+const KernPair = new r.Struct({
 	left: r.uint16,
 	right: r.uint16,
 	value: r.int16,
 });
 
-let ClassTable = new r.Struct({
+const ClassTable = new r.Struct({
 	firstGlyph: r.uint16,
 	nGlyphs: r.uint16,
 	offsets: new r.Array(r.uint16, 'nGlyphs'),
 	max: (t) => t.offsets.length && Math.max.apply(Math, t.offsets),
 });
 
-let Kern2Array = new r.Struct({
+const Kern2Array = new r.Struct({
 	off: (t) => t._startOffset - t.parent.parent._startOffset,
 	len: (t) =>
 		((t.parent.leftTable.max - t.off) / t.parent.rowWidth + 1) *
@@ -21,7 +21,7 @@ let Kern2Array = new r.Struct({
 	values: new r.LazyArray(r.int16, 'len'),
 });
 
-let KernSubtable = new r.VersionedStruct('format', {
+const KernSubtable = new r.VersionedStruct('format', {
 	0: {
 		nPairs: r.uint16,
 		searchRange: r.uint16,
@@ -53,7 +53,7 @@ let KernSubtable = new r.VersionedStruct('format', {
 	},
 });
 
-let KernTable = new r.VersionedStruct('version', {
+const KernTable = new r.VersionedStruct('version', {
 	0: {
 		// Microsoft uses this format
 		subVersion: r.uint16, // Microsoft has an extra sub-table version number
