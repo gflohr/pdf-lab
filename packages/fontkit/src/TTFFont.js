@@ -1,18 +1,18 @@
 import r from '@pdf-lib/restructure';
-import fontkit from './base';
-import CmapProcessor from './CmapProcessor';
-import { cache } from './decorators';
-import BBox from './glyph/BBox';
-import CFFGlyph from './glyph/CFFGlyph';
-import COLRGlyph from './glyph/COLRGlyph';
-import GlyphVariationProcessor from './glyph/GlyphVariationProcessor';
-import SBIXGlyph from './glyph/SBIXGlyph';
-import TTFGlyph from './glyph/TTFGlyph';
-import LayoutEngine from './layout/LayoutEngine';
-import CFFSubset from './subset/CFFSubset';
-import TTFSubset from './subset/TTFSubset';
-import tables from './tables';
-import Directory from './tables/directory';
+import fontkit from './base.js';
+import CmapProcessor from './CmapProcessor.js';
+import { cache } from './decorators.js';
+import BBox from './glyph/BBox.js';
+import CFFGlyph from './glyph/CFFGlyph.js';
+import COLRGlyph from './glyph/COLRGlyph.js';
+import GlyphVariationProcessor from './glyph/GlyphVariationProcessor.js';
+import SBIXGlyph from './glyph/SBIXGlyph.js';
+import TTFGlyph from './glyph/TTFGlyph.js';
+import LayoutEngine from './layout/LayoutEngine.js';
+import CFFSubset from './subset/CFFSubset.js';
+import TTFSubset from './subset/TTFSubset.js';
+import tables from './tables/index.js';
+import Directory from './tables/directory.js';
 
 /**
  * This is the base class for all SFNT-based font formats in fontkit.
@@ -74,9 +74,11 @@ export default class TTFFont {
 	}
 
 	_decodeDirectory() {
-		return (this.directory = Directory.decode(this.stream, {
+		this.directory = Directory.decode(this.stream, {
 			_startOffset: 0,
-		}));
+		});
+
+		return this.directory;
 	}
 
 	_decodeTable(table) {
