@@ -33,7 +33,7 @@ export default class DefaultShaper {
 		});
 	}
 
-	static planFeatures(plan) {
+	static planFeatures() {
 		// Do nothing by default. Let subclasses override this.
 	}
 
@@ -42,10 +42,10 @@ export default class DefaultShaper {
 		plan.setFeatureOverrides(userFeatures);
 	}
 
-	static assignFeatures(plan, glyphs) {
+	static assignFeatures(_plan, glyphs) {
 		// Enable contextual fractions
 		for (let i = 0; i < glyphs.length; i++) {
-			let glyph = glyphs[i];
+			const glyph = glyphs[i];
 			if (glyph.codePoints[0] === 0x2044) {
 				// fraction slash
 				let start = i;
