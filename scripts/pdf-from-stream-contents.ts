@@ -110,7 +110,7 @@ async function main(): Promise<void> {
 	stream.dict.delete(PDFName.of('Filter'));
 
 	const bytes = await pdfDoc.save({ useObjectStreams: false });
-	safeStdoutBufferWrite(bytes);
+	await safeStdoutBufferWrite(bytes);
 }
 
 main().catch(console.error);
