@@ -255,10 +255,12 @@ const jsonBase64DeflatedTrie = JSON.stringify(
 fs.writeFileSync(trieFilePath, `${jsonBase64DeflatedTrie}\n`);
 
 const stateMachine = compile(
+// biome-ignore lint/style/useTemplate: breaks things
 	fs.readFileSync(__dirname + '/indic.machine', 'utf8'),
 	symbols,
 );
 
+// biome-ignore lint/style/useTemplate: breaks things
 const indicFilePath = __dirname + '/indic.json';
 const stateMachineJsonBytes = JSON.stringify(stateMachine)
 	.split('')
@@ -266,4 +268,4 @@ const stateMachineJsonBytes = JSON.stringify(stateMachine)
 const jsonBase64DeflatedIndic = JSON.stringify(
 	base64.encode(pako.deflate(stateMachineJsonBytes)),
 );
-fs.writeFileSync(indicFilePath, jsonBase64DeflatedIndic);
+fs.writeFileSync(indicFilePath, `${jsonBase64DeflatedIndic}\n`);
