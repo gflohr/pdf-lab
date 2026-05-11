@@ -1,7 +1,8 @@
-import './addTestHelpersToFontkit';
-import assert from 'assert';
-import fs from 'fs';
-import fontkit from '../src';
+/** biome-ignore-all lint/style/useTemplate: can be fixed later */
+import './addTestHelpersToFontkit.js';
+import assert from 'node:assert';
+import fs from 'node:fs';
+import fontkit from '../src/index.js';
 
 describe('variations', () => {
 	describe('Skia', () => {
