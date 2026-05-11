@@ -24,7 +24,7 @@ export default class Subset {
 	}
 
 	encodeStream() {
-		let s = new r.EncodeStream();
+		const s = new r.EncodeStream();
 
 		process.nextTick(() => {
 			this.encode(s);

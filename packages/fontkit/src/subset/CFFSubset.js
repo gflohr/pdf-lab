@@ -1,7 +1,7 @@
-import Subset from './Subset';
-import CFFTop from '../cff/CFFTop';
 import CFFPrivateDict from '../cff/CFFPrivateDict';
 import standardStrings from '../cff/CFFStandardStrings';
+import CFFTop from '../cff/CFFTop';
+import Subset from './Subset';
 
 export default class CFFSubset extends Subset {
 	constructor(font) {
@@ -15,15 +15,15 @@ export default class CFFSubset extends Subset {
 
 	subsetCharstrings() {
 		this.charstrings = [];
-		let gsubrs = {};
+		const gsubrs = {};
 
-		for (let gid of this.glyphs) {
+		for (const gid of this.glyphs) {
 			this.charstrings.push(this.cff.getCharString(gid));
 
-			let glyph = this.font.getGlyph(gid);
-			let path = glyph.path; // this causes the glyph to be parsed
+			const glyph = this.font.getGlyph(gid);
+			const path = glyph.path; // this causes the glyph to be parsed
 
-			for (let subr in glyph._usedGsubrs) {
+			for (const subr in glyph._usedGsubrs) {
 				gsubrs[subr] = true;
 			}
 		}
@@ -32,9 +32,9 @@ export default class CFFSubset extends Subset {
 	}
 
 	subsetSubrs(subrs, used) {
-		let res = [];
+		const res = [];
 		for (let i = 0; i < subrs.length; i++) {
-			let subr = subrs[i];
+			const subr = subrs[i];
 			if (used[i]) {
 				this.cff.stream.pos = subr.offset;
 				res.push(this.cff.stream.readBuffer(subr.length));
@@ -53,10 +53,10 @@ export default class CFFSubset extends Subset {
 			fds: [],
 		};
 
-		let used_fds = {};
-		let used_subrs = [];
-		for (let gid of this.glyphs) {
-			let fd = this.cff.fdForGlyph(gid);
+		const used_fds = {};
+		const used_subrs = [];
+		for (const gid of this.glyphs) {
+			const fd = this.cff.fdForGlyph(gid);
 			if (fd == null) {
 				continue;
 			}
@@ -69,15 +69,15 @@ export default class CFFSubset extends Subset {
 			used_fds[fd] = true;
 			topDict.FDSelect.fds.push(topDict.FDArray.length - 1);
 
-			let glyph = this.font.getGlyph(gid);
-			let path = glyph.path; // this causes the glyph to be parsed
-			for (let subr in glyph._usedSubrs) {
+			const glyph = this.font.getGlyph(gid);
+			const path = glyph.path; // this causes the glyph to be parsed
+			for (const subr in glyph._usedSubrs) {
 				used_subrs[used_subrs.length - 1][subr] = true;
 			}
 		}
 
 		for (let i = 0; i < topDict.FDArray.length; i++) {
-			let dict = topDict.FDArray[i];
+			const dict = topDict.FDArray[i];
 			delete dict.FontName;
 			if (dict.Private && dict.Private.Subrs) {
 				dict.Private = Object.assign({}, dict.Private);
@@ -92,17 +92,17 @@ export default class CFFSubset extends Subset {
 	}
 
 	createCIDFontdict(topDict) {
-		let used_subrs = {};
-		for (let gid of this.glyphs) {
-			let glyph = this.font.getGlyph(gid);
-			let path = glyph.path; // this causes the glyph to be parsed
+		const used_subrs = {};
+		for (const gid of this.glyphs) {
+			const glyph = this.font.getGlyph(gid);
+			const path = glyph.path; // this causes the glyph to be parsed
 
-			for (let subr in glyph._usedSubrs) {
+			for (const subr in glyph._usedSubrs) {
 				used_subrs[subr] = true;
 			}
 		}
 
-		let privateDict = Object.assign({}, this.cff.topDict.Private);
+		const privateDict = Object.assign({}, this.cff.topDict.Private);
 		if (this.cff.topDict.Private && this.cff.topDict.Private.Subrs) {
 			privateDict.Subrs = this.subsetSubrs(
 				this.cff.topDict.Private.Subrs,
@@ -135,18 +135,18 @@ export default class CFFSubset extends Subset {
 	encode(stream) {
 		this.subsetCharstrings();
 
-		let charset = {
+		const charset = {
 			version: this.charstrings.length > 255 ? 2 : 1,
 			ranges: [{ first: 1, nLeft: this.charstrings.length - 2 }],
 		};
 
-		let topDict = Object.assign({}, this.cff.topDict);
+		const topDict = Object.assign({}, this.cff.topDict);
 		topDict.Private = null;
 		topDict.charset = charset;
 		topDict.Encoding = null;
 		topDict.CharStrings = this.charstrings;
 
-		for (let key of [
+		for (const key of [
 			'version',
 			'Notice',
 			'Copyright',
@@ -169,7 +169,7 @@ export default class CFFSubset extends Subset {
 			this.createCIDFontdict(topDict);
 		}
 
-		let top = {
+		const top = {
 			version: 1,
 			hdrSize: this.cff.hdrSize,
 			offSize: this.cff.length,

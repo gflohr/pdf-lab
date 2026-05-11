@@ -1,8 +1,8 @@
 import cloneDeep from 'clone';
-import Subset from './Subset';
-import Directory from '../tables/directory';
-import Tables from '../tables';
 import TTFGlyphEncoder from '../glyph/TTFGlyphEncoder';
+import Tables from '../tables';
+import Directory from '../tables/directory';
+import Subset from './Subset';
 
 export default class TTFSubset extends Subset {
 	constructor(font) {
@@ -11,14 +11,14 @@ export default class TTFSubset extends Subset {
 	}
 
 	_addGlyph(gid) {
-		let glyph = this.font.getGlyph(gid);
-		let glyf = glyph._decode();
+		const glyph = this.font.getGlyph(gid);
+		const glyf = glyph._decode();
 
 		// get the offset to the glyph from the loca table
-		let curOffset = this.font.loca.offsets[gid];
-		let nextOffset = this.font.loca.offsets[gid + 1];
+		const curOffset = this.font.loca.offsets[gid];
+		const nextOffset = this.font.loca.offsets[gid + 1];
 
-		let stream = this.font._getTableStream('glyf');
+		const stream = this.font._getTableStream('glyf');
 		stream.pos += curOffset;
 
 		let buffer = stream.readBuffer(nextOffset - curOffset);
@@ -26,7 +26,7 @@ export default class TTFSubset extends Subset {
 		// if it is a compound glyph, include its components
 		if (glyf && glyf.numberOfContours < 0) {
 			buffer = new Buffer(buffer);
-			for (let component of glyf.components) {
+			for (const component of glyf.components) {
 				gid = this.includeGlyph(component.glyphID);
 				buffer.writeUInt16BE(gid, component.pos);
 			}
@@ -73,16 +73,16 @@ export default class TTFSubset extends Subset {
 			this._addGlyph(this.glyphs[i++]);
 		}
 
-		let maxp = cloneDeep(this.font.maxp);
+		const maxp = cloneDeep(this.font.maxp);
 		maxp.numGlyphs = this.glyf.length;
 
 		this.loca.offsets.push(this.offset);
 		Tables.loca.preEncode.call(this.loca);
 
-		let head = cloneDeep(this.font.head);
+		const head = cloneDeep(this.font.head);
 		head.indexToLocFormat = this.loca.version;
 
-		let hhea = cloneDeep(this.font.hhea);
+		const hhea = cloneDeep(this.font.hhea);
 		hhea.numberOfMetrics = this.hmtx.metrics.length;
 
 		// map = []
