@@ -52,22 +52,22 @@ export default class GlyphIterator {
 	}
 
 	peek(count = 1) {
-		let idx = this.index;
-		let res = this.increment(count);
+		const idx = this.index;
+		const res = this.increment(count);
 		this.index = idx;
 		return res;
 	}
 
 	peekIndex(count = 1) {
-		let idx = this.index;
+		const idx = this.index;
 		this.increment(count);
-		let res = this.index;
+		const res = this.index;
 		this.index = idx;
 		return res;
 	}
 
 	increment(count = 1) {
-		let dir = count < 0 ? -1 : 1;
+		const dir = count < 0 ? -1 : 1;
 		count = Math.abs(count);
 		while (count--) {
 			this.move(dir);
