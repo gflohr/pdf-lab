@@ -1,5 +1,5 @@
-import GlyphInfo from '../GlyphInfo';
-import DefaultShaper from './DefaultShaper';
+import GlyphInfo from '../GlyphInfo.js';
+import DefaultShaper from './DefaultShaper.js';
 
 /**
  * This is a shaper for the Hangul script, used by the Korean language.
@@ -263,7 +263,7 @@ function compose(glyphs, i, font) {
 		}
 	}
 
-	const t = (tjmo && tjmo.codePoints[0]) || T_BASE;
+	const t = (tjmo?.codePoints[0]) || T_BASE;
 	if (lv != null && (t === T_BASE || isCombiningT(t))) {
 		const s = lv + (t - T_BASE);
 

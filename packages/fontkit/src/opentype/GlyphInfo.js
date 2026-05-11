@@ -1,5 +1,5 @@
 import unicode from '@pdf-lib/unicode-properties';
-import OTProcessor from './OTProcessor';
+import OTProcessor from './OTProcessor.js';
 
 export default class GlyphInfo {
 	constructor(font, id, codePoints = [], features) {
@@ -10,7 +10,7 @@ export default class GlyphInfo {
 		this.features = {};
 		if (Array.isArray(features)) {
 			for (let i = 0; i < features.length; i++) {
-				let feature = features[i];
+				const feature = features[i];
 				this.features[feature] = true;
 			}
 		} else if (typeof features === 'object') {
@@ -35,10 +35,10 @@ export default class GlyphInfo {
 		this._id = id;
 		this.substituted = true;
 
-		let GDEF = this._font.GDEF;
-		if (GDEF && GDEF.glyphClassDef) {
+		const GDEF = this._font.GDEF;
+		if (GDEF?.glyphClassDef) {
 			// TODO: clean this up
-			let classID = OTProcessor.prototype.getClassID(id, GDEF.glyphClassDef);
+			const classID = OTProcessor.prototype.getClassID(id, GDEF.glyphClassDef);
 			this.isBase = classID === 1;
 			this.isLigature = classID === 2;
 			this.isMark = classID === 3;
