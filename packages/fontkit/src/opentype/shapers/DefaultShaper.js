@@ -15,7 +15,7 @@ export default class DefaultShaper {
 	static zeroMarkWidths = 'AFTER_GPOS';
 	static plan(plan, glyphs, features) {
 		// Plan the features we want to apply
-		this.planPreprocessing(plan);
+		DefaultShaper.planPreprocessing(plan);
 		this.planFeatures(plan);
 		this.planPostprocessing(plan, features);
 
