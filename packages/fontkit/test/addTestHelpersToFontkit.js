@@ -17,8 +17,9 @@ fontkit.open = (filename, postscriptName, callback) => {
 			return callback(err);
 		}
 
+		let font;
 		try {
-			var font = fontkit.create(buffer, postscriptName);
+			font = fontkit.create(buffer, postscriptName);
 		} catch (e) {
 			return callback(e);
 		}
