@@ -20,8 +20,7 @@ export default class CFFSubset extends Subset {
 			this.charstrings.push(this.cff.getCharString(gid));
 
 			const glyph = this.font.getGlyph(gid);
-
-			// FIXME! The getter must have a side-effect. This is not good.
+			// FIXME! The getter must have a side-effect.
 			glyph.path; // this causes the glyph to be parsed
 
 			for (const subr in glyph._usedGsubrs) {
@@ -71,6 +70,9 @@ export default class CFFSubset extends Subset {
 			topDict.FDSelect.fds.push(topDict.FDArray.length - 1);
 
 			const glyph = this.font.getGlyph(gid);
+
+			// FIXME! The getter must have a side-effect.
+			glyph.path; // this causes the glyph to be parsed
 			for (const subr in glyph._usedSubrs) {
 				used_subrs[used_subrs.length - 1][subr] = true;
 			}
@@ -96,6 +98,9 @@ export default class CFFSubset extends Subset {
 		for (const gid of this.glyphs) {
 			const glyph = this.font.getGlyph(gid);
 
+			// FIXME! The getter must have a side-effect.
+			glyph.path; // this causes the glyph to be parsed
+
 			for (const subr in glyph._usedSubrs) {
 				used_subrs[subr] = true;
 			}
@@ -110,7 +115,6 @@ export default class CFFSubset extends Subset {
 		}
 
 		topDict.FDArray = [{ Private: privateDict }];
-
 		topDict.FDSelect = {
 			version: 3,
 			nRanges: 1,
