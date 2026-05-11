@@ -1,8 +1,8 @@
-import ShapingPlan from './ShapingPlan';
-import * as Shapers from './shapers';
-import GlyphInfo from './GlyphInfo';
-import GSUBProcessor from './GSUBProcessor';
-import GPOSProcessor from './GPOSProcessor';
+import GlyphInfo from './GlyphInfo.js';
+import GPOSProcessor from './GPOSProcessor.js';
+import GSUBProcessor from './GSUBProcessor.js';
+import ShapingPlan from './ShapingPlan.js';
+import * as Shapers from './shapers/index.js';
 
 export default class OTLayoutEngine {
 	constructor(font) {
@@ -54,7 +54,7 @@ export default class OTLayoutEngine {
 		this.shaper.plan(this.plan, this.glyphInfos, glyphRun.features);
 
 		// Assign chosen features to output glyph run
-		for (let key in this.plan.allFeatures) {
+		for (const key in this.plan.allFeatures) {
 			glyphRun.features[key] = true;
 		}
 	}
@@ -93,7 +93,7 @@ export default class OTLayoutEngine {
 			glyphRun.positions.reverse();
 		}
 
-		return this.GPOSProcessor && this.GPOSProcessor.features;
+		return this.GPOSProcessor?.features;
 	}
 
 	zeroMarkAdvances(positions) {
@@ -112,7 +112,7 @@ export default class OTLayoutEngine {
 	}
 
 	getAvailableFeatures(script, language) {
-		let features = [];
+		const features = [];
 
 		if (this.GSUBProcessor) {
 			this.GSUBProcessor.selectScript(script, language);

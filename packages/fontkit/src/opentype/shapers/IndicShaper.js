@@ -3,9 +3,9 @@ import * as base64 from 'base64-arraybuffer';
 import StateMachine from 'dfa';
 import pako from 'pako';
 import UnicodeTrie from 'unicode-trie';
-import * as Script from '../../layout/Script';
-import GlyphInfo from '../GlyphInfo';
-import DefaultShaper from './DefaultShaper';
+import * as Script from '../../layout/Script.js';
+import GlyphInfo from '../GlyphInfo.js';
+import DefaultShaper from './DefaultShaper.js';
 // biome-ignore lint/correctness/useImportExtensions: breaks
 import base64DeflatedIndicMachine from './indic.json';
 import {
