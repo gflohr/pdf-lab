@@ -1,11 +1,10 @@
 {
-  "extends": ["../../biome.json"],
-  "linter": {
-    "rules": {
-      "correctness": {
-        "useImportExtensions": "off"
-      }
-    }
-  }
+	"extends": ["../../biome.json"],
+	"linter": {
+		"rules": {
+			"correctness": {
+				"useImportExtensions": "off"
+			}
+		}
+	}
 }
-
