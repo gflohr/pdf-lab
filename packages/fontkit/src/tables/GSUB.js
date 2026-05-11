@@ -1,10 +1,8 @@
 import r from '@pdf-lib/restructure';
 import {
 	ChainingContext,
-	ClassDef,
 	Context,
 	Coverage,
-	Device,
 	FeatureList,
 	LookupList,
 	ScriptList,
