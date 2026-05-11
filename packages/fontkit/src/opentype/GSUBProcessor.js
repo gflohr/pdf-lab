@@ -1,5 +1,5 @@
-import GlyphInfo from './GlyphInfo';
-import OTProcessor from './OTProcessor';
+import GlyphInfo from './GlyphInfo.js';
+import OTProcessor from './OTProcessor.js';
 
 export default class GSUBProcessor extends OTProcessor {
 	applyLookup(lookupType, table) {
@@ -140,7 +140,7 @@ export default class GSUBProcessor extends OTProcessor {
 							idx = matchIndex;
 						} else {
 							while (idx < matchIndex) {
-								var ligatureComponent =
+								const ligatureComponent =
 									curComps -
 									lastNumComps +
 									Math.min(
@@ -163,7 +163,7 @@ export default class GSUBProcessor extends OTProcessor {
 					if (lastLigID && !isMarkLigature) {
 						for (let i = idx; i < this.glyphs.length; i++) {
 							if (this.glyphs[i].ligatureID === lastLigID) {
-								var ligatureComponent =
+								const ligatureComponent =
 									curComps -
 									lastNumComps +
 									Math.min(this.glyphs[i].ligatureComponent || 1, lastNumComps);
