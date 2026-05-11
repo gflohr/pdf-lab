@@ -356,14 +356,16 @@ export default class OTProcessor {
 	}
 
 	applyContext(table) {
+		let index;
+		let set;
 		switch (table.version) {
 			case 1:
-				let index = this.coverageIndex(table.coverage);
+				index = this.coverageIndex(table.coverage);
 				if (index === -1) {
 					return false;
 				}
 
-				let set = table.ruleSets[index];
+				set = table.ruleSets[index];
 				for (let rule of set) {
 					if (this.sequenceMatches(1, rule.input)) {
 						return this.applyLookupList(rule.lookupRecords);
