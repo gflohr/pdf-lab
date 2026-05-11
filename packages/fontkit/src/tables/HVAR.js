@@ -21,7 +21,7 @@ class VariableSizeNumber {
 		}
 	}
 
-	size(val, parent) {
+	size(_val, parent) {
 		return resolveLength(this._size, null, parent);
 	}
 }

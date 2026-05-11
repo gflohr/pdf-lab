@@ -73,6 +73,7 @@ const GSUBLookup = new r.VersionedStruct('lookupType', {
 		// Extension Substitution
 		substFormat: r.uint16,
 		lookupType: r.uint16, // cannot also be 7
+		// biome-ignore lint/correctness/noInvalidUseBeforeDeclaration: fix later
 		extension: new r.Pointer(r.uint32, GSUBLookup),
 	},
 

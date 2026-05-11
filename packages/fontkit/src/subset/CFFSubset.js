@@ -95,7 +95,6 @@ export default class CFFSubset extends Subset {
 		const used_subrs = {};
 		for (const gid of this.glyphs) {
 			const glyph = this.font.getGlyph(gid);
-			const path = glyph.path; // this causes the glyph to be parsed
 
 			for (const subr in glyph._usedSubrs) {
 				used_subrs[subr] = true;
@@ -111,12 +110,15 @@ export default class CFFSubset extends Subset {
 		}
 
 		topDict.FDArray = [{ Private: privateDict }];
-		return (topDict.FDSelect = {
+
+		topDict.FDSelect = {
 			version: 3,
 			nRanges: 1,
 			ranges: [{ first: 0, fd: 0 }],
 			sentinel: this.charstrings.length,
-		});
+		}
+
+		return topDict.FDSelect;
 	}
 
 	addString(string) {
