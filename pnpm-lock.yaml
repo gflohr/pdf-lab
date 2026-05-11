@@ -69,8 +69,8 @@ importers:
         specifier: ^1.1.1
         version: 1.1.1
       '@valibot/i18n':
-        specifier: ^1.1.0
-        version: 1.1.0(valibot@1.4.0(typescript@6.0.3))
+        specifier: ^1.2.0
+        version: 1.2.0(valibot@1.4.0(typescript@6.0.3))
       pdf-lab-core:
         specifier: workspace:*
         version: link:../../packages/pdf-lab-core
@@ -995,10 +995,10 @@ packages:
   '@types/yargs@17.0.35':
     resolution: {integrity: sha512-qUHkeCyQFxMXg79wQfTtfndEC+N9ZZg76HJftDJp+qH2tV7Gj4OJi7l+PiWwJ+pWtW8GwSmqsDj/oymhrTWXjg==}
 
-  '@valibot/i18n@1.1.0':
-    resolution: {integrity: sha512-vqtBSu4wyLYFqQX6/9zIVLDmiAOmq2g8CHj7DSlohnNpl/fZz0iza0ZWb53iGyukv3vx0S3Qmd7DV7zHGq4fjA==}
+  '@valibot/i18n@1.2.0':
+    resolution: {integrity: sha512-vpSWlLB/or0GjF8dqQlUn9HIO+sBMWj74tw/w85KpkZAKsrdfdXb97EtXXRlEVgdYK8/AoUqe8GIGuqwmxiu1Q==}
     peerDependencies:
-      valibot: ^1.3.0
+      valibot: ^1.4.0
 
   '@vitest/coverage-v8@4.1.5':
     resolution: {integrity: sha512-38C0/Ddb7HcRG0Z4/DUem8x57d2p9jYgp18mkaYswEOQBGsI1CG4f/hjm0ZCeaJfWhSZ4k7jgs29V1Zom7Ki9A==}
@@ -2302,7 +2302,7 @@ snapshots:
       '@esgettext/runtime': 1.3.10
       '@inquirer/prompts': 8.4.2(@types/node@25.6.0)
       '@npmcli/package-json': 7.0.5
-      '@valibot/i18n': 1.1.0(valibot@1.4.0(typescript@6.0.3))
+      '@valibot/i18n': 1.2.0(valibot@1.4.0(typescript@6.0.3))
       glob: 13.0.6
       iconv-lite: 0.7.2
       jsonfile: 6.2.1
@@ -2740,7 +2740,7 @@ snapshots:
     dependencies:
       '@types/yargs-parser': 21.0.3
 
-  '@valibot/i18n@1.1.0(valibot@1.4.0(typescript@6.0.3))':
+  '@valibot/i18n@1.2.0(valibot@1.4.0(typescript@6.0.3))':
     dependencies:
       valibot: 1.4.0(typescript@6.0.3)
 
