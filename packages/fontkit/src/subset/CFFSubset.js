@@ -114,7 +114,7 @@ export default class CFFSubset extends Subset {
 			nRanges: 1,
 			ranges: [{ first: 0, fd: 0 }],
 			sentinel: this.charstrings.length,
-		}
+		};
 
 		return topDict.FDSelect;
 	}
