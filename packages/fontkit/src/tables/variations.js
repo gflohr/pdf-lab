@@ -1,5 +1,5 @@
 import r from '@pdf-lib/restructure';
-import { Feature } from './opentype';
+import { Feature } from './opentype.js';
 
 /*******************
  * Variation Store *
@@ -54,7 +54,6 @@ export const ItemVariationStore = new r.Struct({
 
 const ConditionTable = new r.VersionedStruct(r.uint16, {
 	1: {
-		axisIndex: r.uint16,
 		axisIndex: r.uint16,
 		filterRangeMinValue: F2DOT14,
 		filterRangeMaxValue: F2DOT14,

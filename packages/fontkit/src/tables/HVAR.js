@@ -1,6 +1,6 @@
 import r from '@pdf-lib/restructure';
 import { resolveLength } from '@pdf-lib/restructure/src/utils';
-import { ItemVariationStore } from './variations';
+import { ItemVariationStore } from './variations.js';
 
 // TODO: add this to restructure
 class VariableSizeNumber {
