@@ -256,6 +256,7 @@ const json = Object.assign(
 	stateMachine,
 );
 
+// biome-ignore lint/style/useTemplate: breaks things
 const useFilePath = __dirname + '/use.json';
 const useJsonBytes = JSON.stringify(json)
 	.split('')
@@ -263,4 +264,4 @@ const useJsonBytes = JSON.stringify(json)
 const jsonBase64DeflatedUse = JSON.stringify(
 	base64.encode(pako.deflate(useJsonBytes)),
 );
-fs.writeFileSync(useFilePath, jsonBase64DeflatedUse);
+fs.writeFileSync(useFilePath, `${jsonBase64DeflatedUse}\n`);

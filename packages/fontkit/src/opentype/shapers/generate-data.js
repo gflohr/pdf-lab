@@ -5,7 +5,7 @@
 
 import * as base64 from 'base64-arraybuffer';
 import codepoints from 'codepoints';
-import fs from 'fs';
+import fs from 'node:fs';
 import pako from 'pako';
 import UnicodeTrieBuilder from 'unicode-trie/builder';
 
