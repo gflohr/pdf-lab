@@ -3,11 +3,8 @@ import {
 	ClassDef,
 	Coverage,
 	Device,
-	FeatureList,
-	LookupList,
-	ScriptList,
-} from './opentype';
-import { ItemVariationStore } from './variations';
+} from './opentype.js';
+import { ItemVariationStore } from './variations.js';
 
 const AttachPoint = new r.Array(r.uint16, r.uint16);
 const AttachList = new r.Struct({

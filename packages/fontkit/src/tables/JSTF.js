@@ -1,12 +1,6 @@
 import r from '@pdf-lib/restructure';
 import { GPOSLookup } from './GPOS.js';
-import {
-	Coverage,
-	Device,
-	FeatureList,
-	LookupList,
-	ScriptList,
-} from './opentype';
+import { LookupList } from './opentype.js';
 
 const JstfGSUBModList = new r.Array(r.uint16, r.uint16);
 
