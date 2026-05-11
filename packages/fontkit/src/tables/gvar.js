@@ -1,6 +1,8 @@
 import r from '@pdf-lib/restructure';
 
 const shortFrac = new r.Fixed(16, 'BE', 14);
+
+// biome-ignore lint/complexity/noStaticOnlyClass: fix later
 class Offset {
 	static decode(stream, parent) {
 		// In short format, offsets are multiplied by 2.

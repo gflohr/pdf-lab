@@ -1,12 +1,5 @@
 import r from '@pdf-lib/restructure';
-import {
-	ClassDef,
-	Coverage,
-	Device,
-	FeatureList,
-	LookupList,
-	ScriptList,
-} from './opentype.js';
+import { Device } from './opentype.js';
 import { ItemVariationStore } from './variations.js';
 
 const BaseCoord = new r.VersionedStruct(r.uint16, {
