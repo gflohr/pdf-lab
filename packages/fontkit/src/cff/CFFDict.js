@@ -166,7 +166,5 @@ export default class CFFDict {
 			const ptr = ctx.pointers[i++];
 			ptr.type.encode(stream, ptr.val, ptr.parent);
 		}
-
-		return;
 	}
 }
