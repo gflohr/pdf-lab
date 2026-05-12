@@ -89,6 +89,10 @@ export default class CFFGlyph extends Glyph {
 				let phase;
 				let index;
 				let subr;
+				let a;
+				let b;
+				let idx;
+				let pts;
 				if (op < 32) {
 					switch (op) {
 						case 1: // hstem
@@ -368,11 +372,10 @@ export default class CFFGlyph extends Glyph {
 							op = stream.readUInt8();
 							switch (op) {
 								case 3: // and
-									{
-										const a = stack.pop();
-										const b = stack.pop();
-										stack.push(a && b ? 1 : 0);
-									}
+									a = stack.pop();
+									b = stack.pop();
+									stack.push(a && b ? 1 : 0);
+
 									break;
 
 								case 4: // or
@@ -537,7 +540,7 @@ export default class CFFGlyph extends Glyph {
 
 								case 35: // flex
 									{
-										const pts = [];
+										pts = [];
 
 										for (let i = 0; i <= 5; i++) {
 											x += stack.shift();
