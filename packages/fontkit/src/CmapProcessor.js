@@ -34,6 +34,7 @@ export default class CmapProcessor {
 				if (iconv.encodingExists(encoding)) {
 					this.cmap = cmap.table;
 					this.encoding = encoding;
+					break;
 				}
 			}
 		}
