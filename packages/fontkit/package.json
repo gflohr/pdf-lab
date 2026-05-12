@@ -1,0 +1,76 @@
+{
+	"name": "@pdf-lab/fontkit",
+	"version": "1.1.0",
+	"description": "An advanced font engine for Node and the browser",
+	"type": "module",
+	"main": "dist/fontkit.umd.js",
+	"unpkg": "dist/fontkit.umd.min.js",
+	"module": "dist/fontkit.es.js",
+	"types": "fontkit.d.ts",
+	"scripts": {
+		"clean": "rimraf --glob dist \"src/**/trie.js\" \"src/**/trieIndic.js\" \"src/**/trieUse.js\" \"src/**/indic.js\" \"src/**/use.js\"",
+		"generate:data": "node src/opentype/shapers/generate-data.js && node src/opentype/shapers/gen-use.js && node src/opentype/shapers/gen-indic.js",
+		"build": "pnpm run clean && pnpm run generate:data && rollup -c",
+		"dev": "rollup -c -w",
+		"check": "biome check",
+		"check:fix": "biome check --write",
+		"prepublishOnly": "pnpm run build",
+		"test": "MODULE_TYPE=commonjs mocha",
+		"test:watch": "MODULE_TYPE=commonjs mocha --watch --watch-files './src/**/*.js' --watch-files './test/**/*.js' --watch-files './src/**/*.json'",
+		"test:cov": "c8 --reporter=text --reporter=html --reporter=json-summary mocha"
+	},
+	"dependencies": {
+		"pako": "^2.1.0"
+	},
+	"devDependencies": {
+		"@pdf-lib/brotli": "^0.0.0",
+		"@pdf-lib/restructure": "^0.0.1",
+		"@pdf-lib/unicode-properties": "^0.0.1",
+		"@rollup/plugin-commonjs": "^29.0.2",
+		"@rollup/plugin-inject": "^5.0.5",
+		"@rollup/plugin-json": "^6.1.0",
+		"@rollup/plugin-node-resolve": "^16.0.3",
+		"@rollup/plugin-swc": "^0.4.0",
+		"@rollup/plugin-terser": "^1.0.0",
+		"base64-arraybuffer": "^1.0.2",
+		"buffer": "^6.0.3",
+		"c8": "^11.0.0",
+		"clone": "^2.1.2",
+		"codepoints": "^1.3.0",
+		"concat-stream": "^2.0.0",
+		"deep-equal": "^2.2.3",
+		"dfa": "^1.2.0",
+		"esdoc": "^1.1.0",
+		"esdoc-es7-plugin": "0.0.3",
+		"iconv-lite": "^0.7.2",
+		"mocha": "^11.7.5",
+		"rimraf": "^6.1.3",
+		"rollup": "^4.60.3",
+		"rollup-plugin-polyfill-node": "^0.13.0",
+		"tiny-inflate": "^1.0.3",
+		"unicode-trie": "^2.0.0"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git://github.com/Hopding/fontkit.git"
+	},
+	"keywords": [
+		"opentype",
+		"font",
+		"typography",
+		"subset",
+		"emoji",
+		"glyph",
+		"layout"
+	],
+	"author": "Guido Flohr <guido.flohr@cantanea.com>",
+	"contributors": [
+		"Devon Govett <devongovett@gmail.com> (http://badassjs.com/)",
+		"Andrew Dillon <andrew.dillon.j@gmail.com>"
+	],
+	"bugs": {
+		"url": "https://github.com/gflohr/pdf-lab/issues"
+	},
+	"license": "MIT",
+	"homepage": "https://github.com/gflohr/pdf-lab/packages/fontkit#readme"
+}

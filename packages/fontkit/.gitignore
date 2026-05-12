@@ -1,0 +1,14 @@
+node_modules/
+playground/
+.DS_Store
+coverage/
+coverage.html
+.nyc_output
+yarn-error.log
+dist/
+/**/trie.js
+/**/trieIndic.js
+/**/trieUse.js
+/**/indic.js
+/**/use.js
+stats.html
