@@ -103,10 +103,13 @@ export default class AATMorxProcessor {
 
 	getStateMachine(subtable) {
 		if (!this._aatStateMachineCache.has(subtable)) {
-			this._aatStateMachineCache.set(subtable, new AATStateMachine(subtable.table.stateTable));
+			this._aatStateMachineCache.set(
+				subtable,
+				new AATStateMachine(subtable.table.stateTable),
+			);
 		}
 
-		return this._aatStateMachineCache.get(subtable);s
+		return this._aatStateMachineCache.get(subtable);
 	}
 
 	getProcessor() {

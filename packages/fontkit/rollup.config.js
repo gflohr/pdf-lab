@@ -1,10 +1,10 @@
 import commonjs from '@rollup/plugin-commonjs';
 import inject from '@rollup/plugin-inject';
 import json from '@rollup/plugin-json';
-import nodePolyfills from 'rollup-plugin-polyfill-node';
 import nodeResolve from '@rollup/plugin-node-resolve';
 import swc from '@rollup/plugin-swc';
 import terser from '@rollup/plugin-terser';
+import nodePolyfills from 'rollup-plugin-polyfill-node';
 
 const plugins = [
 	nodeResolve({
@@ -44,7 +44,7 @@ const onwarn = (warning, warn) => {
 	// Silence noisy legacy dependency warnings.
 	if (warning.code === 'CIRCULAR_DEPENDENCY') return;
 	warn(warning);
-}
+};
 
 export default [
 	{
@@ -79,7 +79,7 @@ export default [
 			sourcemap: true,
 			globals: {
 				pako: 'pako',
-			}
+			},
 		},
 		plugins,
 		onwarn,
@@ -93,7 +93,7 @@ export default [
 			sourcemap: true,
 			globals: {
 				pako: 'pako',
-			}
+			},
 		},
 		plugins: [...plugins, terser],
 		onwarn,

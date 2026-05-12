@@ -129,8 +129,9 @@ describe('character to glyph mapping', () => {
 	});
 
 	describe('AAT features', () => {
-		// biome-ignore lint/style/useTemplate: breaks things
-		const font = fontkit.openSync(`${import.meta.dirname}/data/Play/Play-Regular.ttf`);
+		const font = fontkit.openSync(
+			`${import.meta.dirname}/data/Play/Play-Regular.ttf`,
+		);
 
 		it('should list available features', () =>
 			assert.deepEqual(font.availableFeatures, [
@@ -184,7 +185,6 @@ describe('character to glyph mapping', () => {
 		});
 
 		it('should apply indic reordering features', () => {
-			// biome-ignore lint/style/useTemplate: breaks things
 			const f = fontkit.openSync(`${import.meta.dirname}/data/Khmer/Khmer.ttf`);
 			const { glyphs } = f.layout('ខ្ញុំអាចញ៉ាំកញ្ចក់បាន ដោយគ្មានបញ្ហា');
 			assert.deepEqual(
@@ -242,7 +242,9 @@ describe('character to glyph mapping', () => {
 		});
 
 		it('should return strings from AAT morx table that map to the given glyph', () => {
-			const font = fontkit.openSync(`${import.meta.dirname}/data/Play/Play-Regular.ttf`);
+			const font = fontkit.openSync(
+				`${import.meta.dirname}/data/Play/Play-Regular.ttf`,
+			);
 			const strings = font.stringsForGlyph(767);
 			assert.deepEqual(strings, ['ffi']);
 		});

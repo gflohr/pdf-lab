@@ -30,7 +30,9 @@ describe('fontkit', () => {
 		);
 		assert.equal(font.constructor.name, 'TTFFont');
 
-		font = fontkit.openSync(`${import.meta.dirname}/data/NotoSans/NotoSans.ttc`);
+		font = fontkit.openSync(
+			`${import.meta.dirname}/data/NotoSans/NotoSans.ttc`,
+		);
 		assert.equal(font.constructor.name, 'TrueTypeCollection');
 
 		font = fontkit.openSync(
@@ -39,7 +41,9 @@ describe('fontkit', () => {
 		);
 		assert.equal(font.constructor.name, 'TTFFont');
 
-		font = fontkit.openSync(`${import.meta.dirname}/data/NotoSans/NotoSans.dfont`);
+		font = fontkit.openSync(
+			`${import.meta.dirname}/data/NotoSans/NotoSans.dfont`,
+		);
 		assert.equal(font.constructor.name, 'DFont');
 
 		font = fontkit.openSync(
@@ -74,7 +78,10 @@ describe('fontkit', () => {
 	});
 
 	it('should error when opening an invalid font synchronously', () => {
-		assert.throws(() => fontkit.openSync(import.meta.filename), /Unknown font format/);
+		assert.throws(
+			() => fontkit.openSync(import.meta.filename),
+			/Unknown font format/,
+		);
 	});
 
 	it('should get collection objects for ttc fonts', () => {

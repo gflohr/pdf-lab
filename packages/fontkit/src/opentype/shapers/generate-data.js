@@ -41,4 +41,7 @@ const filePath = `${import.meta.dirname}/trie.js`;
 const jsonBase64DeflatedTrie = JSON.stringify(
 	base64.encode(pako.deflate(trie.toBuffer())),
 );
-fs.writeFileSync(filePath, `export default ${jsonBase64DeflatedTrie.replace(/"/g, "'")};\n`);
+fs.writeFileSync(
+	filePath,
+	`export default ${jsonBase64DeflatedTrie.replace(/"/g, "'")};\n`,
+);

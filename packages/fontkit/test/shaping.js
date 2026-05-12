@@ -6,7 +6,9 @@ describe('shaping', () => {
 	const fontCache = {};
 	const test = (description, font, text, output) => {
 		it(description, () => {
-			fontCache[font] ||= fontkit.openSync(`${import.meta.dirname}/data/${font}`);
+			fontCache[font] ||= fontkit.openSync(
+				`${import.meta.dirname}/data/${font}`,
+			);
 			const f = fontCache[font];
 			const { glyphs, positions } = f.layout(text);
 
@@ -30,7 +32,9 @@ describe('shaping', () => {
 	};
 
 	describe('general shaping tests', () => {
-		const font = fontkit.openSync(`${import.meta.dirname}/data/amiri/amiri-regular.ttf`);
+		const font = fontkit.openSync(
+			`${import.meta.dirname}/data/amiri/amiri-regular.ttf`,
+		);
 
 		it('should use correct script and language when features are not specified', () => {
 			const { glyphs } = font.layout('۴', 'arab', 'URD');

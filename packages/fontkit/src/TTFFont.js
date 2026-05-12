@@ -249,7 +249,12 @@ export default class TTFFont {
 	get bbox() {
 		if (typeof this._bbox === 'undefined') {
 			this._bbox = Object.freeze(
-				new BBox(this.head.xMin, this.head.yMin, this.head.xMax, this.head.yMax),
+				new BBox(
+					this.head.xMin,
+					this.head.yMin,
+					this.head.xMax,
+					this.head.yMax,
+				),
 			);
 		}
 

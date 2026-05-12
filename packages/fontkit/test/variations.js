@@ -142,9 +142,12 @@ describe('variations', () => {
 		});
 
 		it('should support adjusting GPOS mark anchor points for variations', () => {
-			const font = fontkit.openSync(`${import.meta.dirname}/data/Mada/Mada-VF.ttf`, {
-				wght: 900,
-			});
+			const font = fontkit.openSync(
+				`${import.meta.dirname}/data/Mada/Mada-VF.ttf`,
+				{
+					wght: 900,
+				},
+			);
 			const run = font.layout('ف');
 			assert.equal(Math.floor(run.positions[0].xOffset), 639);
 			assert.equal(Math.floor(run.positions[0].yOffset), 542);

@@ -12,6 +12,8 @@
 		"generate:data": "node src/opentype/shapers/generate-data.js && node src/opentype/shapers/gen-use.js && node src/opentype/shapers/gen-indic.js",
 		"build": "pnpm run clean && pnpm run generate:data && rollup -c",
 		"dev": "rollup -c -w",
+		"check": "biome check",
+		"check:fix": "biome check --write",
 		"prepublishOnly": "pnpm run build",
 		"test": "MODULE_TYPE=commonjs mocha",
 		"test:watch": "MODULE_TYPE=commonjs mocha --watch --watch-files './src/**/*.js' --watch-files './test/**/*.js' --watch-files './src/**/*.json'",

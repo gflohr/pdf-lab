@@ -311,7 +311,10 @@ export default class CmapProcessor {
 
 	codePointsForGlyph(gid) {
 		if (!this._codePointsForGlyphCache.has(gid)) {
-			this._codePointsForGlyphCache.set(gid, this._computeCodePointsForGlyph(gid));
+			this._codePointsForGlyphCache.set(
+				gid,
+				this._computeCodePointsForGlyph(gid),
+			);
 		}
 
 		return this._codePointsForGlyphCache.get(gid);

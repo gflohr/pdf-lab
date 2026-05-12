@@ -245,7 +245,10 @@ const trieFilePath = `${import.meta.dirname}/trieUse.js`;
 const jsonBase64DeflatedTrie = JSON.stringify(
 	base64.encode(pako.deflate(trie.toBuffer())),
 );
-fs.writeFileSync(trieFilePath, `export default ${jsonBase64DeflatedTrie.replace(/"/g, "'")}\n`);
+fs.writeFileSync(
+	trieFilePath,
+	`export default ${jsonBase64DeflatedTrie.replace(/"/g, "'")}\n`,
+);
 
 const stateMachine = compile(
 	fs.readFileSync(`${import.meta.dirname}/use.machine`, 'utf8'),
@@ -264,4 +267,7 @@ const useJsonBytes = new TextEncoder().encode(JSON.stringify(json));
 const jsonBase64DeflatedUse = JSON.stringify(
 	base64.encode(pako.deflate(useJsonBytes)),
 );
-fs.writeFileSync(useFilePath, `export default ${jsonBase64DeflatedUse.replace(/"/g, "'")};\n`);
+fs.writeFileSync(
+	useFilePath,
+	`export default ${jsonBase64DeflatedUse.replace(/"/g, "'")};\n`,
+);

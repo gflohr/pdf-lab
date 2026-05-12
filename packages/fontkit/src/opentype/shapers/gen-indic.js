@@ -253,7 +253,10 @@ const trieFilePath = `${import.meta.dirname}/trieIndic.js`;
 const jsonBase64DeflatedTrie = JSON.stringify(
 	base64.encode(pako.deflate(trie.toBuffer())),
 );
-fs.writeFileSync(trieFilePath, `export default ${jsonBase64DeflatedTrie.replace(/"/g, "'")};\n`);
+fs.writeFileSync(
+	trieFilePath,
+	`export default ${jsonBase64DeflatedTrie.replace(/"/g, "'")};\n`,
+);
 
 const stateMachine = compile(
 	fs.readFileSync(`${import.meta.dirname}/indic.machine`, 'utf8'),
@@ -261,8 +264,13 @@ const stateMachine = compile(
 );
 
 const indicFilePath = `${import.meta.dirname}/indic.js`;
-const stateMachineJsonBytes = new TextEncoder().encode(JSON.stringify(stateMachine));
+const stateMachineJsonBytes = new TextEncoder().encode(
+	JSON.stringify(stateMachine),
+);
 const jsonBase64DeflatedIndic = JSON.stringify(
 	base64.encode(pako.deflate(stateMachineJsonBytes)),
 );
-fs.writeFileSync(indicFilePath, `export default ${jsonBase64DeflatedIndic.replace(/"/g, "'")};\n`);
+fs.writeFileSync(
+	indicFilePath,
+	`export default ${jsonBase64DeflatedIndic.replace(/"/g, "'")};\n`,
+);

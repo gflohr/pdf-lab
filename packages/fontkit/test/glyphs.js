@@ -8,7 +8,9 @@ describe('glyphs', () => {
 		const font = fontkit.openSync(
 			`${import.meta.dirname}/data/OpenSans/OpenSans-Regular.ttf`,
 		);
-		const mada = fontkit.openSync(`${import.meta.dirname}/data/Mada/Mada-VF.ttf`);
+		const mada = fontkit.openSync(
+			`${import.meta.dirname}/data/Mada/Mada-VF.ttf`,
+		);
 
 		it('should get a TTFGlyph', () => {
 			const glyph = font.getGlyph(39); // D

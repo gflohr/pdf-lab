@@ -35,7 +35,9 @@ describe('glyph positioning', () => {
 	});
 
 	describe('AAT features', () => {
-		const font = fontkit.openSync(`${import.meta.dirname}/data/Play/Play-Regular.ttf`);
+		const font = fontkit.openSync(
+			`${import.meta.dirname}/data/Play/Play-Regular.ttf`,
+		);
 
 		it('should apply kerning by default', () => {
 			const { positions } = font.layout('Twitter');

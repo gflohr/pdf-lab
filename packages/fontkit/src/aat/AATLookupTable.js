@@ -127,7 +127,10 @@ export default class AATLookupTable {
 
 	glyphsForValue(classValue) {
 		if (!this._glyphsForValueCache.has(classValue)) {
-			this._glyphsForValueCache.set(classValue, this._computeGlyphsForValue(classValue));
+			this._glyphsForValueCache.set(
+				classValue,
+				this._computeGlyphsForValue(classValue),
+			);
 		}
 
 		return this._glyphsForValueCache.get(classValue);
