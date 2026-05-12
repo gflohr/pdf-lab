@@ -13,9 +13,9 @@
 		"build": "pnpm run clean && pnpm run generate:data && rollup -c",
 		"dev": "rollup -c -w",
 		"prepublishOnly": "pnpm run build",
-		"test": "MODULE_TYPE=commonjs mocha --require @babel/register",
-		"test:watch": "MODULE_TYPE=commonjs mocha --require @babel/register --watch --watch-files './src/**/*.js' --watch-files './test/**/*.js' --watch-files './src/**/*.json'",
-		"test:cov": "cross-env BABEL_ENV=cover nyc mocha --require @babel/register"
+		"test": "MODULE_TYPE=commonjs mocha",
+		"test:watch": "MODULE_TYPE=commonjs mocha --watch --watch-files './src/**/*.js' --watch-files './test/**/*.js' --watch-files './src/**/*.json'",
+		"test:cov": "cross-env BABEL_ENV=cover nyc mocha"
 	},
 	"dependencies": {
 		"pako": "^2.1.0"

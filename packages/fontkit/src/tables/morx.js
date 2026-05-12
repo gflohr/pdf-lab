@@ -1,5 +1,5 @@
 import r from '@pdf-lib/restructure';
-import { LookupTable, StateTable, UnboundedArray } from './aat';
+import { LookupTable, StateTable, UnboundedArray } from './aat.js';
 
 const LigatureData = {
 	action: r.uint16,

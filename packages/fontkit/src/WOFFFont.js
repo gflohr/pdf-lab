@@ -1,7 +1,7 @@
 import r from '@pdf-lib/restructure';
 import inflate from 'tiny-inflate';
-import TTFFont from './TTFFont';
-import WOFFDirectory from './tables/WOFFDirectory';
+import TTFFont from './TTFFont.js';
+import WOFFDirectory from './tables/WOFFDirectory.js';
 
 export default class WOFFFont extends TTFFont {
 	static probe(buffer) {

@@ -84,7 +84,7 @@ describe('variations', () => {
 	describe('truetype variations', () => {
 		it('should support sharing all points', () => {
 			const font = fontkit.openSync(
-				__dirname + '/data/fonttest/TestGVAROne.ttf',
+				`${import.meta.dirname}/data/fonttest/TestGVAROne.ttf`,
 			);
 
 			assert.equal(
@@ -95,7 +95,7 @@ describe('variations', () => {
 
 		it('should support sharing enumerated points', () => {
 			const font = fontkit.openSync(
-				__dirname + '/data/fonttest/TestGVARTwo.ttf',
+				`${import.meta.dirname}/data/fonttest/TestGVARTwo.ttf`,
 			);
 
 			assert.equal(
@@ -106,7 +106,7 @@ describe('variations', () => {
 
 		it('should support sharing no points', () => {
 			const font = fontkit.openSync(
-				__dirname + '/data/fonttest/TestGVARThree.ttf',
+				`${import.meta.dirname}/data/fonttest/TestGVARThree.ttf`,
 			);
 
 			assert.equal(
@@ -117,7 +117,7 @@ describe('variations', () => {
 
 		it('should use the HVAR table when available for variation metrics', () => {
 			const font = fontkit.openSync(
-				__dirname + '/data/fonttest/TestGVARFour.ttf',
+				`${import.meta.dirname}/data/fonttest/TestGVARFour.ttf`,
 			);
 
 			assert.equal(
@@ -130,7 +130,7 @@ describe('variations', () => {
 
 		it('should fall back to the last entry in an HVAR table', () => {
 			const font = fontkit.openSync(
-				__dirname + '/data/fonttest/TestHVARTwo.ttf',
+				`${import.meta.dirname}/data/fonttest/TestHVARTwo.ttf`,
 			);
 
 			assert.equal(
@@ -142,7 +142,7 @@ describe('variations', () => {
 		});
 
 		it('should support adjusting GPOS mark anchor points for variations', () => {
-			const font = fontkit.openSync(__dirname + '/data/Mada/Mada-VF.ttf', {
+			const font = fontkit.openSync(`${import.meta.dirname}/data/Mada/Mada-VF.ttf`, {
 				wght: 900,
 			});
 			const run = font.layout('ف');
@@ -153,7 +153,7 @@ describe('variations', () => {
 
 	describe('CFF2 variations', () => {
 		const font = fontkit.openSync(
-			__dirname + '/data/fonttest/AdobeVFPrototype-Subset.otf',
+			`${import.meta.dirname}/data/fonttest/AdobeVFPrototype-Subset.otf`,
 		);
 
 		it('applies variations to CFF2 glyphs', () => {

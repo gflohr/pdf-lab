@@ -4,8 +4,7 @@ import fontkit from '../src/index.js';
 
 describe('metadata', () => {
 	const font = fontkit.openSync(
-		// biome-ignore lint/style/useTemplate: breaks things
-		__dirname + '/data/OpenSans/OpenSans-Regular.ttf',
+		`${import.meta.dirname}/data/OpenSans/OpenSans-Regular.ttf`,
 	);
 
 	it('decodes SFNT directory values correctly', () => {

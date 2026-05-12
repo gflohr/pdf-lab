@@ -6,11 +6,9 @@ import fontkit from '../src/index.js';
 describe('glyphs', () => {
 	describe('truetype glyphs', () => {
 		const font = fontkit.openSync(
-			// biome-ignore lint/style/useTemplate: breaks things
-			__dirname + '/data/OpenSans/OpenSans-Regular.ttf',
+			`${import.meta.dirname}/data/OpenSans/OpenSans-Regular.ttf`,
 		);
-		// biome-ignore lint/style/useTemplate: breaks things
-		const mada = fontkit.openSync(__dirname + '/data/Mada/Mada-VF.ttf');
+		const mada = fontkit.openSync(`${import.meta.dirname}/data/Mada/Mada-VF.ttf`);
 
 		it('should get a TTFGlyph', () => {
 			const glyph = font.getGlyph(39); // D
@@ -85,8 +83,7 @@ describe('glyphs', () => {
 
 	describe('CFF glyphs', () => {
 		const font = fontkit.openSync(
-			// biome-ignore lint/style/useTemplate: breaks things
-			__dirname + '/data/SourceSansPro/SourceSansPro-Regular.otf',
+			`${import.meta.dirname}/data/SourceSansPro/SourceSansPro-Regular.otf`,
 		);
 
 		it('should get a CFFGlyph', () => {
@@ -120,8 +117,7 @@ describe('glyphs', () => {
 
 	describe('SBIX glyphs', () => {
 		const font = fontkit.openSync(
-			// biome-ignore lint/style/useTemplate: breaks things
-			__dirname + '/data/ss-emoji/ss-emoji-apple.ttf',
+			`${import.meta.dirname}/data/ss-emoji/ss-emoji-apple.ttf`,
 		);
 
 		it('should get an SBIXGlyph', () => {
@@ -153,8 +149,7 @@ describe('glyphs', () => {
 
 	describe('COLR glyphs', () => {
 		const font = fontkit.openSync(
-			// biome-ignore lint/style/useTemplate: breaks things
-			__dirname + '/data/ss-emoji/ss-emoji-microsoft.ttf',
+			`${import.meta.dirname}/data/ss-emoji/ss-emoji-microsoft.ttf`,
 		);
 
 		it('should get an SBIXGlyph', () => {
@@ -198,8 +193,7 @@ describe('glyphs', () => {
 
 	describe('WOFF glyphs', () => {
 		const font = fontkit.openSync(
-			// biome-ignore lint/style/useTemplate: breaks things
-			__dirname + '/data/SourceSansPro/SourceSansPro-Regular.woff',
+			`${import.meta.dirname}/data/SourceSansPro/SourceSansPro-Regular.woff`,
 		);
 
 		it('should get a TTFGlyph', () => {
@@ -223,8 +217,7 @@ describe('glyphs', () => {
 
 	describe('WOFF2 glyph', () => {
 		const font = fontkit.openSync(
-			// biome-ignore lint/style/useTemplate: breaks things
-			__dirname + '/data/SourceSansPro/SourceSansPro-Regular.woff2',
+			`${import.meta.dirname}/data/SourceSansPro/SourceSansPro-Regular.woff2`,
 		);
 
 		it('should get a WOFF2Glyph', () => {

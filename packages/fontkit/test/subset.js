@@ -10,8 +10,7 @@ import fontkit from '../src/index.js';
 describe('font subsetting', () => {
 	describe('truetype subsetting', () => {
 		const font = fontkit.openSync(
-			// biome-ignore lint/style/useTemplate: breaks things
-			__dirname + '/data/OpenSans/OpenSans-Regular.ttf',
+			`${import.meta.dirname}/data/OpenSans/OpenSans-Regular.ttf`,
 		);
 
 		it('should create a TTFSubset instance', () => {
@@ -79,8 +78,7 @@ describe('font subsetting', () => {
 
 	describe('CFF subsetting', () => {
 		const font = fontkit.openSync(
-			// biome-ignore lint/style/useTemplate: breaks things
-			__dirname + '/data/SourceSansPro/SourceSansPro-Regular.otf',
+			`${import.meta.dirname}/data/SourceSansPro/SourceSansPro-Regular.otf`,
 		);
 
 		it('should create a CFFSubset instance', () => {
@@ -112,8 +110,7 @@ describe('font subsetting', () => {
 
 		it('should handle CID fonts', (done) => {
 			const f = fontkit.openSync(
-				// biome-ignore lint/style/useTemplate: breaks things
-				__dirname + '/data/NotoSansCJK/NotoSansCJKkr-Regular.otf',
+				`${import.meta.dirname}/data/NotoSansCJK/NotoSansCJKkr-Regular.otf`,
 			);
 			const subset = f.createSubset();
 			const iterable = f.glyphsForString('갈휸');

@@ -1,5 +1,5 @@
 import r from '@pdf-lib/restructure';
-import { BigMetrics } from './EBDT';
+import { BigMetrics } from './EBDT.js';
 
 const SBitLineMetrics = new r.Struct({
 	ascender: r.int8,

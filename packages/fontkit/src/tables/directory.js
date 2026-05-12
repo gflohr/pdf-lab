@@ -1,5 +1,5 @@
 import r from '@pdf-lib/restructure';
-import Tables from './';
+import Tables from './index.js';
 
 const TableEntry = new r.Struct({
 	tag: new r.String(4),

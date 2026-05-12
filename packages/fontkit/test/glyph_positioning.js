@@ -5,8 +5,7 @@ import fontkit from '../src/index.js';
 describe('glyph positioning', () => {
 	describe('basic positioning', () => {
 		const font = fontkit.openSync(
-			// biome-ignore lint/style/useTemplate: breaks things
-			__dirname + '/data/SourceSansPro/SourceSansPro-Regular.otf',
+			`${import.meta.dirname}/data/SourceSansPro/SourceSansPro-Regular.otf`,
 		);
 
 		it('should get a glyph width', () =>
@@ -15,8 +14,7 @@ describe('glyph positioning', () => {
 
 	describe('opentype positioning', () => {
 		const font = fontkit.openSync(
-			// biome-ignore lint/style/useTemplate: breaks things
-			__dirname + '/data/SourceSansPro/SourceSansPro-Regular.otf',
+			`${import.meta.dirname}/data/SourceSansPro/SourceSansPro-Regular.otf`,
 		);
 
 		it('should apply opentype GPOS features', () => {
@@ -37,8 +35,7 @@ describe('glyph positioning', () => {
 	});
 
 	describe('AAT features', () => {
-		// biome-ignore lint/style/useTemplate: breaks things
-		const font = fontkit.openSync(__dirname + '/data/Play/Play-Regular.ttf');
+		const font = fontkit.openSync(`${import.meta.dirname}/data/Play/Play-Regular.ttf`);
 
 		it('should apply kerning by default', () => {
 			const { positions } = font.layout('Twitter');

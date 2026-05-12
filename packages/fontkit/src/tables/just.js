@@ -1,5 +1,5 @@
 import r from '@pdf-lib/restructure';
-import { LookupTable, StateTable1 } from './aat';
+import { LookupTable, StateTable1 } from './aat.js';
 
 const ClassTable = new r.Struct({
 	length: r.uint16,

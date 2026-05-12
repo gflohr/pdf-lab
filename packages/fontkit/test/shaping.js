@@ -6,8 +6,7 @@ describe('shaping', () => {
 	const fontCache = {};
 	const test = (description, font, text, output) => {
 		it(description, () => {
-			// biome-ignore lint/style/useTemplate: fix later
-			fontCache[font] ||= fontkit.openSync(__dirname + '/data/' + font);
+			fontCache[font] ||= fontkit.openSync(`${import.meta.dirname}/data/${font}`);
 			const f = fontCache[font];
 			const { glyphs, positions } = f.layout(text);
 
@@ -31,8 +30,7 @@ describe('shaping', () => {
 	};
 
 	describe('general shaping tests', () => {
-		// biome-ignore lint/style/useTemplate: breaks things
-		const font = fontkit.openSync(__dirname + '/data/amiri/amiri-regular.ttf');
+		const font = fontkit.openSync(`${import.meta.dirname}/data/amiri/amiri-regular.ttf`);
 
 		it('should use correct script and language when features are not specified', () => {
 			const { glyphs } = font.layout('۴', 'arab', 'URD');
@@ -115,8 +113,7 @@ describe('shaping', () => {
 
 	describe('hangul shaper', () => {
 		const font = fontkit.openSync(
-			// biome-ignore lint/style/useTemplate: breaks things
-			__dirname + '/data/NotoSansCJK/NotoSansCJKkr-Regular.otf',
+			`${import.meta.dirname}/data/NotoSansCJK/NotoSansCJKkr-Regular.otf`,
 		);
 
 		it('should use composed versions if supported by the font', () => {

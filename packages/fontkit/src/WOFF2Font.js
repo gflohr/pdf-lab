@@ -1,9 +1,9 @@
-import brotli from '@pdf-lib/brotli/decompress';
+import brotli from '@pdf-lib/brotli/decompress.js';
 import r from '@pdf-lib/restructure';
-import TTFGlyph, { Point } from './glyph/TTFGlyph';
-import WOFF2Glyph from './glyph/WOFF2Glyph';
-import TTFFont from './TTFFont';
-import WOFF2Directory from './tables/WOFF2Directory';
+import TTFGlyph, { Point } from './glyph/TTFGlyph.js';
+import WOFF2Glyph from './glyph/WOFF2Glyph.js';
+import TTFFont from './TTFFont.js';
+import WOFF2Directory from './tables/WOFF2Directory.js';
 
 /**
  * Subclass of TTFFont that represents a TTF/OTF font compressed by WOFF2

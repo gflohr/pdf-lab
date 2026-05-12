@@ -5,8 +5,7 @@ import BBox from '../src/glyph/BBox.js';
 
 describe('metadata', () => {
 	const font = fontkit.openSync(
-		// biome-ignore lint/style/useTemplate: breaks things
-		__dirname + '/data/NotoSans/NotoSans.ttc',
+		`${import.meta.dirname}/data/NotoSans/NotoSans.ttc`,
 		'NotoSans',
 	);
 
