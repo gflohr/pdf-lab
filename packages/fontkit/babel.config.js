@@ -10,7 +10,7 @@ module.exports = (api) => {
 		presets: [['@babel/preset-env', { modules }]],
 		plugins: [
 			['@babel/plugin-proposal-decorators', { legacy: true }],
-			['@babel/plugin-proposal-class-properties'],
+			['@babel/plugin-transform-class-properties'],
 		],
 		env: {
 			test: {
