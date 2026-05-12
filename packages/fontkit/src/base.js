@@ -10,7 +10,7 @@ const fontkit = {
 	},
 
 	create: (uint8ArrayFontData, postscriptName) => {
-		const buffer = new Buffer.from(uint8ArrayFontData);
+		const buffer = Buffer.from(uint8ArrayFontData);
 		for (let i = 0; i < formats.length; i++) {
 			const format = formats[i];
 			if (format.probe(buffer)) {
