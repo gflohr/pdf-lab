@@ -1,7 +1,6 @@
 import r from '@pdf-lib/restructure';
 import fontkit from './base.js';
 import CmapProcessor from './CmapProcessor.js';
-import { cache } from './decorators.js';
 import BBox from './glyph/BBox.js';
 import CFFGlyph from './glyph/CFFGlyph.js';
 import COLRGlyph from './glyph/COLRGlyph.js';
@@ -247,25 +246,34 @@ export default class TTFFont {
 	 * The font’s bounding box, i.e. the box that encloses all glyphs in the font.
 	 * @type {BBox}
 	 */
-	@cache
 	get bbox() {
-		return Object.freeze(
-			new BBox(this.head.xMin, this.head.yMin, this.head.xMax, this.head.yMax),
-		);
+		if (typeof this._bbox === 'undefined') {
+			this._bbox = Object.freeze(
+				new BBox(this.head.xMin, this.head.yMin, this.head.xMax, this.head.yMax),
+			);
+		}
+
+		return this._bbox;
 	}
 
-	@cache
 	get _cmapProcessor() {
-		return new CmapProcessor(this.cmap);
+		if (typeof this.__cmapProcessor === 'undefined') {
+			this.__cmapProcessor = new CmapProcessor(this.cmap);
+		}
+
+		return this.__cmapProcessor;
 	}
 
 	/**
 	 * An array of all of the unicode code points supported by the font.
 	 * @type {number[]}
 	 */
-	@cache
 	get characterSet() {
-		return this._cmapProcessor.getCharacterSet();
+		if (typeof this._characterSet === 'undefined') {
+			this._characterSet = this._cmapProcessor.getCharacterSet();
+		}
+
+		return this._characterSet;
 	}
 
 	/**
@@ -347,9 +355,12 @@ export default class TTFFont {
 		return glyphs;
 	}
 
-	@cache
 	get _layoutEngine() {
-		return new LayoutEngine(this);
+		if (typeof this.__layoutEngine === 'undefined') {
+			this.__layoutEngine = new LayoutEngine(this);
+		}
+
+		return this.__layoutEngine;
 	}
 
 	/**
@@ -443,15 +454,7 @@ export default class TTFFont {
 		return new TTFSubset(this);
 	}
 
-	/**
-	 * Returns an object describing the available variation axes
-	 * that this font supports. Keys are setting tags, and values
-	 * contain the axis name, range, and default value.
-	 *
-	 * @type {object}
-	 */
-	@cache
-	get variationAxes() {
+	_computeVariationAxes() {
 		const res = {};
 		if (!this.fvar) {
 			return res;
@@ -470,14 +473,21 @@ export default class TTFFont {
 	}
 
 	/**
-	 * Returns an object describing the named variation instances
-	 * that the font designer has specified. Keys are variation names
-	 * and values are the variation settings for this instance.
+	 * Returns an object describing the available variation axes
+	 * that this font supports. Keys are setting tags, and values
+	 * contain the axis name, range, and default value.
 	 *
 	 * @type {object}
 	 */
-	@cache
-	get namedVariations() {
+	variationAxes() {
+		if (typeof this._variationAxes === 'undefined') {
+			this._variationAxes = this._computeVariationAxes();
+		}
+
+		return this._variationAxes;
+	}
+
+	_computeNamedVariations() {
 		const res = {};
 		if (!this.fvar) {
 			return res;
@@ -494,6 +504,21 @@ export default class TTFFont {
 		}
 
 		return res;
+	}
+
+	/**
+	 * Returns an object describing the named variation instances
+	 * that the font designer has specified. Keys are variation names
+	 * and values are the variation settings for this instance.
+	 *
+	 * @type {object}
+	 */
+	get namedVariations() {
+		if (typeof this._namedVariations === 'undefined') {
+			this._namedVariations = this._computeNamedVariations();
+		}
+
+		return this._namedVariations;
 	}
 
 	/**
@@ -549,8 +574,7 @@ export default class TTFFont {
 		return font;
 	}
 
-	@cache
-	get _variationProcessor() {
+	__computeVariationProcessor() {
 		if (!this.fvar) {
 			return null;
 		}
@@ -567,6 +591,14 @@ export default class TTFFont {
 		}
 
 		return new GlyphVariationProcessor(this, variationCoords);
+	}
+
+	get _variationProcessor() {
+		if (typeof this.__variationProcessor === 'undefined') {
+			this.__variationProcessor = this.__computeVariationProcessor();
+		}
+
+		return this.__variationProcessor;
 	}
 
 	// Standardized format plugin API

@@ -1,10 +1,11 @@
 import iconv from 'iconv-lite';
-import { cache } from './decorators.js';
 import { getEncoding } from './encodings.js';
 import { binarySearch, range } from './utils.js';
 
 export default class CmapProcessor {
 	constructor(cmapTable) {
+		this._codePointsForGlyphCache = new Map();
+
 		// Attempt to find a Unicode cmap first
 		this.encoding = null;
 		this.cmap = this.findSubtable(cmapTable, [
@@ -184,8 +185,7 @@ export default class CmapProcessor {
 		return 0;
 	}
 
-	@cache
-	getCharacterSet() {
+	_computeCharacterSet() {
 		const cmap = this.cmap;
 		switch (cmap.version) {
 			case 0:
@@ -228,8 +228,15 @@ export default class CmapProcessor {
 		}
 	}
 
-	@cache
-	codePointsForGlyph(gid) {
+	getCharacterSet() {
+		if (typeof this._characterSet === 'undefined') {
+			this._characterSet = this._computeCharacterSet();
+		}
+
+		return this._characterSet;
+	}
+
+	_computeCodePointsForGlyph(gid) {
 		const cmap = this.cmap;
 		switch (cmap.version) {
 			case 0: {
@@ -300,5 +307,13 @@ export default class CmapProcessor {
 			default:
 				throw new Error(`Unknown cmap format ${cmap.version}`);
 		}
+	}
+
+	codePointsForGlyph(gid) {
+		if (!this._codePointsForGlyphCache.has(gid)) {
+			this._codePointsForGlyphCache.set(gid, this._computeCodePointsForGlyph(gid));
+		}
+
+		return this._codePointsForGlyphCache.get(gid);
 	}
 }

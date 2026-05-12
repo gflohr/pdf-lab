@@ -1,4 +1,3 @@
-import { cache } from '../decorators.js';
 import AATLookupTable from './AATLookupTable.js';
 import AATStateMachine from './AATStateMachine.js';
 
@@ -33,6 +32,7 @@ const MARKED_INSERT_COUNT = 0x001f;
 
 export default class AATMorxProcessor {
 	constructor(font) {
+		this._aatStateMachineCache = new Map();
 		this.processIndicRearragement = this.processIndicRearragement.bind(this);
 		this.processContextualSubstitution =
 			this.processContextualSubstitution.bind(this);
@@ -101,9 +101,12 @@ export default class AATMorxProcessor {
 		return stateMachine.process(this.glyphs, reverse, process);
 	}
 
-	@cache
 	getStateMachine(subtable) {
-		return new AATStateMachine(subtable.table.stateTable);
+		if (!this._aatStateMachineCache.has(subtable)) {
+			this._aatStateMachineCache.set(subtable, new AATStateMachine(subtable.table.stateTable));
+		}
+
+		return this._aatStateMachineCache.get(subtable);s
 	}
 
 	getProcessor() {

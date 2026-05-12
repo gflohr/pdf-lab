@@ -1,9 +1,9 @@
-import { cache } from '../decorators.js';
 import { range } from '../utils.js';
 
 export default class AATLookupTable {
 	constructor(table) {
 		this.table = table;
+		this._glyphsForValueCache = new Map();
 	}
 
 	lookup(glyph) {
@@ -75,8 +75,7 @@ export default class AATLookupTable {
 		}
 	}
 
-	@cache
-	glyphsForValue(classValue) {
+	_computeGlyphsForValue(classValue) {
 		const res = [];
 
 		switch (this.table.version) {
@@ -124,5 +123,13 @@ export default class AATLookupTable {
 		}
 
 		return res;
+	}
+
+	glyphsForValue(classValue) {
+		if (!this._glyphsForValueCache.has(classValue)) {
+			this._glyphsForValueCache.set(classValue, this._computeGlyphsForValue(classValue));
+		}
+
+		return this._glyphsForValueCache.get(classValue);
 	}
 }

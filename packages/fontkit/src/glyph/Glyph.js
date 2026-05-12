@@ -1,5 +1,4 @@
 import unicode from '@pdf-lib/unicode-properties';
-import { cache } from '../decorators.js';
 import Path from './Path.js';
 import StandardNames from './StandardNames.js';
 
@@ -124,9 +123,12 @@ export default class Glyph {
 	 *
 	 * @type {BBox}
 	 */
-	@cache
 	get cbox() {
-		return this._getCBox();
+		if (typeof this._cbox === 'undefined') {
+			this._cbox = this._getCBox();
+		}
+
+		return this._cbox;
 	}
 
 	/**
@@ -134,20 +136,26 @@ export default class Glyph {
 	 * glyph outline as tightly as possible.
 	 * @type {BBox}
 	 */
-	@cache
 	get bbox() {
-		return this._getBBox();
+		if (typeof this._bbox === 'undefined') {
+			this._bbox = this._getBBox();
+		}
+
+		return this._bbox;
 	}
 
 	/**
 	 * A vector Path object representing the glyph outline.
 	 * @type {Path}
 	 */
-	@cache
 	get path() {
 		// Cache the path so we only decode it once
 		// Decoding is actually performed by subclasses
-		return this._getPath();
+		if (typeof this._path === 'undefined') {
+			this._path = this._getPath();
+		}
+
+		return this._path;
 	}
 
 	/**
@@ -164,18 +172,24 @@ export default class Glyph {
 	 * The glyph's advance width.
 	 * @type {number}
 	 */
-	@cache
 	get advanceWidth() {
-		return this._getMetrics().advanceWidth;
+		if (typeof this._advanceWidth === 'undefined') {
+			this._advanceWidth = this._getMetrics().advanceWidth;
+		}
+
+		return this._advanceWidth;
 	}
 
 	/**
 	 * The glyph's advance height.
 	 * @type {number}
 	 */
-	@cache
 	get advanceHeight() {
-		return this._getMetrics().advanceHeight;
+		if (typeof this._advanceHeight === 'undefined') {
+			this._advanceHeight = this._getMetrics().advanceHeight;
+		}
+
+		return this._advanceHeight;
 	}
 
 	get ligatureCaretPositions() {
@@ -213,9 +227,12 @@ export default class Glyph {
 	 * The glyph's name
 	 * @type {string}
 	 */
-	@cache
 	get name() {
-		return this._getName();
+		if (typeof this._name === 'undefined') {
+			this._name = this._getName();
+		}
+
+		return this._name;
 	}
 
 	/**
