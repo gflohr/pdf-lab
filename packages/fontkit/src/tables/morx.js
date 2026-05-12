@@ -16,7 +16,7 @@ const InsertionData = {
 };
 
 const SubstitutionTable = new r.Struct({
-	items: new UnboundedArray(new r.Pointer(r.uint32, new LookupTable())),
+	items: new UnboundedArray(new r.Pointer(r.uint32, LookupTable())),
 });
 
 const SubtableData = new r.VersionedStruct('type', {
@@ -41,7 +41,7 @@ const SubtableData = new r.VersionedStruct('type', {
 
 	4: {
 		// Non-contextual Glyph Substitution Subtable
-		lookupTable: new LookupTable(),
+		lookupTable: LookupTable(),
 	},
 
 	5: {

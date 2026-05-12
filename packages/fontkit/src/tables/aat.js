@@ -135,7 +135,7 @@ export function StateTable(entryData = {}, lookupType = r.uint16) {
 
 	const StateHeader = new r.Struct({
 		nClasses: r.uint32,
-		classTable: new r.Pointer(r.uint32, new LookupTable(lookupType)),
+		classTable: new r.Pointer(r.uint32, LookupTable(lookupType)),
 		stateArray: new r.Pointer(r.uint32, StateArray),
 		entryTable: new r.Pointer(r.uint32, new UnboundedArray(Entry)),
 	});

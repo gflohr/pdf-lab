@@ -11,5 +11,5 @@ const OpticalBounds = new r.Struct({
 export default new r.Struct({
 	version: r.fixed32,
 	format: r.uint16,
-	lookupTable: new LookupTable(OpticalBounds),
+	lookupTable: LookupTable(OpticalBounds),
 });

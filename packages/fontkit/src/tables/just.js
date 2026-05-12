@@ -68,7 +68,7 @@ const Action = new r.Struct({
 
 const PostcompensationAction = new r.Array(Action, r.uint32);
 const PostCompensationTable = new r.Struct({
-	lookupTable: new LookupTable(new r.Pointer(r.uint16, PostcompensationAction)),
+	lookupTable: LookupTable(new r.Pointer(r.uint16, PostcompensationAction)),
 });
 
 const JustificationTable = new r.Struct({
@@ -77,7 +77,7 @@ const JustificationTable = new r.Struct({
 	postCompensationTable: new r.Pointer(r.uint16, PostCompensationTable, {
 		type: 'parent',
 	}),
-	widthDeltaClusters: new LookupTable(
+	widthDeltaClusters: LookupTable(
 		new r.Pointer(r.uint16, WidthDeltaCluster, {
 			type: 'parent',
 			relativeTo: 'wdcOffset',

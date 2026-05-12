@@ -10,7 +10,7 @@ const BslnSubtable = new r.VersionedStruct('format', {
 	1: {
 		// Distance-based, with mapping
 		deltas: new r.Array(r.int16, 32),
-		mappingData: new LookupTable(r.uint16),
+		mappingData: LookupTable(r.uint16),
 	},
 
 	2: {
@@ -23,7 +23,7 @@ const BslnSubtable = new r.VersionedStruct('format', {
 		// Control point-based, with mapping
 		standardGlyph: r.uint16,
 		controlPoints: new r.Array(r.uint16, 32),
-		mappingData: new LookupTable(r.uint16),
+		mappingData: LookupTable(r.uint16),
 	},
 });
 
