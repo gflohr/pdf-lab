@@ -82,8 +82,10 @@ export default class AATLookupTable {
 			case 2: // segment format
 			case 4: {
 				for (const segment of this.table.segments) {
-					if (this.table.version === 2 && segment.value === classValue) {
-						res.push(...range(segment.firstGlyph, segment.lastGlyph + 1));
+					if (this.table.version === 2) {
+						if (segment.value === classValue) {
+							res.push(...range(segment.firstGlyph, segment.lastGlyph + 1));
+						}
 					} else {
 						for (let index = 0; index < segment.values.length; index++) {
 							if (segment.values[index] === classValue) {
