@@ -2,9 +2,11 @@
 import fs from 'node:fs';
 import * as base64 from 'base64-arraybuffer';
 import codepoints from 'codepoints';
-import compile from 'dfa/compile';
+import compileModule from 'dfa/compile.js';
 import pako from 'pako';
-import UnicodeTrieBuilder from 'unicode-trie/builder';
+import UnicodeTrieBuilder from 'unicode-trie/builder.js';
+
+const compile = compileModule.default;
 
 const CATEGORIES = {
 	B: [
@@ -239,14 +241,14 @@ function decompose(code) {
 
 // Trie is serialized suboptimally as JSON so it can be loaded via require,
 // allowing unicode-properties to work in the browser
-const trieFilePath = __dirname + '/trieUse.json';
+const trieFilePath = `${import.meta.dirname}/trieUse.json`;
 const jsonBase64DeflatedTrie = JSON.stringify(
 	base64.encode(pako.deflate(trie.toBuffer())),
 );
 fs.writeFileSync(trieFilePath, `${jsonBase64DeflatedTrie}\n`);
 
 const stateMachine = compile(
-	fs.readFileSync(__dirname + '/use.machine', 'utf8'),
+	fs.readFileSync(`${import.meta.dirname}/use.machine`, 'utf8'),
 	symbols,
 );
 const json = Object.assign(
@@ -257,7 +259,7 @@ const json = Object.assign(
 	stateMachine,
 );
 
-const useFilePath = __dirname + '/use.json';
+const useFilePath = `${import.meta.dirname}/use.json`;
 const useJsonBytes = JSON.stringify(json)
 	.split('')
 	.map((c) => c.charCodeAt(0));

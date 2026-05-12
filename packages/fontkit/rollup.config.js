@@ -1,59 +1,101 @@
-import babel from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
 import inject from '@rollup/plugin-inject';
 import json from '@rollup/plugin-json';
+import nodePolyfills from 'rollup-plugin-polyfill-node';
 import nodeResolve from '@rollup/plugin-node-resolve';
-import nodeBuiltins from 'rollup-plugin-node-builtins';
-import nodeGlobals from 'rollup-plugin-node-globals';
-import { terser } from 'rollup-plugin-terser';
+import swc from '@rollup/plugin-swc';
+import terser from '@rollup/plugin-terser';
 
-// import { plugin as analyze } from 'rollup-plugin-analyzer';
-// import visualizer from 'rollup-plugin-visualizer';
+const plugins = [
+	nodeResolve({
+		browser: true,
+		preferBuiltins: false,
+	}),
 
-const { UGLIFY, MODULE_TYPE } = process.env;
+	json(),
 
-export default {
-	input: 'src/index.js',
-	output: {
-		name: 'fontkit',
-		format: MODULE_TYPE,
-		strict: false,
-	},
-	external:
-		MODULE_TYPE === 'esm'
-			? ['pako'] // pdf-lib will provide pako for us
-			: [],
-	plugins: [
-		// analyze(),
-		// visualizer({
-		//   // sourcemap: true,
-		//   open: true,
-		// }),
-		nodeResolve({
-			jsnext: true,
-			preferBuiltins: false,
-		}),
-		commonjs({
-			exclude: 'src/**',
-			namedExports: {
-				'node_modules/unicode-trie/index.js': ['default'],
+	nodePolyfills(),
+
+	swc({
+		jsc: {
+			include: ['**/*.js'],
+			exclude: ['node_modules/**'],
+			parser: {
+				syntax: 'ecmascript',
+				decorators: true,
 			},
-		}),
-		json(),
-		babel({
-			babelrc: false,
-			presets: [['@babel/preset-env', { modules: false, loose: true }]],
-			plugins: [
-				['@babel/plugin-proposal-decorators', { legacy: true }],
-				['@babel/plugin-proposal-class-properties'],
-			],
-			babelHelpers: 'inline',
-		}),
-		nodeGlobals({ buffer: false }),
-		nodeBuiltins(),
-		inject({
-			Buffer: ['buffer', 'Buffer'],
-		}),
-		UGLIFY === 'true' && terser(),
-	],
-};
+			transform: {
+				legacyDecorator: true,
+				decoratorMetadata: false,
+			},
+			target: 'es2020',
+		},
+	}),
+
+	commonjs(),
+
+	inject({
+		Buffer: ['buffer', 'Buffer'],
+		process: 'process',
+	}),
+];
+
+const onwarn = (warning, warn) => {
+	// Silence noisy legacy dependency warnings.
+	if (warning.code === 'CIRCULAR_DEPENDENCY') return;
+	warn(warning);
+}
+
+export default [
+	{
+		input: 'src/index.js',
+		external: ['pako'], // pdf-lib provides pako for the other formats.
+		output: {
+			file: 'dist/fontkit.esm.js',
+			format: 'esm',
+			sourcemap: true,
+		},
+		plugins,
+		onwarn,
+	},
+	{
+		input: 'src/index.js',
+		output: {
+			file: 'dist/fontkit.cjs.js',
+			format: 'cjs',
+			sourcemap: true,
+			exports: 'auto',
+		},
+
+		plugins,
+		onwarn,
+	},
+	{
+		input: 'src/index.js',
+		output: {
+			file: 'dist/fontkit.umd.js',
+			format: 'umd',
+			name: 'fontkit',
+			sourcemap: true,
+			globals: {
+				pako: 'pako',
+			}
+		},
+		plugins,
+		onwarn,
+	},
+	{
+		input: 'src/index.js',
+		output: {
+			file: 'dist/fontkit.umd.js',
+			format: 'umd',
+			name: 'fontkit',
+			sourcemap: true,
+			globals: {
+				pako: 'pako',
+			}
+		},
+		plugins: [...plugins, terser],
+		onwarn,
+	},
+];

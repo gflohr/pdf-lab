@@ -7,7 +7,7 @@ import fs from 'node:fs';
 import * as base64 from 'base64-arraybuffer';
 import codepoints from 'codepoints';
 import pako from 'pako';
-import UnicodeTrieBuilder from 'unicode-trie/builder';
+import UnicodeTrieBuilder from 'unicode-trie/builder.js';
 
 const ShapingClasses = {
 	Non_Joining: 0,
@@ -37,8 +37,7 @@ for (let i = 0; i < codepoints.length; i++) {
 
 // Trie is serialized suboptimally as JSON so it can be loaded via require,
 // allowing unicode-properties to work in the browser
-// biome-ignore lint/style/useTemplate: breaks things.
-const filePath = __dirname + '/trie.json';
+const filePath = `${import.meta.dirname}/trie.json`;
 const jsonBase64DeflatedTrie = JSON.stringify(
 	base64.encode(pako.deflate(trie.toBuffer())),
 );

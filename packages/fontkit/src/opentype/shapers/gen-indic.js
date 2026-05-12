@@ -1,11 +1,13 @@
 import fs from 'node:fs';
 import * as base64 from 'base64-arraybuffer';
 import codepoints from 'codepoints';
-import compile from 'dfa/compile';
+import compileModule from 'dfa/compile.js';
 import pako from 'pako';
-import UnicodeTrieBuilder from 'unicode-trie/builder';
+import UnicodeTrieBuilder from 'unicode-trie/builder.js';
 
 import { CATEGORIES, CONSONANT_FLAGS, POSITIONS } from './indic-data.js';
+
+const compile = compileModule.default;
 
 const CATEGORY_MAP = {
 	Avagraha: 'Symbol',
@@ -247,21 +249,18 @@ for (let i = 0; i < codepoints.length; i++) {
 
 // Trie is serialized suboptimally as JSON so it can be loaded via require,
 // allowing unicode-properties to work in the browser
-// biome-ignore lint/style/useTemplate: breaks things
-const trieFilePath = __dirname + '/trieIndic.json';
+const trieFilePath = `${import.meta.dirname}/trieIndic.json`;
 const jsonBase64DeflatedTrie = JSON.stringify(
 	base64.encode(pako.deflate(trie.toBuffer())),
 );
 fs.writeFileSync(trieFilePath, `${jsonBase64DeflatedTrie}\n`);
 
 const stateMachine = compile(
-	// biome-ignore lint/style/useTemplate: breaks things
-	fs.readFileSync(__dirname + '/indic.machine', 'utf8'),
+	fs.readFileSync(`${import.meta.dirname}/indic.machine`, 'utf8'),
 	symbols,
 );
 
-// biome-ignore lint/style/useTemplate: breaks things
-const indicFilePath = __dirname + '/indic.json';
+const indicFilePath = `${import.meta.dirname}/indic.json`;
 const stateMachineJsonBytes = JSON.stringify(stateMachine)
 	.split('')
 	.map((c) => c.charCodeAt(0));
