@@ -8,7 +8,7 @@
 	"module": "dist/fontkit.es.js",
 	"types": "fontkit.d.ts",
 	"scripts": {
-		"clean": "rimraf dist \"./src/**/{trie,trieIndic,trieUse,indix,use}.js\"",
+		"clean": "rimraf dist \"src/**/trie.js\" \"src/**/trieIndic.js\" \"src/**/trieUse.js\" \"src/**/indic.js\" \"src/**/use.js\"",
 		"generate:data": "node src/opentype/shapers/generate-data.js && node src/opentype/shapers/gen-use.js && node src/opentype/shapers/gen-indic.js",
 		"build": "pnpm run clean && pnpm run generate:data && rollup -c",
 		"dev": "rollup -c -w",
