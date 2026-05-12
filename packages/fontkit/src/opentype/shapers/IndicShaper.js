@@ -710,7 +710,7 @@ function finalReordering(font, glyphs, plan) {
 								while (base < end && isHalantOrCoeng(glyphs[base])) {
 									base++;
 								}
-								glyphs[base].shaperInfo.position = POSITIONS.BASE_C;
+								glyphs[base].shaperInfo.position = POSITIONS.Base_C;
 								tryPref = false;
 							}
 							break;
