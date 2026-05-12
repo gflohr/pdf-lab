@@ -4,10 +4,8 @@ import pako from 'pako';
 import UnicodeTrie from 'unicode-trie';
 import GlyphInfo from '../GlyphInfo.js';
 import DefaultShaper from './DefaultShaper.js';
-// biome-ignore lint/correctness/useImportExtensions: breaks
-import base64DeflatedTrie from './trieUse.json';
-// biome-ignore lint/correctness/useImportExtensions: breaks
-import base64DeflatedUseData from './use.json';
+import base64DeflatedTrie from './trieUse.js';
+import base64DeflatedUseData from './use.js';
 
 // Trie is serialized as a Buffer in node, but here
 // we may be running in a browser so we make an Uint8Array

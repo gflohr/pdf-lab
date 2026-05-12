@@ -6,8 +6,7 @@ import UnicodeTrie from 'unicode-trie';
 import * as Script from '../../layout/Script.js';
 import GlyphInfo from '../GlyphInfo.js';
 import DefaultShaper from './DefaultShaper.js';
-// biome-ignore lint/correctness/useImportExtensions: breaks
-import base64DeflatedIndicMachine from './indic.json';
+import base64DeflatedIndicMachine from './indic.js';
 import {
 	CATEGORIES,
 	CONSONANT_FLAGS,
@@ -17,10 +16,8 @@ import {
 	JOINER_FLAGS,
 	POSITIONS,
 } from './indic-data.js';
-// biome-ignore lint/correctness/useImportExtensions: breaks
-import base64DeflatedTrie from './trieIndic.json';
-// biome-ignore lint/correctness/useImportExtensions: breaks
-import base64DeflatedUseData from './use.json';
+import base64DeflatedTrie from './trieIndic.js';
+import base64DeflatedUseData from './use.js';
 
 // Trie is serialized as a Buffer in node, but here
 // we may be running in a browser so we make an Uint8Array

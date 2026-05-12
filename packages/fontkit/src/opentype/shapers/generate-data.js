@@ -37,8 +37,8 @@ for (let i = 0; i < codepoints.length; i++) {
 
 // Trie is serialized suboptimally as JSON so it can be loaded via require,
 // allowing unicode-properties to work in the browser
-const filePath = `${import.meta.dirname}/trie.json`;
+const filePath = `${import.meta.dirname}/trie.js`;
 const jsonBase64DeflatedTrie = JSON.stringify(
 	base64.encode(pako.deflate(trie.toBuffer())),
 );
-fs.writeFileSync(filePath, `${jsonBase64DeflatedTrie}\n`);
+fs.writeFileSync(filePath, `export default ${jsonBase64DeflatedTrie.replace(/"/g, "'")};\n`);

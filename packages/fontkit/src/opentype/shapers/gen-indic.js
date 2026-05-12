@@ -249,20 +249,20 @@ for (let i = 0; i < codepoints.length; i++) {
 
 // Trie is serialized suboptimally as JSON so it can be loaded via require,
 // allowing unicode-properties to work in the browser
-const trieFilePath = `${import.meta.dirname}/trieIndic.json`;
+const trieFilePath = `${import.meta.dirname}/trieIndic.js`;
 const jsonBase64DeflatedTrie = JSON.stringify(
 	base64.encode(pako.deflate(trie.toBuffer())),
 );
-fs.writeFileSync(trieFilePath, `${jsonBase64DeflatedTrie}\n`);
+fs.writeFileSync(trieFilePath, `export default ${jsonBase64DeflatedTrie.replace(/"/g, "'")};\n`);
 
 const stateMachine = compile(
 	fs.readFileSync(`${import.meta.dirname}/indic.machine`, 'utf8'),
 	symbols,
 );
 
-const indicFilePath = `${import.meta.dirname}/indic.json`;
+const indicFilePath = `${import.meta.dirname}/indic.js`;
 const stateMachineJsonBytes = new TextEncoder().encode(JSON.stringify(stateMachine));
 const jsonBase64DeflatedIndic = JSON.stringify(
 	base64.encode(pako.deflate(stateMachineJsonBytes)),
 );
-fs.writeFileSync(indicFilePath, `${jsonBase64DeflatedIndic}\n`);
+fs.writeFileSync(indicFilePath, `export default ${jsonBase64DeflatedIndic.replace(/"/g, "'")};\n`);
