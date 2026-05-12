@@ -70,16 +70,15 @@ maintained.
 
 ## State and Plans
 
-The first step was to modify the code base to meet today's coding standards.
-This is essentially done.
+Done:
 
-The next step will be to update the build toolchain to recent versions. This
-should be done soon.
+* update code base to meet today's coding standards
+* update all dependencies to latest
 
-After that, all known bug fixes from the other `fontkit` versions should be
-incorporated into this fork.
+Todo:
 
-In the long run, the module should be ported to TypeScript.
+* incorporate all known bug fixes from the other `fontkit` forks
+* migrate code base to TypeScript
 
 Please do not expect any new bugs to be fixed here, unless you provide a patch.
 I do not have any expertise in font processing, and will not be able to fix
