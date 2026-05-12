@@ -206,7 +206,7 @@ importers:
         specifier: ^0.13.0
         version: 0.13.0(rollup@4.60.3)
       tiny-inflate:
-        specifier: ^1.0.2
+        specifier: ^1.0.3
         version: 1.0.3
       unicode-trie:
         specifier: ^0.3.0
