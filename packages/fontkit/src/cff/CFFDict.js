@@ -67,7 +67,10 @@ export default class CFFDict {
 		// fill in defaults
 		for (const key in this.fields) {
 			const field = this.fields[key];
-			ret[field[1]] = field[3];
+			const defaultValue = field[3];
+			ret[field[1]] = Array.isArray(defaultValue)
+				? [...defaultValue]
+				: defaultValue;
 		}
 
 		while (stream.pos < end) {
