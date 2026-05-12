@@ -95,7 +95,7 @@ const isLV = (code) =>
 	code - HANGUL_BASE < HANGUL_COUNT && (code - HANGUL_BASE) % T_COUNT === 0;
 const isCombiningL = (code) => L_BASE <= code && code <= L_END;
 const isCombiningV = (code) => V_BASE <= code && code <= V_END;
-const isCombiningT = (code) => T_BASE + 1 && 1 <= code && code <= T_END;
+const isCombiningT = (code) => T_BASE + 1 <= code && code <= T_END;
 
 // Character categories
 const X = 0; // Other character
