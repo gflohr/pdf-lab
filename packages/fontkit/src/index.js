@@ -1,9 +1,9 @@
-import fontkit from './base';
-import DFont from './DFont';
-import TrueTypeCollection from './TrueTypeCollection';
-import TTFFont from './TTFFont';
-import WOFF2Font from './WOFF2Font';
-import WOFFFont from './WOFFFont';
+import fontkit from './base.js';
+import DFont from './DFont.js';
+import TrueTypeCollection from './TrueTypeCollection.js';
+import TTFFont from './TTFFont.js';
+import WOFF2Font from './WOFF2Font.js';
+import WOFFFont from './WOFFFont.js';
 
 // Register font formats
 fontkit.registerFormat(TTFFont);

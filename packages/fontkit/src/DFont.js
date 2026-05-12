@@ -1,5 +1,5 @@
 import r from '@pdf-lib/restructure';
-import TTFFont from './TTFFont';
+import TTFFont from './TTFFont.js';
 
 const DFontName = new r.String(r.uint8);
 
