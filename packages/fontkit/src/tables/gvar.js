@@ -2,15 +2,14 @@ import r from '@pdf-lib/restructure';
 
 const shortFrac = new r.Fixed(16, 'BE', 14);
 
-// biome-ignore lint/complexity/noStaticOnlyClass: fix later
-class Offset {
-	static decode(stream, parent) {
+const Offset = {
+	decode(stream, parent) {
 		// In short format, offsets are multiplied by 2.
 		// This doesn't seem to be documented by Apple, but it
 		// is implemented this way in Freetype.
 		return parent.flags ? stream.readUInt32BE() : stream.readUInt16BE() * 2;
 	}
-}
+};
 
 const gvar = new r.Struct({
 	version: r.uint16,
