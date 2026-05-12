@@ -1,5 +1,8 @@
 import r from '@pdf-lib/restructure';
 
+/**
+ * It is expected that the offsets are sorted arrays!
+ */
 const loca = new r.VersionedStruct('head.indexToLocFormat', {
 	0: {
 		offsets: new r.Array(r.uint16),
@@ -20,7 +23,7 @@ loca.process = function () {
 loca.preEncode = function () {
 	if (this.version != null) return;
 
-	// assume this.offsets is a sorted array
+	// Assume this.offsets is a sorted array.
 	this.version = this.offsets[this.offsets.length - 1] > 0xffff ? 1 : 0;
 
 	if (this.version === 0) {

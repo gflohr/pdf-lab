@@ -77,7 +77,10 @@ export default class ShapingPlan {
 					this.add(tag);
 				} else if (this.allFeatures[tag] != null) {
 					const stage = this.stages[this.allFeatures[tag]];
-					stage.splice(stage.indexOf(tag), 1);
+					const index = stage.indexOf(tag);
+					if (index !== -1) {
+						stage.splice(index, 1);
+					}
 					delete this.allFeatures[tag];
 					delete this.globalFeatures[tag];
 				}

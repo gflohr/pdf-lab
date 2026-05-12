@@ -13,14 +13,18 @@ export default class UnicodeLayoutEngine {
 		this.font = font;
 	}
 
+	/**
+	 * TODO Ligaturees are currently not handled.
+	 */
 	positionGlyphs(glyphs, positions) {
-		// find each base + mark cluster, and position the marks relative to the base
+		// Gind each base + mark cluster, and position the marks relative to
+		// the base.
 		let clusterStart = 0;
 		let clusterEnd = 0;
 		for (let index = 0; index < glyphs.length; index++) {
 			const glyph = glyphs[index];
 			if (glyph.isMark) {
-				// TODO: handle ligatures
+				// TODO: handle ligatures.
 				clusterEnd = index;
 			} else {
 				if (clusterStart !== clusterEnd) {
@@ -38,6 +42,9 @@ export default class UnicodeLayoutEngine {
 		return positions;
 	}
 
+	/**
+	 * TODO: RTL support!
+	 */
 	positionCluster(glyphs, positions, clusterStart, clusterEnd) {
 		const base = glyphs[clusterStart];
 		const baseBox = base.cbox.copy();
