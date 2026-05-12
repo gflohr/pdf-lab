@@ -81,8 +81,8 @@ export default class WOFF2Font extends TTFFont {
 				let totalPoints = 0;
 
 				for (let i = 0; i < nContours; i++) {
-					const r = read255UInt16(table.nPoints);
-					totalPoints += r;
+					const rPoints = read255UInt16(table.nPoints);
+					totalPoints += rPoints;
 					nPoints.push(totalPoints);
 				}
 

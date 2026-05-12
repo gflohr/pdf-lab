@@ -243,7 +243,7 @@ export default class Glyph {
 	render(ctx, size) {
 		ctx.save();
 
-		const scale = (1 / this._font.head.unitsPerEm) * size;
+		const scale = (1 / this._font.unitsPerEm) * size;
 		ctx.scale(scale, scale);
 
 		const fn = this.path.toFunction();

@@ -188,6 +188,11 @@ function isHalantOrCoeng(glyph) {
 	return glyph.shaperInfo.category & HALANT_OR_COENG_FLAGS;
 }
 
+/**
+ * Probes whether applying `feature` to the supplied glyphs would substitute
+ * them down to a single glyph. NOTE: mutates the passed-in `glyphs` (both
+ * each glyph's `features` and the array contents). Callers must pass copies.
+ */
 function wouldSubstitute(glyphs, feature) {
 	for (const glyph of glyphs) {
 		glyph.features = { [feature]: true };
