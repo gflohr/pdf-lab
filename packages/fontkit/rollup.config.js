@@ -87,7 +87,7 @@ export default [
 	{
 		input: 'src/index.js',
 		output: {
-			file: 'dist/fontkit.umd.js',
+			file: 'dist/fontkit.umd.min.js',
 			format: 'umd',
 			name: 'fontkit',
 			sourcemap: true,
@@ -95,7 +95,7 @@ export default [
 				pako: 'pako',
 			},
 		},
-		plugins: [...plugins, terser],
+		plugins: [...plugins, terser()],
 		onwarn,
 	},
 ];
