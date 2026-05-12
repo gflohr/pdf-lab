@@ -80,6 +80,7 @@ export default [
 			globals: {
 				pako: 'pako',
 			},
+			external: ['pako'],
 		},
 		plugins,
 		onwarn,
@@ -94,6 +95,7 @@ export default [
 			globals: {
 				pako: 'pako',
 			},
+			external: ['pako'],
 		},
 		plugins: [...plugins, terser()],
 		onwarn,
