@@ -225,30 +225,16 @@ export default class TTFGlyph extends Glyph {
 			component.pos = gPos;
 
 			if (flags & WE_HAVE_A_SCALE) {
-				// fixed number with 14 bits of fraction
-				component.scaleX = component.scaleY =
-					((stream.readUInt8() << 24) | (stream.readUInt8() << 16)) /
-					1073741824;
+				// F2DOT14: signed 16-bit with 14 fraction bits.
+				component.scaleX = component.scaleY = stream.readInt16BE() / 16384;
 			} else if (flags & WE_HAVE_AN_X_AND_Y_SCALE) {
-				component.scaleX =
-					((stream.readUInt8() << 24) | (stream.readUInt8() << 16)) /
-					1073741824;
-				component.scaleY =
-					((stream.readUInt8() << 24) | (stream.readUInt8() << 16)) /
-					1073741824;
+				component.scaleX = stream.readInt16BE() / 16384;
+				component.scaleY = stream.readInt16BE() / 16384;
 			} else if (flags & WE_HAVE_A_TWO_BY_TWO) {
-				component.scaleX =
-					((stream.readUInt8() << 24) | (stream.readUInt8() << 16)) /
-					1073741824;
-				component.scale01 =
-					((stream.readUInt8() << 24) | (stream.readUInt8() << 16)) /
-					1073741824;
-				component.scale10 =
-					((stream.readUInt8() << 24) | (stream.readUInt8() << 16)) /
-					1073741824;
-				component.scaleY =
-					((stream.readUInt8() << 24) | (stream.readUInt8() << 16)) /
-					1073741824;
+				component.scaleX = stream.readInt16BE() / 16384;
+				component.scale01 = stream.readInt16BE() / 16384;
+				component.scale10 = stream.readInt16BE() / 16384;
+				component.scaleY = stream.readInt16BE() / 16384;
 			}
 
 			glyph.components.push(component);
