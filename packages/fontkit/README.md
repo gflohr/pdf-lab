@@ -74,6 +74,7 @@ Done:
 
 * update code base to meet today's coding standards
 * update all dependencies to latest
+* get rid of Babel transformations
 
 Todo:
 
