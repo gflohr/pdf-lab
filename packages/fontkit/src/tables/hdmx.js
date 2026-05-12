@@ -6,7 +6,8 @@ const DeviceRecord = new r.Struct({
 	widths: new r.Array(r.uint8, (t) => t.parent.parent.maxp.numGlyphs),
 	padding: new r.Array(
 		r.uint8,
-		(t) => t.parent.parent.sizeDeviceRecord - 2 - t.parent.parent.maxp.numGlyphs,
+		(t) =>
+			t.parent.parent.sizeDeviceRecord - 2 - t.parent.parent.maxp.numGlyphs,
 	),
 });
 

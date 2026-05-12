@@ -15,6 +15,7 @@
 		"check": "biome check",
 		"check:fix": "biome check --write",
 		"prepublishOnly": "pnpm run build",
+		"test": "vitest --run",
 		"test:changed": "vitest --changedSince origin/main --passWithNoTests",
 		"test:watch": "vitest",
 		"test:cov": "vitest --coverage.enabled --run",
@@ -47,6 +48,7 @@
 		"rollup": "^4.60.3",
 		"rollup-plugin-polyfill-node": "^0.13.0",
 		"tiny-inflate": "^1.0.3",
+		"typescript": "^6.0.3",
 		"unicode-trie": "^2.0.0",
 		"vitest": "^4.1.6"
 	},

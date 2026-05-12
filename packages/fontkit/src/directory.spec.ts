@@ -1,10 +1,13 @@
 import './test-helpers/addTestHelpersToFontkit.js';
 import * as path from 'node:path';
+import { describe, expect, it } from 'vitest';
 import fontkit from './index.js';
-import { describe, it, expect } from 'vitest';
 
 describe('metadata', () => {
-	const filename = path.resolve(import.meta.dirname, '../test-data/OpenSans/OpenSans-Regular.ttf');
+	const filename = path.resolve(
+		import.meta.dirname,
+		'../test-data/OpenSans/OpenSans-Regular.ttf',
+	);
 	const font = fontkit.openSync(filename);
 
 	it('decodes SFNT directory values correctly', () => {

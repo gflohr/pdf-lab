@@ -55,6 +55,11 @@ export default class GlyphInfo {
 	}
 
 	copy() {
-		return new GlyphInfo(this._font, this.id, [...this.codePoints], this.features);
+		return new GlyphInfo(
+			this._font,
+			this.id,
+			[...this.codePoints],
+			this.features,
+		);
 	}
 }
