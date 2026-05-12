@@ -11,8 +11,8 @@ export default class ShapingPlan {
 		this.script = script;
 		this.direction = direction;
 		this.stages = [];
-		this.globalFeatures = {};
-		this.allFeatures = {};
+		this.globalFeatures = Object.create(null);
+		this.allFeatures = Object.create(null);
 	}
 
 	/**
@@ -48,7 +48,7 @@ export default class ShapingPlan {
 
 		if (Array.isArray(arg)) {
 			this._addFeatures(arg, global);
-		} else if (typeof arg === 'object') {
+		} else if (arg != null && typeof arg === 'object') {
 			this._addFeatures(arg.global || [], true);
 			this._addFeatures(arg.local || [], false);
 		} else {
@@ -71,8 +71,8 @@ export default class ShapingPlan {
 	setFeatureOverrides(features) {
 		if (Array.isArray(features)) {
 			this.add(features);
-		} else if (typeof features === 'object') {
-			for (const tag in features) {
+		} else if (features != null && typeof features === 'object') {
+			for (const tag of Object.keys(features)) {
 				if (features[tag]) {
 					this.add(tag);
 				} else if (this.allFeatures[tag] != null) {
@@ -93,7 +93,7 @@ export default class ShapingPlan {
 	 */
 	assignGlobalFeatures(glyphs) {
 		for (const glyph of glyphs) {
-			for (const feature in this.globalFeatures) {
+			for (const feature of Object.keys(this.globalFeatures)) {
 				glyph.features[feature] = true;
 			}
 		}
