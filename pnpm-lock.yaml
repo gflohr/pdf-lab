@@ -161,8 +161,8 @@ importers:
         specifier: ^8.0.0
         version: 8.0.0
       base64-arraybuffer:
-        specifier: ^0.1.5
-        version: 0.1.5
+        specifier: ^1.0.2
+        version: 1.0.2
       buffer:
         specifier: ^6.0.3
         version: 6.0.3
@@ -1911,6 +1911,10 @@ packages:
 
   base64-arraybuffer@0.1.5:
     resolution: {integrity: sha512-437oANT9tP582zZMwSvZGy2nmSeAb8DW2me3y+Uv1Wp2Rulr8Mqlyrv3E7MLxmsiaPSMMDmiDVzgE+e8zlMx9g==}
+    engines: {node: '>= 0.6.0'}
+
+  base64-arraybuffer@1.0.2:
+    resolution: {integrity: sha512-I3yl4r9QB5ZRY3XuJVEPfc2XhZO6YweFPI+UovAzn+8/hb3oJ6lnysaFcjVpkCPfVWFUDvoZ8kmVDP7WyRtYtQ==}
     engines: {node: '>= 0.6.0'}
 
   base64-js@1.5.1:
@@ -5435,6 +5439,8 @@ snapshots:
   balanced-match@4.0.4: {}
 
   base64-arraybuffer@0.1.5: {}
+
+  base64-arraybuffer@1.0.2: {}
 
   base64-js@1.5.1: {}
 

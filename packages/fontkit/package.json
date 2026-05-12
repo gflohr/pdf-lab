@@ -34,7 +34,7 @@
 		"@rollup/plugin-swc": "^0.4.0",
 		"@rollup/plugin-terser": "^1.0.0",
 		"babel-plugin-istanbul": "^8.0.0",
-		"base64-arraybuffer": "^0.1.5",
+		"base64-arraybuffer": "^1.0.2",
 		"buffer": "^6.0.3",
 		"clone": "^1.0.1",
 		"codepoints": "^1.2.0",
