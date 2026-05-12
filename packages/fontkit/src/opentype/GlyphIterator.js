@@ -73,6 +73,6 @@ export default class GlyphIterator {
 			this.move(dir);
 		}
 
-		return this.glyphs[this.index];
+		return this.glyphs[this.index] ?? null;
 	}
 }
