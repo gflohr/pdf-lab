@@ -96,8 +96,8 @@ Listed below are changes that have been made in this fork:
 
 * Store binary data as compressed base64 JSON so the `fs` module isn't needed to read it back:
   * [968e35c](https://github.com/Hopding/fontkit/commit/968e35c158589294e9543818f56d0b229b95a475)
-  * [99a35c7](/Hopding/fontkit/commit/99a35c7b0f0f6549d7727bcbc1ddabb7f9ca19bf)
-  * [2f1445d](/Hopding/fontkit/commit/2f1445d9a3f8426bc259690819eea8306a98545a)
+  * [99a35c7](https://github.com/Hopding/fontkit/commit/99a35c7b0f0f6549d7727bcbc1ddabb7f9ca19bf)
+  * [2f1445d](https://github.com/Hopding/fontkit/commit/2f1445d9a3f8426bc259690819eea8306a98545a)
   * [f674bf2-R24](https://github.com/Hopding/fontkit/commit/f674bf2e3c8a8e0a34083e19f0abe65df20520e3#diff-b61f8676a8a37c519e9c3c86c4676208R24), [f674bf2-R13](https://github.com/Hopding/fontkit/commit/f674bf2e3c8a8e0a34083e19f0abe65df20520e3#diff-a73febb5d14ad8d9d7ab6ac378a698aaR13)
 * Rewrote `Makefile` to `Makefile.js` using `shelljs`:
   * [a246e7f](https://github.com/Hopding/fontkit/commit/a246e7fda8c0bb5df4be355a993e0ba59f07300e)
