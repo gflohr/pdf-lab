@@ -149,7 +149,7 @@ Fontkit is an advanced font engine for Node and the browser, used by [PDFKit](ht
 #### Example
 
 ```js
-import fontkit from '@pdf-lib/fontkit';
+import fontkit from '@pdf-lab/fontkit';
 import fs from 'fs';
 
 // open a font synchronously
