@@ -17,9 +17,9 @@ const plugins = [
 	nodePolyfills(),
 
 	swc({
+		include: ['**/*.js'],
+		exclude: ['node_modules/**'],
 		jsc: {
-			include: ['**/*.js'],
-			exclude: ['node_modules/**'],
 			parser: {
 				syntax: 'ecmascript',
 				decorators: true,
