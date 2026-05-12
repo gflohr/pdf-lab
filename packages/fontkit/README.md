@@ -192,14 +192,14 @@ You can also download `@pdf-lab/fontkit` as a UMD module from [unpkg](https://un
 
 The following builds are available:
 
-* https://unpkg.com/@pdf-lib/fontkit/dist/fontkit.umd.js
-* https://unpkg.com/@pdf-lib/fontkit/dist/fontkit.umd.min.js
+* https://unpkg.com/@pdf-lab/fontkit/dist/fontkit.umd.js
+* https://unpkg.com/@pdf-lab/fontkit/dist/fontkit.umd.min.js
 
 When using a UMD build, you will have access to a global `window.fontkit` variable. This variable contains the object exported by `@pdf-lib/fontkit`. For example:
 
 ```javascript
 // NPM module
-import fontkit from '@pdf-lib/fontkit';
+import fontkit from '@pdf-lab/fontkit';
 
 // UMD module
 var fontkit = window.fontkit;

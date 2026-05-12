@@ -2,7 +2,7 @@ import r from '@pdf-lib/restructure';
 
 // Linear Threshold table
 // Records the ppem for each glyph at which the scaling becomes linear again,
-// despite instructions effecting the advance width
+// despite instructions affecting the advance width.
 export default new r.Struct({
 	version: r.uint16,
 	numGlyphs: r.uint16,
