@@ -8,7 +8,7 @@
 	"module": "dist/fontkit.es.js",
 	"types": "fontkit.d.ts",
 	"scripts": {
-		"clean": "rimraf dist src/opentype/shapers/*.json",
+		"clean": "rimraf dist \"src/opentype/shapers/*.json\"",
 		"generate:data": "node src/opentype/shapers/generate-data.js && node src/opentype/shapers/gen-use.js && node src/opentype/shapers/gen-indic.js",
 		"build": "pnpm run clean && pnpm run generate:data && rollup -c",
 		"dev": "rollup -c -w",
