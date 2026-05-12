@@ -25,7 +25,7 @@ export default class TTFSubset extends Subset {
 
 		// if it is a compound glyph, include its components
 		if (glyf && glyf.numberOfContours < 0) {
-			buffer = new Buffer(buffer);
+			buffer = Buffer.from(buffer);
 			for (const component of glyf.components) {
 				gid = this.includeGlyph(component.glyphID);
 				buffer.writeUInt16BE(gid, component.pos);
