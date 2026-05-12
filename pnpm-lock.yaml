@@ -45,8 +45,8 @@ importers:
         specifier: ^1.17.1
         version: 1.17.1
       pnpm:
-        specifier: ^11.0.9
-        version: 11.0.9
+        specifier: ^11.1.0
+        version: 11.1.0
       tsx:
         specifier: ^4.21.0
         version: 4.21.0
@@ -1619,8 +1619,8 @@ packages:
     resolution: {integrity: sha512-uB80kBFb/tfd68bVleG9T5GGsGPjJrLAUpR5PZIrhBnIaRTQRjqdJSsIKkOP6OAIFbj7GOrcudc5pNjZ+geV2g==}
     engines: {node: '>=6'}
 
-  pnpm@11.0.9:
-    resolution: {integrity: sha512-NM6C5ngCM8+crYaFApqPgdLgYZbFqbrZiHn3QklAxoF8TkUk+304uFU87tSLl1i4668avTYAwjLEyM9zZghvOA==}
+  pnpm@11.1.0:
+    resolution: {integrity: sha512-DEToQuVoaywGGoGt2osiWL2IGOlwSyzyxj1WuTGnsukQCS4IUCcAO5bKORGrVqB/bfWrrtK+mSUDTN1oalNbFA==}
     engines: {node: '>=22.13'}
     hasBin: true
 
@@ -3309,7 +3309,7 @@ snapshots:
 
   pify@4.0.1: {}
 
-  pnpm@11.0.9: {}
+  pnpm@11.1.0: {}
 
   postcss@8.5.14:
     dependencies:
