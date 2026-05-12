@@ -159,7 +159,7 @@ export default class GlyphVariationProcessor {
 			if (tupleIndex & PRIVATE_POINT_NUMBERS) {
 				points = this.decodePoints();
 			} else {
-				points = sharedPoints;
+				points = sharedPoints ?? new Uint16Array();
 			}
 
 			// points.length = 0 means there are deltas for all points

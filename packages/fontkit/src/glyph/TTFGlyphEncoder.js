@@ -119,6 +119,10 @@ export default class TTFGlyphEncoder {
 			}
 		}
 
+		if (same > 0) {
+			flags.push(same);
+		}
+
 		// Close the path if the last command didn't already
 		if (
 			path.commands.length > 1 &&
