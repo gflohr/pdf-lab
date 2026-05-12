@@ -71,7 +71,7 @@ export default class CFFIndex {
 
 		const type = this.type || new r.Buffer();
 
-		// find maximum offset to detminine offset type
+		// Find maximum offset to determine offset type.
 		let offset = 1;
 		for (let i = 0; i < arr.length; i++) {
 			const item = arr[i];
@@ -105,7 +105,7 @@ export default class CFFIndex {
 
 		const type = this.type || new r.Buffer();
 
-		// find maximum offset to detminine offset type
+		// Find maximum offset to determine offset type.
 		const sizes = [];
 		let offset = 1;
 		for (const item of arr) {

@@ -4,8 +4,6 @@
  * The features are applied in groups called stages. A feature
  * can be applied globally to all glyphs, or locally to only
  * specific glyphs.
- *
- * @private
  */
 export default class ShapingPlan {
 	constructor(font, script, direction) {
