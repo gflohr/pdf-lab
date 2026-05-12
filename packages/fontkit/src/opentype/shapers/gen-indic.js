@@ -261,9 +261,7 @@ const stateMachine = compile(
 );
 
 const indicFilePath = `${import.meta.dirname}/indic.json`;
-const stateMachineJsonBytes = JSON.stringify(stateMachine)
-	.split('')
-	.map((c) => c.charCodeAt(0));
+const stateMachineJsonBytes = new TextEncoder().encode(JSON.stringify(stateMachine));
 const jsonBase64DeflatedIndic = JSON.stringify(
 	base64.encode(pako.deflate(stateMachineJsonBytes)),
 );

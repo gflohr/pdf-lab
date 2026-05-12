@@ -260,9 +260,7 @@ const json = Object.assign(
 );
 
 const useFilePath = `${import.meta.dirname}/use.json`;
-const useJsonBytes = JSON.stringify(json)
-	.split('')
-	.map((c) => c.charCodeAt(0));
+const useJsonBytes = new TextEncoder().encode(JSON.stringify(json));
 const jsonBase64DeflatedUse = JSON.stringify(
 	base64.encode(pako.deflate(useJsonBytes)),
 );
