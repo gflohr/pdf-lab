@@ -199,7 +199,7 @@ function decompose(glyphs, i, font) {
 	const l = (L_BASE + s / V_COUNT) | 0;
 	const v = V_BASE + (s % V_COUNT);
 
-	// Don't decompose if all of the components are not available
+	// Do not decompose if all of the components are not available
 	if (
 		!font.hasGlyphForCodePoint(l) ||
 		!font.hasGlyphForCodePoint(v) ||

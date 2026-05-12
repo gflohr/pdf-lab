@@ -54,7 +54,7 @@ export default class COLRGlyph extends Glyph {
 			}
 		}
 
-		// 2. Strict check: since we didn't initialize baseLayer,
+		// 2. Strict check: since we did not initialize baseLayer,
 		// it will be strictly undefined if the loop didn't find a match.
 		if (baseLayer === undefined) {
 			const g = this._font._getBaseGlyph(this.id);
