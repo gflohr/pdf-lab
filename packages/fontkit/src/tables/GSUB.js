@@ -20,6 +20,7 @@ const Ligature = new r.Struct({
 
 const LigatureSet = new r.Array(new r.Pointer(r.uint16, Ligature), r.uint16);
 
+const selfPointer = new r.Pointer(r.uint32, null);
 const GSUBLookup = new r.VersionedStruct('lookupType', {
 	1: new r.VersionedStruct(r.uint16, {
 		// Single Substitution
@@ -71,8 +72,7 @@ const GSUBLookup = new r.VersionedStruct('lookupType', {
 		// Extension Substitution
 		substFormat: r.uint16,
 		lookupType: r.uint16, // cannot also be 7
-		// biome-ignore lint/correctness/noInvalidUseBeforeDeclaration: fix later
-		extension: new r.Pointer(r.uint32, GSUBLookup),
+		extension: selfPointer,
 	},
 
 	8: {
@@ -94,7 +94,7 @@ const GSUBLookup = new r.VersionedStruct('lookupType', {
 });
 
 // Fix circular reference
-GSUBLookup.versions[7].extension.type = GSUBLookup;
+selfPointer.type = GSUBLookup;
 
 export default new r.VersionedStruct(r.uint32, {
 	header: {

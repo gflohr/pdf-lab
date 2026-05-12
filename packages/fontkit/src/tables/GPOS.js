@@ -8,8 +8,8 @@ import {
 	FeatureList,
 	LookupList,
 	ScriptList,
-} from './opentype';
-import { FeatureVariations } from './variations';
+} from './opentype.js';
+import { FeatureVariations } from './variations.js';
 
 const ValueFormat = new r.Bitfield(r.uint16, [
 	'xPlacement',
@@ -146,6 +146,7 @@ const LigatureArray = new r.Array(
 	r.uint16,
 );
 
+const selfPointer = new r.Pointer(r.uint32, null);
 const GPOSLookup = new r.VersionedStruct('lookupType', {
 	1: new r.VersionedStruct(r.uint16, {
 		// Single Adjustment
@@ -238,13 +239,12 @@ const GPOSLookup = new r.VersionedStruct('lookupType', {
 		// Extension Positioning
 		posFormat: r.uint16,
 		lookupType: r.uint16, // cannot also be 9
-		// biome-ignore lint/correctness/noInvalidUseBeforeDeclaration: fix later
-		extension: new r.Pointer(r.uint32, GPOSLookup),
+		extension: selfPointer,
 	},
 });
 
 // Fix circular reference
-GPOSLookup.versions[9].extension.type = GPOSLookup;
+selfPointer.type = GPOSLookup;
 
 export default new r.VersionedStruct(r.uint32, {
 	header: {
