@@ -52,6 +52,8 @@ export default class TTFFont {
 			try {
 				this._tables[table.tag] = this._decodeTable(table);
 			} catch (e) {
+				// Avoid retrying the failed decode attempt.
+				this._tables[table.tag] = null;
 				if (fontkit.logErrors) {
 					console.error(`Error decoding table ${table.tag}`);
 					console.error(e.stack);
