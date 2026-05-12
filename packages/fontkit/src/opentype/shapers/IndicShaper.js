@@ -416,7 +416,7 @@ function initialReordering(font, glyphs, plan) {
 		//
 		// IMPLEMENTATION NOTES:
 		//
-		// The normalize() routine has already decomposed matras for us, so we don't
+		// The normalize() routine has already decomposed matras for us, so we do not
 		// need to worry about that.
 
 		// 3.  Reorder marks to canonical order:
@@ -426,7 +426,7 @@ function initialReordering(font, glyphs, plan) {
 		//
 		// IMPLEMENTATION NOTES:
 		//
-		// We don't need to do this: the normalize() routine already did this for us.
+		// We do not need to do this: the normalize() routine already did this for us.
 
 		// Reorder characters
 
@@ -463,7 +463,7 @@ function initialReordering(font, glyphs, plan) {
 		//
 		// Reports suggest that in some scripts Uniscribe does this only if there
 		// is *not* a Halant after last consonant already (eg. Kannada), while it
-		// does it unconditionally in other scripts (eg. Malayalam).  We don't
+		// does it unconditionally in other scripts (eg. Malayalam).  We do not
 		// currently know about other scripts, so we single out Malayalam for now.
 		//
 		// Kannada test case:
@@ -518,12 +518,12 @@ function initialReordering(font, glyphs, plan) {
 					info.category === CATEGORIES.H &&
 					info.position === POSITIONS.Pre_M
 				) {
-					// Uniscribe doesn't move the Halant with Left Matra.
+					// Uniscribe does not move the Halant with Left Matra.
 					// TEST: U+092B,U+093F,U+094DE
 					// We follow.  This is important for the Sinhala
 					// U+0DDA split matra since it decomposes to U+0DD9,U+0DCA
 					// where U+0DD9 is a left matra and U+0DCA is the virama.
-					// We don't want to move the virama with the left matra.
+					// We do not want to move the virama with the left matra.
 					// TEST: U+0D9A,U+0DDA
 					for (let j = i; j > start; j--) {
 						if (glyphs[j - 1].shaperInfo.position !== POSITIONS.Pre_M) {
@@ -606,7 +606,7 @@ function initialReordering(font, glyphs, plan) {
 			// with Sanskrit 2003 font.
 			//
 			// However, note that Ra,Halant,ZWJ is the correct way to
-			// request eyelash form of Ra, so we wouldbn't inhibit it
+			// request eyelash form of Ra, so we would not inhibit it
 			// in that sequence.
 			//
 			// Test case: U+0924,U+094D,U+0930,U+094d,U+200D,U+0915
@@ -659,7 +659,7 @@ function initialReordering(font, glyphs, plan) {
 					j--;
 
 					// ZWJ/ZWNJ should disable CJCT.  They do that by simply
-					// being there, since we don't skip them for the CJCT
+					// being there, since we do not skip them for the CJCT
 					// feature (ie. F_MANUAL_ZWJ)
 
 					// A ZWNJ disables HALF.
@@ -704,7 +704,7 @@ function finalReordering(font, glyphs, plan) {
 									!glyphs[i].isMultiplied
 								)
 							) {
-								// Ok, this was a 'pref' candidate but didn't form any.
+								// Ok, this was a 'pref' candidate but did not form any.
 								// Base is around here...
 								base = i;
 								while (base < end && isHalantOrCoeng(glyphs[base])) {
@@ -784,7 +784,7 @@ function finalReordering(font, glyphs, plan) {
 		//
 
 		if (start + 1 < end && start < base) {
-			// Otherwise there can't be any pre-base matra characters.
+			// Otherwise there cannot be any pre-base matra characters.
 			// If we lost track of base, alas, position before last thingy.
 			let newPos = base === end ? base - 2 : base - 1;
 
@@ -830,7 +830,7 @@ function finalReordering(font, glyphs, plan) {
 					if (glyphs[i - 1].shaperInfo.position === POSITIONS.Pre_M) {
 						const oldPos = i - 1;
 						if (oldPos < base && base <= newPos) {
-							// Shouldn't actually happen.
+							// Should not happen.
 							base--;
 						}
 
@@ -973,8 +973,8 @@ function finalReordering(font, glyphs, plan) {
 
 				// If the Reph is to be ending up after a Matra,Halant sequence,
 				// position it before that Halant so it can interact with the Matra.
-				// However, if it's a plain Consonant,Halant we shouldn't do that.
-				// Uniscribe doesn't do this.
+				// However, if it's a plain Consonant, Halant we should not do that.
+				// Uniscribe does not do this.
 				// TEST: U+0930,U+094D,U+0915,U+094B,U+094D
 				if (isHalantOrCoeng(glyphs[newRephPos])) {
 					for (let i = base + 1; i < newRephPos; i++) {
@@ -1005,7 +1005,7 @@ function finalReordering(font, glyphs, plan) {
 					//    of the <pref> feature. (Note that a font may shape a Ra consonant with
 					//    the feature generally but block it in certain contexts.)
 
-					// Note: We just check that something got substituted.  We don't check that
+					// Note: We just check that something got substituted.  We do not check that
 					// the <pref> feature actually did it...
 					//
 					// Reorder pref only if it ligated.

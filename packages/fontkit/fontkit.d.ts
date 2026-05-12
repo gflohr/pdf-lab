@@ -6,8 +6,8 @@ export as namespace fontkit;
 export interface BoundingBox {
 	minX: number /** The minimum X position in the bounding box */;
 	minY: number /** The minimum Y position in the bounding box */;
-	maxX: number /** The maxmimum X position in the bounding box */;
-	maxY: number /** The maxmimum Y position in the bounding box */;
+	maxX: number /** The maximum X position in the bounding box */;
+	maxY: number /** The maximum Y position in the bounding box */;
 	width: number /** The width of the bounding box */;
 	height: number /** The height of the bounding box */;
 }
@@ -484,7 +484,7 @@ export interface OpenTypeFeatures {
 	zero?: boolean;
 }
 /**
- * A map of Apple Advanced Typography (AAT) as decribed by Apple’s TrueType
+ * A map of Apple Advanced Typography (AAT) as described by Apple’s TrueType
  * Reference manual:
  * https://developer.apple.com/fonts/TrueType-Reference-Manual/RM06/Chap6AATIntro.html
  */

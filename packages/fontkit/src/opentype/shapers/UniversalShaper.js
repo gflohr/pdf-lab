@@ -171,8 +171,9 @@ function reorder(font, glyphs) {
 			for (i = start + 1; i < end; i++) {
 				info = glyphs[i].shaperInfo;
 				if (isBase(info) || isHalant(glyphs[i])) {
-					// If we hit a halant, move before it; otherwise it's a base: move to it's
-					// place, and shift things in between backward.
+					// If we hit a halant, move before it; otherwise it's a
+					// base: move to its place, and shift things in between
+					// backward.
 					if (isHalant(glyphs[i])) {
 						i--;
 					}

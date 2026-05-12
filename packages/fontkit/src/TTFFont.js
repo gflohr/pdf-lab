@@ -606,7 +606,7 @@ export default class TTFFont {
 		return this.__variationProcessor;
 	}
 
-	// Standardized format plugin API
+	// Standardised format plugin API.
 	getFont(name) {
 		return this.getVariation(name);
 	}
