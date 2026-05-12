@@ -36,10 +36,15 @@ export default class CFFDict {
 	}
 
 	encodeOperands(type, stream, ctx, operands) {
+	encodeOperands(type, stream, ctx, operands) {
 		if (Array.isArray(type)) {
-			return operands.map(
-				(op, i) => this.encodeOperands(type[i], stream, ctx, op)[0],
+			return operands.flatMap((op, i) =>
+				this.encodeOperands(type[i], stream, ctx, op),
 			);
+		} else if (type.encode != null) {
+			return type.encode(stream, operands, ctx);
+		}
+	}
 		} else if (type.encode != null) {
 			return type.encode(stream, operands, ctx);
 		} else if (typeof operands === 'number') {
