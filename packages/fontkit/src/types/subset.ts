@@ -2,10 +2,12 @@ import type { Glyph } from './glyph.js';
 
 export interface SubsetStream {
 	on: (
-		eventType: 'data' | 'end',
+		eventType: 'data' | 'end' | 'error',
 		// biome-ignore lint/suspicious/noExplicitAny: backwards compatibility.
 		callback: (data: Uint8Array) => any,
 	) => SubsetStream;
+
+	pipe<T>(destination: T): T;
 }
 
 export interface Subset {

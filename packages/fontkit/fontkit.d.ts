@@ -229,7 +229,7 @@ export interface GlyphRun {
 export interface SubsetStream {
 	on: (
 		eventType: 'data' | 'end',
-		// biome-ignore lint/suspicious/noExplicitAny: needs investigation
+		// biome-ignore lint/suspicious/noExplicitAny: backwards compatibility
 		callback: (data: Uint8Array) => any,
 	) => SubsetStream;
 }
