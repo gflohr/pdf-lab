@@ -21,29 +21,27 @@ describe('glyph positioning', () => {
 
 		it('should apply opentype GPOS features', () => {
 			const { positions } = font.layout('Twitter');
-			expect(positions.map((p) => p.xAdvance)).toStrictEqual(
-				[502, 718, 246, 318, 324, 496, 347],
-			);
+			expect(positions.map((p) => p.xAdvance)).toStrictEqual([
+				502, 718, 246, 318, 324, 496, 347,
+			]);
 		});
 
 		it('should ignore duplicate features', () => {
 			const { positions } = font.layout('Twitter', ['kern', 'kern']);
-			expect(positions.map((p) => p.xAdvance)).toStrictEqual(
-				[502, 718, 246, 318, 324, 496, 347],
-			);
+			expect(positions.map((p) => p.xAdvance)).toStrictEqual([
+				502, 718, 246, 318, 324, 496, 347,
+			]);
 		});
 	});
 
 	describe('AAT features', () => {
-		const font = fontkit.openSync(
-			`${datadir}/Play/Play-Regular.ttf`,
-		);
+		const font = fontkit.openSync(`${datadir}/Play/Play-Regular.ttf`);
 
 		it('should apply kerning by default', () => {
 			const { positions } = font.layout('Twitter');
-			expect(positions.map((p) => p.xAdvance)).toStrictEqual(
-				[535, 792, 246, 372, 402, 535, 351],
-			);
+			expect(positions.map((p) => p.xAdvance)).toStrictEqual([
+				535, 792, 246, 372, 402, 535, 351,
+			]);
 		});
 	});
 });

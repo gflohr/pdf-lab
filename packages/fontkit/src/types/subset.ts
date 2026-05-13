@@ -1,4 +1,4 @@
-import type { Glyph } from './glyph';
+import type { Glyph } from './glyph.js';
 
 export interface SubsetStream {
 	on: (

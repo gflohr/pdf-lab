@@ -11,10 +11,7 @@ interface Fontkit {
 
 	create(buffer: Uint8Array, postscriptName?: string): unknown;
 
-	openSync(
-		filename: string,
-		postscriptName?: string,
-	): Font;
+	openSync(filename: string, postscriptName?: string): Font;
 
 	open(
 		filename: string,
@@ -31,7 +28,11 @@ typedFontkit.openSync = (filename: string, postscriptName?: string): Font => {
 	return fontkit.create(buffer, postscriptName) as Font;
 };
 
-typedFontkit.open = (filename: string, postScriptName?: string | null | OpenCallback, callback?: OpenCallback) => {
+typedFontkit.open = (
+	filename: string,
+	postScriptName?: string | null | OpenCallback,
+	callback?: OpenCallback,
+) => {
 	if (typeof postScriptName === 'function') {
 		callback = postScriptName;
 		postScriptName = null;

@@ -1,7 +1,7 @@
-import { BoundingBox } from './bounding-box';
-import { TypeFeatures } from './features';
-import { Glyph, GlyphRun } from './glyph';
-import { Subset } from './subset';
+import type { BoundingBox } from './bounding-box.js';
+import type { TypeFeatures } from './features.js';
+import type { Glyph, GlyphRun } from './glyph.js';
+import type { Subset } from './subset.js';
 
 /**
  * There are several different types of font objects that are returned by

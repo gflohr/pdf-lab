@@ -1,4 +1,4 @@
-import type { BoundingBox } from './bounding-box';
+import type { BoundingBox } from './bounding-box.js';
 
 /**
  * Path objects are returned by glyphs and represent the actual vector outlines

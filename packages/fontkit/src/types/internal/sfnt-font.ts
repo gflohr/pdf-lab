@@ -1,4 +1,5 @@
-import type { Font } from '../font';
+import type { Font } from '../font.js';
+import type { HheaTable } from './tables/hhea.js';
 
 interface SFNTDirectory {
 	numTables: number;
@@ -10,4 +11,5 @@ interface SFNTDirectory {
 
 export interface SFNTFont extends Font {
 	directory: SFNTDirectory;
+	hhea: HheaTable;
 }

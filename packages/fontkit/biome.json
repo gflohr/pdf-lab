@@ -4,9 +4,6 @@
 		"rules": {
 			"correctness": {
 				"useImportExtensions": "off"
-			},
-			"suspicious": {
-				"noExplicitAny": "off"
 			}
 		}
 	}

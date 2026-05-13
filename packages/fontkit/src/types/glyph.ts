@@ -1,5 +1,5 @@
-import type { BoundingBox } from './bounding-box';
-import type { Path } from './path';
+import type { BoundingBox } from './bounding-box.js';
+import type { Path } from './path.js';
 
 /**
  * Glyph objects represent a glyph in the font. They have various properties for

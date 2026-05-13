@@ -1,5 +1,5 @@
-import type { AATFeatures } from './aat';
-import type { OpenTypeFeatures } from './opentype';
+import type { AATFeatures } from './aat.js';
+import type { OpenTypeFeatures } from './opentype.js';
 
 /**
  * The features is an object mapping OpenType features to a boolean
