@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import fontkit from './index.js';
-import { Font } from './types/font.js';
+import type { Font } from './types/index.js';
 
 type OpenCallback = (error: Error | unknown | null, font?: unknown) => void;
 
@@ -13,25 +13,25 @@ interface Fontkit {
 
 	openSync(
 		filename: string,
-		postScriptName?: string,
-	): unknown;
+		postscriptName?: string,
+	): Font;
 
 	open(
 		filename: string,
-		postScriptName: string | null | OpenCallback,
+		postscriptName: string | null | OpenCallback,
 		callback?: OpenCallback,
 	): void;
 }
 
 const typedFontkit = fontkit as Fontkit;
 
-typedFontkit.openSync = (filename: string, postScriptName?: string): Font => {
+typedFontkit.openSync = (filename: string, postscriptName?: string): Font => {
 	const buffer = fs.readFileSync(filename);
 
-	return fontkit.create(buffer, postScriptName);
+	return fontkit.create(buffer, postscriptName) as Font;
 };
 
-typedFontkit.open = (filename: string, postScriptName?: string | null | OpenCallback, callback?: OpenCallback): Font => {
+typedFontkit.open = (filename: string, postScriptName?: string | null | OpenCallback, callback?: OpenCallback) => {
 	if (typeof postScriptName === 'function') {
 		callback = postScriptName;
 		postScriptName = null;
@@ -51,8 +51,6 @@ typedFontkit.open = (filename: string, postScriptName?: string | null | OpenCall
 
 		return callback!(null, font);
 	});
-
-	return;
 };
 
 export default typedFontkit;
