@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import BBox from '../src/glyph/BBox.js';
+import BBox from './glyph/BBox.js';
 import fontkit from './test-helpers.js';
 import type { SFNTFont } from './types/internal/sfnt-font.js';
 

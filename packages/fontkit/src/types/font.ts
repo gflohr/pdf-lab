@@ -79,8 +79,18 @@ export interface Font {
 	 * feature tags are mapped to AAT features.
 	 */
 	layout(
-		string: string,
+		text: string,
 		features?: TypeFeatures | (keyof TypeFeatures)[],
+		script?: string,
+		language?: string,
+		direction?: string,
+	): GlyphRun;
+
+	layout(
+		text: string,
+		script?: string,
+		language?: string,
+		direction?: string,
 	): GlyphRun;
 
 	// Other Methods
