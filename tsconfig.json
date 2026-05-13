@@ -13,7 +13,5 @@
 		"rootDir": ".",
 		"outDir": "dist",
 		"types": ["node"]
-	},
-	"include": [],
-	"exclude": ["node_modules", "dist"]
+	}
 }

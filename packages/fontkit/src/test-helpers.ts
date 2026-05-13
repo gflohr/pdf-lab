@@ -1,8 +1,9 @@
-import fs from 'node:fs';
+import { readFileSync } from 'node:fs';
+import * as fs from 'node:fs/promises';
 import fontkit from './index.js';
 import type { Font } from './types/index.js';
 
-type OpenCallback = (error: Error | unknown | null, font?: unknown) => void;
+type OpenCallback = (error: Error | unknown | null, font?: Font) => void;
 
 interface Fontkit {
 	logErrors: boolean;
@@ -15,43 +16,25 @@ interface Fontkit {
 
 	open(
 		filename: string,
-		postscriptName: string | null | OpenCallback,
-		callback?: OpenCallback,
-	): void;
+		postscriptName?: string | null | OpenCallback
+	): Promise<Font>;
 }
 
 const typedFontkit = fontkit as Fontkit;
 
 typedFontkit.openSync = (filename: string, postscriptName?: string): Font => {
-	const buffer = fs.readFileSync(filename);
+	const buffer = readFileSync(filename);
 
 	return fontkit.create(buffer, postscriptName) as Font;
 };
 
-typedFontkit.open = (
+typedFontkit.open = async (
 	filename: string,
 	postScriptName?: string | null | OpenCallback,
-	callback?: OpenCallback,
-) => {
-	if (typeof postScriptName === 'function') {
-		callback = postScriptName;
-		postScriptName = null;
-	}
+): Promise<Font> => {
+	const fontBytes = await fs.readFile(filename);
 
-	fs.readFile(filename, (err, buffer) => {
-		if (err) {
-			return callback!(err);
-		}
-
-		let font: unknown;
-		try {
-			font = fontkit.create(buffer, postScriptName);
-		} catch (e) {
-			return callback!(e);
-		}
-
-		return callback!(null, font);
-	});
+	return await fontkit.create(fontBytes, postScriptName);
 };
 
 export default typedFontkit;
