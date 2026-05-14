@@ -13,8 +13,7 @@ interface Fontkit {
 
 	create(buffer: Uint8Array, postscriptName?: string): unknown;
 
-	openSync(filename: string, postscriptName?: string): Font;
-	openSync(filename: string, settings?: VariationCoordinates): Font;
+	openSync(filename: string, settings?: string | VariationCoordinates): Font;
 
 	open(
 		filename: string,
