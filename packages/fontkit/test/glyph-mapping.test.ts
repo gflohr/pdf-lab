@@ -10,7 +10,7 @@ describe('character to glyph mapping', () => {
 		const font = fontkit.openSync(`${datadir}/OpenSans/OpenSans-Regular.ttf`);
 
 		it('should get characterSet', () => {
-			expect(Array.isArray(font.characterSet)).toBeTruthy;
+			expect(Array.isArray(font.characterSet)).toBeTruthy();
 			expect(font.characterSet.length).toBe(884);
 		});
 

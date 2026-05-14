@@ -11,7 +11,7 @@ interface SFNTDirectory {
 	searchRange: number;
 	entrySelector: number;
 	rangeShift: number;
-	tables: unknown[];
+	tables: Record<string, unknown>;
 }
 
 // FiXME! The base class for all fonts in fontkit is TTFFont. The interface
