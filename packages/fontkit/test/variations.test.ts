@@ -1,6 +1,6 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 import type { SFNTFont } from '../src/types/internal/sfnt-font.js';
 import fontkit from './helpers.js';
 
@@ -8,17 +8,18 @@ const datadir = path.resolve(import.meta.dirname, './data');
 
 describe('variations', () => {
 	describe('Skia', () => {
-		if (!fs.existsSync('/System/Library/Fonts/Supplemental/Skia.ttf')) {
-			return;
-		}
-
 		// FIXME! This is a recipe for future failure. The font may change or
 		// get overwritten.
-		const font = fontkit.openSync(
-			'/System/Library/Fonts/Supplemental/Skia.ttf',
-		) as SFNTFont;
+		const hasSkiaFont = fs.existsSync('/System/Library/Fonts/Supplemental/Skia.ttf');
+		let font: SFNTFont;
 
-		it('should get available variation axes', () => {
+		beforeAll(async () => {
+			font = fontkit.openSync(
+				'/System/Library/Fonts/Supplemental/Skia.ttf',
+			) as SFNTFont;
+		});
+
+		it.skipIf(!hasSkiaFont)('should get available variation axes', () => {
 			const axes = font.variationAxes;
 			expect(Object.keys(axes)).toStrictEqual(['wght', 'wdth']);
 			expect(axes.wght!.name).toBe('Weight');
@@ -28,7 +29,7 @@ describe('variations', () => {
 			expect(Math.round(axes.wght!.max * 100) / 100).toBe(3.2);
 		});
 
-		it('should get named variation instances', () => {
+		it.skipIf(!hasSkiaFont)('should get named variation instances', () => {
 			const named = font.namedVariations;
 			expect(Object.keys(named)).toStrictEqual([
 				'Black',
@@ -47,7 +48,7 @@ describe('variations', () => {
 			expect(named.Bold!.wdth!).toBe(1);
 		});
 
-		it('should get a variation by name', () => {
+		it.skipIf(!hasSkiaFont)('should get a variation by name', () => {
 			const variation = font.getVariation('Bold');
 			expect(variation.constructor.name).toBe('TTFFont');
 
@@ -57,7 +58,7 @@ describe('variations', () => {
 			);
 		});
 
-		it('should get a variation by settings', () => {
+		it.skipIf(!hasSkiaFont)('should get a variation by settings', () => {
 			const variation = font.getVariation({ wght: 0.5 });
 			expect(variation.constructor.name).toBe('TTFFont');
 
@@ -67,7 +68,7 @@ describe('variations', () => {
 			);
 		});
 
-		it('interpolates points without delta values', () => {
+		it.skipIf(!hasSkiaFont)('interpolates points without delta values', () => {
 			const variation = font.getVariation('Bold');
 			const glyph = variation.glyphForCodePoint('Q'.charCodeAt(0));
 
@@ -76,7 +77,7 @@ describe('variations', () => {
 			);
 		});
 
-		it('recomputes cbox and advance width', () => {
+		it.skipIf(!hasSkiaFont)('recomputes cbox and advance width', () => {
 			const variation = font.getVariation('Bold');
 			const glyph = variation.getGlyph(68); // D
 
