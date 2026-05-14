@@ -8,7 +8,7 @@ const datadir = path.resolve(import.meta.dirname, './data');
 describe('fontkit', () => {
 	it('should open a font asynchronously', async () => {
 		const font = await fontkit.open(`${datadir}/OpenSans/OpenSans-Regular.ttf`);
-		expect(font.constructor.name, 'TTFFont');
+		expect(font.constructor.name).toBe('TTFFont');
 	});
 
 	it('should open a font synchronously', () => {
@@ -31,7 +31,7 @@ describe('fontkit', () => {
 
 		it('should open a font from a TrueType collection', () => {
 			const font = fontkit.openSync(`${datadir}/NotoSans/NotoSans.ttc`);
-			expect(font.constructor.name, 'TrueTypeCollection');
+			expect(font.constructor.name).toBe('TrueTypeCollection');
 		});
 
 		it('should open a font from a TrueType collection by PostScript name', () => {
@@ -97,7 +97,7 @@ describe('fontkit', () => {
 				`${datadir}/NotoSans/NotoSans.ttc`,
 			) as TrueTypeCollection;
 
-			expect(collection.constructor.name, 'TrueTypeCollection');
+			expect(collection.constructor.name).toBe('TrueTypeCollection');
 
 			const names = collection.fonts.map((f) => f.postscriptName);
 			expect(names).toStrictEqual([
@@ -110,14 +110,14 @@ describe('fontkit', () => {
 			const font = collection.getFont('NotoSans-Italic');
 
 			expect(font).not.toBeNull();
-			expect(font!.postscriptName, 'NotoSans-Italic');
+			expect(font!.postscriptName).toBe('NotoSans-Italic');
 		});
 
 		it('should get collection objects for dfonts', () => {
 			const collection: TrueTypeCollection = fontkit.openSync(
 				`${datadir}/NotoSans/NotoSans.dfont`,
 			) as TrueTypeCollection;
-			expect(collection.constructor.name, 'DFont');
+			expect(collection.constructor.name).toBe('DFont');
 
 			const names = collection.fonts.map((f) => f.postscriptName);
 			expect(names).toStrictEqual([
@@ -130,7 +130,7 @@ describe('fontkit', () => {
 			const font = collection.getFont('NotoSans-Italic');
 
 			expect(font).not.toBeNull();
-			expect(font!.postscriptName, 'NotoSans-Italic');
+			expect(font!.postscriptName).toBe('NotoSans-Italic');
 		});
 	});
 });
