@@ -6,10 +6,7 @@ import fontkit from './helpers.js';
 const datadir = path.resolve(import.meta.dirname, './data');
 
 describe('Font metadata', () => {
-	const font = fontkit.openSync(
-		`${datadir}/NotoSans/NotoSans.ttc`,
-		'NotoSans',
-	);
+	const font = fontkit.openSync(`${datadir}/NotoSans/NotoSans.ttc`, 'NotoSans');
 
 	it('has metadata properties', () => {
 		expect(font.fullName).toBe('Noto Sans');

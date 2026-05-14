@@ -1,11 +1,12 @@
 declare module '@pdf-lib/restructure' {
 	type InferStruct<TFields> = {
-	[K in keyof TFields]:
-		TFields[K] extends Field<infer TValue>
+		[K in keyof TFields]: TFields[K] extends Field<infer TValue>
 			? TValue
 			: never;
 	};
+
 	export interface Field<T = unknown> {
+		readonly __type?: T;
 	}
 
 	export class DecodeStream {
@@ -18,13 +19,27 @@ declare module '@pdf-lib/restructure' {
 	}
 
 	export class Struct<TFields extends Record<string, Field>>
-		implements Field<InferStruct<TFields>> {
+		implements Field<InferStruct<TFields>>
+	{
 		constructor(fields: TFields);
 	}
 
 	export class VersionedStruct<TFields extends Record<string, Field>>
-		implements Field<InferStruct<TFields>> {
+		implements Field<InferStruct<TFields>>
+	{
 		constructor(version: number, fields: TFields);
+	}
+
+	export class FixedSizeArray<TField extends Field<any>>
+		implements Field<TField extends Field<infer T> ? T[] : never>
+	{
+		constructor(field: TField, length: number);
+	}
+
+	export class Bitfield<const T extends readonly string[]>
+		implements Field<Record<T[number], boolean>>
+	{
+		constructor(field: Field<number>, names: T);
 	}
 
 	export class Reserved {
@@ -35,6 +50,8 @@ declare module '@pdf-lib/restructure' {
 		Struct: typeof Struct;
 		VersionedStruct: typeof VersionedStruct;
 		Reserved: typeof Reserved;
+		Array: typeof FixedSizeArray;
+		Bitfield: typeof Bitfield;
 
 		int8: Field<number>;
 		uint8: Field<number>;
@@ -47,6 +64,5 @@ declare module '@pdf-lib/restructure' {
 	}
 
 	const r: RestructureStatic;
-
 	export default r;
 }

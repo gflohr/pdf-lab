@@ -13,7 +13,10 @@ interface Fontkit {
 
 	create(buffer: Uint8Array, postscriptName?: string): unknown;
 
-	openSync(filename: string, settings?: string | VariationCoordinates): SFNTFont;
+	openSync(
+		filename: string,
+		settings?: string | VariationCoordinates,
+	): SFNTFont;
 
 	open(
 		filename: string,
@@ -23,7 +26,10 @@ interface Fontkit {
 
 const typedFontkit = fontkit as Fontkit;
 
-typedFontkit.openSync = (filename: string, postscriptName?: string): SFNTFont => {
+typedFontkit.openSync = (
+	filename: string,
+	postscriptName?: string,
+): SFNTFont => {
 	const buffer = readFileSync(filename);
 
 	return fontkit.create(buffer, postscriptName) as SFNTFont;
