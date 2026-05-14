@@ -212,10 +212,9 @@ export default class Path {
 	 */
 	transform(m0, m1, m2, m3, m4, m5) {
 		return this.mapPoints((x, y) => {
-			x = m0 * x + m2 * y + m4;
-			// FIXME! This looks wrong, because it uses the overwritten x!
-			y = m1 * x + m3 * y + m5;
-			return [x, y];
+			const newX = m0 * x + m2 * y + m4;
+			const newY = m1 * x + m3 * y + m5;
+			return [newX, newY];
 		});
 	}
 
