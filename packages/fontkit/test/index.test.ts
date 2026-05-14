@@ -108,8 +108,10 @@ describe('fontkit', () => {
 			]);
 
 			const font = collection.getFont('NotoSans-Italic');
+			if (!font) {
+				throw new Error('font should not be null');
+			}
 
-			expect(font).not.toBeNull();
 			expect(font!.postscriptName).toBe('NotoSans-Italic');
 		});
 
@@ -128,8 +130,10 @@ describe('fontkit', () => {
 			]);
 
 			const font = collection.getFont('NotoSans-Italic');
+			if (!font) {
+				throw new Error('font should not be null');
+			}
 
-			expect(font).not.toBeNull();
 			expect(font!.postscriptName).toBe('NotoSans-Italic');
 		});
 	});
