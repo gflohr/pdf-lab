@@ -229,7 +229,7 @@ export interface GlyphRun {
 export interface SubsetStream {
 	on: (
 		eventType: 'data' | 'end',
-		// biome-ignore lint/suspicious/noExplicitAny: needs investigation
+		// biome-ignore lint/suspicious/noExplicitAny: backwards compatibility
 		callback: (data: Uint8Array) => any,
 	) => SubsetStream;
 }
@@ -544,7 +544,7 @@ export interface AATFeatures {
  * the OpenType feature tags are mapped to AAT features.
  */
 export interface TypeFeatures extends OpenTypeFeatures, AATFeatures {
-	[key: string]: boolean;
+	[key: string]: boolean | undefined;
 }
 
 /**

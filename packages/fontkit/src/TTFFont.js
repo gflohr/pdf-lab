@@ -486,7 +486,7 @@ export default class TTFFont {
 	 *
 	 * @type {object}
 	 */
-	variationAxes() {
+	get variationAxes() {
 		if (typeof this._variationAxes === 'undefined') {
 			this._variationAxes = this._computeVariationAxes();
 		}

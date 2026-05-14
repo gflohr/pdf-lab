@@ -15,9 +15,11 @@
 		"check": "biome check",
 		"check:fix": "biome check --write",
 		"prepublishOnly": "pnpm run build",
-		"test": "MODULE_TYPE=commonjs mocha",
-		"test:watch": "MODULE_TYPE=commonjs mocha --watch --watch-files './src/**/*.js' --watch-files './test/**/*.js' --watch-files './src/**/*.json'",
-		"test:cov": "c8 --reporter=text --reporter=html --reporter=json-summary mocha"
+		"test": "vitest --run",
+		"test:changed": "vitest --changed origin/main --passWithNoTests",
+		"test:watch": "vitest",
+		"test:cov": "vitest --coverage.enabled --run",
+		"test:cov-changed": "vitest --coverage.enabled --run --changed origin/main --passWithNoTests"
 	},
 	"dependencies": {
 		"pako": "^2.1.0"
@@ -32,27 +34,28 @@
 		"@rollup/plugin-node-resolve": "^16.0.3",
 		"@rollup/plugin-swc": "^0.4.0",
 		"@rollup/plugin-terser": "^1.0.0",
+		"@types/concat-stream": "^2.0.3",
+		"@types/node": "^25.7.0",
 		"base64-arraybuffer": "^1.0.2",
 		"buffer": "^6.0.3",
-		"c8": "^11.0.0",
 		"clone": "^2.1.2",
 		"codepoints": "^1.3.0",
-		"concat-stream": "^2.0.0",
 		"deep-equal": "^2.2.3",
 		"dfa": "^1.2.0",
 		"esdoc": "^1.1.0",
 		"esdoc-es7-plugin": "0.0.3",
 		"iconv-lite": "^0.7.2",
-		"mocha": "^11.7.5",
 		"rimraf": "^6.1.3",
 		"rollup": "^4.60.3",
 		"rollup-plugin-polyfill-node": "^0.13.0",
 		"tiny-inflate": "^1.0.3",
-		"unicode-trie": "^2.0.0"
+		"typescript": "^6.0.3",
+		"unicode-trie": "^2.0.0",
+		"vitest": "^4.1.6"
 	},
 	"repository": {
 		"type": "git",
-		"url": "git://github.com/Hopding/fontkit.git"
+		"url": "git://github.com/gflohr/pdf-lab.git"
 	},
 	"keywords": [
 		"opentype",

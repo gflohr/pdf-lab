@@ -11,6 +11,7 @@ under the hood.
 | Directory                  | Purpose                                         |
 | -------------------------- | ----------------------------------------------- |
 | `packages/pdf-lab-core/`   | The core functionality                          |
+| `packages/fontkit/`        | A drop-in replacement for `@pdf-lib/fontkit`    |
 | `apps/cli/`                | The command-line interface                      |
 
 ## Essential Commands
@@ -40,6 +41,7 @@ pnpm build                      # Build for publishing (all packages)
 * Use `interface` when declaration merging is required.
 * Use `type` for unions, intersections, mapped types, and aliases (including primitives).
 * Avoid mixing `Type` and `interface` arbitrarily; prefer consistency across the codebase.
+* Exception: in `packages/fontkit`, always use `interface`, because that is the existing code convention.
 
 ## Other Rules
 
@@ -72,9 +74,12 @@ steps for fonts that are currently not embedded:
 3. try to map them to glyphs present in a suitable replacement font
 4. embed the resulting font subset
 
-## Current State
+## About `fontkit`
 
-It is curre
+Font embedding heavily relied on `@pdf-lib/fontkit` but this module is
+unmaintained and has known bugs that make it less and less useful. The
+drop-in replace in `packages/fontkit` aims at fixing this bug and migrating
+the legacy code base to modern TypeScript standards.
 
 ## Language
 

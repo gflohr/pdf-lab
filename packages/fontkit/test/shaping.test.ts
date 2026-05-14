@@ -1,14 +1,21 @@
-import './addTestHelpersToFontkit.js';
 import assert from 'node:assert';
-import fontkit from '../src/index.js';
+import * as path from 'node:path';
+import { describe, expect, it } from 'vitest';
+import type { Font } from '../src/types/font.js';
+import fontkit from './helpers.js';
+
+const datadir = path.resolve(import.meta.dirname, './data');
 
 describe('shaping', () => {
-	const fontCache = {};
-	const test = (description, font, text, output) => {
+	const fontCache: Record<string, Font> = {};
+	const test = (
+		description: string,
+		font: string,
+		text: string,
+		output: string,
+	) => {
 		it(description, () => {
-			fontCache[font] ||= fontkit.openSync(
-				`${import.meta.dirname}/data/${font}`,
-			);
+			fontCache[font] ||= fontkit.openSync(`${datadir}/${font}`);
 			const f = fontCache[font];
 			const { glyphs, positions } = f.layout(text);
 
@@ -16,8 +23,8 @@ describe('shaping', () => {
 			// in the same format as Harfbuzz, for comparison.
 			const res = [];
 			for (let i = 0; i < glyphs.length; i++) {
-				const glyph = glyphs[i];
-				const pos = positions[i];
+				const glyph = glyphs[i]!;
+				const pos = positions[i]!;
 				let x = `${glyph.id}`;
 				if (pos.xOffset || pos.yOffset) {
 					x += `@${pos.xOffset},${pos.yOffset}`;
@@ -27,14 +34,12 @@ describe('shaping', () => {
 				res.push(x);
 			}
 
-			return assert.equal(res.join('|'), output);
+			expect(res.join('|')).toBe(output);
 		});
 	};
 
 	describe('general shaping tests', () => {
-		const font = fontkit.openSync(
-			`${import.meta.dirname}/data/amiri/amiri-regular.ttf`,
-		);
+		const font = fontkit.openSync(`${datadir}/amiri/amiri-regular.ttf`);
 
 		it('should use correct script and language when features are not specified', () => {
 			const { glyphs } = font.layout('۴', 'arab', 'URD');
@@ -117,7 +122,7 @@ describe('shaping', () => {
 
 	describe('hangul shaper', () => {
 		const font = fontkit.openSync(
-			`${import.meta.dirname}/data/NotoSansCJK/NotoSansCJKkr-Regular.otf`,
+			`${datadir}/NotoSansCJK/NotoSansCJKkr-Regular.otf`,
 		);
 
 		it('should use composed versions if supported by the font', () => {

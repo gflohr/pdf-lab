@@ -8,7 +8,7 @@ const Offset = {
 		// This doesn't seem to be documented by Apple, but it
 		// is implemented this way in Freetype.
 		return parent.flags ? stream.readUInt32BE() : stream.readUInt16BE() * 2;
-	}
+	},
 };
 
 const gvar = new r.Struct({

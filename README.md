@@ -15,9 +15,9 @@ to the Cantoo fork of [pdf-lib](https://github.com/cantoo-scribe/pdf-lib).
 	- [Description](#description)
 	- [Current State](#current-state)
 		- [Text Extraction](#text-extraction)
+		- [`fontkit` Replacement](#fontkit-replacement)
 	- [Limitations and Caveats](#limitations-and-caveats)
 		- [CJK Scripts](#cjk-scripts)
-		- [Encoding Differences are Not Supported](#encoding-differences-are-not-supported)
 
 ## Description
 
@@ -45,13 +45,25 @@ cd apps/cli
 pnpm start:dev text PATH_TO_PDF
 ```
 
+### `fontkit` Replacement
+
+The package [`@pdf-lib/fontkit`](https://www.npmjs.com/package/@pdf-lib/fontkit)
+is unmaintained and known to have bugs that prevent font embedding from
+working reliably. However, short of other options, it is the `fontkit`
+implementation recommended by
+[`pdf-lib`](https://www.npmjs.com/package/pdf-lib) and its actively maintained
+fork [`@cantoo/pdf-lib`](https://www.npmjs.com/package/@cantoo/pdf-lib).
+
+This project contains a drop-in replacement for `@pdf-lib/fontkit`, see its
+[README](./packages/fontkit/README.md). The replacement aims at fixing the
+known bugs in the existing implementation. It will probably be available as
+`@pdf-lab/fontkit`.
+
 ## Limitations and Caveats
 
 ### CJK Scripts
 
-Documents that use CJK scripts will probably not work.
+Documents that use CJK scripts will probably not work. If they do not work,
+please provide at least one example file that reproduces the issue.
 
-### Encoding Differences are Not Supported
-
-The PDF specification allows referencing a base encoding and patching it.
-Implementing support for this requires test documents that use the feature.
+If they work, the author is grateful to hear from you about it.
