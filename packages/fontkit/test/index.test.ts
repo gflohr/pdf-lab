@@ -13,7 +13,7 @@ describe('fontkit', () => {
 
 	it('should open a font synchronously', () => {
 		const font = fontkit.openSync(`${datadir}/OpenSans/OpenSans-Regular.ttf`);
-		return expect(font.constructor.name).toBe('TTFFont');
+		expect(font.constructor.name).toBe('TTFFont');
 	});
 
 	describe('formats', () => {
