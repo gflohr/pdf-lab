@@ -2,14 +2,30 @@ import assert from 'node:assert';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import r from '@pdf-lib/restructure';
-import concat from 'concat-stream';
 import { describe, expect, it } from 'vitest';
 import CFFFont from '../cff/CFFFont.js';
 import CFFGlyph from '../glyph/CFFGlyph.js';
 import fontkit from '../test-helpers.js';
 import type { Font } from '../types/font.js';
+import type { Subset, SubsetStream } from '../types/subset.js';
 
 const datadir = path.resolve(import.meta.dirname, '../../test-data');
+
+async function readSubsetStream(stream: SubsetStream): Promise<Buffer<ArrayBuffer>> {
+	const chunks: Buffer[] = [];
+	for await (const chunk of stream) {
+		chunks.push(Buffer.from(chunk));
+	}
+
+	return Buffer.concat(chunks);
+}
+
+async function getSubsetFont(subset: Subset): Promise<Font> {
+	const stream = subset.encodeStream();
+	const buf = await readSubsetStream(stream);
+
+	return fontkit.create(buf) as Font;
+}
 
 describe('font subsetting', () => {
 	describe('truetype subsetting', () => {
@@ -28,23 +44,7 @@ describe('font subsetting', () => {
 				subset.includeGlyph(glyph);
 			}
 
-			const stream = subset.encodeStream();
-
-			// FIXME! This can probably be simplified into something like:
-			// const chunks: Buffer[] = [];
-			//
-			// for await (const chunk of stream as any) {
-			// 	chunks.push(Buffer.from(chunk));
-			// }
-			//
-			// const buf = Buffer.concat(chunks);
-
-			const buf = await new Promise<Buffer>((resolve, reject) => {
-				stream.on('error', reject);
-				stream.pipe(concat((data) => resolve(data)));
-			});
-
-			const f = fontkit.create(buf) as Font;
+			const f = await getSubsetFont(subset);
 
 			expect(f.numGlyphs).toBe(5);
 
@@ -61,14 +61,7 @@ describe('font subsetting', () => {
 				subset.includeGlyph(glyph);
 			}
 
-			const stream = subset.encodeStream();
-
-			const buf = await new Promise<Buffer>((resolve, reject) => {
-				stream.on('error', reject);
-				stream.pipe(concat((data) => resolve(data)));
-			});
-
-			const f = fontkit.create(buf) as Font;
+			const f = await getSubsetFont(subset);
 
 			expect(f.getGlyph(1).path.toSVG()).toBe(font.glyphsForString('e')[0]!.path.toSVG());
 		});
@@ -77,14 +70,8 @@ describe('font subsetting', () => {
 			const subset = font.createSubset();
 			subset.includeGlyph(font.glyphsForString('é')[0]!);
 
-			const stream = subset.encodeStream();
+			const f = await getSubsetFont(subset);
 
-			const buf = await new Promise<Buffer>((resolve, reject) => {
-				stream.on('error', reject);
-				stream.pipe(concat((data) => resolve(data)));
-			});
-
-			const f = fontkit.create(buf) as Font;
 			expect(f.numGlyphs).toBe(4);
 			expect(f.getGlyph(1).path.toSVG()).toBe(font.glyphsForString('é')[0]!.path.toSVG());
 		});
@@ -109,17 +96,8 @@ describe('font subsetting', () => {
 				subset.includeGlyph(glyph);
 			}
 
-			const buf = await new Promise<Buffer>((resolve, reject) => {
-				const stream = subset.encodeStream();
-
-				stream.on('error', reject);
-
-				stream.pipe(
-					concat((data) => {
-						resolve(data);
-					}),
-				);
-			});
+			const subsetStream = subset.encodeStream();
+			const buf = await readSubsetStream(subsetStream);
 
 			const stream = new r.DecodeStream(buf);
 			const cff = new CFFFont(stream);
@@ -141,17 +119,8 @@ describe('font subsetting', () => {
 				subset.includeGlyph(glyph);
 			}
 
-			const buf = await new Promise<Buffer>((resolve, reject) => {
-				const stream = subset.encodeStream();
-
-				stream.on('error', reject);
-
-				stream.pipe(
-					concat((data) => {
-						resolve(data);
-					}),
-				);
-			});
+			const subsetStream = subset.encodeStream();
+			const buf = await readSubsetStream(subsetStream);
 
 			const stream = new r.DecodeStream(buf);
 			const cff = new CFFFont(stream);

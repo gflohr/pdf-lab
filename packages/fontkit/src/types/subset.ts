@@ -1,6 +1,6 @@
 import type { Glyph } from './glyph.js';
 
-export interface SubsetStream {
+export interface SubsetStream extends AsyncIterable<Uint8Array> {
 	on: (
 		eventType: 'data' | 'end' | 'error',
 		// biome-ignore lint/suspicious/noExplicitAny: backwards compatibility.
