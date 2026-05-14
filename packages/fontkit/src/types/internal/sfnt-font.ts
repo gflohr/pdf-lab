@@ -14,7 +14,7 @@ interface SFNTDirectory {
 	tables: Record<string, unknown>;
 }
 
-// FiXME! The base class for all fonts in fontkit is TTFFont. The interface
+// FIXME! The base class for all fonts in fontkit is TTFFont. The interface
 // will probably be renamed to TTFFont, and the extension added here should
 // maybe go into the official API.
 export interface SFNTFont extends Font {
