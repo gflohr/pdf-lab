@@ -1,7 +1,6 @@
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import BBox from '../src/glyph/BBox.js';
-import type { SFNTFont } from '../src/types/internal/sfnt-font.js';
 import fontkit from './helpers.js';
 
 const datadir = path.resolve(import.meta.dirname, './data');
@@ -10,7 +9,7 @@ describe('Font metadata', () => {
 	const font = fontkit.openSync(
 		`${datadir}/NotoSans/NotoSans.ttc`,
 		'NotoSans',
-	) as SFNTFont;
+	);
 
 	it('has metadata properties', () => {
 		expect(font.fullName).toBe('Noto Sans');

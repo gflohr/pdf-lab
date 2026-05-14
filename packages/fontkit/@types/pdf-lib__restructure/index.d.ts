@@ -1,6 +1,11 @@
 declare module '@pdf-lib/restructure' {
+	type InferStruct<TFields> = {
+	[K in keyof TFields]:
+		TFields[K] extends Field<infer TValue>
+			? TValue
+			: never;
+	};
 	export interface Field<T = unknown> {
-		// marker interface
 	}
 
 	export class DecodeStream {
@@ -12,12 +17,14 @@ declare module '@pdf-lib/restructure' {
 		readUInt32BE(): number;
 	}
 
-	export class Struct<T = unknown> {
-		constructor(fields: Record<string, unknown>);
+	export class Struct<TFields extends Record<string, Field>>
+		implements Field<InferStruct<TFields>> {
+		constructor(fields: TFields);
 	}
 
-	export class VersionedStruct<T = unknown> {
-		constructor(version: number, fields: Record<string, unknown>);
+	export class VersionedStruct<TFields extends Record<string, Field>>
+		implements Field<InferStruct<TFields>> {
+		constructor(version: number, fields: TFields);
 	}
 
 	export class Reserved {
