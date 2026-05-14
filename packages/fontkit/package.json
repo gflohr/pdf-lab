@@ -55,7 +55,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git://github.com/Hopding/fontkit.git"
+		"url": "git://github.com/gflohr/pdf-lab.git"
 	},
 	"keywords": [
 		"opentype",
