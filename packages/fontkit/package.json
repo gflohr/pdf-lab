@@ -16,7 +16,7 @@
 		"check:fix": "biome check --write",
 		"prepublishOnly": "pnpm run build",
 		"test": "vitest --run",
-		"test:changed": "vitest --changedSince origin/main --passWithNoTests",
+		"test:changed": "vitest --changed origin/main --passWithNoTests",
 		"test:watch": "vitest",
 		"test:cov": "vitest --coverage.enabled --run",
 		"test:cov-changed": "vitest --coverage.enabled --run --changed origin/main --passWithNoTests"
