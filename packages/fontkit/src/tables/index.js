@@ -4,8 +4,8 @@ export default tables;
 
 // Required Tables
 import cmap from './cmap.js';
-import head from './head';
-import hhea from './hhea';
+import head from './head.js';
+import hhea from './hhea.js';
 import hmtx from './hmtx.js';
 import maxp from './maxp.js';
 import name from './name.js';

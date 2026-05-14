@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/suspicious/noExplicitAny: this file models a highly dynamic runtime parsing DSL. */
 declare module '@pdf-lib/restructure' {
 	type InferStruct<TFields> = {
 		[K in keyof TFields]: TFields[K] extends Field<infer TValue>
@@ -18,22 +19,27 @@ declare module '@pdf-lib/restructure' {
 		readUInt32BE(): number;
 	}
 
-	export class Struct<TFields extends Record<string, Field>>
+	export type LengthResolver = (context: any) => number;
+
+	type StructFields = {
+		[key: string]: Field<any> | StructFields;
+	};
+	export class Struct<TFields extends StructFields>
 		implements Field<InferStruct<TFields>>
 	{
 		constructor(fields: TFields);
 	}
 
-	export class VersionedStruct<TFields extends Record<string, Field>>
+	export class VersionedStruct<TFields extends StructFields>
 		implements Field<InferStruct<TFields>>
 	{
-		constructor(version: number, fields: TFields);
+		constructor(version: Field<number>, fields: TFields);
 	}
 
-	export class FixedSizeArray<TField extends Field<any>>
+	export class FieldArray<TField extends Field<any>>
 		implements Field<TField extends Field<infer T> ? T[] : never>
 	{
-		constructor(field: TField, length: number);
+		constructor(field: TField, length?: number | string | LengthResolver);
 	}
 
 	export class Bitfield<const T extends readonly string[]>
@@ -46,12 +52,17 @@ declare module '@pdf-lib/restructure' {
 		constructor(type: unknown, count: number);
 	}
 
+	export class RString implements Field<string> {
+		constructor(type: Field<number>);
+	}
+
 	export interface RestructureStatic {
 		Struct: typeof Struct;
 		VersionedStruct: typeof VersionedStruct;
 		Reserved: typeof Reserved;
-		Array: typeof FixedSizeArray;
+		Array: typeof FieldArray;
 		Bitfield: typeof Bitfield;
+		String: typeof RString;
 
 		int8: Field<number>;
 		uint8: Field<number>;
@@ -61,6 +72,7 @@ declare module '@pdf-lib/restructure' {
 		uint32: Field<number>;
 		float: Field<number>;
 		double: Field<number>;
+		fixed32: Field<number>;
 	}
 
 	const r: RestructureStatic;
