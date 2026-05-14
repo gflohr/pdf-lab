@@ -20,7 +20,7 @@ interface SFNTDirectory {
 export interface SFNTFont extends Font {
 	directory: SFNTDirectory;
 	hhea: HheaTable;
-	variationAxes(): VariationAxes;
+	variationAxes: VariationAxes;
 	namedVariations(): NamedVariations;
 	/** Throws, if the necessary tables are absent in the font. */
 	getVariation(settings: string | VariationCoordinates): SFNTFont;
