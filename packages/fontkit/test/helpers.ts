@@ -35,7 +35,7 @@ typedFontkit.open = async (
 ): Promise<Font> => {
 	const fontBytes = await fs.readFile(filename);
 
-	return await fontkit.create(fontBytes, postScriptName);
+	return fontkit.create(fontBytes, postScriptName);
 };
 
 export default typedFontkit;
