@@ -11,7 +11,9 @@ import type { Subset, SubsetStream } from '../types/subset.js';
 
 const datadir = path.resolve(import.meta.dirname, '../../test-data');
 
-async function readSubsetStream(stream: SubsetStream): Promise<Buffer<ArrayBuffer>> {
+async function readSubsetStream(
+	stream: SubsetStream,
+): Promise<Buffer<ArrayBuffer>> {
 	const chunks: Buffer[] = [];
 	for await (const chunk of stream) {
 		chunks.push(Buffer.from(chunk));
@@ -29,9 +31,7 @@ async function getSubsetFont(subset: Subset): Promise<Font> {
 
 describe('font subsetting', () => {
 	describe('truetype subsetting', () => {
-		const font = fontkit.openSync(
-			`${datadir}/OpenSans/OpenSans-Regular.ttf`,
-		);
+		const font = fontkit.openSync(`${datadir}/OpenSans/OpenSans-Regular.ttf`);
 
 		it('should create a TTFSubset instance', () => {
 			const subset = font.createSubset();
@@ -48,14 +48,19 @@ describe('font subsetting', () => {
 
 			expect(f.numGlyphs).toBe(5);
 
-			expect(f.getGlyph(1).path.toSVG()).toBe(font.glyphsForString('h')[0]!.path.toSVG());
+			expect(f.getGlyph(1).path.toSVG()).toBe(
+				font.glyphsForString('h')[0]!.path.toSVG(),
+			);
 		});
 
 		it('should re-encode variation glyphs', async () => {
 			// FIXME! This can only work on macOS.
 			if (!fs.existsSync('/System/Library/Fonts/Supplemental/Skia.ttf')) return;
 
-			const font = fontkit.openSync('/System/Library/Fonts/Supplemental/Skia.ttf', 'Bold');
+			const font = fontkit.openSync(
+				'/System/Library/Fonts/Supplemental/Skia.ttf',
+				'Bold',
+			);
 			const subset = font.createSubset();
 			for (const glyph of font.glyphsForString('e')) {
 				subset.includeGlyph(glyph);
@@ -63,7 +68,9 @@ describe('font subsetting', () => {
 
 			const f = await getSubsetFont(subset);
 
-			expect(f.getGlyph(1).path.toSVG()).toBe(font.glyphsForString('e')[0]!.path.toSVG());
+			expect(f.getGlyph(1).path.toSVG()).toBe(
+				font.glyphsForString('e')[0]!.path.toSVG(),
+			);
 		});
 
 		it('should handle composite glyphs', async () => {
@@ -73,7 +80,9 @@ describe('font subsetting', () => {
 			const f = await getSubsetFont(subset);
 
 			expect(f.numGlyphs).toBe(4);
-			expect(f.getGlyph(1).path.toSVG()).toBe(font.glyphsForString('é')[0]!.path.toSVG());
+			expect(f.getGlyph(1).path.toSVG()).toBe(
+				font.glyphsForString('é')[0]!.path.toSVG(),
+			);
 		});
 	});
 
@@ -103,7 +112,9 @@ describe('font subsetting', () => {
 			const cff = new CFFFont(stream);
 			const glyph = new CFFGlyph(1, [], { stream, 'CFF ': cff });
 
-			expect(glyph.path.toSVG()).toBe(font.glyphsForString('h')[0]!.path.toSVG());
+			expect(glyph.path.toSVG()).toBe(
+				font.glyphsForString('h')[0]!.path.toSVG(),
+			);
 		});
 
 		it('should handle CID fonts', async () => {
@@ -126,9 +137,7 @@ describe('font subsetting', () => {
 			const cff = new CFFFont(stream);
 			const glyph = new CFFGlyph(1, [], { stream, 'CFF ': cff });
 
-			expect(glyph.path.toSVG()).toBe(
-				f.glyphsForString('갈')[0]!.path.toSVG(),
-			);
+			expect(glyph.path.toSVG()).toBe(f.glyphsForString('갈')[0]!.path.toSVG());
 
 			expect(cff.topDict.FDArray.length).toBe(2);
 

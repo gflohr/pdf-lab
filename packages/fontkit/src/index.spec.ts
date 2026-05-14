@@ -12,17 +12,13 @@ describe('fontkit', () => {
 	});
 
 	it('should open a font synchronously', () => {
-		const font = fontkit.openSync(
-			`${datadir}/OpenSans/OpenSans-Regular.ttf`,
-		);
+		const font = fontkit.openSync(`${datadir}/OpenSans/OpenSans-Regular.ttf`);
 		return expect(font.constructor.name).toBe('TTFFont');
 	});
 
 	describe('formats', () => {
 		it('should open a TrueType font', () => {
-			const font = fontkit.openSync(
-				`${datadir}/OpenSans/OpenSans-Regular.ttf`,
-			);
+			const font = fontkit.openSync(`${datadir}/OpenSans/OpenSans-Regular.ttf`);
 			expect(font.constructor.name).toBe('TTFFont');
 		});
 
@@ -34,9 +30,7 @@ describe('fontkit', () => {
 		});
 
 		it('should open a font from a TrueType collection', () => {
-			const font = fontkit.openSync(
-				`${datadir}/NotoSans/NotoSans.ttc`,
-			);
+			const font = fontkit.openSync(`${datadir}/NotoSans/NotoSans.ttc`);
 			expect(font.constructor.name, 'TrueTypeCollection');
 		});
 
@@ -49,9 +43,7 @@ describe('fontkit', () => {
 		});
 
 		it('should open a DataFork TrueType font', () => {
-			const font = fontkit.openSync(
-				`${datadir}/NotoSans/NotoSans.dfont`,
-			);
+			const font = fontkit.openSync(`${datadir}/NotoSans/NotoSans.dfont`);
 			expect(font.constructor.name).toBe('DFont');
 		});
 
@@ -80,20 +72,22 @@ describe('fontkit', () => {
 
 	describe('PostScript name', () => {
 		it('should open fonts lacking PostScript name', () => {
-			const font = fontkit.openSync(
-				`${datadir}/Mada/Mada-Regular.subset1.ttf`,
-			);
+			const font = fontkit.openSync(`${datadir}/Mada/Mada-Regular.subset1.ttf`);
 			expect(font.postscriptName).toBeNull();
 		});
 	});
 
 	describe('error handling', () => {
 		it('should error when opening an invalid font asynchronously', async () => {
-			await expect(fontkit.open(import.meta.filename)).rejects.toThrow('Unknown font format');
+			await expect(fontkit.open(import.meta.filename)).rejects.toThrow(
+				'Unknown font format',
+			);
 		});
 
 		it('should error when opening an invalid font synchronously', () => {
-			expect(() => fontkit.openSync(import.meta.filename)).toThrow('Unknown font format');
+			expect(() => fontkit.openSync(import.meta.filename)).toThrow(
+				'Unknown font format',
+			);
 		});
 	});
 

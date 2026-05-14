@@ -14,18 +14,22 @@ import type { Path } from './path.js';
 export interface Glyph {
 	// Properties
 	id: number /** The glyph's id in the font */;
+
 	/**
 	 * An array of unicode code points that are represented by this glyph. There
 	 * can be multiple code points in the case of ligatures and other glyphs that
 	 * represent multiple visual characters.
 	 */
 	codePoints: number[];
+
 	path: Path /** Vector Path object representing the glyph */;
+
 	/**
 	 * The Glyph’s bounding box, i.e. the rectangle that encloses the glyph
 	 * outline as tightly as possible.
 	 */
 	bbox: BoundingBox;
+
 	/**
 	 * The Glyph’s control box. This is often the same as the bounding box, but is
 	 * faster to compute. Because of the way bezier curves are defined, some of
@@ -35,6 +39,13 @@ export interface Glyph {
 	 */
 	cbox: BoundingBox;
 	advanceWidth: number /** The Glyph's advance width */;
+
+	/**
+	 * The glyph's name, probably from the Adobe glyph list.
+	 *
+	 * FIXME! This is currently not part of the official API!
+	 */
+	name: string;
 
 	// Methods
 	/**

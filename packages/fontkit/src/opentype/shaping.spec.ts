@@ -8,11 +8,14 @@ const datadir = path.resolve(import.meta.dirname, '../../test-data');
 
 describe('shaping', () => {
 	const fontCache: Record<string, Font> = {};
-	const test = (description: string, font: string, text: string, output: string) => {
+	const test = (
+		description: string,
+		font: string,
+		text: string,
+		output: string,
+	) => {
 		it(description, () => {
-			fontCache[font] ||= fontkit.openSync(
-				`${datadir}/${font}`,
-			);
+			fontCache[font] ||= fontkit.openSync(`${datadir}/${font}`);
 			const f = fontCache[font];
 			const { glyphs, positions } = f.layout(text);
 
@@ -36,9 +39,7 @@ describe('shaping', () => {
 	};
 
 	describe('general shaping tests', () => {
-		const font = fontkit.openSync(
-			`${datadir}/amiri/amiri-regular.ttf`,
-		);
+		const font = fontkit.openSync(`${datadir}/amiri/amiri-regular.ttf`);
 
 		it('should use correct script and language when features are not specified', () => {
 			const { glyphs } = font.layout('۴', 'arab', 'URD');
