@@ -16,7 +16,7 @@ describe('character to glyph mapping', () => {
 
 		it('should check if a character is supported', () => {
 			expect(font.hasGlyphForCodePoint('a'.charCodeAt(0))).toBeTruthy();
-			expect(!font.hasGlyphForCodePoint(0)).toBeTruthy();
+			expect(font.hasGlyphForCodePoint(0)).toBeFalsy();
 		});
 
 		it('should get a glyph for a character code', () => {
