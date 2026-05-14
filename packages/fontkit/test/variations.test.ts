@@ -1,10 +1,10 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import fontkit from '../test-helpers.js';
-import type { SFNTFont } from '../types/internal/sfnt-font.js';
+import type { SFNTFont } from '../src/types/internal/sfnt-font.js';
+import fontkit from './helpers.js';
 
-const datadir = path.resolve(import.meta.dirname, '../../test-data');
+const datadir = path.resolve(import.meta.dirname, './data');
 
 describe('variations', () => {
 	describe('Skia', () => {
@@ -20,7 +20,6 @@ describe('variations', () => {
 
 		it('should get available variation axes', () => {
 			const axes = font.variationAxes;
-console.dir(axes);
 			expect(Object.keys(axes)).toStrictEqual(['wght', 'wdth']);
 			expect(axes.wght!.name).toBe('Weight');
 			expect(axes.wdth!.name).toBe('Width');

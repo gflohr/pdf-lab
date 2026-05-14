@@ -1,10 +1,10 @@
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import BBox from './glyph/BBox.js';
-import fontkit from './test-helpers.js';
-import type { SFNTFont } from './types/internal/sfnt-font.js';
+import BBox from '../src/glyph/BBox.js';
+import type { SFNTFont } from '../src/types/internal/sfnt-font.js';
+import fontkit from './helpers.js';
 
-const datadir = path.resolve(import.meta.dirname, '../test-data');
+const datadir = path.resolve(import.meta.dirname, './data');
 
 describe('Font metadata', () => {
 	const font = fontkit.openSync(

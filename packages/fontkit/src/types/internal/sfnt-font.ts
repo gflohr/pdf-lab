@@ -24,4 +24,5 @@ export interface SFNTFont extends Font {
 	namedVariations(): NamedVariations;
 	/** Throws, if the necessary tables are absent in the font. */
 	getVariation(settings: string | VariationCoordinates): SFNTFont;
+	stringsForGlyph(id: number): string[];
 }

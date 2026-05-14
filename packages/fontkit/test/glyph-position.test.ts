@@ -1,8 +1,8 @@
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import fontkit from '../test-helpers.js';
+import fontkit from './helpers.js';
 
-const datadir = path.resolve(import.meta.dirname, '../../test-data');
+const datadir = path.resolve(import.meta.dirname, './data');
 
 describe('glyph positioning', () => {
 	describe('basic positioning', () => {

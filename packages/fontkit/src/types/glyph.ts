@@ -1,6 +1,13 @@
 import type { BoundingBox } from './bounding-box.js';
 import type { Path } from './path.js';
 
+export interface SBIXImage {
+	originX: number;
+	originY: number;
+	type: string;
+	data: Uint8Array;
+}
+
 /**
  * Glyph objects represent a glyph in the font. They have various properties for
  * accessing metrics and the actual vector path the glyph represents, and
@@ -60,8 +67,15 @@ export interface Glyph {
 	 * For SBIX glyphs, which are bitmap based, this returns an object containing
 	 * some properties about the image, along with the image data itself
 	 * (usually PNG).
+	 *
+	 * The underlying byte content is stored in the `data` property.
+	 *
+	 * Note: The original TypeScript declaration for fontkit incorrectly (or
+	 * incompletely) described this return type as `Uint8Array`. This does not
+	 * match the runtime behavior of the SBIX implementation, which returns a
+	 * structured object.
 	 */
-	getImageForSize(size: number): Uint8Array;
+	getImageForSize(size: number): SBIXImage | null;
 
 	/**
 	 * For COLR glyphs, which are vector based, this returns an array of objects
@@ -69,6 +83,15 @@ export interface Glyph {
 	 */
 	// biome-ignore lint/suspicious/noExplicitAny: backwards compatibility.
 	layers: any[];
+
+	/**
+	 * Get the scaled path.
+	 *
+	 * FIXME! Not part of the official API!
+	 *
+	 * @param size the size
+	 */
+	getScaledPath(size: number): Path;
 }
 
 /**

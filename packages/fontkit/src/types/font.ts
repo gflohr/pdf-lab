@@ -81,16 +81,16 @@ export interface Font {
 	layout(
 		text: string,
 		features?: TypeFeatures | (keyof TypeFeatures)[],
-		script?: string,
-		language?: string,
-		direction?: string,
+		script?: string | null,
+		language?: string | null,
+		direction?: string | null,
 	): GlyphRun;
 
 	layout(
 		text: string,
-		script?: string,
-		language?: string,
-		direction?: string,
+		script?: string | null,
+		language?: string | null,
+		direction?: string | null,
 	): GlyphRun;
 
 	// Other Methods

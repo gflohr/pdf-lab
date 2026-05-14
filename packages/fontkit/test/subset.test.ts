@@ -3,13 +3,13 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import r from '@pdf-lib/restructure';
 import { describe, expect, it } from 'vitest';
-import CFFFont from '../cff/CFFFont.js';
-import CFFGlyph from '../glyph/CFFGlyph.js';
-import fontkit from '../test-helpers.js';
-import type { Font } from '../types/font.js';
-import type { Subset, SubsetStream } from '../types/subset.js';
+import CFFFont from '../src/cff/CFFFont.js';
+import CFFGlyph from '../src/glyph/CFFGlyph.js';
+import type { Font } from '../src/types/font.js';
+import type { Subset, SubsetStream } from '../src/types/subset.js';
+import fontkit from './helpers.js';
 
-const datadir = path.resolve(import.meta.dirname, '../../test-data');
+const datadir = path.resolve(import.meta.dirname, './data');
 
 async function readSubsetStream(
 	stream: SubsetStream,

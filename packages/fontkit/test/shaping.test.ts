@@ -1,10 +1,10 @@
 import assert from 'node:assert';
 import * as path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import fontkit from '../test-helpers.js';
-import type { Font } from '../types/font.js';
+import type { Font } from '../src/types/font.js';
+import fontkit from './helpers.js';
 
-const datadir = path.resolve(import.meta.dirname, '../../test-data');
+const datadir = path.resolve(import.meta.dirname, './data');
 
 describe('shaping', () => {
 	const fontCache: Record<string, Font> = {};

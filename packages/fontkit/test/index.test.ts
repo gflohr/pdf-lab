@@ -1,9 +1,9 @@
 import * as path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import fontkit from './test-helpers.js';
-import type { TrueTypeCollection } from './types/internal/true-type-collection.js';
+import type { TrueTypeCollection } from '../src/types/internal/true-type-collection.js';
+import fontkit from './helpers.js';
 
-const datadir = path.resolve(import.meta.dirname, '../test-data');
+const datadir = path.resolve(import.meta.dirname, './data');
 
 describe('fontkit', () => {
 	it('should open a font asynchronously', async () => {
