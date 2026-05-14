@@ -7,7 +7,7 @@ export interface HheaTable {
 	descent: number /** The distance from baseline of lowest descender. */;
 	lineGap: number /** the typographic line gap. */;
 	advanceWidthMax: number /** The maximum advance width value in 'hmtx' table. */;
-	minLeftSideBearing: number /** The maximum advance width value in 'hmtx' table. */;
+	minLeftSideBearing: number /** /** The minimum left sidebearing value. */
 	minRightSideBearing: number /** The minimum right sidebearing value. */;
 	xMaxExtent: number;
 	caretSlopeRise: number /** Used to calculate the slope of the cursor (rise/run) 1 for vertical. */;
