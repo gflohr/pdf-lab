@@ -6,6 +6,7 @@ to make font processing available to the JavaScript/TypeScript eco system.
 - [`@pdf-lab/fontkit`](#pdf-labfontkit)
 	- [Why Another Fork?](#why-another-fork)
 	- [State and Plans](#state-and-plans)
+	- [Relationship to Upstream](#relationship-to-upstream)
 	- [Original README for `@pdf-lib/fontkit`](#original-readme-for-pdf-libfontkit)
 		- [`fontkit`](#fontkit)
 			- [Features](#features)
@@ -84,6 +85,11 @@ Todo:
 Please do not expect any new bugs to be fixed here, unless you provide a patch.
 I do not have any expertise in font processing, and will not be able to fix
 such bugs.
+
+## Relationship to Upstream
+
+The intention of this project is not to replace or supersede the original work,
+but to ensure continuity where upstream maintenance has slowed.
 
 ## Original README for `@pdf-lib/fontkit`
 

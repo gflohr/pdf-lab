@@ -26,9 +26,12 @@ declare module '@pdf-lib/restructure' {
 
 	export type LengthResolver = (context: any) => number;
 
+	export type PathRef = string;
+
 	type StructFields = {
 		[key: string]: Field<any> | StructFields | ((context: any) => any);
 	};
+
 	export class Struct<TFields extends StructFields>
 		implements Field<InferStruct<TFields>>
 	{
@@ -40,9 +43,11 @@ declare module '@pdf-lib/restructure' {
 	{
 		readonly __type: InferStruct<TFields>;
 
-		constructor(version: Field<number>, fields: TFields);
+		constructor(version: Field<number> | PathRef, fields: TFields);
 
 		versions: Record<number, TFields>;
+
+		[key: string]: any; // Make it augmentable.
 	}
 
 	export class FieldArray<TField extends Field<any>>
