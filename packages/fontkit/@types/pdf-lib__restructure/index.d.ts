@@ -33,7 +33,11 @@ declare module '@pdf-lib/restructure' {
 	export class VersionedStruct<TFields extends StructFields>
 		implements Field<InferStruct<TFields>>
 	{
+		readonly __type: InferStruct<TFields>;
+
 		constructor(version: Field<number>, fields: TFields);
+
+		versions: Record<number, TFields>;
 	}
 
 	export class FieldArray<TField extends Field<any>>
@@ -42,8 +46,8 @@ declare module '@pdf-lib/restructure' {
 		constructor(field: TField, length?: number | string | LengthResolver);
 	}
 
-	export class Bitfield<const T extends readonly string[]>
-		implements Field<Record<T[number], boolean>>
+	export class Bitfield<const T extends readonly (string | null)[]>
+		implements Field<Exclude<T[number], boolean>>
 	{
 		constructor(field: Field<number>, names: T);
 	}
@@ -53,7 +57,7 @@ declare module '@pdf-lib/restructure' {
 	}
 
 	export class RString implements Field<string> {
-		constructor(type: Field<number>);
+		constructor(length: number | Field<number>);
 	}
 
 	export interface RestructureStatic {
