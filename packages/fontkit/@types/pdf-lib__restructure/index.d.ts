@@ -126,6 +126,8 @@ declare module '@pdf-lib/restructure' {
 	{
 		readonly __type?: InferVersionedStruct<TVersions>;
 
+		versions: TVersions;
+
 		// versionField can be a string (pointing to a parent key) or a Field (like uint16)
 		constructor(versionField: string | FieldT<number>, versions: TVersions);
 
