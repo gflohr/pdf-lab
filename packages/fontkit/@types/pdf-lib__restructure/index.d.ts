@@ -24,10 +24,8 @@ declare module '@pdf-lib/restructure' {
 		encode(stream: DecodeStream, val: T): void;
 	}
 
-	export type LengthResolver = (parent?: FieldT<unknown>) => number;
-
-	export type Length = number | string | LengthResolver;
-
+	export type LengthResolver<T = any> = (t: T) => number;
+	export type Length = number | string | LengthResolver<any> | NumberT;
 	export class NumberT implements FieldT<number> {
 		readonly __type?: number;
 
@@ -52,8 +50,12 @@ declare module '@pdf-lib/restructure' {
 		encode(stream: DecodeStream, value: string, parent?: FieldT<unknown>): void;
 	}
 
-	type InferField<T> = T extends FieldT<infer TValue> ? TValue : never;
-
+	type InferField<T> =
+		T extends FieldT<infer TValue>
+			? TValue
+			: T extends (...args: any[]) => infer R
+				? R
+				: never;
 	export class ArrayT<TField extends FieldT<unknown>>
 		implements FieldT<InferField<TField>[]>
 	{
@@ -82,12 +84,15 @@ declare module '@pdf-lib/restructure' {
 		encode(stream: DecodeStream, value: InferField<TField>[]): void;
 	}
 
-	type StructFields = Record<string, FieldT<any>>;
+	export type ComputedField<TStruct> = (t: TStruct) => any;
+
+	export type StructFields<TStruct = any> = {
+		[K in keyof TStruct]: FieldT<any> | ComputedField<TStruct>;
+	};
 
 	type InferStruct<TFields extends StructFields> = {
 		[K in keyof TFields]: InferField<TFields[K]>;
 	};
-
 	export class StructT<TFields extends StructFields>
 		implements FieldT<InferStruct<TFields>>
 	{
@@ -110,36 +115,28 @@ declare module '@pdf-lib/restructure' {
 		): void;
 	}
 
-	export class VersionedStructT<
-		TVersions extends Record<string, StructFields>
-	> implements FieldT<
-		{
-			[K in keyof TVersions & string]:
-				{ version: K } & InferStruct<TVersions[K]>
-		}[keyof TVersions & string]
-	> {
-		readonly __type?: {
-			[K in keyof TVersions & string]:
-				{ version: K } & InferStruct<TVersions[K]>
-		}[keyof TVersions & string];
+	export type InferVersionedStruct<
+		TVersions extends Record<string, StructFields>,
+	> = {
+		[K in keyof TVersions & string]: { version: K } & InferStruct<TVersions[K]>;
+	}[keyof TVersions & string];
 
-		constructor(
-			type: string | FieldT<number>,
-			versions: TVersions
-		);
+	export class VersionedStructT<TVersions extends Record<string, any>>
+		implements FieldT<InferVersionedStruct<TVersions>>
+	{
+		readonly __type?: InferVersionedStruct<TVersions>;
 
-		decode(
+		// versionField can be a string (pointing to a parent key) or a Field (like uint16)
+		constructor(versionField: string | FieldT<number>, versions: TVersions);
+
+		decode(stream: DecodeStream, parent?: any): InferVersionedStruct<TVersions>;
+		size(value?: InferVersionedStruct<TVersions>, parent?: any): number;
+
+		encode(
 			stream: DecodeStream,
+			value: InferVersionedStruct<TVersions>,
 			parent?: any,
-			length?: number
-		): {
-			[K in keyof TVersions & string]:
-				{ version: K } & InferStruct<TVersions[K]>
-		}[keyof TVersions & string];
-
-		size(value?: any, parent?: any): number;
-
-		encode(stream: DecodeStream, value: this['__type'], parent?: unknown): void;
+		): void;
 	}
 
 	type BitfieldResult<T extends readonly (string | null)[]> = {
@@ -158,14 +155,12 @@ declare module '@pdf-lib/restructure' {
 		encode(stream: DecodeStream, value: BitfieldResult<TFlags>): void;
 	}
 
-	export class PointerT<
-		TField extends FieldT<any>
-	> implements FieldT<
-		| InferField<TField>
-		| number
-		| null
-		| { get: () => InferField<TField> }
-	> {
+	export class PointerT<TField extends FieldT<any>>
+		implements
+			FieldT<
+				InferField<TField> | number | null | { get: () => InferField<TField> }
+			>
+	{
 		constructor(
 			offsetType: FieldT<number>,
 			type: TField | 'void',
@@ -175,17 +170,13 @@ declare module '@pdf-lib/restructure' {
 				nullValue?: number;
 				lazy?: boolean;
 				relativeTo?: string;
-			}
+			},
 		);
 
 		decode(
 			stream: DecodeStream,
-			ctx?: unknown
-		):
-			| InferField<TField>
-			| number
-			| null
-			| { get: () => InferField<TField> };
+			ctx?: unknown,
+		): InferField<TField> | number | null | { get: () => InferField<TField> };
 
 		size(value?: unknown, ctx?: unknown): number;
 
@@ -193,20 +184,14 @@ declare module '@pdf-lib/restructure' {
 	}
 
 	export class VoidPointer<T = any> {
-		constructor(
-			type: FieldT<T>,
-			value: T
-		);
+		constructor(type: FieldT<T>, value: T);
 
 		type: FieldT<T>;
 		value: T;
 	}
 
 	export class ReservedT implements FieldT<void> {
-		constructor(
-			type: FieldT<any>,
-			count?: number | string | LengthResolver
-		);
+		constructor(type: FieldT<any>, count?: number | string | LengthResolver);
 
 		decode(stream: DecodeStream, parent?: any): undefined;
 
