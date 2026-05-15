@@ -62,8 +62,12 @@ declare module '@pdf-lib/restructure' {
 		constructor(field: TField, length?: number | string | LengthResolver | Field<number>);
 	}
 
+	export type BitfieldResult<T extends readonly (string | null)[]> = {
+		[K in Exclude<T[number], null>]: boolean;
+	};
+
 	export class Bitfield<const T extends readonly (string | null)[]>
-		implements Field<Exclude<T[number], boolean>>
+		implements Field<BitfieldResult<T>>
 	{
 		constructor(field: Field<number>, names: T);
 	}

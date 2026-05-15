@@ -38,7 +38,7 @@ typedFontkit.openSync = (
 typedFontkit.open = async (
 	filename: string,
 	postScriptName?: string | null | OpenCallback,
-): Promise<Font> => {
+): Promise<SFNTFont> => {
 	const fontBytes = await fs.readFile(filename);
 
 	return fontkit.create(fontBytes, postScriptName);
