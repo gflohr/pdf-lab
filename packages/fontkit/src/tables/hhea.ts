@@ -20,7 +20,6 @@ export interface HheaTable {
 	caretSlopeRise: number /** Used to calculate the slope of the cursor (rise/run) 1 for vertical. */;
 	caretSlopeRun: number /** 0 for vertical. */;
 	caretOffset: number /** Set to 0 for non-slanted fonts. */;
-	reserved: [number, number, number, number] /** Reserved for future use. */;
 	metricDataFormat: number /** 0 for current format. */;
 	numberOfMetrics: number /** Number of advance widths in 'hmtx' table. */;
 }
