@@ -139,6 +139,9 @@ declare module '@pdf-lib/restructure' {
 			value: InferVersionedStruct<TVersions>,
 			parent?: any,
 		): void;
+
+		process?: (this: any, stream: DecodeStream) => void;
+		preEncode?: (this: any, stream: DecodeStream) => void;
 	}
 
 	type BitfieldResult<T extends readonly (string | null)[]> = {
