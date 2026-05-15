@@ -7,7 +7,7 @@ export interface HheaTable {
 	version: number /** The version. */;
 	ascent: number /** The distance from baseline of highest ascender. */;
 	descent: number /** The distance from baseline of lowest descender. */;
-	lineGap: number /** the typographic line gap. */;
+	lineGap: number /** The typographic line gap. */;
 	advanceWidthMax: number /** The maximum advance width value in 'hmtx' table. */;
 	minLeftSideBearing: number /** The minimum left sidebearing value. */;
 	minRightSideBearing: number /** The minimum right sidebearing value. */;

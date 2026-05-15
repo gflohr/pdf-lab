@@ -9,9 +9,6 @@ to make font processing available to the JavaScript/TypeScript eco system.
 	- [State and Plans](#state-and-plans)
 	- [Relationship to Upstream](#relationship-to-upstream)
 	- [Naming](#naming)
-	- [State and Plans](#state-and-plans-1)
-	- [Relationship to Upstream](#relationship-to-upstream-1)
-	- [Naming](#naming-1)
 	- [Original README for `@pdf-lib/fontkit`](#original-readme-for-pdf-libfontkit)
 		- [`fontkit`](#fontkit)
 			- [Features](#features)
@@ -132,35 +129,6 @@ To avoid confusion with upstream packages, this fork is published under a
 distinct namespace (`@pdf-lab/*`). Unfortunately, this is only a one-character
 difference from the original upstream naming, which was not intentional. For
 lack of a better alternative, the naming is kept as-is for now.
-
-## State and Plans
-
-Done:
-
-* update code base to meet today's coding standards
-* update all dependencies to latest
-* get rid of Babel transformations
-
-Todo:
-
-* incorporate all known bug fixes from the other `fontkit` forks
-* migrate code base to TypeScript
-
-Please do not expect any new bugs to be fixed here, unless you provide a patch.
-I do not have any expertise in font processing, and will not be able to fix
-such bugs.
-
-## Relationship to Upstream
-
-The intention of this project is not to replace or supersede the original work,
-but to ensure continuity where upstream maintenance has slowed.
-
-## Naming
-
-To avoid confusion with upstream packages, this fork is published under a
-distinct namespace (@pdf-lab/*). Unfortunately, this is only a one-character
-difference from the original upstream naming, which was not intentional.
-For lack of a better alternative, the naming is kept as-is for now.
 
 ## Original README for `@pdf-lib/fontkit`
 
