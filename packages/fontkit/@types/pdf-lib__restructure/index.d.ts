@@ -221,6 +221,18 @@ declare module '@pdf-lib/restructure' {
 		encode(stream: DecodeStream, value: undefined, parent?: any): void;
 	}
 
+	export class BufferT implements FieldT<number> {
+		readonly __type?: number;
+
+		constructor(length: Length);
+
+		size(value?: FieldT<unknown>): number;
+
+		decode(stream: DecodeStream): number;
+
+		encode(stream: DecodeStream, val: number): void;
+	}
+
 	export interface RestructureStatic {
 		Number: typeof NumberT;
 		Fixed: typeof FixedT;
@@ -233,6 +245,7 @@ declare module '@pdf-lib/restructure' {
 		Pointer: typeof PointerT;
 		VoidPointer: typeof VoidPointerT;
 		Reserved: typeof ReservedT;
+		Buffer: typeof BufferT;
 
 		int8: NumberT;
 		uint8: NumberT;
