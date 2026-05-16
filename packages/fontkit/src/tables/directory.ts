@@ -1,4 +1,4 @@
-import r from '@pdf-lib/restructure';
+import r, { FieldT, StructT } from '@pdf-lib/restructure';
 import Tables from './index.js';
 
 const TableEntry = new r.Struct({
@@ -18,7 +18,7 @@ const Directory = new r.Struct({
 });
 
 Directory.process = function () {
-	const tables = {};
+	const tables: Record<string, unknown> = {};
 	for (const table of this.tables) {
 		tables[table.tag] = table;
 	}
@@ -34,8 +34,8 @@ Directory.preEncode = function () {
 			tables.push({
 				tag: tag,
 				checkSum: 0,
-				offset: new r.VoidPointer(Tables[tag], table),
-				length: Tables[tag].size(table),
+				offset: new r.VoidPointer(Tables[tag] as FieldT<any>, table),
+				length: (Tables[tag] as StructT<any>).size(table),
 			});
 		}
 	}

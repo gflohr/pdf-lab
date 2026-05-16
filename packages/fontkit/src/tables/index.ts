@@ -1,5 +1,8 @@
 /** biome-ignore-all lint/correctness/useImportExtensions: revert later */
-const tables = {};
+import type { ArrayT, StructT, VersionedStructT } from '@pdf-lib/restructure';
+
+const tables: Record<string, StructT<any> | VersionedStructT<any> | ArrayT<any> | typeof CFFFont> = {};
+
 export default tables;
 
 // Required Tables

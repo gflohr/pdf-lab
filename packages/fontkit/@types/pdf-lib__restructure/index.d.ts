@@ -126,6 +126,9 @@ declare module '@pdf-lib/restructure' {
 			value: InferStruct<TFields>,
 			parent?: FieldT<unknown>,
 		): void;
+
+		process?: (this: any, stream: DecodeStream) => void;
+		preEncode?: (this: any, stream: DecodeStream) => void;
 	}
 
 	export type InferVersionedStruct<
@@ -201,7 +204,7 @@ declare module '@pdf-lib/restructure' {
 		encode(stream: DecodeStream, value: unknown, ctx?: unknown): void;
 	}
 
-	export class VoidPointer<T = any> {
+	export class VoidPointerT<T = any> {
 		constructor(type: FieldT<T>, value: T);
 
 		type: FieldT<T>;
@@ -228,6 +231,7 @@ declare module '@pdf-lib/restructure' {
 		VersionedStruct: typeof VersionedStructT;
 		Bitfield: typeof BitfieldT;
 		Pointer: typeof PointerT;
+		VoidPointer: typeof VoidPointerT;
 		Reserved: typeof ReservedT;
 
 		int8: NumberT;
