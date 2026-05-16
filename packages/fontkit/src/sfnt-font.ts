@@ -1,5 +1,4 @@
 import type { Font } from './font.js';
-import type { HheaTable } from './tables/hhea.js';
 import type {
 	NamedVariations,
 	VariationAxes,
@@ -47,7 +46,7 @@ export interface SFNTFont extends Font {
 	/**
 	 * Horizontal header metrics (hhea table).
 	 */
-	readonly hhea: HheaTable;
+	readonly hhea: Record<string, unknown>;
 
 	/**
 	 * Variable font axes (if present in the font).
