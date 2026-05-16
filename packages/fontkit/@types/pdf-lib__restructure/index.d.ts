@@ -26,10 +26,23 @@ declare module '@pdf-lib/restructure' {
 
 	export type LengthResolver<T = any> = (t: T) => number;
 	export type Length = number | string | LengthResolver<any> | NumberT;
+
 	export class NumberT implements FieldT<number> {
 		readonly __type?: number;
 
 		constructor(type: string, endian?: string);
+
+		size(): number;
+
+		decode(stream: DecodeStream): number;
+
+		encode(stream: DecodeStream, val: number): void;
+	}
+
+	export class FixedT implements FieldT<number> {
+		readonly __type?: number;
+
+		constructor(type: number, endian?: string, fracBits?: number);
 
 		size(): number;
 
@@ -204,8 +217,10 @@ declare module '@pdf-lib/restructure' {
 
 		encode(stream: DecodeStream, value: undefined, parent?: any): void;
 	}
+
 	export interface RestructureStatic {
 		Number: typeof NumberT;
+		Fixed: typeof FixedT;
 		String: typeof StringT;
 		Array: typeof ArrayT;
 		LazyArray: typeof LazyArrayT;
@@ -225,7 +240,12 @@ declare module '@pdf-lib/restructure' {
 		uint32: NumberT;
 		float: NumberT;
 		double: NumberT;
-		fixed32: NumberT;
+		fixed16: FixedT;
+		fixed16be: FixedT;
+		fixed16le: FixedT;
+		fixed32: FixedT;
+		fixed32be: FixedT;
+		fixed32le: FixedT;
 	}
 
 	const r: RestructureStatic;
