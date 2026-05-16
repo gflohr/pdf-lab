@@ -1,7 +1,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { beforeAll, describe, expect, it } from 'vitest';
-import type { SFNTFont } from '../src/types/internal/sfnt-font.js';
+import type { SFNTFont } from '../src/sfnt-font.js';
 import fontkit from './helpers.js';
 
 const datadir = path.resolve(import.meta.dirname, './data');
@@ -10,13 +10,13 @@ describe('variations', () => {
 	describe('Skia', () => {
 		// FIXME! This is a recipe for future failure. The font may change or
 		// get overwritten.
-		const hasSkiaFont = fs.existsSync('/System/Library/Fonts/Supplemental/Skia.ttf');
+		const hasSkiaFont = fs.existsSync(
+			'/System/Library/Fonts/Supplemental/Skia.ttf',
+		);
 		let font: SFNTFont;
 
 		beforeAll(async () => {
-			font = fontkit.openSync(
-				'/System/Library/Fonts/Supplemental/Skia.ttf',
-			) as SFNTFont;
+			font = fontkit.openSync('/System/Library/Fonts/Supplemental/Skia.ttf');
 		});
 
 		it.skipIf(!hasSkiaFont)('should get available variation axes', () => {
@@ -88,9 +88,7 @@ describe('variations', () => {
 
 	describe('truetype variations', () => {
 		it('should support sharing all points', () => {
-			const font = fontkit.openSync(
-				`${datadir}/fonttest/TestGVAROne.ttf`,
-			) as SFNTFont;
+			const font = fontkit.openSync(`${datadir}/fonttest/TestGVAROne.ttf`);
 
 			expect(
 				font.getVariation({ wght: 300 }).glyphsForString('彌')[0]!.path.toSVG(),
@@ -100,9 +98,7 @@ describe('variations', () => {
 		});
 
 		it('should support sharing enumerated points', () => {
-			const font = fontkit.openSync(
-				`${datadir}/fonttest/TestGVARTwo.ttf`,
-			) as SFNTFont;
+			const font = fontkit.openSync(`${datadir}/fonttest/TestGVARTwo.ttf`);
 
 			expect(
 				font.getVariation({ wght: 300 }).glyphsForString('彌')[0]!.path.toSVG(),
@@ -112,9 +108,7 @@ describe('variations', () => {
 		});
 
 		it('should support sharing no points', () => {
-			const font = fontkit.openSync(
-				`${datadir}/fonttest/TestGVARThree.ttf`,
-			) as SFNTFont;
+			const font = fontkit.openSync(`${datadir}/fonttest/TestGVARThree.ttf`);
 
 			expect(
 				font.getVariation({ wght: 300 }).glyphsForString('彌')[0]!.path.toSVG(),
@@ -124,9 +118,7 @@ describe('variations', () => {
 		});
 
 		it('should use the HVAR table when available for variation metrics', () => {
-			const font = fontkit.openSync(
-				`${datadir}/fonttest/TestGVARFour.ttf`,
-			) as SFNTFont;
+			const font = fontkit.openSync(`${datadir}/fonttest/TestGVARFour.ttf`);
 
 			expect(
 				Math.round(
@@ -137,9 +129,7 @@ describe('variations', () => {
 		});
 
 		it('should fall back to the last entry in an HVAR table', () => {
-			const font = fontkit.openSync(
-				`${datadir}/fonttest/TestHVARTwo.ttf`,
-			) as SFNTFont;
+			const font = fontkit.openSync(`${datadir}/fonttest/TestHVARTwo.ttf`);
 
 			expect(
 				Math.round(
@@ -163,7 +153,7 @@ describe('variations', () => {
 	describe('CFF2 variations', () => {
 		const font = fontkit.openSync(
 			`${datadir}/fonttest/AdobeVFPrototype-Subset.otf`,
-		) as SFNTFont;
+		);
 
 		it('applies variations to CFF2 glyphs', () => {
 			expect(

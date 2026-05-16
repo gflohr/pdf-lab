@@ -45,11 +45,11 @@ const CmapSubtable = new r.VersionedStruct(r.uint16, {
 		length: r.uint16,
 		language: r.uint16,
 		subHeaderKeys: new r.Array(r.uint16, 256),
-		subHeaderCount: (t) => Math.max(...t.subHeaderKeys) / 8 + 1,
+		subHeaderCount: (t: { subHeaderKeys: number[] }) => Math.max(...t.subHeaderKeys) / 8 + 1,
 		subHeaders: new r.LazyArray(SubHeader, 'subHeaderCount'),
 		glyphIndexArray: new r.LazyArray(
 			r.uint16,
-			(t) => (t.length - t._currentOffset) / 2,
+			(t) => (t!.length - t!._currentOffset) / 2,
 		),
 	},
 
@@ -58,7 +58,7 @@ const CmapSubtable = new r.VersionedStruct(r.uint16, {
 		length: r.uint16, // Total table length in bytes
 		language: r.uint16, // Language code
 		segCountX2: r.uint16,
-		segCount: (t) => t.segCountX2 >> 1,
+		segCount: (t: { segCountX2: number }) => t.segCountX2 >> 1,
 		searchRange: r.uint16,
 		entrySelector: r.uint16,
 		rangeShift: r.uint16,

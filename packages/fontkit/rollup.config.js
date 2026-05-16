@@ -5,8 +5,14 @@ import nodeResolve from '@rollup/plugin-node-resolve';
 import swc from '@rollup/plugin-swc';
 import terser from '@rollup/plugin-terser';
 import nodePolyfills from 'rollup-plugin-polyfill-node';
+import typescript from 'rollup-plugin-typescript2';
 
 const plugins = [
+	typescript({
+		include: ['*/**/*.js', '*/**/*.ts'],
+		exclude: ['**/node_modules/**/*'],
+	}),
+
 	nodeResolve({
 		browser: true,
 		preferBuiltins: false,

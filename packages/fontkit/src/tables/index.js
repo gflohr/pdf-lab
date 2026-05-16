@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/correctness/useImportExtensions: revert later */
 const tables = {};
 export default tables;
 
