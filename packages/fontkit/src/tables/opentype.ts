@@ -1,4 +1,4 @@
-import r from '@pdf-lib/restructure';
+import r, { FieldT } from '@pdf-lib/restructure';
 
 //########################
 // Scripts and Languages #
@@ -57,15 +57,21 @@ const LookupFlags = new r.Struct({
 	]),
 });
 
-export function LookupList(SubTable) {
+/**
+ * biome-ignore lint/suspicious/noExplicitAny: The Lookup struct handles dynamic
+ * subtable fields and contextual flags evaluated at runtime.
+ */
+export function LookupList(SubTable: FieldT<any>): FieldT<any> {
 	const Lookup = new r.Struct({
 		lookupType: r.uint16,
-		flags: LookupFlags,
+		flags: LookupFlags, // Assumed to be imported or defined nearby
 		subTableCount: r.uint16,
 		subTables: new r.Array(new r.Pointer(r.uint16, SubTable), 'subTableCount'),
+		// Typing 't' as any avoids circular resolution with the runtime evaluation
 		markFilteringSet: new r.Optional(
 			r.uint16,
-			(t) => t.flags.flags.useMarkFilteringSet,
+			// biome-ignore lint/suspicious/noExplicitAny: see above!
+			(t: any) => t.flags.flags.useMarkFilteringSet,
 		),
 	});
 
