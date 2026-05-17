@@ -50,7 +50,7 @@ const CmapSubtable = new r.VersionedStruct(r.uint16, {
 		subHeaders: new r.LazyArray(SubHeader, 'subHeaderCount'),
 		glyphIndexArray: new r.LazyArray(
 			r.uint16,
-			(t) => (t!.length - t!._currentOffset) / 2,
+			(t) => (t.length - t._currentOffset) / 2,
 		),
 	},
 

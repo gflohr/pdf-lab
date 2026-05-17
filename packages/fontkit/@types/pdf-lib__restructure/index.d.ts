@@ -233,6 +233,20 @@ declare module '@pdf-lib/restructure' {
 		encode(stream: DecodeStream, val: number): void;
 	}
 
+	export type ConditionResolver<T = any> = (t: T) => boolean;
+
+	export class OptionalT<TField extends FieldT<any>> implements FieldT<any> {
+		readonly __type?: number;
+
+		constructor(type: TField, condition: boolean | ConditionResolver);
+
+		size(value?: FieldT<any>, parent?: FieldT<any>): number;
+
+		decode(stream: DecodeStream, parent?: FieldT<number>): number;
+
+		encode(stream: DecodeStream, val: number, parent?: FieldT<number>): void;
+	}
+
 	export interface RestructureStatic {
 		Number: typeof NumberT;
 		Fixed: typeof FixedT;
@@ -246,6 +260,7 @@ declare module '@pdf-lib/restructure' {
 		VoidPointer: typeof VoidPointerT;
 		Reserved: typeof ReservedT;
 		Buffer: typeof BufferT;
+		Optional: typeof OptionalT;
 
 		int8: NumberT;
 		uint8: NumberT;
