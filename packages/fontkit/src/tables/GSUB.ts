@@ -100,7 +100,7 @@ export default new r.VersionedStruct(r.uint32, {
 	header: {
 		scriptList: new r.Pointer(r.uint16, ScriptList),
 		featureList: new r.Pointer(r.uint16, FeatureList),
-		lookupList: new r.Pointer(r.uint16, new LookupList(GSUBLookup)),
+		lookupList: new r.Pointer(r.uint16, LookupList(GSUBLookup)),
 	},
 
 	65536: {},
