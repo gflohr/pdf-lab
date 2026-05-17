@@ -182,9 +182,11 @@ declare module '@pdf-lib/restructure' {
 				InferField<TField> | number | null | { get: () => InferField<TField> }
 			>
 	{
+		type?: TField;
+
 		constructor(
 			offsetType: FieldT<number>,
-			type: TField | 'void',
+			type: TField | 'void' | null,
 			options?: {
 				type?: 'local' | 'immediate' | 'parent' | 'global';
 				allowNull?: boolean;
@@ -224,7 +226,7 @@ declare module '@pdf-lib/restructure' {
 	export class BufferT implements FieldT<number> {
 		readonly __type?: number;
 
-		constructor(length: Length);
+		constructor(length?: Length);
 
 		size(value?: FieldT<unknown>): number;
 
