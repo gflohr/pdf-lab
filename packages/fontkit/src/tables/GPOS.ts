@@ -1,4 +1,4 @@
-import r from '@pdf-lib/restructure';
+import r, { DecodeStream, type FieldT } from '@pdf-lib/restructure';
 import {
 	ChainingContext,
 	ClassDef,
@@ -45,40 +45,71 @@ const types = {
 	}),
 };
 
-class ValueRecord {
-	constructor(key = 'valueFormat') {
+/**
+ * biome-ignore lint/suspicious/noExplicitAny: This class is a dynamic layout factory.
+ * It breaks static encapsulation to crawl arbitrary ancestral parent parsing nodes
+ * and compile transient types on the fly at runtime.
+ */
+export class ValueRecord implements FieldT<any> {
+	private key: string;
+
+	constructor(key: string = 'valueFormat') {
 		this.key = key;
 	}
 
-	buildStruct(parent) {
+	/**
+	 * Walks up the parent chain to find the structural configuration
+	 * and dynamically constructs the appropriate layout.
+	 */
+
+	// biome-ignore lint/suspicious/noExplicitAny: see above!
+	private  buildStruct(parent: any): any {
 		let struct = parent;
-		while (!struct[this.key] && struct.parent) {
+
+		// Crawl up the hierarchy until we find the format dictionary and a parent
+		while (struct && !(struct[this.key] && struct.parent)) {
 			struct = struct.parent;
 		}
 
-		if (!struct[this.key]) return;
+		if (!struct?.[this.key]) {
+			// Fallback to an empty struct if the configuration context isn't found
+			return new r.Struct({});
+		}
 
-		const fields = {};
+		// biome-ignore lint/suspicious/noExplicitAny: see above!
+		const fields: Record<string, any> = {};
+
+		// Inject the contextual start offset reference required by restructure
 		fields.rel = () => struct._startOffset;
 
 		const format = struct[this.key];
 		for (const key in format) {
-			if (format[key]) {
-				fields[key] = types[key];
+			const fieldKey = key as keyof typeof types;
+			if (format[fieldKey] && types[fieldKey]) {
+				fields[fieldKey] = types[fieldKey];
 			}
 		}
 
 		return new r.Struct(fields);
 	}
 
-	size(val, ctx) {
+	// biome-ignore lint/suspicious/noExplicitAny: see above!
+	size(val?: any, ctx?: any): number {
 		return this.buildStruct(ctx).size(val, ctx);
 	}
 
-	decode(stream, parent) {
+	// biome-ignore lint/suspicious/noExplicitAny: see above!
+	decode(stream: DecodeStream, parent?: any): any {
 		const res = this.buildStruct(parent).decode(stream, parent);
-		delete res.rel;
+		// Clean up the transient helper reference before passing data back
+		if (res) {
+			delete res.rel;
+		}
 		return res;
+	}
+
+	encode(): void {
+		throw new Error('ValueRecord does not implement encoding.');
 	}
 }
 
@@ -250,7 +281,7 @@ export default new r.VersionedStruct(r.uint32, {
 	header: {
 		scriptList: new r.Pointer(r.uint16, ScriptList),
 		featureList: new r.Pointer(r.uint16, FeatureList),
-		lookupList: new r.Pointer(r.uint16, new LookupList(GPOSLookup)),
+		lookupList: new r.Pointer(r.uint16, LookupList(GPOSLookup)),
 	},
 
 	65536: {},
