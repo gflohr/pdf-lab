@@ -1,15 +1,19 @@
-import r from '@pdf-lib/restructure';
+import r, { DecodeStream, FieldT, Length } from '@pdf-lib/restructure';
 import { resolveLength } from '@pdf-lib/restructure/src/utils.js';
 import { ItemVariationStore } from './variations.js';
 
 // TODO: add this to restructure
-class VariableSizeNumber {
-	constructor(size) {
+class VariableSizeNumber implements FieldT<number> {
+	private readonly _size: Length;
+
+	constructor(size: Length) {
 		this._size = size;
 	}
 
-	decode(stream, parent) {
-		switch (this.size(0, parent)) {
+	decode(stream: DecodeStream, parent?: FieldT<unknown>): number {
+		const size = this.size(0, parent);
+
+		switch (size) {
 			case 1:
 				return stream.readUInt8();
 			case 2:
@@ -18,11 +22,17 @@ class VariableSizeNumber {
 				return stream.readUInt24BE();
 			case 4:
 				return stream.readUInt32BE();
+			default:
+				throw new Error(`Unexpected size '${size}! Must be 1-4!'`);
 		}
 	}
 
-	size(_val, parent) {
+	size(_val?: unknown, parent?: FieldT<unknown>) {
 		return resolveLength(this._size, null, parent);
+	}
+
+	encode() {
+		throw new Error('Variable size number does not support encoding!');
 	}
 }
 

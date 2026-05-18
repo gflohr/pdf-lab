@@ -11,6 +11,7 @@ declare module '@pdf-lib/restructure' {
 
 		readUInt8(): number;
 		readUInt16BE(): number;
+		readUInt24BE(): number;
 		readUInt32BE(): number;
 	}
 
@@ -284,4 +285,13 @@ declare module '@pdf-lib/restructure' {
 
 	const r: RestructureStatic;
 	export default r;
+}
+declare module '@pdf-lib/restructure/src/utils.js' {
+    import type { DecodeStream, Length } from '@pdf-lib/restructure';
+
+    /**
+     * Resolves a static number, string-pointer, or functional resolver down to
+     * a final byte/item count based on the current stream context.
+     */
+    export function resolveLength(length: Length, stream: DecodeStream | null, parent: any): number;
 }
