@@ -86,7 +86,7 @@ declare module '@pdf-lib/restructure' {
 
 		constructor(type: TField, length?: Length, lengthType?: 'count' | 'bytes');
 
-		size(items?: FieldT<TField>[], parent?: FieldT<unknown>): number;
+		size(val?: any | null, ctx?: ParsingContext): number;
 
 		decode(stream: DecodeStream, parent?: any): InferField<TField>[];
 
@@ -100,6 +100,7 @@ declare module '@pdf-lib/restructure' {
 
 		constructor(type: TField, length?: Length, lengthType?: 'count' | 'bytes');
 
+		size(val?: any | null, ctx?: ParsingContext): number;
 		size(items?: FieldT<TField>[], parent?: FieldT<unknown>): number;
 
 		decode(stream: DecodeStream): InferField<TField>[];
@@ -233,16 +234,16 @@ declare module '@pdf-lib/restructure' {
 		encode(stream: DecodeStream, value: undefined, parent?: any): void;
 	}
 
-	export class BufferT implements FieldT<number> {
-		readonly __type?: number;
+	export class BufferT implements FieldT<Uint8Array> {
+		readonly __type?: Uint8Array;
 
 		constructor(length?: Length);
 
 		size(value?: FieldT<unknown>): number;
 
-		decode(stream: DecodeStream): number;
+		decode(stream: DecodeStream): Uint8Array;
 
-		encode(stream: DecodeStream, val: number): void;
+		encode(stream: DecodeStream, val: Uint8Array): void;
 	}
 
 	export type ConditionResolver<T = any> = (t: T) => boolean;
@@ -254,7 +255,7 @@ declare module '@pdf-lib/restructure' {
 
 		size(value?: FieldT<any>, parent?: FieldT<any>): number;
 
-		decode(stream: DecodeStream, parent?: FieldT<number>): number;
+		decode(stream: DecodeStream, parent?: FieldT<number>): InferField<TField> | undefined;
 
 		encode(stream: DecodeStream, val: number, parent?: FieldT<number>): void;
 	}
@@ -295,6 +296,7 @@ declare module '@pdf-lib/restructure' {
 	const r: RestructureStatic;
 	export default r;
 }
+
 declare module '@pdf-lib/restructure/src/utils.js' {
     import type { DecodeStream, Length } from '@pdf-lib/restructure';
 

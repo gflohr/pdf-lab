@@ -54,9 +54,9 @@ export class UnboundedArray<TField extends FieldT<any>> extends r.Array<TField> 
 	}
 }
 
-export const LookupTable = (ValueType = r.uint16) => {
+export const LookupTable = (ValueType: FieldT<any> = r.uint16) => {
 	// Helper class that makes internal structures invisible to pointers
-	class Shadow<TField extends FieldT<number>> implements FieldT<number> {
+	class Shadow<TField extends FieldT<any>> implements FieldT<any> {
 		private type: TField;
 
 		constructor(type: TField) {
