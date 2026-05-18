@@ -1,7 +1,20 @@
-import r from '@pdf-lib/restructure';
+/** biome-ignore-all lint/suspicious/noExplicitAny: This file implements
+ * advanced font layout parsing structures (AAT) that dynamically alter
+ * execution context graphs, utilise virtual proxy arrays (UnboundedArray), and
+ * bypass structural compilation layers via custom wrapper wrappers (Shadow).
+ * Loose typing via 'any' is required to prevent circular resolution errors
+ * inside the parser engine framework.
+ */
+import r, { type DecodeStream, type FieldT, type InferField, type ParsingContext } from '@pdf-lib/restructure';
 
-class UnboundedArrayAccessor {
-	constructor(type, stream, parent) {
+class UnboundedArrayAccessor<TField extends FieldT<any>> {
+	private type: TField;
+	private stream: DecodeStream;
+	private parent?: ParsingContext;
+	private base: number;
+	private _items: InferField<TField>[];
+
+	constructor(type: TField, stream: DecodeStream, parent?: ParsingContext) {
 		this.type = type;
 		this.stream = stream;
 		this.parent = parent;
@@ -9,9 +22,11 @@ class UnboundedArrayAccessor {
 		this._items = [];
 	}
 
-	getItem(index) {
+	// Changing the return from 'unknown' to 'InferField<TField>' fixes downstream usage
+	getItem(index: number): InferField<TField> {
 		if (this._items[index] == null) {
 			const pos = this.stream.pos;
+			// Note: passing null as value to match size signature
 			this.stream.pos = this.base + this.type.size(null, this.parent) * index;
 			this._items[index] = this.type.decode(this.stream, this.parent);
 			this.stream.pos = pos;
@@ -25,35 +40,44 @@ class UnboundedArrayAccessor {
 	}
 }
 
-export class UnboundedArray extends r.Array {
-	constructor(type) {
+export class UnboundedArray<TField extends FieldT<any>> extends r.Array<TField> {
+	private arrayType: TField;
+
+	constructor(type: TField) {
 		super(type, 0);
+		this.arrayType = type;
 	}
 
-	decode(stream, parent) {
-		return new UnboundedArrayAccessor(this.type, stream, parent);
+	// We cast the output to 'any' to satisfy the base class's expectation of returning a real array array
+	decode(stream: DecodeStream, parent?: ParsingContext): any {
+		return new UnboundedArrayAccessor(this.arrayType, stream, parent);
 	}
 }
 
 export const LookupTable = (ValueType = r.uint16) => {
 	// Helper class that makes internal structures invisible to pointers
-	class Shadow {
-		constructor(type) {
+	class Shadow<TField extends FieldT<number>> implements FieldT<number> {
+		private type: TField;
+
+		constructor(type: TField) {
 			this.type = type;
 		}
 
-		decode(stream, ctx) {
-			ctx = ctx.parent.parent;
-			return this.type.decode(stream, ctx);
+		decode(stream: DecodeStream, ctx?: ParsingContext) {
+			const parentContext = ctx?.parent?.parent;
+
+			return this.type.decode(stream, parentContext);
 		}
 
-		size(val, ctx) {
-			ctx = ctx.parent.parent;
+		size(val?: FieldT<number>, ctx?: ParsingContext) {
+			ctx = ctx?.parent?.parent;
+
 			return this.type.size(val, ctx);
 		}
 
-		encode(stream, val, ctx) {
-			ctx = ctx.parent.parent;
+		encode(stream: DecodeStream, val: number, ctx?: ParsingContext) {
+			ctx = ctx?.parent?.parent;
+
 			return this.type.encode(stream, val, ctx);
 		}
 	}
@@ -157,7 +181,7 @@ export function StateTable1(entryData = {}) {
 		{
 			newStateOffset: r.uint16,
 			// convert offset to stateArray index
-			newState: (t) =>
+			newState: (t: any) =>
 				(t.newStateOffset -
 					(t.parent.stateArray.base - t.parent._startOffset)) /
 				t.parent.nClasses,

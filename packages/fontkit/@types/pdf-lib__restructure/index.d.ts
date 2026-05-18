@@ -15,14 +15,23 @@ declare module '@pdf-lib/restructure' {
 		readUInt32BE(): number;
 	}
 
+	// The runtime tracking data context passed into size/decode/encode hooks
+	export interface ParsingContext {
+		parent?: ParsingContext;
+		_startOffset?: number;
+		_currentOffset?: number;
+		_length?: number;
+		[key: string]: any;
+	}
+
 	export interface FieldT<T> {
 		readonly __type?: T;
 
-		size(): number;
+		size(val?: any | null, ctx?: ParsingContext): number;
 
-		decode(stream: DecodeStream): T;
+		decode(stream: DecodeStream, ctx?: ParsingContext): T;
 
-		encode(stream: DecodeStream, val: T): void;
+		encode(stream: DecodeStream, val: T, ctx?: ParsingContext): void;
 	}
 
 	export type LengthResolver<T = any> = (t: T) => number;
@@ -64,7 +73,7 @@ declare module '@pdf-lib/restructure' {
 		encode(stream: DecodeStream, value: string, parent?: FieldT<unknown>): void;
 	}
 
-	type InferField<T> =
+	export type InferField<T> =
 		T extends FieldT<infer TValue>
 			? TValue
 			: T extends (...args: any[]) => infer R
@@ -79,7 +88,7 @@ declare module '@pdf-lib/restructure' {
 
 		size(items?: FieldT<TField>[], parent?: FieldT<unknown>): number;
 
-		decode(stream: DecodeStream): InferField<TField>[];
+		decode(stream: DecodeStream, parent?: any): InferField<TField>[];
 
 		encode(stream: DecodeStream, value: InferField<TField>[]): void;
 	}
