@@ -126,10 +126,7 @@ declare module '@pdf-lib/restructure' {
 	type InferStruct<TFields extends StructFields> = {
 		[K in keyof TFields]: InferField<TFields[K]>;
 	};
-	export class StructT<TFields extends Record<string, any> = Record<string, any>,
-		TExplicitOut = InferStruct<TFields>>
-		implements FieldT<TExplicitOut>
-	{
+	export class StructT<TFields = any, TExplicitOut = any> implements FieldT<TExplicitOut> {
 		readonly __type?: TExplicitOut;
 
 		constructor(fields: TFields);
@@ -297,8 +294,7 @@ declare module '@pdf-lib/restructure' {
 		String: typeof StringT;
 		Array: typeof ArrayT;
 		LazyArray: typeof LazyArrayT;
-		Struct: new <TExplicitOut = any, TFields extends StructFields = any>(fields: TFields) => StructT<TFields, TExplicitOut>;
-		VersionedStruct: typeof VersionedStructT;
+		Struct: new <TFields = any, TExplicitOut = any>(fields: TFields) => StructT<TFields, TExplicitOut>;		VersionedStruct: typeof VersionedStructT;
 		Bitfield: typeof BitfieldT;
 		Pointer: typeof PointerT;
 		VoidPointer: typeof VoidPointerT;
