@@ -179,19 +179,25 @@ declare module '@pdf-lib/restructure' {
 	}
 
 	type BitfieldResult<T extends readonly (string | null)[]> = {
+		// Maps each actual string name entry in the literal array to a boolean
+		// flag state.
 		[K in Exclude<T[number], null>]: boolean;
 	};
 
 	export class BitfieldT<TFlags extends readonly (string | null)[]>
 		implements FieldT<BitfieldResult<TFlags>>
 	{
+		readonly __type?: BitfieldResult<TFlags>;
+
+		// Enforcing TFlags ensures TypeScript preserves the exact string
+		// literal names from the configuration arrays.
 		constructor(type: FieldT<number>, flags: TFlags);
 
-		decode(stream: DecodeStream): BitfieldResult<TFlags>;
+		decode(stream: DecodeStream, ctx?: ParsingContext): BitfieldResult<TFlags>;
 
-		size(): number;
+		size(val?: any | null, ctx?: ParsingContext): number;
 
-		encode(stream: DecodeStream, value: BitfieldResult<TFlags>): void;
+		encode(stream: DecodeStream, value: BitfieldResult<TFlags>, ctx?: ParsingContext): void;
 	}
 
 	export class PointerT<TField extends FieldT<any>>
