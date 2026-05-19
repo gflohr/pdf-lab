@@ -58,6 +58,12 @@ export interface HheaTable {
 	caretSlopeRise: number;
 
 	/**
+	 * The mathematical run value used to compute the angle/slope of the caret cursor
+	 * (`rise / run`). Set to `0` for purely vertical, un-slanted text cursors.
+	 */
+	caretSlopeRun: number;
+
+	/**
 	 * The horizontal offset displacement value for the text layout cursor.
 	 * Typically set to `0` for non-slanted fonts.
 	 */
