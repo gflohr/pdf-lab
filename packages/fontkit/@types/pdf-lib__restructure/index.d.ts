@@ -100,32 +100,33 @@ declare module '@pdf-lib/restructure' {
 		encode(stream: DecodeStream, value: InferField<TField>[]): void;
 	}
 
+	export interface RestructureLazyArray<T> extends Array<T> {
+		get(index: number): T | undefined;
+	}
+
 	export class LazyArrayT<TField extends FieldT<unknown>>
-		implements FieldT<InferField<TField>[]>
+		implements FieldT<RestructureLazyArray<InferField<TField>>>
 	{
-		readonly __type?: InferField<TField>[];
+		readonly __type?: RestructureLazyArray<InferField<TField>>;
 
 		constructor(type: TField, length?: Length, lengthType?: 'count' | 'bytes');
 
 		size(val?: any | null, ctx?: ParsingContext): number;
-		size(items?: FieldT<TField>[], parent?: FieldT<unknown>): number;
+		size(items?: any[], parent?: FieldT<unknown>): number;
 
-		decode(stream: DecodeStream): InferField<TField>[];
+		// Ensure the return type here matches exactly
+		decode(stream: DecodeStream): RestructureLazyArray<InferField<TField>>;
 
-		encode(stream: DecodeStream, value: InferField<TField>[]): void;
+		encode(stream: DecodeStream, value: RestructureLazyArray<InferField<TField>>): void;
 	}
 
+	export type TypedStruct<T> = StructT<Record<string, any>, T>;
 	export type ComputedField<TStruct> = (t: TStruct) => any;
-
-	export type StructFields<TStruct = any> = {
-		[K in keyof TStruct]: FieldT<any> | ComputedField<TStruct>;
-	};
-
+	export type StructFields = Record<string, FieldT<any> | ComputedField<any>>;
 	type InferStruct<TFields extends StructFields> = {
 		[K in keyof TFields]: InferField<TFields[K]>;
 	};
-
-	export class StructT<TFields extends StructFields = any,
+	export class StructT<TFields extends Record<string, any> = Record<string, any>,
 		TExplicitOut = InferStruct<TFields>>
 		implements FieldT<TExplicitOut>
 	{
