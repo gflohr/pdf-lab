@@ -1,6 +1,9 @@
-/** biome-ignore-all lint/correctness/useImportExtensions: revert later */
 import type { ArrayT, StructT, VersionedStructT } from '@pdf-lib/restructure';
 
+/** biome-ignore lint/suspicious/noExplicitAny: The restructure library used
+ * for decoding and encoding the table data is highly dynamic. Using stricter
+ * typings is currently considered not being worth the effort.
+ */
 const tables: Record<string, StructT<any> | VersionedStructT<any> | ArrayT<any> | typeof CFFFont> = {};
 
 export default tables;
