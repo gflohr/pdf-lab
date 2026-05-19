@@ -1,15 +1,3 @@
-/**
- * Gets an encoding name from platform, encoding, and language ids.
- * Returned encoding names can be used in iconv-lite to decode text.
- */
-export function getEncoding(platformID, encodingID, languageID = 0) {
-	if (platformID === 1 && MAC_LANGUAGE_ENCODINGS[languageID]) {
-		return MAC_LANGUAGE_ENCODINGS[languageID];
-	}
-
-	return ENCODINGS[platformID][encodingID];
-}
-
 // Map of platform ids to encoding ids.
 export const ENCODINGS = [
 	// unicode
@@ -91,7 +79,7 @@ export const ENCODINGS = [
 
 // Overrides for Mac scripts by language id.
 // See http://unicode.org/Public/MAPPINGS/VENDORS/APPLE/Readme.txt
-export const MAC_LANGUAGE_ENCODINGS = {
+export const MAC_LANGUAGE_ENCODINGS: Record<number, string> = {
 	15: 'maciceland',
 	17: 'macturkish',
 	18: 'maccroatian',
@@ -110,7 +98,7 @@ export const MAC_LANGUAGE_ENCODINGS = {
 };
 
 // Map of platform ids to BCP-47 language codes.
-export const LANGUAGES = [
+export const LANGUAGES: ([] | Record<number, string>)[] = [
 	// unicode
 	[],
 
@@ -449,3 +437,15 @@ export const LANGUAGES = [
 		1132: 'nso',
 	},
 ];
+
+/**
+ * Gets an encoding name from platform, encoding, and language ids.
+ * Returned encoding names can be used in iconv-lite to decode text.
+ */
+export function getEncoding(platformID: number, encodingID: number, languageID = 0): string | null {
+	if (platformID === 1 && MAC_LANGUAGE_ENCODINGS[languageID]) {
+		return MAC_LANGUAGE_ENCODINGS[languageID];
+	}
+
+	return ENCODINGS[platformID][encodingID];
+}

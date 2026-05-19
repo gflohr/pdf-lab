@@ -61,10 +61,13 @@ declare module '@pdf-lib/restructure' {
 		encode(stream: DecodeStream, val: number): void;
 	}
 
+	export type EncodingResolver<T = any> = (t: T) => string;
+	export type Encoding = string | EncodingResolver<any>;
+
 	export class StringT implements FieldT<string> {
 		readonly __type?: string;
 
-		constructor(length?: Length, encoding?: string);
+		constructor(length?: Length, encoding?: Encoding);
 
 		size(value?: string, parent?: FieldT<unknown>): number;
 
@@ -124,7 +127,7 @@ declare module '@pdf-lib/restructure' {
 
 		constructor(fields: TFields);
 
-		size(value?: InferStruct<TFields>, parent?: FieldT<unknown>): number;
+		size(value?: InferStruct<TFields>, parent?: FieldT<unknown>, includePointers?: boolean): number;
 
 		decode(
 			stream: DecodeStream,
@@ -159,7 +162,7 @@ declare module '@pdf-lib/restructure' {
 		constructor(versionField: string | FieldT<number>, versions: TVersions);
 
 		decode(stream: DecodeStream, parent?: any): InferVersionedStruct<TVersions>;
-		size(value?: InferVersionedStruct<TVersions>, parent?: any): number;
+		size(value?: InferVersionedStruct<TVersions>, parent?: any, includePointers?: boolean): number;
 
 		encode(
 			stream: DecodeStream,

@@ -10,7 +10,7 @@ const NameRecord = new r.Struct({
 	string: new r.Pointer(
 		r.uint16,
 		new r.String('length', (t) =>
-			getEncoding(t.platformID, t.encodingID, t.languageID),
+			getEncoding(t.platformID, t.encodingID, t.languageID) as string,
 		),
 		{ type: 'parent', relativeTo: 'parent.stringOffset', allowNull: false },
 	),
@@ -67,48 +67,63 @@ const NAMES = [
 	'wwsSubfamilyName',
 ];
 
-NameTable.process = function () {
-	var records = {};
-	for (const record of this.records) {
-		// find out what language this is for
-		let language = LANGUAGES[record.platformID][record.languageID];
+// 1. The clean, final public state type for the class property.
+interface CompiledNameRecords {
+	fontFeatures?: Record<number, Record<string, string>>;
+	[nameKey: string]: Record<string, string> | Record<number, Record<string, string>> | undefined;
+}
+
+// 2. An explicit internal interface for the temporary raw decoding format
+interface RawFontRecord {
+	platformID: number;
+	languageID: number;
+	nameID: number;
+	string: string;
+}
+
+NameTable.process = function (this: { records: RawFontRecord[] | CompiledNameRecords; langTags?: { tag: string }[] }) {
+	const rawRecords = this.records as RawFontRecord[];
+	const processedRecords: CompiledNameRecords = {};
+
+	for (const record of rawRecords) {
+		let language: string | null = LANGUAGES[record.platformID]?.[record.languageID];
 
 		if (
 			language == null &&
 			this.langTags != null &&
 			record.languageID >= 0x8000
 		) {
-			language = this.langTags[record.languageID - 0x8000].tag;
+			language = this.langTags[record.languageID - 0x8000]?.tag;
 		}
 
 		if (language == null) {
 			language = `${record.platformID}-${record.languageID}`;
 		}
 
-		// if the nameID is >= 256, it is a font feature record (AAT)
-		const key =
-			record.nameID >= 256
-				? 'fontFeatures'
-				: NAMES[record.nameID] || record.nameID;
-		if (records[key] == null) {
-			records[key] = {};
-		}
+		const isFontFeature = record.nameID >= 256;
+		const key = isFontFeature
+			? 'fontFeatures'
+			: NAMES[record.nameID] || String(record.nameID);
 
-		let obj = records[key];
-		if (record.nameID >= 256) {
-			obj[record.nameID] ||= {};
-			obj = obj[record.nameID];
-		}
+		if (isFontFeature) {
+			processedRecords.fontFeatures ||= {};
+			processedRecords.fontFeatures[record.nameID] ||= {};
 
-		if (
-			typeof record.string === 'string' ||
-			typeof obj[language] !== 'string'
-		) {
-			obj[language] = record.string;
+			const targetFeatureMap = processedRecords.fontFeatures[record.nameID];
+			if (typeof record.string === 'string' || typeof targetFeatureMap[language] !== 'string') {
+				targetFeatureMap[language] = record.string;
+			}
+		} else {
+			processedRecords[key] ||= {};
+			const targetNameMap = processedRecords[key] as Record<string, string>;
+
+			if (typeof record.string === 'string' || typeof targetNameMap[language] !== 'string') {
+				targetNameMap[language] = record.string;
+			}
 		}
 	}
 
-	this.records = records;
+	this.records = processedRecords;
 };
 
 NameTable.preEncode = function () {
