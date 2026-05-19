@@ -1,5 +1,5 @@
 import unicode from '@pdf-lib/unicode-properties';
-import Path from './Path.js';
+import Path from './path.js';
 import StandardNames from './StandardNames.js';
 
 /**

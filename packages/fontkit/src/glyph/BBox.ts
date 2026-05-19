@@ -3,16 +3,16 @@
  */
 export default class BBox {
 	/** The minimum X position in the bounding box. */
-	private minX: number;
+	private _minX: number;
 
 	/** The minimum Y position in the bounding box. */
-	private minY: number;
+	private _minY: number;
 
 	/** The maximum X position in the bounding box. */
-	private maxX: number;
+	private _maxX: number;
 
 	/** The maximum Y position in the bounding box. */
-	private maxY: number;
+	private _maxY: number;
 
 	/**
 	 * Creates an instance of a bounding box.
@@ -28,10 +28,26 @@ export default class BBox {
 		maxX: number = -Infinity,
 		maxY: number = -Infinity,
 	) {
-		this.minX = minX;
-		this.minY = minY;
-		this.maxX = maxX;
-		this.maxY = maxY;
+		this._minX = minX;
+		this._minY = minY;
+		this._maxX = maxX;
+		this._maxY = maxY;
+	}
+
+	public get minX(): number {
+		return this._minX;
+	}
+
+	public get minY(): number {
+		return this._minY;
+	}
+
+	public get maxX(): number {
+		return this._maxX;
+	}
+
+	public get maxY(): number {
+		return this._maxY;
 	}
 
 	/**
@@ -59,21 +75,21 @@ export default class BBox {
 	addPoint(x: number, y: number): void {
 		if (Math.abs(x) !== Infinity) {
 			if (x < this.minX) {
-				this.minX = x;
+				this._minX = x;
 			}
 
 			if (x > this.maxX) {
-				this.maxX = x;
+				this._maxX = x;
 			}
 		}
 
 		if (Math.abs(y) !== Infinity) {
 			if (y < this.minY) {
-				this.minY = y;
+				this._minY = y;
 			}
 
 			if (y > this.maxY) {
-				this.maxY = y;
+				this._maxY = y;
 			}
 		}
 	}
