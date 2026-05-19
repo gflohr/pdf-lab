@@ -61,6 +61,10 @@ export class UnboundedArray<
 	}
 }
 
+// `@__NO_SIDE_EFFECTS__`
+/**
+ * Builds an AAT lookup-table parser for the provided value field type.
+ */
 export const LookupTable = (ValueType: FieldT<any> = r.uint16) => {
 	// Helper class that makes internal structures invisible to pointers
 	class Shadow<TField extends FieldT<any>> implements FieldT<any> {
