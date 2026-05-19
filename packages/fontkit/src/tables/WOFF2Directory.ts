@@ -1,7 +1,7 @@
-import r from '@pdf-lib/restructure';
+import r, { type DecodeStream } from '@pdf-lib/restructure';
 
 const Base128 = {
-	decode(stream) {
+	decode(stream: DecodeStream) {
 		let result = 0;
 		const iterable = [0, 1, 2, 3, 4];
 		for (let j = 0; j < iterable.length; j++) {
@@ -19,6 +19,12 @@ const Base128 = {
 		}
 
 		throw new Error('Bad base 128 number');
+	},
+	size() {
+		throw new Error('Base128 does not have a size');
+	},
+	encode() {
+		throw new Error('Base128 does not implement encoding');
 	},
 };
 
@@ -120,7 +126,7 @@ const WOFF2Directory = new r.Struct({
 });
 
 WOFF2Directory.process = function () {
-	const tables = {};
+	const tables: Record<string, unknown> = {};
 	for (let i = 0; i < this.tables.length; i++) {
 		const table = this.tables[i];
 		tables[table.tag] = table;
