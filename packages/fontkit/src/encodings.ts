@@ -451,5 +451,5 @@ export function getEncoding(
 		return MAC_LANGUAGE_ENCODINGS[languageID];
 	}
 
-	return ENCODINGS[platformID][encodingID];
+	return ENCODINGS[platformID]?.[encodingID];
 }
