@@ -9,8 +9,9 @@ const NameRecord = new r.Struct({
 	length: r.uint16,
 	string: new r.Pointer(
 		r.uint16,
-		new r.String('length', (t) =>
-			getEncoding(t.platformID, t.encodingID, t.languageID) as string,
+		new r.String(
+			'length',
+			(t) => getEncoding(t.platformID, t.encodingID, t.languageID) as string,
 		),
 		{ type: 'parent', relativeTo: 'parent.stringOffset', allowNull: false },
 	),
@@ -70,7 +71,10 @@ const NAMES = [
 // 1. The clean, final public state type for the class property.
 interface CompiledNameRecords {
 	fontFeatures?: Record<number, Record<string, string>>;
-	[nameKey: string]: Record<string, string> | Record<number, Record<string, string>> | undefined;
+	[nameKey: string]:
+		| Record<string, string>
+		| Record<number, Record<string, string>>
+		| undefined;
 }
 
 // 2. An explicit internal interface for the temporary raw decoding format
@@ -81,12 +85,16 @@ interface RawFontRecord {
 	string: string;
 }
 
-NameTable.process = function (this: { records: RawFontRecord[] | CompiledNameRecords; langTags?: { tag: string }[] }) {
+NameTable.process = function (this: {
+	records: RawFontRecord[] | CompiledNameRecords;
+	langTags?: { tag: string }[];
+}) {
 	const rawRecords = this.records as RawFontRecord[];
 	const processedRecords: CompiledNameRecords = {};
 
 	for (const record of rawRecords) {
-		let language: string | null = LANGUAGES[record.platformID]?.[record.languageID];
+		let language: string | null =
+			LANGUAGES[record.platformID]?.[record.languageID];
 
 		if (
 			language == null &&
@@ -110,14 +118,20 @@ NameTable.process = function (this: { records: RawFontRecord[] | CompiledNameRec
 			processedRecords.fontFeatures[record.nameID] ||= {};
 
 			const targetFeatureMap = processedRecords.fontFeatures[record.nameID];
-			if (typeof record.string === 'string' || typeof targetFeatureMap[language] !== 'string') {
+			if (
+				typeof record.string === 'string' ||
+				typeof targetFeatureMap[language] !== 'string'
+			) {
 				targetFeatureMap[language] = record.string;
 			}
 		} else {
 			processedRecords[key] ||= {};
 			const targetNameMap = processedRecords[key] as Record<string, string>;
 
-			if (typeof record.string === 'string' || typeof targetNameMap[language] !== 'string') {
+			if (
+				typeof record.string === 'string' ||
+				typeof targetNameMap[language] !== 'string'
+			) {
 				targetNameMap[language] = record.string;
 			}
 		}

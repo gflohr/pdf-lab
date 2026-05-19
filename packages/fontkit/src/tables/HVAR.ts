@@ -1,4 +1,8 @@
-import r, { DecodeStream, FieldT, Length } from '@pdf-lib/restructure';
+import r, {
+	type DecodeStream,
+	type FieldT,
+	type Length,
+} from '@pdf-lib/restructure';
 import { resolveLength } from '@pdf-lib/restructure/src/utils.js';
 import { ItemVariationStore } from './variations.js';
 

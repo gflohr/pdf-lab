@@ -1,4 +1,4 @@
-import r, { DecodeStream, FieldT } from '@pdf-lib/restructure';
+import r, { type DecodeStream, type FieldT } from '@pdf-lib/restructure';
 
 const shortFrac = new r.Fixed(16, 'BE', 14);
 
@@ -7,7 +7,9 @@ const Offset = {
 		// In short format, offsets are multiplied by 2.
 		// This doesn't seem to be documented by Apple, but it
 		// is implemented this way in Freetype.
-		return (parent as unknown as { flags: boolean }).flags ? stream.readUInt32BE() : stream.readUInt16BE() * 2;
+		return (parent as unknown as { flags: boolean }).flags
+			? stream.readUInt32BE()
+			: stream.readUInt16BE() * 2;
 	},
 } as FieldT<number>;
 

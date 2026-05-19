@@ -5,7 +5,12 @@
  * Loose typing via 'any' is required to prevent circular resolution errors
  * inside the parser engine framework.
  */
-import r, { type DecodeStream, type FieldT, type InferField, type ParsingContext } from '@pdf-lib/restructure';
+import r, {
+	type DecodeStream,
+	type FieldT,
+	type InferField,
+	type ParsingContext,
+} from '@pdf-lib/restructure';
 
 class UnboundedArrayAccessor<TField extends FieldT<any>> {
 	private type: TField;
@@ -40,7 +45,9 @@ class UnboundedArrayAccessor<TField extends FieldT<any>> {
 	}
 }
 
-export class UnboundedArray<TField extends FieldT<any>> extends r.Array<TField> {
+export class UnboundedArray<
+	TField extends FieldT<any>,
+> extends r.Array<TField> {
 	private arrayType: TField;
 
 	constructor(type: TField) {

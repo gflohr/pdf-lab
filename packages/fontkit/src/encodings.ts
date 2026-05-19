@@ -442,7 +442,11 @@ export const LANGUAGES: ([] | Record<number, string>)[] = [
  * Gets an encoding name from platform, encoding, and language ids.
  * Returned encoding names can be used in iconv-lite to decode text.
  */
-export function getEncoding(platformID: number, encodingID: number, languageID = 0): string | null {
+export function getEncoding(
+	platformID: number,
+	encodingID: number,
+	languageID = 0,
+): string | null {
 	if (platformID === 1 && MAC_LANGUAGE_ENCODINGS[languageID]) {
 		return MAC_LANGUAGE_ENCODINGS[languageID];
 	}

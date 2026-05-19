@@ -1,4 +1,4 @@
-import r, { DecodeStream, type FieldT } from '@pdf-lib/restructure';
+import r, { type DecodeStream, type FieldT } from '@pdf-lib/restructure';
 import {
 	ChainingContext,
 	ClassDef,
@@ -63,7 +63,7 @@ export class ValueRecord implements FieldT<any> {
 	 */
 
 	// biome-ignore lint/suspicious/noExplicitAny: see above!
-	private  buildStruct(parent: any): any {
+	private buildStruct(parent: any): any {
 		let struct = parent;
 
 		// Crawl up the hierarchy until we find the format dictionary and a parent

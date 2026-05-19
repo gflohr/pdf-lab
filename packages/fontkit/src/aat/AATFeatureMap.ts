@@ -1,6 +1,6 @@
 // see https://developer.apple.com/fonts/TrueType-Reference-Manual/RM09/AppendixF.html
 // and /System/Library/Frameworks/CoreText.framework/Versions/A/Headers/SFNTLayoutTypes.h on a Mac
-const features: Record<string, Record<string, number | boolean >> = {
+const features: Record<string, Record<string, number | boolean>> = {
 	allTypographicFeatures: {
 		code: 0,
 		exclusive: false,
@@ -347,7 +347,10 @@ const features: Record<string, Record<string, number | boolean >> = {
 	},
 };
 
-const feature = (name: string, selector: string): [number | boolean, number | boolean] => [
+const feature = (
+	name: string,
+	selector: string,
+): [number | boolean, number | boolean] => [
 	features[name].code,
 	features[name][selector],
 ];
@@ -513,7 +516,7 @@ export function mapOTToAAT(features: OpenTypeFeaturesInput): AATFeaturesOutput {
  * to their equivalent number codes.
  */
 function mapFeatureStrings(
-	f: [string, number | boolean]
+	f: [string, number | boolean],
 ): [number | boolean | string, number | boolean | string] {
 	const [type, setting] = f;
 
@@ -523,11 +526,10 @@ function mapFeatureStrings(
 	// occur here. Consequently, instead of assigning the corresponding code,
 	// the raw string was assigned to typeCode.
 	const isTypeStringLabel = Number.isNaN(Number.parseInt(type, 10));
-	const typeCode = isTypeStringLabel
-		? (features[type]?.code ?? type)
-		: type;
+	const typeCode = isTypeStringLabel ? (features[type]?.code ?? type) : type;
 
-	const isSettingLabel = typeof setting === 'boolean' || typeof setting === 'string';
+	const isSettingLabel =
+		typeof setting === 'boolean' || typeof setting === 'string';
 	const settingCode = isSettingLabel
 		? (features[type]?.[String(setting)] ?? setting)
 		: setting;
@@ -572,7 +574,9 @@ export function mapAATToOT(features: AATFeaturesInput): string[] {
 				// Object keys are natively strings at runtime. We parse 'setting' out
 				// to match the expected signature of mapFeatureStrings.
 				const isBooleanSetting = setting === 'true' || setting === 'false';
-				const settingVal = isBooleanSetting ? (setting === 'true') : Number.parseInt(setting, 10);
+				const settingVal = isBooleanSetting
+					? setting === 'true'
+					: Number.parseInt(setting, 10);
 
 				const f = mapFeatureStrings([type, settingVal]);
 

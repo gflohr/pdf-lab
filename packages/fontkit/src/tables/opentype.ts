@@ -1,4 +1,4 @@
-import r, { FieldT } from '@pdf-lib/restructure';
+import r, { type FieldT } from '@pdf-lib/restructure';
 
 //########################
 // Scripts and Languages #

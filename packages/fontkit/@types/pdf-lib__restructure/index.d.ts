@@ -131,7 +131,11 @@ declare module '@pdf-lib/restructure' {
 
 		constructor(fields: TFields);
 
-		size(value?: InferStruct<TFields>, parent?: FieldT<unknown>, includePointers?: boolean): number;
+		size(
+			value?: InferStruct<TFields>,
+			parent?: FieldT<unknown>,
+			includePointers?: boolean,
+		): number;
 
 		decode(
 			stream: DecodeStream,
@@ -166,7 +170,11 @@ declare module '@pdf-lib/restructure' {
 		constructor(versionField: string | FieldT<number>, versions: TVersions);
 
 		decode(stream: DecodeStream, parent?: any): InferVersionedStruct<TVersions>;
-		size(value?: InferVersionedStruct<TVersions>, parent?: any, includePointers?: boolean): number;
+		size(
+			value?: InferVersionedStruct<TVersions>,
+			parent?: any,
+			includePointers?: boolean,
+		): number;
 
 		encode(
 			stream: DecodeStream,
@@ -197,7 +205,11 @@ declare module '@pdf-lib/restructure' {
 
 		size(val?: any | null, ctx?: ParsingContext): number;
 
-		encode(stream: DecodeStream, value: BitfieldResult<TFlags>, ctx?: ParsingContext): void;
+		encode(
+			stream: DecodeStream,
+			value: BitfieldResult<TFlags>,
+			ctx?: ParsingContext,
+		): void;
 	}
 
 	export class PointerT<TField extends FieldT<any>>
@@ -268,7 +280,10 @@ declare module '@pdf-lib/restructure' {
 
 		size(value?: FieldT<any>, parent?: FieldT<any>): number;
 
-		decode(stream: DecodeStream, parent?: FieldT<number>): InferField<TField> | undefined;
+		decode(
+			stream: DecodeStream,
+			parent?: FieldT<number>,
+		): InferField<TField> | undefined;
 
 		encode(stream: DecodeStream, val: number, parent?: FieldT<number>): void;
 	}
@@ -311,11 +326,15 @@ declare module '@pdf-lib/restructure' {
 }
 
 declare module '@pdf-lib/restructure/src/utils.js' {
-    import type { DecodeStream, Length } from '@pdf-lib/restructure';
+	import type { DecodeStream, Length } from '@pdf-lib/restructure';
 
-    /**
-     * Resolves a static number, string-pointer, or functional resolver down to
-     * a final byte/item count based on the current stream context.
-     */
-    export function resolveLength(length: Length, stream: DecodeStream | null, parent: any): number;
+	/**
+	 * Resolves a static number, string-pointer, or functional resolver down to
+	 * a final byte/item count based on the current stream context.
+	 */
+	export function resolveLength(
+		length: Length,
+		stream: DecodeStream | null,
+		parent: any,
+	): number;
 }
