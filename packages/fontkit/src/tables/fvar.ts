@@ -1,5 +1,11 @@
 import r from '@pdf-lib/restructure';
 
+interface FvarContext {
+	nameID: number;
+	parent: FvarContext;
+	name: { records: { fontFeatures: string[] } };
+};
+
 const Axis = new r.Struct({
 	axisTag: new r.String(4),
 	minValue: r.fixed32,
@@ -7,12 +13,12 @@ const Axis = new r.Struct({
 	maxValue: r.fixed32,
 	flags: r.uint16,
 	nameID: r.uint16,
-	name: (t) => t.parent.parent.name.records.fontFeatures[t.nameID],
+	name: (t: FvarContext) => t.parent.parent.name.records.fontFeatures[t.nameID],
 });
 
 const Instance = new r.Struct({
 	nameID: r.uint16,
-	name: (t) => t.parent.parent.name.records.fontFeatures[t.nameID],
+	name: (t: FvarContext) => t.parent.parent.name.records.fontFeatures[t.nameID],
 	flags: r.uint16,
 	coord: new r.Array(r.fixed32, (t) => t.parent.axisCount),
 	postscriptNameID: new r.Optional(

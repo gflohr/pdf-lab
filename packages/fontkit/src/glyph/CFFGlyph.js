@@ -1,10 +1,12 @@
-import Glyph from './Glyph.js';
+import Glyph from './glyph.js';
 import Path from './path.js';
 
 /**
  * Represents an OpenType PostScript glyph, in the Compact Font Format.
  */
-export default class CFFGlyph extends Glyph {
+export default
+
+class CFFGlyph extends Glyph {
 	_getName() {
 		if (this._font.CFF2) {
 			return super._getName();

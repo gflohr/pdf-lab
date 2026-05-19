@@ -1,9 +1,10 @@
-import r, { type RestructureLazyArray, type StructT } from '@pdf-lib/restructure';
+import r, {
+	type RestructureLazyArray,
+	type StructT,
+} from '@pdf-lib/restructure';
+import type { MetricsTable } from './metrics.js';
 
-export interface VmtxTable {
-	metrics: RestructureLazyArray<number>;
-	bearings: RestructureLazyArray<number>;
-}
+export interface VmtxTable extends MetricsTable {}
 
 const VmtxEntry = new r.Struct({
 	advance: r.uint16, // The advance height of the glyph
@@ -19,7 +20,9 @@ const fields = {
 	),
 };
 
-const vmtxTableStruct: StructT<typeof fields, VmtxTable> = new r.Struct<typeof fields, VmtxTable>(fields);
+const vmtxTableStruct: StructT<typeof fields, VmtxTable> = new r.Struct<
+	typeof fields,
+	VmtxTable
+>(fields);
 
 export default vmtxTableStruct;
-

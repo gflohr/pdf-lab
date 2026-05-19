@@ -1,6 +1,6 @@
 import r from '@pdf-lib/restructure';
 import BBox from './BBox.js';
-import Glyph from './Glyph.js';
+import Glyph from './glyph.js';
 import Path from './path.js';
 
 // The header for both simple and composite glyphs

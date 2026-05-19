@@ -3,13 +3,37 @@ declare module '@pdf-lib/unicode-properties' {
 	 * Unicode General Category constants (e.g., 'Lu' for Uppercase Letter, 'Nd' for Decimal Number).
 	 */
 	export type UnicodeCategory =
-		| 'LC' | 'Ll' | 'Lo' | 'Lt' | 'Lm' | 'Lu' // Letters
-		| 'Mn' | 'Mc' | 'Me' // Marks
-		| 'Nd' | 'Nl' | 'No' // Numbers
-		| 'Pc' | 'Pd' | 'Ps' | 'Pe' | 'Pi' | 'Pf' | 'Po' // Punctuation
-		| 'Sm' | 'Sc' | 'Sk' | 'So' // Symbols
-		| 'Zs' | 'Zl' | 'Zp' // Separators
-		| 'Cc' | 'Cf' | 'Cs' | 'Co' | 'Cn'; // Other
+		| 'LC'
+		| 'Ll'
+		| 'Lo'
+		| 'Lt'
+		| 'Lm'
+		| 'Lu' // Letters
+		| 'Mn'
+		| 'Mc'
+		| 'Me' // Marks
+		| 'Nd'
+		| 'Nl'
+		| 'No' // Numbers
+		| 'Pc'
+		| 'Pd'
+		| 'Ps'
+		| 'Pe'
+		| 'Pi'
+		| 'Pf'
+		| 'Po' // Punctuation
+		| 'Sm'
+		| 'Sc'
+		| 'Sk'
+		| 'So' // Symbols
+		| 'Zs'
+		| 'Zl'
+		| 'Zp' // Separators
+		| 'Cc'
+		| 'Cf'
+		| 'Cs'
+		| 'Co'
+		| 'Cn'; // Other
 
 	/**
 	 * Unicode East Asian Width property codes.
@@ -18,7 +42,7 @@ declare module '@pdf-lib/unicode-properties' {
 		| 'F' // Fullwidth
 		| 'H' // Halfwidth
 		| 'W' // Wide
-		| 'Na'// Narrow
+		| 'Na' // Narrow
 		| 'A' // Ambiguous
 		| 'N'; // Neutral
 

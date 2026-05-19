@@ -101,7 +101,7 @@ declare module '@pdf-lib/restructure' {
 	}
 
 	export interface RestructureLazyArray<T> extends Array<T> {
-		get(index: number): T | undefined;
+		get(index: number): T;
 	}
 
 	export class LazyArrayT<TField extends FieldT<unknown>>
@@ -117,7 +117,10 @@ declare module '@pdf-lib/restructure' {
 		// Ensure the return type here matches exactly
 		decode(stream: DecodeStream): RestructureLazyArray<InferField<TField>>;
 
-		encode(stream: DecodeStream, value: RestructureLazyArray<InferField<TField>>): void;
+		encode(
+			stream: DecodeStream,
+			value: RestructureLazyArray<InferField<TField>>,
+		): void;
 	}
 
 	export type TypedStruct<T> = StructT<Record<string, any>, T>;
@@ -126,7 +129,9 @@ declare module '@pdf-lib/restructure' {
 	type InferStruct<TFields extends StructFields> = {
 		[K in keyof TFields]: InferField<TFields[K]>;
 	};
-	export class StructT<TFields = any, TExplicitOut = any> implements FieldT<TExplicitOut> {
+	export class StructT<TFields = any, TExplicitOut = any>
+		implements FieldT<TExplicitOut>
+	{
 		readonly __type?: TExplicitOut;
 
 		constructor(fields: TFields);
@@ -294,7 +299,10 @@ declare module '@pdf-lib/restructure' {
 		String: typeof StringT;
 		Array: typeof ArrayT;
 		LazyArray: typeof LazyArrayT;
-		Struct: new <TFields = any, TExplicitOut = any>(fields: TFields) => StructT<TFields, TExplicitOut>;		VersionedStruct: typeof VersionedStructT;
+		Struct: new <TFields = any, TExplicitOut = any>(
+			fields: TFields,
+		) => StructT<TFields, TExplicitOut>;
+		VersionedStruct: typeof VersionedStructT;
 		Bitfield: typeof BitfieldT;
 		Pointer: typeof PointerT;
 		VoidPointer: typeof VoidPointerT;

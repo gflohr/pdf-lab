@@ -94,13 +94,20 @@ const knownTags = [
 	'Sill',
 ];
 
+interface WOFF2DirectoryEntryContext {
+	customTag: string;
+	tag: string;
+	flags: number;
+	transformVersion: number;
+};
+
 const WOFF2DirectoryEntry = new r.Struct({
 	flags: r.uint8,
 	customTag: new r.Optional(new r.String(4), (t) => (t.flags & 0x3f) === 0x3f),
-	tag: (t) => t.customTag || knownTags[t.flags & 0x3f], // || (() => { throw new Error(`Bad tag: ${flags & 0x3f}`); })(); },
+	tag: (t: WOFF2DirectoryEntryContext) => t.customTag || knownTags[t.flags & 0x3f], // || (() => { throw new Error(`Bad tag: ${flags & 0x3f}`); })(); },
 	length: Base128,
-	transformVersion: (t) => (t.flags >>> 6) & 0x03,
-	transformed: (t) =>
+	transformVersion: (t: WOFF2DirectoryEntryContext) => (t.flags >>> 6) & 0x03,
+	transformed: (t: WOFF2DirectoryEntryContext) =>
 		t.tag === 'glyf' || t.tag === 'loca'
 			? t.transformVersion === 0
 			: t.transformVersion !== 0,

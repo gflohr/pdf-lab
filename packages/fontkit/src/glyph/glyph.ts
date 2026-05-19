@@ -1,6 +1,68 @@
 import unicode from '@pdf-lib/unicode-properties';
+import type { Font } from '../font.js';
+import type { HmtxTable } from '../tables/hmtx.js';
+import type { VmtxTable } from '../tables/vmtx.js';
+import type BBox from './BBox.js';
 import Path from './path.js';
 import StandardNames from './standard-names.js';
+import { MetricsTable } from '../tables/metrics.js';
+import { SFNTFont } from '../sfnt-font.js';
+
+/**
+ * Represents the layout metrics for a glyph along a single layout axis
+ * (either purely horizontal or purely vertical).
+ *
+ * This is a low-level structural representation used directly when parsing
+ * 1D dimension arrays from `hmtx` (Horizontal Metrics) or `vmtx` (Vertical Metrics) tables.
+ */
+export type GlyphAxisMetrics = {
+	/**
+	 * The total distance the pen position must move after rendering this glyph.
+	 * Maps to `advanceWidth` in horizontal layout, or `advanceHeight` in vertical layout.
+	 * Measured in font design units.
+	 */
+	advance: number;
+
+	/**
+	 * The offset distance from the axis baseline origin to the edge of the glyph bounding box.
+	 * Maps to Left Side Bearing (`lsb`) in horizontal layout, or Top Side Bearing (`tsb`) in vertical layout.
+	 * Measured in font design units.
+	 */
+	bearing: number;
+};
+
+/**
+ * Represents the comprehensive, multi-axis bounding metrics for a specific glyph.
+ *
+ * This unified structure combines data resolved from both horizontal and vertical layout
+ * systems, making it the primary interface for high-level rendering engines, text-shaping
+ * loops, and bounding-box calculators.
+ */
+export type GlyphLayoutMetrics = {
+	/**
+	 * The horizontal advance width of the glyph, indicating how much to shift the
+	 * X-cursor after rendering. Sourced from the `hmtx` table.
+	 */
+	advanceWidth: number;
+
+	/**
+	 * The vertical advance height of the glyph, indicating how much to shift the
+	 * Y-cursor when rendering in vertical writing mode. Sourced from the `vmtx` table.
+	 */
+	advanceHeight: number;
+
+	/**
+	 * The distance from the horizontal origin (X = 0) to the leftmost edge of the glyph's outline.
+	 * Also known as Left Side Bearing (LSB).
+	 */
+	leftBearing: number;
+
+	/**
+	 * The distance from the vertical origin (Y = 0) to the top edge of the glyph's outline.
+	 * Also known as Top Side Bearing (TSB).
+	 */
+	topBearing: number;
+};
 
 /**
  * Glyph objects represent a glyph in the font. They have various properties for accessing metrics and
@@ -11,21 +73,34 @@ import StandardNames from './standard-names.js';
  * on the font format, but they all inherit from this class.
  */
 export default class Glyph {
-	constructor(id, codePoints, font) {
-		/**
-		 * The glyph id in the font
-		 * @type {number}
-		 */
+	private readonly id: number;
+	private readonly codePoints: number[];
+	private readonly _font: SFNTFont;
+	// FIXME! Make these two property private and private getters.
+	public readonly isMark: boolean;
+	public readonly isLigature: boolean;
+	private _path?: Path;
+	private _metrics?: GlyphLayoutMetrics;
+	private _bbox?: Readonly<BBox>;
+	private _cbox?: Readonly<BBox>;
+	private _advanceWidth?: number;
+	private _advanceHeight?: number;
+	private _name?: string | null;
+
+	/**
+	 * An array of unicode code points that are represented by this glyph.
+	 * There can be multiple code points in the case of ligatures and other glyphs
+	 * that represent multiple visual characters.
+	 *
+	 * @param id the glyph id in the font.
+	 * @param codePoints the array of Unicode code points.
+	 * @param font
+	 */
+	constructor(id: number, codePoints: number[], font: Font) {
 		this.id = id;
 
-		/**
-		 * An array of unicode code points that are represented by this glyph.
-		 * There can be multiple code points in the case of ligatures and other glyphs
-		 * that represent multiple visual characters.
-		 * @type {number[]}
-		 */
 		this.codePoints = codePoints;
-		this._font = font;
+		this._font = font as SFNTFont;
 
 		// TODO: get this info from GDEF if available
 		this.isMark =
@@ -33,19 +108,19 @@ export default class Glyph {
 		this.isLigature = this.codePoints.length > 1;
 	}
 
-	_getPath() {
+	_getPath(): Path {
 		return new Path();
 	}
 
-	_getCBox() {
+	_getCBox(): Readonly<BBox> {
 		return this.path.cbox;
 	}
 
-	_getBBox() {
+	_getBBox(): Readonly<BBox> {
 		return this.path.bbox;
 	}
 
-	_getTableMetrics(table) {
+	_getTableMetrics(table: MetricsTable): GlyphAxisMetrics {
 		if (this.id < table.metrics.length) {
 			return table.metrics.get(this.id);
 		}
@@ -59,7 +134,7 @@ export default class Glyph {
 		return res;
 	}
 
-	_getMetrics(cbox) {
+	_getMetrics(cbox?: Readonly<BBox>): GlyphLayoutMetrics {
 		if (this._metrics) {
 			return this._metrics;
 		}
@@ -68,9 +143,8 @@ export default class Glyph {
 			this._font.hmtx,
 		);
 
-		// 1. Declare these here so they are available to the whole function scope
-		let advanceHeight;
-		let topBearing;
+		let advanceHeight: number;
+		let topBearing: number;
 
 		// For vertical metrics, use vmtx if available, or fall back to global data
 		if (this._font.vmtx) {
@@ -78,10 +152,8 @@ export default class Glyph {
 			advanceHeight = metrics.advance;
 			topBearing = metrics.bearing;
 		} else {
-			// 2. Clean up cbox check
 			const localCbox = cbox === undefined || cbox === null ? this.cbox : cbox;
 
-			// 3. Extract assignment from the 'if' condition
 			const os2 = this._font['OS/2'];
 
 			if (os2 && os2.version > 0) {
@@ -148,7 +220,7 @@ export default class Glyph {
 	 * A vector Path object representing the glyph outline.
 	 * @type {Path}
 	 */
-	get path() {
+	get path(): Readonly<Path> {
 		// Cache the path so we only decode it once
 		// Decoding is actually performed by subclasses
 		if (typeof this._path === 'undefined') {
@@ -163,7 +235,7 @@ export default class Glyph {
 	 * @param {number} size
 	 * @return {Path}
 	 */
-	getScaledPath(size) {
+	getScaledPath(size: number): Path {
 		const scale = (1 / this._font.unitsPerEm) * size;
 		return this.path.scale(scale);
 	}
@@ -192,34 +264,50 @@ export default class Glyph {
 		return this._advanceHeight;
 	}
 
-	get ligatureCaretPositions() {
-		return undefined;
-	}
-
-	_getName() {
+	_getName(): string | null {
 		const { post } = this._font;
+
 		if (!post) {
 			return null;
 		}
 
 		switch (post.version) {
 			case 1:
-				return StandardNames[this.id];
+				return StandardNames[this.id] ?? null;
 
 			case 2: {
-				const id = post.glyphNameIndex[this.id];
-				if (id < StandardNames.length) {
-					return StandardNames[id];
+				const id = post.glyphNameIndex?.[this.id];
+				if (id === undefined) {
+					return null;
 				}
 
-				return post.names[id - StandardNames.length];
+				if (id < StandardNames.length) {
+					return StandardNames[id] ?? null;
+				}
+
+				return post.names?.[id - StandardNames.length] ?? null;
 			}
 
-			case 2.5:
-				return StandardNames[this.id + post.offsets[this.id]];
+			case 2.5: {
+				const offset = post.offsets?.[this.id];
+				if (offset === undefined) {
+					return null;
+				}
+				return StandardNames[this.id + offset] ?? null;
+			}
 
-			case 4:
-				return String.fromCharCode(post.map[this.id]);
+			case 4: {
+				const mapCode = post.map?.[this.id];
+				if (mapCode === undefined) {
+					return null;
+				}
+				return String.fromCharCode(mapCode);
+			}
+
+			default:
+				throw new Error(
+					`Unsupported or corrupt 'post' table version (${post.version}) encountered while resolving glyph name.`
+				);
 		}
 	}
 
@@ -240,7 +328,7 @@ export default class Glyph {
 	 * @param {CanvasRenderingContext2d} ctx
 	 * @param {number} size
 	 */
-	render(ctx, size) {
+	render(ctx: CanvasRenderingContext2D, size: number) {
 		ctx.save();
 
 		const scale = (1 / this._font.unitsPerEm) * size;

@@ -1,10 +1,8 @@
-import type { RestructureLazyArray, StructT } from '@pdf-lib/restructure';
+import type { StructT } from '@pdf-lib/restructure';
 import r from '@pdf-lib/restructure';
+import type { MetricsTable } from './metrics.js';
 
-export interface HmtxTable {
-	metrics: RestructureLazyArray<number>;
-	bearings: RestructureLazyArray<number>;
-}
+export interface HmtxTable extends MetricsTable {}
 
 const HmtxEntry = new r.Struct({
 	advance: r.uint16,
@@ -19,6 +17,9 @@ const fields = {
 	),
 };
 
-const hmtxTableStruct: StructT<typeof fields, HmtxTable> = new r.Struct<typeof fields, HmtxTable>(fields);
+const hmtxTableStruct: StructT<typeof fields, HmtxTable> = new r.Struct<
+	typeof fields,
+	HmtxTable
+>(fields);
 
 export default hmtxTableStruct;

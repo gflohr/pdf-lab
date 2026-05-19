@@ -28,11 +28,12 @@ Directory.process = function () {
 
 Directory.preEncode = function () {
 	const tables = [];
-	for (const tag in this.tables) {
+	for (const key in this.tables) {
+		const tag = key as keyof typeof Tables;
 		const table = this.tables[tag];
 		if (table) {
 			tables.push({
-				tag: tag,
+				tag,
 				checkSum: 0,
 				offset: new r.VoidPointer(Tables[tag] as FieldT<unknown>, table),
 				// biome-ignore lint/suspicious/noExplicitAny: required.

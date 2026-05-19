@@ -40,12 +40,23 @@ class VariableSizeNumber implements FieldT<number> {
 	}
 }
 
+interface MapDataParent {
+	entryFormat: number;
+}
+
+interface MapDataEntryContext {
+	parent: MapDataParent;
+	entry: number;
+}
+
 const MapDataEntry = new r.Struct({
 	entry: new VariableSizeNumber(
-		(t) => ((t.parent.entryFormat & 0x0030) >> 4) + 1,
+		(t: { parent: MapDataParent }) => ((t.parent.entryFormat & 0x0030) >> 4) + 1,
 	),
-	outerIndex: (t) => t.entry >> ((t.parent.entryFormat & 0x000f) + 1),
-	innerIndex: (t) =>
+	outerIndex: (t: MapDataEntryContext): number =>
+		t.entry >> ((t.parent.entryFormat & 0x000f) + 1),
+
+	innerIndex: (t: MapDataEntryContext): number =>
 		t.entry & ((1 << ((t.parent.entryFormat & 0x000f) + 1)) - 1),
 });
 
