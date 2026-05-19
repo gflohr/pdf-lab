@@ -1,6 +1,6 @@
 import unicode from '@pdf-lib/unicode-properties';
 import Path from './path.js';
-import StandardNames from './StandardNames.js';
+import StandardNames from './standard-names.js';
 
 /**
  * Glyph objects represent a glyph in the font. They have various properties for accessing metrics and
