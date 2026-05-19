@@ -41,7 +41,18 @@ pnpm build                      # Build for publishing (all packages)
 * Use `interface` when declaration merging is required.
 * Use `type` for unions, intersections, mapped types, and aliases (including primitives).
 * Avoid mixing `Type` and `interface` arbitrarily; prefer consistency across the codebase.
-* Exception: in `packages/fontkit`, always use `interface`, because that is the existing code convention.
+* Exception: in `packages/fontkit`, use `interface` for the current public API:
+  * `BoundingBox`
+  * `Path`
+  * `Glyph`
+  * `GlyphPosition`
+  * `GlyphRun`
+  * `SubsetStream`
+  * `Subset`
+  * `OpenTypeFeatures`
+  * `AATFeatures`
+  * `TypeFeatures`
+  * `Font`
 
 ## Other Rules
 
