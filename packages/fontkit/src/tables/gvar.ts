@@ -7,7 +7,11 @@ const Offset = {
 		// In short format, offsets are multiplied by 2.
 		// This doesn't seem to be documented by Apple, but it
 		// is implemented this way in Freetype.
-		return (parent as unknown as { flags: boolean }).flags
+		//
+		// The original version just checked for parent.flags. But only bit
+		// 0 should be used. Otherwise, reserved bits may cause decoding
+		// errors.
+		return (parent as unknown as { flags: number }).flags & 0x1
 			? stream.readUInt32BE()
 			: stream.readUInt16BE() * 2;
 	},
