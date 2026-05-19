@@ -1,6 +1,6 @@
 // see https://developer.apple.com/fonts/TrueType-Reference-Manual/RM09/AppendixF.html
 // and /System/Library/Frameworks/CoreText.framework/Versions/A/Headers/SFNTLayoutTypes.h on a Mac
-const features = {
+const features: Record<string, Record<string, number | boolean >> = {
 	allTypographicFeatures: {
 		code: 0,
 		exclusive: false,
@@ -347,12 +347,12 @@ const features = {
 	},
 };
 
-const feature = (name, selector) => [
+const feature = (name: string, selector: string): [number | boolean, number | boolean] => [
 	features[name].code,
 	features[name][selector],
 ];
 
-const OTMapping = {
+const OTMapping: Record<string, [number | boolean, number | boolean]> = {
 	rlig: feature('ligatures', 'requiredLigatures'),
 	clig: feature('ligatures', 'contextualLigatures'),
 	dlig: feature('ligatures', 'rareLigatures'),
@@ -462,8 +462,8 @@ const OTMapping = {
 
 // salt: feature 'stylisticAlternatives', 'stylisticAltOne' # hmm, which one to choose
 
-// Add cv01-cv99 features
-for (let i = 1; i <= 99; i++) {
+// Add cv01-cv99 features.
+for (let i = 1; i <= 99; ++i) {
 	OTMapping[`cv${`00${i}`.slice(-2)}`] = [
 		features.characterAlternatives.code,
 		i,
@@ -471,79 +471,114 @@ for (let i = 1; i <= 99; i++) {
 }
 
 // Create inverse mapping.
-const AATMapping = {};
+const AATMapping: Record<string, Record<string, string>> = {};
 for (const ot in OTMapping) {
 	const aat = OTMapping[ot];
-	if (AATMapping[aat[0]] == null) {
-		AATMapping[aat[0]] = {};
-	}
+	const primaryKey = String(aat[0]);
+	const secondaryKey = String(aat[1]);
+	AATMapping[primaryKey] ??= {};
 
-	AATMapping[aat[0]][aat[1]] = ot;
+	AATMapping[primaryKey][secondaryKey] = ot;
 }
 
 // Maps an array of OpenType features to AAT features
-// in the form of {featureType:{featureSetting:true}}
-export function mapOTToAAT(features) {
-	const res = {};
+// in the form of {featureType:{featureSetting:true}}.
+export type OpenTypeFeaturesInput = Record<string, boolean>;
+
+export type AATFeaturesOutput = Record<string, Record<string, boolean>>;
+
+/**
+ * Maps an array of OpenType features to AAT features
+ * in the form of {featureType:{featureSetting:true}}.
+ */
+export function mapOTToAAT(features: OpenTypeFeaturesInput): AATFeaturesOutput {
+	const res: AATFeaturesOutput = {};
+
 	for (const k in features) {
 		const r = OTMapping[k];
 		if (r) {
-			if (res[r[0]] == null) {
-				res[r[0]] = {};
-			}
+			const featureType = String(r[0]);
+			const featureSetting = String(r[1]);
 
-			res[r[0]][r[1]] = features[k];
+			res[featureType] ??= {};
+			res[featureType][featureSetting] = features[k];
 		}
 	}
 
 	return res;
 }
 
-// Maps strings in a [featureType, featureSetting]
-// to their equivalent number codes
-function mapFeatureStrings(f) {
+/**
+ * Maps strings in a [featureType, featureSetting]
+ * to their equivalent number codes.
+ */
+function mapFeatureStrings(
+	f: [string, number | boolean]
+): [number | boolean | string, number | boolean | string] {
 	const [type, setting] = f;
-	let typeCode;
-	if (Number.isNaN(type)) {
-		typeCode = features[type]?.code;
-	} else {
-		typeCode = type;
-	}
 
-	let settingCode;
-	if (Number.isNaN(setting)) {
-		settingCode = features[type]?.[setting];
-	} else {
-		settingCode = setting;
-	}
+	// The original version in fontkit had a bug. It checked with
+	// Number.isNaN() to see whether type resp. setting was a number. But
+	// Number.isNaN() only returns true for the number NaN, which can never
+	// occur here. Consequently, instead of assigning the corresponding code,
+	// the raw string was assigned to typeCode.
+	const isTypeStringLabel = Number.isNaN(Number.parseInt(type, 10));
+	const typeCode = isTypeStringLabel
+		? (features[type]?.code ?? type)
+		: type;
+
+	const isSettingLabel = typeof setting === 'boolean' || typeof setting === 'string';
+	const settingCode = isSettingLabel
+		? (features[type]?.[String(setting)] ?? setting)
+		: setting;
 
 	return [typeCode, settingCode];
 }
 
-// Maps AAT features to an array of OpenType features
-// Supports both arrays in the form of [[featureType, featureSetting]]
-// and objects in the form of {featureType:{featureSetting:true}}
-// featureTypes and featureSettings can be either strings or number codes.
-export function mapAATToOT(features) {
-	const res = {};
+// Union input type supporting both the Array format and Object dictionary
+// format for mapAATToOT() defined below.
+export type AATFeaturesInput =
+	| [string, number | boolean][]
+	| Record<string, Record<string, boolean>>;
+
+/**
+ * Maps AAT features to an array of OpenType features
+ * Supports both arrays in the form of [[featureType, featureSetting]]
+ * and objects in the form of {featureType:{featureSetting:true}}
+ * featureTypes and featureSettings can be either strings or number codes.
+ */
+export function mapAATToOT(features: AATFeaturesInput): string[] {
+	const res: Record<string, boolean> = {};
 
 	if (Array.isArray(features)) {
 		for (let k = 0; k < features.length; k++) {
 			const f = mapFeatureStrings(features[k]);
-			// Extract the assignment from the if condition
-			const r = AATMapping[f[0]]?.[f[1]];
+
+			// Convert lookup keys safely to strings to index into AATMapping
+			const primaryKey = String(f[0]);
+			const secondaryKey = String(f[1]);
+			const r = AATMapping[primaryKey]?.[secondaryKey];
 
 			if (r) {
 				res[r] = true;
 			}
 		}
-	} else if (typeof features === 'object') {
+	} else if (features && typeof features === 'object') {
 		for (const type in features) {
 			const feature = features[type];
+			if (!feature) continue;
+
 			for (const setting in feature) {
-				const f = mapFeatureStrings([type, setting]);
-				// Separate the look-up from the boolean check
-				const r = AATMapping[f[0]]?.[f[1]];
+				// Object keys are natively strings at runtime. We parse 'setting' out
+				// to match the expected signature of mapFeatureStrings.
+				const isBooleanSetting = setting === 'true' || setting === 'false';
+				const settingVal = isBooleanSetting ? (setting === 'true') : Number.parseInt(setting, 10);
+
+				const f = mapFeatureStrings([type, settingVal]);
+
+				const primaryKey = String(f[0]);
+				const secondaryKey = String(f[1]);
+				const r = AATMapping[primaryKey]?.[secondaryKey];
 
 				if (feature[setting] && r) {
 					res[r] = true;
