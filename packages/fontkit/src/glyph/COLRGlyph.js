@@ -1,4 +1,4 @@
-import BBox from './BBox.js';
+import BBox from './bbox.js';
 import Glyph from './glyph.js';
 
 class COLRLayer {

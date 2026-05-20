@@ -1,4 +1,4 @@
-import BBox from './BBox.js';
+import BBox from './bbox.js';
 
 const SVG_COMMANDS = {
 	moveTo: 'M',

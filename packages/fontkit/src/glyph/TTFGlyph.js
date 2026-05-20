@@ -1,5 +1,5 @@
 import r from '@pdf-lib/restructure';
-import BBox from './BBox.js';
+import BBox from './bbox.js';
 import Glyph from './glyph.js';
 import Path from './path.js';
 

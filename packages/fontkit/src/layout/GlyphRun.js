@@ -1,4 +1,4 @@
-import BBox from '../glyph/BBox.js';
+import BBox from '../glyph/bbox.js';
 import * as Script from '../layout/Script.js';
 
 /**

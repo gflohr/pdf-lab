@@ -2,7 +2,7 @@ import unicode from '@pdf-lib/unicode-properties';
 import type { Font } from '../font.js';
 import type { HmtxTable } from '../tables/hmtx.js';
 import type { VmtxTable } from '../tables/vmtx.js';
-import type BBox from './BBox.js';
+import type BBox from './bbox.js';
 import Path from './path.js';
 import StandardNames from './standard-names.js';
 import { MetricsTable } from '../tables/metrics.js';
