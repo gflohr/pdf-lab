@@ -4,7 +4,10 @@ import r, {
 	type Length,
 } from '@pdf-lib/restructure';
 import { resolveLength } from '@pdf-lib/restructure/src/utils.js';
-import { ItemVariationStore } from './variations.js';
+import {
+	ItemVariationStore,
+	type ItemVariationStoreTable,
+} from './variations.js';
 
 // TODO: add this to restructure
 class VariableSizeNumber implements FieldT<number> {
@@ -40,6 +43,18 @@ class VariableSizeNumber implements FieldT<number> {
 	}
 }
 
+/**
+ * Represents a single parsed entry within a delta set index map.
+ */
+export interface HVARMapDataEntry {
+	/** The raw multi-size value containing packed index bits. */
+	entry: number;
+	/** Outer index pointing to an item variation data set inside the variation store. */
+	outerIndex: number;
+	/** Inner index pointing to a specific delta vector row inside the item variation data set. */
+	innerIndex: number;
+}
+
 interface MapDataParent {
 	entryFormat: number;
 }
@@ -49,7 +64,7 @@ interface MapDataEntryContext {
 	entry: number;
 }
 
-const MapDataEntry = new r.Struct({
+const MapDataEntry = new r.Struct<any, HVARMapDataEntry>({
 	entry: new VariableSizeNumber(
 		(t: { parent: MapDataParent }) =>
 			((t.parent.entryFormat & 0x0030) >> 4) + 1,
@@ -61,17 +76,52 @@ const MapDataEntry = new r.Struct({
 		t.entry & ((1 << ((t.parent.entryFormat & 0x000f) + 1)) - 1),
 });
 
-const DeltaSetIndexMap = new r.Struct({
+/**
+ * Represents a compiled Map table correlating glyph IDs to variation indexes.
+ */
+export interface HVARDeltaSetIndexMap {
+	/** Flag formatting mask dictating outer/inner index bit boundaries. */
+	entryFormat: number;
+	/** Total number of mapping index elements stored. */
+	mapCount: number;
+	/** Array containing individual variation indexing pairs. */
+	mapData: HVARMapDataEntry[];
+}
+
+const DeltaSetIndexMap = new r.Struct<any, HVARDeltaSetIndexMap>({
 	entryFormat: r.uint16,
 	mapCount: r.uint16,
 	mapData: new r.Array(MapDataEntry, 'mapCount'),
 });
 
-export default new r.Struct({
+/**
+ * Represents the OpenType Horizontal Metrics Variation Table (`HVAR`).
+ *
+ * This table supplies variation adjustments for advance widths, left side bearings,
+ * and right side bearings of horizontal metrics within variable fonts.
+ */
+export interface HVARTable {
+	/** Major table specification version (typically 1). */
+	majorVersion: number;
+	/** Minor table specification version (typically 0). */
+	minorVersion: number;
+	/** Pointer to the underlying item variation storage tracking region deltas. */
+	itemVariationStore: ItemVariationStoreTable;
+	/** Optional mapping data resolving variable adjustments for advance widths. */
+	advanceWidthMapping: HVARDeltaSetIndexMap | null;
+	/** Optional mapping data resolving variable adjustments for Left Side Bearings. */
+	LSBMapping: HVARDeltaSetIndexMap | null;
+	/** Optional mapping data resolving variable adjustments for Right Side Bearings. */
+	RSBMapping: HVARDeltaSetIndexMap | null;
+}
+
+const fields = {
 	majorVersion: r.uint16,
 	minorVersion: r.uint16,
 	itemVariationStore: new r.Pointer(r.uint32, ItemVariationStore),
 	advanceWidthMapping: new r.Pointer(r.uint32, DeltaSetIndexMap),
 	LSBMapping: new r.Pointer(r.uint32, DeltaSetIndexMap),
 	RSBMapping: new r.Pointer(r.uint32, DeltaSetIndexMap),
-});
+};
+
+export default new r.Struct<typeof fields, HVARTable>(fields);

@@ -1,9 +1,7 @@
 import unicode from '@pdf-lib/unicode-properties';
 import type { Font } from '../font.js';
 import type { SFNTFont } from '../sfnt-font.js';
-import type { HmtxTable } from '../tables/hmtx.js';
 import type { MetricsTable } from '../tables/metrics.js';
-import type { VmtxTable } from '../tables/vmtx.js';
 import type BBox from './bbox.js';
 import Path from './path.js';
 import StandardNames from './standard-names.js';
