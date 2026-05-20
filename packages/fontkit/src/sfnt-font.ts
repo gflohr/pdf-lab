@@ -1,6 +1,7 @@
 import type { Font } from './font.js';
 import type { HheaTable } from './tables/hhea.js';
 import type { HmtxTable } from './tables/hmtx.js';
+import { HVARTable } from './tables/HVAR.js';
 import type { PostTable } from './tables/post.js';
 import type { VmtxTable } from './tables/vmtx.js';
 import type {
@@ -82,6 +83,11 @@ export interface SFNTFont extends Omit<Font, 'post'> {
 	hmtx: HmtxTable;
 
 	/**
+	 * The font's `HVAR` table.
+	 */
+	HVAR: HVARTable;
+
+	/**
 	 * The font's `post` table.
 	 */
 	post: PostTable;
@@ -94,5 +100,4 @@ export interface SFNTFont extends Omit<Font, 'post'> {
 	// Bad interface starts here.
 	_variationProcessor: any;
 	'OS/2': any;
-	HVAR: any;
 }

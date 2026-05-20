@@ -98,7 +98,7 @@ export default class Glyph {
 		this.id = id;
 
 		this.codePoints = codePoints;
-		this._font = font as SFNTFont;
+		this._font = font as unknown as SFNTFont;
 
 		// TODO: get this info from GDEF if available
 		this.isMark =
