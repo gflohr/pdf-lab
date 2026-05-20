@@ -164,28 +164,21 @@ declare module '@pdf-lib/restructure' {
 		[K in keyof TVersions & string]: { version: K } & InferStruct<TVersions[K]>;
 	}[keyof TVersions & string];
 
-	export class VersionedStructT<TVersions extends Record<string, any>>
-		implements FieldT<InferVersionedStruct<TVersions>>
+	export class VersionedStructT<TVersions = any, TExplicitOut = any>
+		implements FieldT<TExplicitOut>
 	{
-		readonly __type?: InferVersionedStruct<TVersions>;
+		/** Holds the structural signature of your compiled output type safely */
+		readonly __type?: TExplicitOut;
 
 		versions: TVersions;
 
-		// versionField can be a string (pointing to a parent key) or a Field (like uint16)
 		constructor(versionField: string | FieldT<number>, versions: TVersions);
 
-		decode(stream: DecodeStream, parent?: any): InferVersionedStruct<TVersions>;
-		size(
-			value?: InferVersionedStruct<TVersions>,
-			parent?: any,
-			includePointers?: boolean,
-		): number;
+		decode(stream: DecodeStream, parent?: any): TExplicitOut;
 
-		encode(
-			stream: DecodeStream,
-			value: InferVersionedStruct<TVersions>,
-			parent?: any,
-		): void;
+		size(value?: TExplicitOut, parent?: any, includePointers?: boolean): number;
+
+		encode(stream: DecodeStream, value: TExplicitOut, parent?: any): void;
 
 		process?: (this: any, stream: DecodeStream) => void;
 		preEncode?: (this: any, stream: DecodeStream) => void;
@@ -302,7 +295,10 @@ declare module '@pdf-lib/restructure' {
 		Struct: new <TFields = any, TExplicitOut = any>(
 			fields: TFields,
 		) => StructT<TFields, TExplicitOut>;
-		VersionedStruct: typeof VersionedStructT;
+		VersionedStruct: new <TVersions = any, TExplicitOut = any>(
+			versionField: string | FieldT<number>,
+			versions: TVersions,
+		) => VersionedStructT<TVersions, TExplicitOut>;
 		Bitfield: typeof BitfieldT;
 		Pointer: typeof PointerT;
 		VoidPointer: typeof VoidPointerT;

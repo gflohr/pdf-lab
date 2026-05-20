@@ -51,7 +51,8 @@ interface MapDataEntryContext {
 
 const MapDataEntry = new r.Struct({
 	entry: new VariableSizeNumber(
-		(t: { parent: MapDataParent }) => ((t.parent.entryFormat & 0x0030) >> 4) + 1,
+		(t: { parent: MapDataParent }) =>
+			((t.parent.entryFormat & 0x0030) >> 4) + 1,
 	),
 	outerIndex: (t: MapDataEntryContext): number =>
 		t.entry >> ((t.parent.entryFormat & 0x000f) + 1),

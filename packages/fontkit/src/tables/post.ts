@@ -1,35 +1,101 @@
 import r from '@pdf-lib/restructure';
 
-// PostScript information
-export default new r.VersionedStruct(r.fixed32, {
+/**
+ * Base common headers present across all variations of the PostScript ('post') table.
+ */
+interface PostTableBase {
+	/** Italic angle in counter-clockwise degrees from the vertical. */
+	italicAngle: number;
+	/** Suggested distance of the top of the underline from the baseline. */
+	underlinePosition: number;
+	/** Suggested values for the underline thickness. */
+	underlineThickness: number;
+	/** Whether the font is monospaced (0 = proportional, non-zero = monospaced). */
+	isFixedPitch: number;
+	/** Minimum memory usage when a TrueType font is downloaded as a Type 42 font. */
+	minMemType42: number;
+	/** Maximum memory usage when a TrueType font is downloaded as a Type 42 font. */
+	maxMemType42: number;
+	/** Minimum memory usage when a TrueType font is downloaded as a Type 1 font. */
+	minMemType1: number;
+	/** Maximum memory usage when a TrueType font is downloaded as a Type 1 font. */
+	maxMemType1: number;
+}
+
+export interface PostTableV1 extends PostTableBase {
+	version: 1;
+}
+
+export interface PostTableV2 extends PostTableBase {
+	version: 2;
+	numberOfGlyphs: number;
+	glyphNameIndex: number[];
+	names: string[];
+}
+
+export interface PostTableV2_5 extends PostTableBase {
+	version: 2.5;
+	numberOfGlyphs: number;
+	offsets: number[];
+}
+
+export interface PostTableV3 extends PostTableBase {
+	version: 3;
+}
+
+export interface PostTableV4 extends PostTableBase {
+	version: 4;
+	map: number[];
+}
+
+/**
+ * Represents the parsed OpenType PostScript information table ('post').
+ * Discriminates fields fluidly based on the specific underlying structure version.
+ */
+export type PostTable =
+	| PostTableV1
+	| PostTableV2
+	| PostTableV2_5
+	| PostTableV3
+	| PostTableV4;
+
+// --- Structural Configuration Shape Mapping ---
+
+interface ParentContext {
+	maxp: { numGlyphs: number };
+}
+
+const fields = {
 	header: {
-		// these fields exist at the top of all versions
-		italicAngle: r.fixed32, // Italic angle in counter-clockwise degrees from the vertical.
-		underlinePosition: r.int16, // Suggested distance of the top of the underline from the baseline
-		underlineThickness: r.int16, // Suggested values for the underline thickness
-		isFixedPitch: r.uint32, // Whether the font is monospaced
-		minMemType42: r.uint32, // Minimum memory usage when a TrueType font is downloaded as a Type 42 font
-		maxMemType42: r.uint32, // Maximum memory usage when a TrueType font is downloaded as a Type 42 font
-		minMemType1: r.uint32, // Minimum memory usage when a TrueType font is downloaded as a Type 1 font
-		maxMemType1: r.uint32, // Maximum memory usage when a TrueType font is downloaded as a Type 1 font
+		italicAngle: r.fixed32,
+		underlinePosition: r.int16,
+		underlineThickness: r.int16,
+		isFixedPitch: r.uint32,
+		minMemType42: r.uint32,
+		maxMemType42: r.uint32,
+		minMemType1: r.uint32,
+		maxMemType1: r.uint32,
 	},
-
-	1: {}, // version 1 has no additional fields
-
+	1: {},
 	2: {
 		numberOfGlyphs: r.uint16,
 		glyphNameIndex: new r.Array(r.uint16, 'numberOfGlyphs'),
 		names: new r.Array(new r.String(r.uint8)),
 	},
-
 	2.5: {
 		numberOfGlyphs: r.uint16,
 		offsets: new r.Array(r.uint8, 'numberOfGlyphs'),
 	},
-
-	3: {}, // version 3 has no additional fields
-
+	3: {},
 	4: {
-		map: new r.Array(r.uint32, (t) => t.parent.maxp.numGlyphs),
+		map: new r.Array(
+			r.uint32,
+			(t: { parent: ParentContext }) => t.parent.maxp.numGlyphs,
+		),
 	},
-});
+};
+
+export default new r.VersionedStruct<typeof fields, PostTable>(
+	r.fixed32,
+	fields,
+);

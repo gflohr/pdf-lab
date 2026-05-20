@@ -1,4 +1,4 @@
-import r, { ParsingContext } from '@pdf-lib/restructure';
+import r, { type ParsingContext } from '@pdf-lib/restructure';
 
 const KernPair = new r.Struct({
 	left: r.uint16,
@@ -7,36 +7,38 @@ const KernPair = new r.Struct({
 });
 
 interface ClassTableContext {
-	offsets: number[],
+	offsets: number[];
 }
 
 const ClassTable = new r.Struct({
 	firstGlyph: r.uint16,
 	nGlyphs: r.uint16,
 	offsets: new r.Array(r.uint16, 'nGlyphs'),
-	max: (t: ClassTableContext) => t.offsets.length && Math.max.apply(Math, t.offsets),
+	max: (t: ClassTableContext) =>
+		t.offsets.length && Math.max.apply(Math, t.offsets),
 });
 interface LeftTableConfig {
-    max: number;
+	max: number;
 }
 
 interface KernRootContext extends ParsingContext {
-    // Add any root properties if needed later
+	// Add any root properties if needed later
 }
 
 interface KernSubTableContext {
-    parent: KernRootContext;
-    rowWidth: number;
-    leftTable: LeftTableConfig;
+	parent: KernRootContext;
+	rowWidth: number;
+	leftTable: LeftTableConfig;
 }
 
 interface Kern2ArrayContext extends ParsingContext {
-    parent: KernSubTableContext;
-    off: number;
+	parent: KernSubTableContext;
+	off: number;
 }
 
 const Kern2Array = new r.Struct({
-	off: (t: Kern2ArrayContext) => t._startOffset! - t.parent!.parent!._startOffset!,
+	off: (t: Kern2ArrayContext) =>
+		t._startOffset! - t.parent!.parent!._startOffset!,
 	len: (t: Kern2ArrayContext) =>
 		((t.parent.leftTable.max - t.off) / t.parent.rowWidth + 1) *
 		(t.parent.rowWidth / 2),

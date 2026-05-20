@@ -4,7 +4,7 @@ interface FvarContext {
 	nameID: number;
 	parent: FvarContext;
 	name: { records: { fontFeatures: string[] } };
-};
+}
 
 const Axis = new r.Struct({
 	axisTag: new r.String(4),
