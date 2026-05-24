@@ -60,6 +60,15 @@ import just from './just.js';
 import morx from './morx.js';
 import opbd from './opbd.js';
 
+export type FontTable = Record<
+	string,
+	/** biome-ignore lint/suspicious/noExplicitAny: The restructure library
+	 * used for decoding and encoding the table data is highly dynamic. Using
+	 * stricter typings is currently considered not being worth the effort.
+	 */
+	StructT<any, any> | VersionedStructT<any> | ArrayT<any> | typeof CFFFont
+>;
+
 const tables = {
 	cmap,
 	head,
@@ -105,13 +114,6 @@ const tables = {
 	just,
 	morx,
 	opbd,
-} satisfies Record<
-	string,
-	/** biome-ignore lint/suspicious/noExplicitAny: The restructure library
-	 * used for decoding and encoding the table data is highly dynamic. Using
-	 * stricter typings is currently considered not being worth the effort.
-	 */
-	StructT<any, any> | VersionedStructT<any> | ArrayT<any> | typeof CFFFont
->;
+} satisfies FontTable;
 
 export default tables;
