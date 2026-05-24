@@ -50,7 +50,7 @@ describe('variations', () => {
 
 		it.skipIf(!hasSkiaFont)('should get a variation by name', () => {
 			const variation = font.getVariation('Bold');
-			expect(variation.constructor.name).toBe('TTFFont');
+			expect(variation.constructor.name).toBe('SFNTFont');
 
 			const glyph = variation.getGlyph(68); // D
 			expect(glyph.path.toSVG()).toBe(
@@ -60,7 +60,7 @@ describe('variations', () => {
 
 		it.skipIf(!hasSkiaFont)('should get a variation by settings', () => {
 			const variation = font.getVariation({ wght: 0.5 });
-			expect(variation.constructor.name).toBe('TTFFont');
+			expect(variation.constructor.name).toBe('SFNTFont');
 
 			const glyph = variation.getGlyph(68); // D
 			expect(glyph.path.toSVG()).toBe(

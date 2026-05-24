@@ -2,7 +2,7 @@ import brotli from '@pdf-lib/brotli/decompress.js';
 import r from '@pdf-lib/restructure';
 import TTFGlyph, { Point } from './glyph/TTFGlyph.js';
 import WOFF2Glyph from './glyph/WOFF2Glyph.js';
-import TTFFont from './TTFFont.js';
+import { TTFFont } from './TTFFont.js';
 import WOFF2Directory from './tables/WOFF2Directory.js';
 
 /**
@@ -17,6 +17,8 @@ export default class WOFF2Font extends TTFFont {
 	_decodeDirectory() {
 		this.directory = WOFF2Directory.decode(this.stream);
 		this._dataPos = this.stream.pos;
+
+		return this.directory;
 	}
 
 	_decompress() {

@@ -1,4 +1,4 @@
-import type { Glyph } from './glyph.js';
+import type Glyph from '../glyph/glyph.js';
 
 export interface SubsetStream extends AsyncIterable<Uint8Array> {
 	on: (

@@ -1,6 +1,6 @@
 import r from '@pdf-lib/restructure';
 import inflate from 'tiny-inflate';
-import TTFFont from './TTFFont.js';
+import { TTFFont } from './TTFFont.js';
 import WOFFDirectory from './tables/WOFFDirectory.js';
 
 export default class WOFFFont extends TTFFont {
@@ -10,6 +10,8 @@ export default class WOFFFont extends TTFFont {
 
 	_decodeDirectory() {
 		this.directory = WOFFDirectory.decode(this.stream, { _startOffset: 0 });
+
+		return this.directory;
 	}
 
 	_getTableStream(tag) {

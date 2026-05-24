@@ -95,7 +95,7 @@ describe('fontkit', () => {
 		it('should get collection objects for ttc fonts', () => {
 			const collection: TrueTypeCollection = fontkit.openSync(
 				`${datadir}/NotoSans/NotoSans.ttc`,
-			) as TrueTypeCollection;
+			) as unknown as TrueTypeCollection;
 
 			expect(collection.constructor.name).toBe('TrueTypeCollection');
 
@@ -118,7 +118,7 @@ describe('fontkit', () => {
 		it('should get collection objects for dfonts', () => {
 			const collection: TrueTypeCollection = fontkit.openSync(
 				`${datadir}/NotoSans/NotoSans.dfont`,
-			) as TrueTypeCollection;
+			) as unknown as TrueTypeCollection;
 			expect(collection.constructor.name).toBe('DFont');
 
 			const names = collection.fonts.map((f) => f.postscriptName);

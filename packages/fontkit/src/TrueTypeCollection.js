@@ -1,5 +1,5 @@
 import r from '@pdf-lib/restructure';
-import TTFFont from './TTFFont.js';
+import { TTFFont } from './TTFFont.js';
 
 const TTCHeader = new r.VersionedStruct(r.uint32, {
 	65536: {
