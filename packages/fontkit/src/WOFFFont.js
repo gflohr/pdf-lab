@@ -8,10 +8,9 @@ export default class WOFFFont extends TTFFont {
 		return buffer.toString('ascii', 0, 4) === 'wOFF';
 	}
 
-	_decodeDirectory() {
-		this.directory = WOFFDirectory.decode(this.stream, { _startOffset: 0 });
-
-		return this.directory;
+	// private
+	decodeDirectory() {
+		return WOFFDirectory.decode(this.stream, { _startOffset: 0 });
 	}
 
 	_getTableStream(tag) {

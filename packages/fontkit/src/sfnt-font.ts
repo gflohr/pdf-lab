@@ -124,7 +124,7 @@ export class SFNTFont {
 		this._directoryPos = this.stream.pos;
 		this._tables = {};
 		this._glyphs = {};
-		this.directory = this._decodeDirectory();
+		this.directory = this.decodeDirectory();
 
 		// define properties for each table to lazily parse
 		for (const tag in this.directory.tables) {
@@ -172,13 +172,10 @@ export class SFNTFont {
 		return null;
 	}
 
-	_decodeDirectory(): SFNTDirectory {
-		// FIXME! The assignment is unnecessary.
-		this.directory = Directory.decode(this.stream, {
+	protected decodeDirectory(): SFNTDirectory {
+		return Directory.decode(this.stream, {
 			_startOffset: 0,
 		} as unknown as FieldT<unknown>);
-
-		return this.directory;
 	}
 
 	_decodeTable(table: SFNTTable) {
