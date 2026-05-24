@@ -265,9 +265,9 @@ declare module '@pdf-lib/restructure' {
 
 		size(value?: FieldT<unknown>): number;
 
-		decode(stream: DecodeStream): Uint8Array;
+		decode(stream: DecodeStream, ctx?: ParsingContext): Uint8Array;
 
-		encode(stream: DecodeStream, val: Uint8Array): void;
+		encode(stream: DecodeStream, val: Uint8Array, ctx?: ParsingContext): void;
 	}
 
 	export type ConditionResolver<T = any> = (t: T) => boolean;

@@ -563,7 +563,7 @@ export class SFNTFont {
 		return this._layoutEngine.getAvailableFeatures(script, language);
 	}
 
-	_getBaseGlyph(glyph: number, characters: number[] = []) {
+	_getBaseGlyph(glyph: number, characters: number[] = []): Glyph | null {
 		if (!this._glyphs[glyph]) {
 			if (this.directory.tables.glyf) {
 				this._glyphs[glyph] = new TTFGlyph(

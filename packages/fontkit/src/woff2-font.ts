@@ -1,37 +1,56 @@
 import brotli from '@pdf-lib/brotli/decompress.js';
-import r from '@pdf-lib/restructure';
+import r, {
+	type BufferT,
+	type DecodeStream,
+	type Length,
+	type ParsingContext,
+} from '@pdf-lib/restructure';
+import type Glyph from './glyph/glyph.js';
 import TTFGlyph, { Point } from './glyph/TTFGlyph.js';
 import WOFF2Glyph from './glyph/WOFF2Glyph.js';
-import WOFF2Directory from './tables/WOFF2Directory.js';
+import type { SFNTDirectory, SFNTTable } from './tables/directory.js';
+import WOFF2Directory, {
+	type WOFF2DirectoryTable,
+	type WOFF2TableMap,
+} from './tables/WOFF2Directory.js';
 import { TrueTypeFont } from './true-type-font.js';
 
 /**
  * Subclass of TrueTypeFont that represents a TTF/OTF font compressed by WOFF2
  * See spec here: http://www.w3.org/TR/WOFF2/
  */
-export default class WOFF2Font extends TrueTypeFont {
-	static probe(buffer) {
+export class WOFF2Font extends TrueTypeFont {
+	_dataPos?: number;
+	_decompressed = false;
+	_glyphs: Record<number, Glyph> = {};
+	_transformedGlyphs?: unknown[];
+
+	static probe(buffer: Buffer) {
 		return buffer.toString('ascii', 0, 4) === 'wOF2';
 	}
 
 	// private
-	decodeDirectory() {
+	decodeDirectory(): SFNTDirectory {
 		const directory = WOFF2Directory.decode(this.stream);
 
 		this._dataPos = this.stream.pos;
 
-		return directory;
+		return directory as unknown as SFNTDirectory;
 	}
 
 	_decompress() {
 		// decompress data and setup table offsets if we haven't already
 		if (!this._decompressed) {
-			this.stream.pos = this._dataPos;
-			const buffer = this.stream.readBuffer(this.directory.totalCompressedSize);
+			this.stream.pos = this._dataPos!;
+			const buffer = this.stream.readBuffer(
+				(this.directory as unknown as WOFF2DirectoryTable).totalCompressedSize,
+			);
 
 			let decompressedSize = 0;
 			for (const tag in this.directory.tables) {
-				const entry = this.directory.tables[tag];
+				const entry = this.directory.tables[
+					tag
+				] as unknown as WOFF2DirectoryTable;
 				entry.offset = decompressedSize;
 				decompressedSize +=
 					entry.transformLength != null ? entry.transformLength : entry.length;
@@ -47,37 +66,47 @@ export default class WOFF2Font extends TrueTypeFont {
 		}
 	}
 
-	_decodeTable(table) {
+	_decodeTable(table: SFNTTable) {
 		this._decompress();
 		return super._decodeTable(table);
 	}
 
 	// Override this method to get a glyph and return our
 	// custom subclass if there is a glyf table.
-	_getBaseGlyph(glyph, characters = []) {
+	_getBaseGlyph(glyph: number, characters: number[] = []): Glyph | null {
+		const tables = this.directory.tables as WOFF2TableMap;
 		if (!this._glyphs[glyph]) {
-			if (this.directory.tables.glyf?.transformed) {
+			if (tables.glyf?.transformed) {
 				if (!this._transformedGlyphs) {
 					this._transformGlyfTable();
 				}
-				this._glyphs[glyph] = new WOFF2Glyph(glyph, characters, this);
+				// FIXME! Actually, WOFF2Glyph should extend Glyph.
+				(this._glyphs as Record<number, WOFF2Glyph>)[glyph] = new WOFF2Glyph(
+					glyph,
+					characters,
+					this as never,
+				);
 				return this._glyphs[glyph];
 			} else {
 				return super._getBaseGlyph(glyph, characters);
 			}
 		}
+
+		return null;
 	}
 
 	_transformGlyfTable() {
 		this._decompress();
-		this.stream.pos = this.directory.tables.glyf.offset;
+		const tables = this.directory.tables as WOFF2TableMap;
+		this.stream.pos = tables.glyf!.offset;
 		const table = GlyfTable.decode(this.stream);
 		const glyphs = [];
 
 		for (let index = 0; index < table.numGlyphs; index++) {
-			const glyph = {};
+			const glyph: WOFF2Glyph = {} as WOFF2Glyph;
 			const nContours = table.nContours.readInt16BE();
-			glyph.numberOfContours = nContours;
+			(glyph as unknown as { numberOfContours: number }).numberOfContours =
+				nContours;
 
 			if (nContours > 0) {
 				// simple glyph
@@ -90,10 +119,12 @@ export default class WOFF2Font extends TrueTypeFont {
 					nPoints.push(totalPoints);
 				}
 
-				glyph.points = decodeTriplet(table.flags, table.glyphs, totalPoints);
+				const points = decodeTriplet(table.flags, table.glyphs, totalPoints);
 				for (let i = 0; i < nContours; i++) {
-					glyph.points[nPoints[i] - 1].endContour = true;
+					points[nPoints[i] - 1].endContour = true;
 				}
+
+				(glyph as unknown as { points: Point[] }).points = points;
 
 				read255UInt16(table.glyphs);
 			} else if (nContours < 0) {
@@ -117,12 +148,13 @@ export default class WOFF2Font extends TrueTypeFont {
 
 // Special class that accepts a length and returns a sub-stream for that data
 class Substream {
-	constructor(length) {
-		this.length = length;
-		this._buf = new r.Buffer(length);
+	_buf: BufferT;
+
+	constructor(private readonly length: Length) {
+		this._buf = new r.Buffer(this.length);
 	}
 
-	decode(stream, parent) {
+	decode(stream: DecodeStream, parent?: ParsingContext) {
 		return new r.DecodeStream(this._buf.decode(stream, parent));
 	}
 }
@@ -153,7 +185,7 @@ const ONE_MORE_BYTE_CODE2 = 254;
 const ONE_MORE_BYTE_CODE1 = 255;
 const LOWEST_U_CODE = 253;
 
-function read255UInt16(stream) {
+function read255UInt16(stream: DecodeStream) {
 	const code = stream.readUInt8();
 
 	if (code === WORD_CODE) {
@@ -171,11 +203,15 @@ function read255UInt16(stream) {
 	return code;
 }
 
-function withSign(flag, baseval) {
+function withSign(flag: number, baseval: number): number {
 	return flag & 1 ? baseval : -baseval;
 }
 
-function decodeTriplet(flags, glyphs, nPoints) {
+function decodeTriplet(
+	flags: DecodeStream,
+	glyphs: DecodeStream,
+	nPoints: number,
+) {
 	let x = 0;
 	let y = 0;
 	const res = [];
@@ -217,6 +253,7 @@ function decodeTriplet(flags, glyphs, nPoints) {
 
 		x += dx;
 		y += dy;
+
 		res.push(new Point(onCurve, false, x, y));
 	}
 
