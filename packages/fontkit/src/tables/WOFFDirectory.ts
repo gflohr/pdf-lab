@@ -1,6 +1,59 @@
 import r from '@pdf-lib/restructure';
+import type { FilteredTableMap, SFNTTable, SFNTTableMap } from './directory.js';
 
-const WOFFDirectoryEntry = new r.Struct({
+export interface WOFFTable extends SFNTTable {
+	compLength: number;
+}
+
+/**
+ * A strongly-typed dictionary map collection of all tables inside an SFNT font.
+ * Keys match known font tags ('post', 'hvar') or fallback to arbitrary custom
+ * strings.
+ */
+export type WOFFTableMap = Record<string, WOFFTable | null> &
+	Partial<FilteredTableMap>;
+
+/**
+ * Represents the parsed master Table Directory at the head of every SFNT
+ * (TrueType/OpenType) file.
+ *
+ * Scaled layout calculation parameters (`searchRange`, `entrySelector`,
+ * `rangeShift`) are configured automatically by the directory compilation
+ * engine during binary generation phases.
+ */
+export interface WOFFDirectoryTable {
+	/**
+	 * Scaled signature layout tag (e.g., 'true' or 'OTTO' for OpenType
+	 * PostScript layouts).
+	 */
+	tag: string;
+
+	flavor: number;
+	length: number;
+
+	/**
+	 * Total number of functional individual tables embedded within the font
+	 * package.
+	 */
+	numTables: number;
+
+	totalSfntSize: number;
+	majorVersion: number;
+	minorVersion: number;
+	metaOffset: number;
+	metaLength: number;
+	metaOrigLength: number;
+	privOffset: number;
+	privLength: number;
+
+	/**
+	 * Record mapping identifying table tags directly to parsed table
+	 * configurations.
+	 */
+	tables: WOFFTableMap;
+}
+
+export const WOFFDirectoryEntry = new r.Struct({
 	tag: new r.String(4),
 	offset: new r.Pointer(r.uint32, 'void', { type: 'global' }),
 	compLength: r.uint32,
@@ -8,7 +61,7 @@ const WOFFDirectoryEntry = new r.Struct({
 	origChecksum: r.uint32,
 });
 
-const WOFFDirectory = new r.Struct({
+const fields = {
 	tag: new r.String(4), // should be 'wOFF'
 	flavor: r.uint32,
 	length: r.uint32,
@@ -23,7 +76,8 @@ const WOFFDirectory = new r.Struct({
 	privOffset: r.uint32,
 	privLength: r.uint32,
 	tables: new r.Array(WOFFDirectoryEntry, 'numTables'),
-});
+};
+const WOFFDirectory = new r.Struct<typeof fields, WOFFDirectoryTable>(fields);
 
 WOFFDirectory.process = function () {
 	const tables: Record<string, unknown> = {};

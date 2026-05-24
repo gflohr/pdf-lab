@@ -119,6 +119,10 @@ export interface SFNTDirectory {
 	tables: SFNTTableMap;
 }
 
+export interface WOFFTable extends SFNTTable {
+	compLength: number;
+}
+
 /**
  * Internal structure representing the un-processed binary file state.
  */

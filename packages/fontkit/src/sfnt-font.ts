@@ -764,7 +764,9 @@ export class SFNTFont {
 		}
 
 		if (!variationCoords) {
-			variationCoords = this.fvar.axis.map((axis: FontAxis) => axis.defaultValue);
+			variationCoords = this.fvar.axis.map(
+				(axis: FontAxis) => axis.defaultValue,
+			);
 		}
 
 		return new GlyphVariationProcessor(this, variationCoords);
