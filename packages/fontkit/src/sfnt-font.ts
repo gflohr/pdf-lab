@@ -1,37 +1,15 @@
-import type { Font } from './font.js';
-import type { HheaTable } from './tables/hhea.js';
-import type { HmtxTable } from './tables/hmtx.js';
-import { HVARTable } from './tables/HVAR.js';
-import type { PostTable } from './tables/post.js';
-import type { VmtxTable } from './tables/vmtx.js';
 import type {
+	Font,
 	NamedVariations,
 	VariationAxes,
 	VariationCoordinates,
-} from './types/internal/tables/fvar.js';
-
-/**
- * SFNT (Spline Font) directory structure.
- *
- * Represents the top-level table directory of an SFNT-based font
- * (TrueType / OpenType / WOFF / WOFF2).
- */
-export interface SFNTDirectory {
-	/** Number of tables in the font. */
-	numTables: number;
-
-	/** Maximum power-of-two search range for table directory. */
-	searchRange: number;
-
-	/** Log2(max tables) used for binary search optimization. */
-	entrySelector: number;
-
-	/** Remaining range after binary search steps. */
-	rangeShift: number;
-
-	/** Map of table tags to raw table data. */
-	tables: Record<string, unknown>;
-}
+} from './font.js';
+import type { HVARTable } from './tables/HVAR.js';
+import { SFNTDirectory } from './tables/directory.js';
+import type { HheaTable } from './tables/hhea.js';
+import type { HmtxTable } from './tables/hmtx.js';
+import type { PostTable } from './tables/post.js';
+import type { VmtxTable } from './tables/vmtx.js';
 
 /**
  * SFNT-based font interface (OpenType / TrueType).
@@ -42,7 +20,7 @@ export interface SFNTDirectory {
  * All concrete font implementations in this library (TTF, OTF, WOFF, WOFF2)
  * expose this interface.
  */
-export interface SFNTFont extends Omit<Font, 'post'> {
+export interface SFNTFont extends Font {
 	/**
 	 * The SFNT table directory containing all raw font tables.
 	 */
@@ -57,11 +35,6 @@ export interface SFNTFont extends Omit<Font, 'post'> {
 	 * Variable font axes (if present in the font).
 	 */
 	readonly variationAxes: VariationAxes;
-
-	/**
-	 * Returns named variation instances defined in the font.
-	 */
-	namedVariations(): NamedVariations;
 
 	/**
 	 * Returns a new font instance with applied variation coordinates.

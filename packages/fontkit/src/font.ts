@@ -1,9 +1,9 @@
-import GlyphVariationProcessor from './glyph/GlyphVariationProcessor.js';
-import BBox from './glyph/bbox.js';
-import Glyph from './glyph/glyph.js';
-import GlyphRun from './layout/GlyphRun.js';
+import type BBox from './glyph/bbox.js';
+import type GlyphVariationProcessor from './glyph/GlyphVariationProcessor.js';
+import type Glyph from './glyph/glyph.js';
+import type GlyphRun from './layout/GlyphRun.js';
+import type { FilteredTableMap, SFNTDirectory } from './tables/directory.js';
 import type { HVARTable } from './tables/HVAR.js';
-import { FilteredTableMap, SFNTDirectory } from './tables/directory.js';
 import type { HheaTable } from './tables/hhea.js';
 import type { HmtxTable } from './tables/hmtx.js';
 import type { PostTable } from './tables/post.js';
