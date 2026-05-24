@@ -1,11 +1,42 @@
-import type { BoundingBox } from './types/bounding-box.js';
+import GlyphVariationProcessor from './glyph/GlyphVariationProcessor.js';
+import BBox from './glyph/bbox.js';
+import Glyph from './glyph/glyph.js';
+import GlyphRun from './layout/GlyphRun.js';
+import type { HVARTable } from './tables/HVAR.js';
+import { FilteredTableMap, SFNTDirectory } from './tables/directory.js';
+import type { HheaTable } from './tables/hhea.js';
+import type { HmtxTable } from './tables/hmtx.js';
+import type { PostTable } from './tables/post.js';
+import type { VmtxTable } from './tables/vmtx.js';
 import type { TypeFeatures } from './types/features.js';
-import type { Glyph, GlyphRun } from './types/glyph.js';
 import type { Subset } from './types/subset.js';
+
+export interface VariationAxis {
+	axisTag: string;
+	min: number;
+	default: number;
+	max: number;
+	flags: number;
+	nameID: number;
+	name: string;
+}
+
+export interface VariationAxes {
+	wght?: VariationAxis;
+	wdth?: VariationAxis;
+}
+
+export type NamedVariation = Record<string, number>;
+
+export type NamedVariations = Record<string, NamedVariation>;
+
+export type VariationCoordinates = Record<string, number>;
+
+export type VariationSettings = Record<string, number>;
 
 /**
  * There are several different types of font objects that are returned by
- * fontkit depending on the font format. They all inherit from the TTFFont class
+ * fontkit depending on the font format. They all inherit from the SFNTFont class
  * and have the same public API.
  */
 export interface Font {
@@ -27,7 +58,7 @@ export interface Font {
 	italicAngle: number /** If this is an italic font, the angle the cursor should be drawn at to match the font design */;
 	capHeight: number /** Height of capital letters above the baseline. */;
 	xHeight: number /** Height of lower case letters. */;
-	bbox: BoundingBox /** Font’s bounding box, i.e. the box that encloses all glyphs in the font. */;
+	bbox: Readonly<BBox> /** Font’s bounding box, i.e. the box that encloses all glyphs in the font. */;
 
 	// Other properties
 	numGlyphs: number /** Number of glyphs in the font */;
@@ -35,9 +66,6 @@ export interface Font {
 	availableFeatures: (keyof TypeFeatures)[] /** OpenType feature tags (or mapped AAT tags) supported by the font */;
 	// biome-ignore lint/suspicious/noExplicitAny: needs investigation
 	cff: any;
-	'OS/2': { sFamilyClass: number };
-	head: { macStyle: { italic: boolean } };
-	post: { isFixedPitch: boolean };
 
 	// Character to Glyph Mapping Methods
 
@@ -45,7 +73,7 @@ export interface Font {
 	 * Maps a single unicode code point (number) to a Glyph object.
 	 * Does not perform any advanced substitutions (there is no context to do so).
 	 */
-	glyphForCodePoint(codePoint: number): Glyph;
+	glyphForCodePoint(codePoint: number): Glyph | null;
 
 	/**
 	 * Returns whether there is glyph in the font for the given
@@ -59,14 +87,9 @@ export interface Font {
 	 * you should use Font.layout, which provides a much more advanced mapping
 	 * supporting AAT and OpenType shaping.
 	 */
-	glyphsForString(string: string): Glyph[];
+	glyphsForString(string: string): (Glyph | null)[];
 
 	// Glyph Metrics and Layout Methods
-
-	/**
-	 * Returns the advance width (described above) for a single glyph id.
-	 */
-	widthOfGlyph(glyphId: number): number;
 
 	/**
 	 * This method returns a GlyphRun object, which includes an array of Glyphs
@@ -86,13 +109,6 @@ export interface Font {
 		direction?: string | null,
 	): GlyphRun;
 
-	layout(
-		text: string,
-		script?: string | null,
-		language?: string | null,
-		direction?: string | null,
-	): GlyphRun;
-
 	// Other Methods
 
 	/**
@@ -100,10 +116,74 @@ export interface Font {
 	 * code points this glyph represents for your use later, and it will be
 	 * stored in the glyph object.
 	 */
-	getGlyph(glyphId: number, codePoints?: number[]): Glyph;
+	getGlyph(glyphId: number, codePoints?: number[]): Glyph | null;
 
 	/**
 	 * Returns a Subset object for this font.
 	 */
 	createSubset(): Subset;
+
+	/**
+	 * The SFNT table directory containing all raw font tables.
+	 */
+	readonly directory: SFNTDirectory;
+
+	/**
+	 * Horizontal header metrics (hhea table).
+	 */
+	readonly hhea: HheaTable;
+
+	/**
+	 * Variable font axes (if present in the font).
+	 */
+	readonly variationAxes: VariationAxes;
+
+	/**
+	 * Returns named variation instances defined in the font.
+	 */
+	readonly namedVariations: NamedVariations;
+
+	/**
+	 * Returns a new font instance with applied variation coordinates.
+	 *
+	 * @throws if the font does not contain required variation tables.
+	 */
+	getVariation(settings: string | VariationCoordinates): Font;
+
+	/**
+	 * Returns all Unicode strings associated with a glyph ID.
+	 *
+	 * @param id - Glyph ID in the font’s glyph table
+	 */
+	stringsForGlyph(id: number): string[];
+
+	/**
+	 * The font's `head` table.
+	 */
+	head: { macStyle: { italic: boolean } };
+
+	/**
+	 * The font's `hmtx` table.
+	 */
+	hmtx: HmtxTable;
+
+	/**
+	 * The font's `HVAR` table.
+	 */
+	HVAR: HVARTable;
+
+	/**
+	 * The font's `post` table.
+	 */
+	post: PostTable;
+
+	/**
+	 * The font's `vmtx` table.
+	 */
+	vmtx?: VmtxTable;
+
+	variationProcessor: GlyphVariationProcessor | null;
+
+	// Bad interface starts here.
+	'OS/2': FilteredTableMap['OS/2'];
 }
