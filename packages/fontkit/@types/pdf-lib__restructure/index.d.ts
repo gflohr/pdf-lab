@@ -13,6 +13,8 @@ declare module '@pdf-lib/restructure' {
 		buffer: Uint8Array;
 		pos: number;
 
+		constructor(buffer?: Uint8Array);
+
 		readUInt8(): number;
 		readUInt16BE(): number;
 		readUInt24BE(): number;
@@ -310,6 +312,7 @@ declare module '@pdf-lib/restructure' {
 		Reserved: typeof ReservedT;
 		Buffer: typeof BufferT;
 		Optional: typeof OptionalT;
+		DecodeStream: typeof DecodeStream;
 
 		int8: NumberT;
 		uint8: NumberT;
