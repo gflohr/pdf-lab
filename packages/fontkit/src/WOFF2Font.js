@@ -2,14 +2,14 @@ import brotli from '@pdf-lib/brotli/decompress.js';
 import r from '@pdf-lib/restructure';
 import TTFGlyph, { Point } from './glyph/TTFGlyph.js';
 import WOFF2Glyph from './glyph/WOFF2Glyph.js';
-import { TTFFont } from './TTFFont.js';
 import WOFF2Directory from './tables/WOFF2Directory.js';
+import { TrueTypeFont } from './true-type-font.js';
 
 /**
- * Subclass of TTFFont that represents a TTF/OTF font compressed by WOFF2
+ * Subclass of TrueTypeFont that represents a TTF/OTF font compressed by WOFF2
  * See spec here: http://www.w3.org/TR/WOFF2/
  */
-export default class WOFF2Font extends TTFFont {
+export default class WOFF2Font extends TrueTypeFont {
 	static probe(buffer) {
 		return buffer.toString('ascii', 0, 4) === 'wOF2';
 	}

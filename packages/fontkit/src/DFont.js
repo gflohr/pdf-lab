@@ -1,5 +1,5 @@
 import r from '@pdf-lib/restructure';
-import { TTFFont } from './TTFFont.js';
+import { TrueTypeFont } from './true-type-font.js';
 
 const DFontName = new r.String(r.uint8);
 
@@ -87,7 +87,7 @@ export default class DFont {
 		for (const ref of this.sfnt.refList) {
 			const pos = this.header.dataOffset + ref.dataOffset + 4;
 			const stream = new r.DecodeStream(this.stream.buffer.slice(pos));
-			const font = new TTFFont(stream);
+			const font = new TrueTypeFont(stream);
 			if (font.postscriptName === name) {
 				return font;
 			}
@@ -101,7 +101,7 @@ export default class DFont {
 		for (const ref of this.sfnt.refList) {
 			const pos = this.header.dataOffset + ref.dataOffset + 4;
 			const stream = new r.DecodeStream(this.stream.buffer.slice(pos));
-			fonts.push(new TTFFont(stream));
+			fonts.push(new TrueTypeFont(stream));
 		}
 
 		return fonts;

@@ -258,7 +258,7 @@ Returns a font object for the given buffer. For collection fonts (such as TrueTy
 
 #### Font objects
 
-There are several different types of font objects that are returned by fontkit depending on the font format. They all inherit from the `TTFFont` class and have the same public API, described below.
+There are several different types of font objects that are returned by fontkit depending on the font format. They all inherit from the `TrueTypeFont` class and have the same public API, described below.
 
 ##### Metadata properties
 

@@ -1,9 +1,9 @@
 import r from '@pdf-lib/restructure';
 import inflate from 'tiny-inflate';
-import { TTFFont } from './TTFFont.js';
 import WOFFDirectory from './tables/WOFFDirectory.js';
+import { TrueTypeFont } from './true-type-font.js';
 
-export default class WOFFFont extends TTFFont {
+export default class WOFFFont extends TrueTypeFont {
 	static probe(buffer) {
 		return buffer.toString('ascii', 0, 4) === 'wOFF';
 	}

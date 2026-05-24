@@ -549,7 +549,7 @@ export interface TypeFeatures extends OpenTypeFeatures, AATFeatures {
 
 /**
  * There are several different types of font objects that are returned by
- * fontkit depending on the font format. They all inherit from the TTFFont class
+ * fontkit depending on the font format. They all inherit from the TrueTypeFont class
  * and have the same public API.
  */
 export interface Font {

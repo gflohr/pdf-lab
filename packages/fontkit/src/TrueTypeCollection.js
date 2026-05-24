@@ -1,5 +1,5 @@
 import r from '@pdf-lib/restructure';
-import { TTFFont } from './TTFFont.js';
+import { TrueTypeFont } from './true-type-font.js';
 
 const TTCHeader = new r.VersionedStruct(r.uint32, {
 	65536: {
@@ -33,7 +33,7 @@ export default class TrueTypeCollection {
 		for (const offset of this.header.offsets) {
 			const stream = new r.DecodeStream(this.stream.buffer);
 			stream.pos = offset;
-			const font = new TTFFont(stream);
+			const font = new TrueTypeFont(stream);
 			if (font.postscriptName === name) {
 				return font;
 			}
@@ -47,7 +47,7 @@ export default class TrueTypeCollection {
 		for (const offset of this.header.offsets) {
 			const stream = new r.DecodeStream(this.stream.buffer);
 			stream.pos = offset;
-			fonts.push(new TTFFont(stream));
+			fonts.push(new TrueTypeFont(stream));
 		}
 
 		return fonts;
