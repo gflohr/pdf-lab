@@ -1,4 +1,5 @@
 import r, { type DecodeStream } from '@pdf-lib/restructure';
+import type { WOFFDirectoryTable, WOFFTableMap } from './WOFFDirectory.js';
 
 const Base128 = {
 	decode(stream: DecodeStream) {
@@ -94,6 +95,17 @@ const knownTags = [
 	'Sill',
 ];
 
+export interface WOFF2DirectoryTable extends WOFFDirectoryTable {
+
+	totalCompressedSize: number;
+
+	/**
+	 * Record mapping identifying table tags directly to parsed table
+	 * configurations.
+	 */
+	tables: WOFFTableMap;
+};
+
 interface WOFF2DirectoryEntryContext {
 	customTag: string;
 	tag: string;
@@ -115,7 +127,7 @@ const WOFF2DirectoryEntry = new r.Struct({
 	transformLength: new r.Optional(Base128, (t) => t.transformed),
 });
 
-const WOFF2Directory = new r.Struct({
+const fields = {
 	tag: new r.String(4), // should be 'wOF2'
 	flavor: r.uint32,
 	length: r.uint32,
@@ -131,7 +143,8 @@ const WOFF2Directory = new r.Struct({
 	privOffset: r.uint32,
 	privLength: r.uint32,
 	tables: new r.Array(WOFF2DirectoryEntry, 'numTables'),
-});
+};
+const WOFF2Directory = new r.Struct<typeof fields, WOFF2DirectoryTable>(fields);
 
 WOFF2Directory.process = function () {
 	const tables: Record<string, unknown> = {};
