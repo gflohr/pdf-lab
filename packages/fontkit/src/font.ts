@@ -1,11 +1,7 @@
 import type BBox from './glyph/bbox.js';
-import type GlyphVariationProcessor from './glyph/GlyphVariationProcessor.js';
 import type Glyph from './glyph/glyph.js';
 import type GlyphRun from './layout/GlyphRun.js';
-import type {
-	FilteredTableMap,
-	SFNTDirectoryTable,
-} from './tables/directory.js';
+import type { SFNTDirectoryTable } from './tables/directory.js';
 import type { HVARTable } from './tables/HVAR.js';
 import type { HheaTable } from './tables/hhea.js';
 import type { HmtxTable } from './tables/hmtx.js';
@@ -13,6 +9,7 @@ import type { PostTable } from './tables/post.js';
 import type { VmtxTable } from './tables/vmtx.js';
 import type { TypeFeatures } from './types/features.js';
 import type { Subset } from './types/subset.js';
+import { HeadTable } from './tables/head.js';
 
 export interface VariationAxis {
 	axisTag: string;
@@ -67,8 +64,6 @@ export interface Font {
 	numGlyphs: number /** Number of glyphs in the font */;
 	characterSet: number[] /** Array of all of the unicode code points supported by the font */;
 	availableFeatures: (keyof TypeFeatures)[] /** OpenType feature tags (or mapped AAT tags) supported by the font */;
-	// biome-ignore lint/suspicious/noExplicitAny: needs investigation
-	cff: any;
 
 	// Character to Glyph Mapping Methods
 
@@ -127,11 +122,6 @@ export interface Font {
 	createSubset(): Subset;
 
 	/**
-	 * The SFNT table directory containing all raw font tables.
-	 */
-	readonly directory: SFNTDirectoryTable;
-
-	/**
 	 * Horizontal header metrics (hhea table).
 	 */
 	readonly hhea: HheaTable;
@@ -160,10 +150,27 @@ export interface Font {
 	 */
 	stringsForGlyph(id: number): string[];
 
+	// FIXME! Change to something like hasTable(name: string) and
+	// const table = font.getTable<headTable>('head').
+
+	/**
+	 * The font's `CFF ` table.
+	 *
+	 * FIXME! Expose the entire table.
+	 */
+	cff: any;
+
+	/**
+	 * The font's 'OS/2' table.
+	 *
+	 * FIXME! Expose the entire table!
+	 */
+	'OS/2': { sFamilyClass: number };
+
 	/**
 	 * The font's `head` table.
 	 */
-	head: { macStyle: { italic: boolean } };
+	head: HeadTable;
 
 	/**
 	 * The font's `hmtx` table.
@@ -184,7 +191,4 @@ export interface Font {
 	 * The font's `vmtx` table.
 	 */
 	vmtx?: VmtxTable;
-
-	// Bad interface starts here.
-	'OS/2': FilteredTableMap['OS/2'];
 }
