@@ -76,18 +76,18 @@ export class WOFF2Font extends SFNTFont<WOFF2DirectoryTable> {
 	// custom subclass if there is a glyf table.
 	_getBaseGlyph(glyph: number, characters: number[] = []): Glyph | null {
 		const tables = this.directory.tables as WOFF2TableMap;
-		if (!this._glyphs[glyph]) {
+		if (!this.glyphs[glyph]) {
 			if (tables.glyf?.transformed) {
 				if (!this._transformedGlyphs) {
 					this._transformGlyfTable();
 				}
 				// FIXME! Actually, WOFF2Glyph should extend Glyph.
-				(this._glyphs as Record<number, WOFF2Glyph>)[glyph] = new WOFF2Glyph(
+				(this.glyphs as Record<number, WOFF2Glyph>)[glyph] = new WOFF2Glyph(
 					glyph,
 					characters,
 					this as never,
 				);
-				return this._glyphs[glyph];
+				return this.glyphs[glyph];
 			} else {
 				return super._getBaseGlyph(glyph, characters);
 			}

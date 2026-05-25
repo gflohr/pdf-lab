@@ -53,7 +53,7 @@ export class SFNTFont<
 	private variationCoords: number[] | null;
 	private directoryPos: number;
 	private tables: SFNTTableMap = {};
-	_glyphs: Record<number, Glyph> = {};
+	protected glyphs: Record<number, Glyph> = {};
 	directory: TDirectoryTable; // Create a getter for this.
 
 	// Those variables are lazily instantiated by their respctive getters, and
@@ -127,7 +127,7 @@ export class SFNTFont<
 
 		this.directoryPos = this.stream.pos;
 		this.tables = {};
-		this._glyphs = {};
+		this.glyphs = {};
 		this.directory = this.decodeDirectory();
 
 		// define properties for each table to lazily parse
@@ -568,15 +568,15 @@ export class SFNTFont<
 	}
 
 	_getBaseGlyph(glyph: number, characters: number[] = []): Glyph | null {
-		if (!this._glyphs[glyph]) {
+		if (!this.glyphs[glyph]) {
 			if (this.directory.tables.glyf) {
-				this._glyphs[glyph] = new TTFGlyph(
+				this.glyphs[glyph] = new TTFGlyph(
 					glyph,
 					characters,
 					this as never,
 				) as Glyph;
 			} else if (this.directory.tables['CFF '] || this.directory.tables.CFF2) {
-				this._glyphs[glyph] = new CFFGlyph(
+				this.glyphs[glyph] = new CFFGlyph(
 					glyph,
 					characters,
 					this as never,
@@ -584,7 +584,7 @@ export class SFNTFont<
 			}
 		}
 
-		return this._glyphs[glyph] || null;
+		return this.glyphs[glyph] || null;
 	}
 
 	/**
@@ -597,16 +597,16 @@ export class SFNTFont<
 	 * @returns the corresponding glyph
 	 */
 	getGlyph(glyph: number, characters: number[] = []): Glyph {
-		if (!this._glyphs[glyph]) {
+		if (!this.glyphs[glyph]) {
 			// FIXME! Get rid of the casts!
 			if (this.directory.tables.sbix) {
-				this._glyphs[glyph] = new SBIXGlyph(
+				this.glyphs[glyph] = new SBIXGlyph(
 					glyph,
 					characters,
 					this as never,
 				) as Glyph;
 			} else if (this.directory.tables.COLR && this.directory.tables.CPAL) {
-				this._glyphs[glyph] = new COLRGlyph(
+				this.glyphs[glyph] = new COLRGlyph(
 					glyph,
 					characters,
 					this as never,
@@ -616,7 +616,7 @@ export class SFNTFont<
 			}
 		}
 
-		return this._glyphs[glyph] || null;
+		return this.glyphs[glyph] || null;
 	}
 
 	/**
