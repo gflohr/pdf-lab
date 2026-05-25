@@ -164,8 +164,8 @@ export default class Glyph {
 			}
 		}
 
-		if (this._font._variationProcessor && this._font.HVAR) {
-			advanceWidth += this._font._variationProcessor.getAdvanceAdjustment(
+		if (this._font.variationProcessor && this._font.HVAR) {
+			advanceWidth += this._font.variationProcessor.getAdvanceAdjustment(
 				this.id,
 				this._font.HVAR,
 			);

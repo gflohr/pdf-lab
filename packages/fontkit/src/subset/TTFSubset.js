@@ -30,7 +30,7 @@ export default class TTFSubset extends Subset {
 				gid = this.includeGlyph(component.glyphID);
 				buffer.writeUInt16BE(gid, component.pos);
 			}
-		} else if (glyf && this.font._variationProcessor) {
+		} else if (glyf && this.font.variationProcessor) {
 			// If this is a TrueType variation glyph, re-encode the path
 			buffer = this.glyphEncoder.encodeSimple(glyph.path, glyf.instructions);
 		}

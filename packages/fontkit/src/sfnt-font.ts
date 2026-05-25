@@ -65,7 +65,7 @@ export class SFNTFont<
 	__layoutEngine!: LayoutEngine;
 	private _variationAxes!: VariationAxes;
 	private _namedVariations!: NamedVariations;
-	__variationProcessor!: GlyphVariationProcessor | null;
+	private _variationProcessor!: GlyphVariationProcessor | null;
 
 	// Tables.
 	public cmap: FilteredTableMap['cmap'];
@@ -762,7 +762,7 @@ export class SFNTFont<
 		return font;
 	}
 
-	__computeVariationProcessor(): GlyphVariationProcessor | null {
+	private computeVariationProcessor(): GlyphVariationProcessor | null {
 		if (!this.fvar) {
 			return null;
 		}
@@ -783,12 +783,12 @@ export class SFNTFont<
 		return new GlyphVariationProcessor(this, variationCoords ?? []);
 	}
 
-	get _variationProcessor(): GlyphVariationProcessor | null {
-		if (typeof this.__variationProcessor === 'undefined') {
-			this.__variationProcessor = this.__computeVariationProcessor();
+	public get variationProcessor(): GlyphVariationProcessor | null {
+		if (typeof this._variationProcessor === 'undefined') {
+			this._variationProcessor = this.computeVariationProcessor();
 		}
 
-		return this.__variationProcessor;
+		return this._variationProcessor;
 	}
 
 	/**

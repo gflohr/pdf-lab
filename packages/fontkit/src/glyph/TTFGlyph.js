@@ -68,7 +68,7 @@ export default class TTFGlyph extends Glyph {
 	_getCBox(internal) {
 		// We need to decode the glyph if variation processing is requested,
 		// so it's easier just to recompute the path's cbox after decoding.
-		if (this._font._variationProcessor && !internal) {
+		if (this._font.variationProcessor && !internal) {
 			return this.path.cbox;
 		}
 
@@ -186,11 +186,11 @@ export default class TTFGlyph extends Glyph {
 			);
 		}
 
-		if (this._font._variationProcessor) {
+		if (this._font.variationProcessor) {
 			const points = glyph.points.slice();
 			points.push(...this._getPhantomPoints(glyph));
 
-			this._font._variationProcessor.transformPoints(this.id, points);
+			this._font.variationProcessor.transformPoints(this.id, points);
 			glyph.phantomPoints = points.slice(-4);
 		}
 
@@ -240,7 +240,7 @@ export default class TTFGlyph extends Glyph {
 			glyph.components.push(component);
 		}
 
-		if (this._font._variationProcessor) {
+		if (this._font.variationProcessor) {
 			const points = [];
 			for (let j = 0; j < glyph.components.length; j++) {
 				const component = glyph.components[j];
@@ -249,7 +249,7 @@ export default class TTFGlyph extends Glyph {
 
 			points.push(...this._getPhantomPoints(glyph));
 
-			this._font._variationProcessor.transformPoints(this.id, points);
+			this._font.variationProcessor.transformPoints(this.id, points);
 			glyph.phantomPoints = points.splice(-4, 4);
 
 			for (let i = 0; i < points.length; i++) {
@@ -344,7 +344,7 @@ export default class TTFGlyph extends Glyph {
 		const cbox = this._getCBox(true);
 		super._getMetrics(cbox);
 
-		if (this._font._variationProcessor && !this._font.HVAR) {
+		if (this._font.variationProcessor && !this._font.HVAR) {
 			// No HVAR table, decode the glyph. This triggers recomputation of metrics.
 			this.path;
 		}

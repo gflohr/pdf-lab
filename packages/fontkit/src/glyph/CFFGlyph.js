@@ -55,7 +55,7 @@ export default class CFFGlyph extends Glyph {
 
 		const vstore = cff.topDict.vstore?.itemVariationStore;
 		let vsindex = privateDict.vsindex;
-		const variationProcessor = this._font._variationProcessor;
+		const variationProcessor = this._font.variationProcessor;
 
 		function checkWidth() {
 			if (width == null) {
