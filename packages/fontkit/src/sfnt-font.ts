@@ -59,11 +59,11 @@ export class SFNTFont<
 	// Those variables are lazily instantiated by their respctive getters, and
 	// then frozen.
 	private _bbox!: Readonly<BBox>;
-	_characterSet!: number[];
+	private _characterSet!: number[];
 	__cmapProcessor!: CmapProcessor;
 	__layoutEngine!: LayoutEngine;
-	_variationAxes!: VariationAxes;
-	_namedVariations!: NamedVariations;
+	private _variationAxes!: VariationAxes;
+	private _namedVariations!: NamedVariations;
 	__variationProcessor!: GlyphVariationProcessor | null;
 
 	// Tables.
