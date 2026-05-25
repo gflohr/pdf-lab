@@ -48,7 +48,8 @@ export interface FontAxis {
  */
 export class SFNTFont<
 	TDirectoryTable extends SFNTDirectoryTable = SFNTDirectoryTable,
-> implements Font {
+> implements Font
+{
 	public stream: DecodeStream;
 	private variationCoords: number[] | null;
 	private directoryPos: number;
@@ -710,7 +711,9 @@ export class SFNTFont<
 	 * @param settings the instance name or variation settings
 	 * @returns the generated font
 	 */
-	getVariation(settings: string | VariationCoordinates): SFNTFont<TDirectoryTable> {
+	getVariation(
+		settings: string | VariationCoordinates,
+	): SFNTFont<TDirectoryTable> {
 		if (
 			!(
 				this.directory.tables.fvar &&
