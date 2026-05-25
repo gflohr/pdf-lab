@@ -44,18 +44,21 @@ interface MetricVariationTable {
  *
  * Apple's documentation for these tables is not great, so thanks to the
  * Freetype project for figuring much of this out.
+ *
+ * FIXME! This class cache blend vecotrs and calculates normalised coordinates
+ * and remembers them. That can easily be integrated into the SFNTFont class.
  */
 export default class GlyphVariationProcessor {
-	font: SFNTFont;
-	normalizedCoords: number[];
-	blendVectors = new Map<OpenTypeItemVariationData, number[]>();
+	private font: SFNTFont;
+	public _normalizedCoords: number[];
+	private blendVectors = new Map<OpenTypeItemVariationData, number[]>();
 
 	constructor(font: SFNTFont, coords: number[]) {
 		this.font = font;
-		this.normalizedCoords = this.normalizeCoords(coords);
+		this._normalizedCoords = this.normalizeCoords(coords);
 	}
 
-	normalizeCoords(coords: number[]): number[] {
+	private normalizeCoords(coords: number[]): number[] {
 		// the default mapping is linear along each axis, in two segments:
 		// from the minValue to defaultValue, and from defaultValue to maxValue.
 		const normalized = [];
@@ -99,7 +102,7 @@ export default class GlyphVariationProcessor {
 		return normalized;
 	}
 
-	transformPoints(gid: number, glyphPoints: Point[]): void {
+	public transformPoints(gid: number, glyphPoints: Point[]): void {
 		if (!this.font.fvar || !this.font.gvar) {
 			return;
 		}
@@ -235,7 +238,7 @@ export default class GlyphVariationProcessor {
 		}
 	}
 
-	decodePoints(): Uint16Array {
+	private decodePoints(): Uint16Array {
 		const stream = this.font.stream;
 		let count = stream.readUInt8();
 
@@ -260,7 +263,7 @@ export default class GlyphVariationProcessor {
 		return points;
 	}
 
-	decodeDeltas(count: number): Int16Array {
+	private decodeDeltas(count: number): Int16Array {
 		const stream = this.font.stream;
 		let i = 0;
 		const deltas = new Int16Array(count);
@@ -283,7 +286,7 @@ export default class GlyphVariationProcessor {
 		return deltas;
 	}
 
-	tupleFactor(tupleIndex: number, tupleCoords: number[], startCoords?: number[], endCoords?: number[]) {
+	private tupleFactor(tupleIndex: number, tupleCoords: number[], startCoords?: number[], endCoords?: number[]) {
 		const normalized = this.normalizedCoords;
 		const { gvar } = this.font;
 		let factor = 1;
@@ -337,7 +340,7 @@ export default class GlyphVariationProcessor {
 	// Interpolates points without delta values.
 	// Needed for the Ø and Q glyphs in Skia.
 	// Algorithm from Freetype.
-	interpolateMissingDeltas(points: Point[], inPoints: Point[], hasDelta: boolean[]) {
+	private interpolateMissingDeltas(points: Point[], inPoints: Point[], hasDelta: boolean[]) {
 		if (points.length === 0) {
 			return;
 		}
@@ -413,7 +416,7 @@ export default class GlyphVariationProcessor {
 		}
 	}
 
-	deltaInterpolate(p1: number, p2: number, ref1: number, ref2: number, inPoints: Point[], outPoints: Point[]) {
+	private deltaInterpolate(p1: number, p2: number, ref1: number, ref2: number, inPoints: Point[], outPoints: Point[]) {
 		if (p1 > p2) {
 			return;
 		}
@@ -454,7 +457,7 @@ export default class GlyphVariationProcessor {
 		}
 	}
 
-	deltaShift(p1: number, p2: number, ref: number, inPoints: Point[], outPoints: Point[]) {
+	private deltaShift(p1: number, p2: number, ref: number, inPoints: Point[], outPoints: Point[]) {
 		const deltaX = outPoints[ref].x - inPoints[ref].x;
 		const deltaY = outPoints[ref].y - inPoints[ref].y;
 
@@ -470,10 +473,14 @@ export default class GlyphVariationProcessor {
 		}
 	}
 
+	public get normalizedCoords(): number[] {
+		return this._normalizedCoords;
+	}
+
 	// getAdvanceAdjustment(gid: number, table: any) {
 	// FIXME! Create a common base type for the BASE, GDEF, and HVAR table!
 	// This will be an appropriate type for the table argument.
-	getAdvanceAdjustment(gid: number, table: MetricVariationTable) {
+	public getAdvanceAdjustment(gid: number, table: MetricVariationTable) {
 		let outerIndex: number;
 		let innerIndex: number;
 
@@ -494,7 +501,7 @@ export default class GlyphVariationProcessor {
 
 	// See pseudo code from `Font Variations Overview'
 	// in the OpenType specification.
-	getDelta(itemStore: ItemVariationStoreTable, outerIndex: number, innerIndex: number): number {
+	public getDelta(itemStore: ItemVariationStoreTable, outerIndex: number, innerIndex: number): number {
 		if (outerIndex >= itemStore.itemVariationData.length) {
 			return 0;
 		}
@@ -519,7 +526,7 @@ export default class GlyphVariationProcessor {
 		return netAdjustment;
 	}
 
-	getBlendVector(itemStore: ItemVariationStoreTable, outerIndex: number): number[] | undefined {
+	public getBlendVector(itemStore: ItemVariationStoreTable, outerIndex: number): number[] | undefined {
 		if (!itemStore.variationRegionList?.variationRegions) {
 			return;
 		}
