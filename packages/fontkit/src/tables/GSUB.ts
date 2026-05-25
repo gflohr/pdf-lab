@@ -5,35 +5,22 @@ import {
 	Coverage,
 	FeatureList,
 	LookupList,
-	OpenTypeFeatureRecord,
-	OpenTypeScriptRecord,
+	type OpenTypeCoverageTable,
+	type OpenTypeLayoutTableBase,
 	ScriptList,
 } from './opentype.js';
 import { FeatureVariations } from './variations.js';
 
-/**
- * Baseline master layout properties shared across all OpenType Layout Engines
- * (GSUB/GPOS).
- *
- * FIXME! Move that to ./opentype.ts.
- */
-interface OpenTypeLayoutTableBase {
-	/** Pointer to the ScriptList table which defines font scripts and language systems. */
-	scriptList: OpenTypeScriptRecord[] | null; // Instantiated via ScriptList configuration structure
-	/** Pointer to the FeatureList table which maps typographical layout features. */
-	featureList: OpenTypeFeatureRecord[]; // Instantiated via FeatureList configuration structure
-	/** List of lookup execution sequence steps mapping specific structural changes. */
-	lookupList: any; // Instantiated via LookupList configuration structure
-}
-
-export interface GSUBTableV1_0 extends OpenTypeLayoutTableBase {
+export interface GSUBTableV1_0
+	extends OpenTypeLayoutTableBase<GSUBLookupTable> {
 	version: 1.0; // represented by binary uint32 value 65536
 }
 
-export interface GSUBTableV1_1 extends OpenTypeLayoutTableBase {
+export interface GSUBTableV1_1
+	extends OpenTypeLayoutTableBase<GSUBLookupTable> {
 	version: 1.1; // represented by binary uint32 value 65537
 	/** Pointer to optional design-axis metadata variable feature settings. */
-	featureVariations: any; // Instantiated via FeatureVariations configuration structure
+	featureVariations: any; // Instantiated via FeatureVariations structure
 }
 
 /**
@@ -41,38 +28,39 @@ export interface GSUBTableV1_1 extends OpenTypeLayoutTableBase {
  */
 export type GSUBTable = GSUBTableV1_0 | GSUBTableV1_1;
 
-// ============================================================================
-// 2. Inner Lookup Structure Discriminator Unions
-// ============================================================================
-
 export type GSUBLookupSingle =
-	| { format: 1; coverage: any; deltaGlyphID: number }
-	| { format: 2; coverage: any; glyphCount: number; substitute: number[] };
+	| { format: 1; coverage?: OpenTypeCoverageTable; deltaGlyphID: number }
+	| {
+			format: 2;
+			coverage?: OpenTypeCoverageTable;
+			glyphCount: number;
+			substitute: number[];
+	  };
 
 export interface GSUBLookupMultiple {
 	substFormat: number;
-	coverage: any;
+	coverage?: OpenTypeCoverageTable;
 	count: number;
 	sequences: number[][];
 }
 
 export interface GSUBLookupAlternate {
 	substFormat: number;
-	coverage: any;
+	coverage?: OpenTypeCoverageTable;
 	count: number;
 	alternateSet: number[][];
 }
 
 export interface GSUBLookupLigature {
 	substFormat: number;
-	coverage: any;
+	coverage?: OpenTypeCoverageTable;
 	count: number;
 	ligatureSets: any[];
 }
 
 export interface GSUBLookupReverseChaining {
 	substFormat: number;
-	coverage: any;
+	coverage?: OpenTypeCoverageTable;
 	backtrackCoverage: any[];
 	lookaheadGlyphCount: number;
 	lookaheadCoverage: any[];
@@ -95,10 +83,6 @@ export type GSUBLookupTable =
 			table: { substFormat: number; lookupType: number; extension: any };
 	  }
 	| { lookupType: 8; table: GSUBLookupReverseChaining };
-
-// ============================================================================
-// 3. Structural Binary Configuration Shapes
-// ============================================================================
 
 const Sequence = new r.Array(r.uint16, r.uint16);
 const AlternateSet = Sequence;

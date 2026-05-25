@@ -1,9 +1,11 @@
 import r, { type FieldT } from '@pdf-lib/restructure';
 
-// ==========================================
-// Domain 1: Scripts and Languages Interfaces
-// ==========================================
+// Append this to your existing src/tables/opentype.ts file:
 
+/**
+ * Baseline master layout properties shared across all OpenType Layout Engines
+ * (GSUB and GPOS).
+ */
 export interface OpenTypeLangSysTable {
 	reqFeatureIndex: number;
 	featureCount: number;
@@ -25,10 +27,6 @@ export interface OpenTypeScriptRecord {
 	tag: string;
 	script: OpenTypeScriptTable;
 }
-
-// ==========================================
-// Domain 2: Features and Lookups Interfaces
-// ==========================================
 
 export interface OpenTypeFeatureTable {
 	featureParams: number;
@@ -60,9 +58,14 @@ export interface OpenTypeLookupTable<TSubTable> {
 	markFilteringSet?: number | null;
 }
 
-// ==========================================
-// Domain 3: Coverage and Classes Interfaces
-// ==========================================
+export interface OpenTypeLayoutTableBase<TLookupTable> {
+	/** Pointer to the ScriptList table which defines font scripts and language systems. */
+	scriptList: OpenTypeScriptRecord[] | null;
+	/** Pointer to the FeatureList table which maps typographical layout features. */
+	featureList: OpenTypeFeatureRecord[];
+	/** List of lookup execution sequence steps mapping specific structural changes. */
+	lookupList: OpenTypeLookupTable<TLookupTable>[];
+}
 
 export interface OpenTypeRangeRecord {
 	start: number;
@@ -115,10 +118,6 @@ export interface OpenTypeDeviceTable {
 	b: number;
 	deltaFormat: number;
 }
-
-// ==========================================
-// Domain 4: Contextual Matching Interfaces
-// ==========================================
 
 export interface OpenTypeLookupRecord {
 	sequenceIndex: number;
@@ -211,10 +210,6 @@ export type OpenTypeChainingContextTable =
 	| OpenTypeChainingContextV1
 	| OpenTypeChainingContextV2
 	| OpenTypeChainingContextV3;
-
-// ==========================================
-// Parsers & Binary Struct Compilation Mapping
-// ==========================================
 
 const LangSysTable = new r.Struct<any, OpenTypeLangSysTable>({
 	reserved: new r.Reserved(r.uint16),
