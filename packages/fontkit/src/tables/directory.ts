@@ -81,7 +81,7 @@ export type SFNTTableMap = Record<string, SFNTTable | null> &
  * `rangeShift`) are configured automatically by the directory compilation
  * engine during binary generation phases.
  */
-export interface SFNTDirectory {
+export interface SFNTDirectoryTable {
 	/**
 	 * Scaled signature layout tag (e.g., 'true' or 'OTTO' for OpenType
 	 * PostScript layouts).
@@ -142,7 +142,7 @@ const TableEntry = new r.Struct<any, SFNTTableEntry>({
 	length: r.uint32,
 });
 
-interface DirectoryContext extends SFNTDirectory {
+interface DirectoryContext extends SFNTDirectoryTable {
 	tables: any;
 }
 
@@ -155,7 +155,7 @@ const fields = {
 	tables: new r.Array(TableEntry, 'numTables'),
 };
 
-const Directory = new r.Struct<typeof fields, SFNTDirectory>(fields);
+const Directory = new r.Struct<typeof fields, SFNTDirectoryTable>(fields);
 
 /**
  * Lifecycle hook executed automatically post-decode.

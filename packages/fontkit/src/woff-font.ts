@@ -2,7 +2,9 @@ import r, { type DecodeStream, type FieldT } from '@pdf-lib/restructure';
 import inflate from 'tiny-inflate';
 import { SFNTFont } from './sfnt-font.js';
 import type { WOFFTable } from './tables/directory.js';
-import WOFFDirectory, { type WOFFDirectoryTable } from './tables/woff-directory.js';
+import WOFFDirectory, {
+	type WOFFDirectoryTable,
+} from './tables/woff-directory.js';
 
 export class WOFFFont extends SFNTFont<WOFFDirectoryTable> {
 	static probe(buffer: Buffer) {
@@ -13,7 +15,7 @@ export class WOFFFont extends SFNTFont<WOFFDirectoryTable> {
 	decodeDirectory(): WOFFDirectoryTable {
 		return WOFFDirectory.decode(this.stream, {
 			_startOffset: 0,
-		} as unknown as FieldT<unknown>);
+		} as FieldT<unknown>);
 	}
 
 	_getTableStream(tag: string): DecodeStream | null {

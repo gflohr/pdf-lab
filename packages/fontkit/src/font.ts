@@ -2,7 +2,10 @@ import type BBox from './glyph/bbox.js';
 import type GlyphVariationProcessor from './glyph/GlyphVariationProcessor.js';
 import type Glyph from './glyph/glyph.js';
 import type GlyphRun from './layout/GlyphRun.js';
-import type { FilteredTableMap, SFNTDirectory } from './tables/directory.js';
+import type {
+	FilteredTableMap,
+	SFNTDirectoryTable,
+} from './tables/directory.js';
 import type { HVARTable } from './tables/HVAR.js';
 import type { HheaTable } from './tables/hhea.js';
 import type { HmtxTable } from './tables/hmtx.js';
@@ -126,7 +129,7 @@ export interface Font {
 	/**
 	 * The SFNT table directory containing all raw font tables.
 	 */
-	readonly directory: SFNTDirectory;
+	readonly directory: SFNTDirectoryTable;
 
 	/**
 	 * Horizontal header metrics (hhea table).

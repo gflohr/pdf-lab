@@ -22,7 +22,7 @@ import type Subset from './subset/Subset.js';
 import TTFSubset from './subset/TTFSubset.js';
 import type {
 	FilteredTableMap,
-	SFNTDirectory,
+	SFNTDirectoryTable,
 	SFNTTable,
 	SFNTTableMap,
 } from './tables/directory.js';
@@ -44,13 +44,15 @@ export interface FontAxis {
  * This is the base class for all SFNT-based font formats in fontkit.
  * It supports TrueType, and PostScript glyphs, and several color glyph formats.
  */
-export class SFNTFont<TDirectory extends SFNTDirectory = SFNTDirectory> {
+export class SFNTFont<
+	TDirectoryTable extends SFNTDirectoryTable = SFNTDirectoryTable,
+> {
 	stream: DecodeStream;
 	variationCoords: number[] | null;
 	_directoryPos: number;
 	_tables: SFNTTableMap = {};
 	_glyphs: Record<number, Glyph> = {};
-	directory: TDirectory; // Create a getter for this.
+	directory: TDirectoryTable; // Create a getter for this.
 
 	// Those variables are lazily instantiated by their respctive getters, and
 	// then frozen.
@@ -172,10 +174,10 @@ export class SFNTFont<TDirectory extends SFNTDirectory = SFNTDirectory> {
 		return null;
 	}
 
-	protected decodeDirectory(): TDirectory {
+	protected decodeDirectory(): TDirectoryTable {
 		return Directory.decode(this.stream, {
 			_startOffset: 0,
-		} as unknown as FieldT<unknown>) as TDirectory;
+		} as FieldT<unknown>) as TDirectoryTable;
 	}
 
 	_decodeTable(table: SFNTTable) {

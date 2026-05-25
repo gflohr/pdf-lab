@@ -33,6 +33,7 @@ declare module '@pdf-lib/restructure' {
 
 	export interface FieldT<T> {
 		readonly __type?: T;
+		readonly _startOffset?: number;
 
 		size(val?: any | null, ctx?: ParsingContext): number;
 

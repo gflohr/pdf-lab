@@ -8,18 +8,19 @@ import r, {
 import type Glyph from './glyph/glyph.js';
 import TTFGlyph, { Point } from './glyph/TTFGlyph.js';
 import WOFF2Glyph from './glyph/WOFF2Glyph.js';
-import type { SFNTDirectory, SFNTTable } from './tables/directory.js';
+import { SFNTFont } from './sfnt-font.js';
+import type { SFNTTable } from './tables/directory.js';
+import type { WOFFDirectoryTable } from './tables/woff-directory.js';
 import WOFF2Directory, {
 	type WOFF2DirectoryTable,
 	type WOFF2TableMap,
 } from './tables/woff2-directory.js';
-import { TrueTypeFont } from './true-type-font.js';
 
 /**
  * Subclass of TrueTypeFont that represents a TTF/OTF font compressed by WOFF2
  * See spec here: http://www.w3.org/TR/WOFF2/
  */
-export class WOFF2Font extends TrueTypeFont {
+export class WOFF2Font extends SFNTFont<WOFF2DirectoryTable> {
 	_dataPos?: number;
 	_decompressed = false;
 	_glyphs: Record<number, Glyph> = {};
@@ -30,12 +31,12 @@ export class WOFF2Font extends TrueTypeFont {
 	}
 
 	// private
-	decodeDirectory(): SFNTDirectory {
+	decodeDirectory(): WOFF2DirectoryTable {
 		const directory = WOFF2Directory.decode(this.stream);
 
 		this._dataPos = this.stream.pos;
 
-		return directory as unknown as SFNTDirectory;
+		return directory;
 	}
 
 	_decompress() {
