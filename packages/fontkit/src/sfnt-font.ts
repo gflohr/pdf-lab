@@ -47,8 +47,8 @@ export interface FontAxis {
 export class SFNTFont<
 	TDirectoryTable extends SFNTDirectoryTable = SFNTDirectoryTable,
 > {
-	stream: DecodeStream;
-	variationCoords: number[] | null;
+	public stream: DecodeStream;
+	private variationCoords: number[] | null;
 	_directoryPos: number;
 	_tables: SFNTTableMap = {};
 	_glyphs: Record<number, Glyph> = {};
