@@ -211,17 +211,19 @@ export type OpenTypeChainingContextTable =
 	| OpenTypeChainingContextV2
 	| OpenTypeChainingContextV3;
 
-const LangSysTable = new r.Struct<any, OpenTypeLangSysTable>({
+const langSysTableFields = {
 	reserved: new r.Reserved(r.uint16),
 	reqFeatureIndex: r.uint16,
 	featureCount: r.uint16,
 	featureIndexes: new r.Array(r.uint16, 'featureCount'),
-});
+};
+const LangSysTable = new r.Struct<typeof langSysTableFields, OpenTypeLangSysTable>(langSysTableFields);
 
-const LangSysRecord = new r.Struct<any, OpenTypeLangSysRecord>({
+const langSysRecordFields = {
 	tag: new r.String(4),
 	langSys: new r.Pointer(r.uint16, LangSysTable, { type: 'parent' }),
-});
+};
+const LangSysRecord = new r.Struct<typeof langSysRecordFields, OpenTypeLangSysRecord>(langSysRecordFields);
 
 const Script = new r.Struct<any, OpenTypeScriptTable>({
 	defaultLangSys: new r.Pointer(r.uint16, LangSysTable),
