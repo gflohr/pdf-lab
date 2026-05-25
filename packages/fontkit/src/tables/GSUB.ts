@@ -5,6 +5,7 @@ import {
 	Coverage,
 	FeatureList,
 	LookupList,
+	OpenTypeFeatureRecord,
 	OpenTypeScriptRecord,
 	ScriptList,
 } from './opentype.js';
@@ -20,7 +21,7 @@ interface OpenTypeLayoutTableBase {
 	/** Pointer to the ScriptList table which defines font scripts and language systems. */
 	scriptList: OpenTypeScriptRecord[] | null; // Instantiated via ScriptList configuration structure
 	/** Pointer to the FeatureList table which maps typographical layout features. */
-	featureList: any; // Instantiated via FeatureList configuration structure
+	featureList: OpenTypeFeatureRecord[]; // Instantiated via FeatureList configuration structure
 	/** List of lookup execution sequence steps mapping specific structural changes. */
 	lookupList: any; // Instantiated via LookupList configuration structure
 }
