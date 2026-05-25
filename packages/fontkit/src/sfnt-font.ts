@@ -3,10 +3,12 @@ import r from '@pdf-lib/restructure';
 import fontkit from './base.js';
 import CmapProcessor from './CmapProcessor.js';
 import type {
+	Font,
 	NamedVariation,
 	NamedVariations,
 	VariationAxes,
 	VariationAxis,
+	VariationCoordinates,
 	VariationSettings,
 } from './font.js';
 import BBox from './glyph/bbox.js';
@@ -46,7 +48,7 @@ export interface FontAxis {
  */
 export class SFNTFont<
 	TDirectoryTable extends SFNTDirectoryTable = SFNTDirectoryTable,
-> {
+> implements Font {
 	public stream: DecodeStream;
 	private variationCoords: number[] | null;
 	_directoryPos: number;
@@ -704,7 +706,7 @@ export class SFNTFont<
 	 * @param settings the instance name or variation settings
 	 * @returns the generated font
 	 */
-	getVariation(settings: string | VariationSettings) {
+	getVariation(settings: string | VariationCoordinates): SFNTFont<TDirectoryTable> {
 		if (
 			!(
 				this.directory.tables.fvar &&
@@ -747,7 +749,7 @@ export class SFNTFont<
 		const stream = new r.DecodeStream(this.stream.buffer);
 		stream.pos = this._directoryPos;
 
-		const font = new SFNTFont(stream, coords);
+		const font = new SFNTFont<TDirectoryTable>(stream, coords);
 		font._tables = this._tables;
 
 		return font;

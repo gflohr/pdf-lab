@@ -185,8 +185,6 @@ export interface Font {
 	 */
 	vmtx?: VmtxTable;
 
-	variationProcessor: GlyphVariationProcessor | null;
-
 	// Bad interface starts here.
 	'OS/2': FilteredTableMap['OS/2'];
 }
