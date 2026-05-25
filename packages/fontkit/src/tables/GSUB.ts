@@ -5,11 +5,16 @@ import {
 	Coverage,
 	FeatureList,
 	LookupList,
+	type OpenTypeChainingContextTable,
+	type OpenTypeContextTable,
 	type OpenTypeCoverageTable,
 	type OpenTypeLayoutTableBase,
 	ScriptList,
 } from './opentype.js';
-import { FeatureVariations, type OpenTypeFeatureVariationsTable } from './variations.js';
+import {
+	FeatureVariations,
+	type OpenTypeFeatureVariationsTable,
+} from './variations.js';
 
 export interface GSUBTableV1_0
 	extends OpenTypeLayoutTableBase<GSUBLookupTable> {
@@ -51,19 +56,24 @@ export interface GSUBLookupAlternate {
 	alternateSet: number[][];
 }
 
+export interface GSUBLookupLigatureSet {
+	glyph: number;
+	compCount: number;
+	components: number[];
+}
 export interface GSUBLookupLigature {
 	substFormat: number;
 	coverage?: OpenTypeCoverageTable;
 	count: number;
-	ligatureSets: any[];
+	ligatureSets: GSUBLookupLigatureSet[];
 }
 
 export interface GSUBLookupReverseChaining {
 	substFormat: number;
 	coverage?: OpenTypeCoverageTable;
-	backtrackCoverage: any[];
+	backtrackCoverage: OpenTypeCoverageTable[];
 	lookaheadGlyphCount: number;
-	lookaheadCoverage: any[];
+	lookaheadCoverage: OpenTypeCoverageTable[];
 	glyphCount: number;
 	substitutes: number[];
 }
@@ -76,11 +86,15 @@ export type GSUBLookupTable =
 	| { lookupType: 2; table: GSUBLookupMultiple }
 	| { lookupType: 3; table: GSUBLookupAlternate }
 	| { lookupType: 4; table: GSUBLookupLigature }
-	| { lookupType: 5; table: any } // Contextual Substitution
-	| { lookupType: 6; table: any } // Chaining Contextual Substitution
+	| { lookupType: 5; table: OpenTypeContextTable }
+	| { lookupType: 6; table: OpenTypeChainingContextTable }
 	| {
 			lookupType: 7;
-			table: { substFormat: number; lookupType: number; extension: any };
+			table: {
+				substFormat: number;
+				lookupType: Exclude<number, 7>;
+				extension: GSUBLookupTable;
+			};
 	  }
 	| { lookupType: 8; table: GSUBLookupReverseChaining };
 
