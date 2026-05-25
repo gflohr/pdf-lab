@@ -5,9 +5,99 @@ import {
 	Coverage,
 	FeatureList,
 	LookupList,
+	OpenTypeScriptRecord,
 	ScriptList,
 } from './opentype.js';
 import { FeatureVariations } from './variations.js';
+
+/**
+ * Baseline master layout properties shared across all OpenType Layout Engines
+ * (GSUB/GPOS).
+ *
+ * FIXME! Move that to ./opentype.ts.
+ */
+interface OpenTypeLayoutTableBase {
+	/** Pointer to the ScriptList table which defines font scripts and language systems. */
+	scriptList: OpenTypeScriptRecord[] | null; // Instantiated via ScriptList configuration structure
+	/** Pointer to the FeatureList table which maps typographical layout features. */
+	featureList: any; // Instantiated via FeatureList configuration structure
+	/** List of lookup execution sequence steps mapping specific structural changes. */
+	lookupList: any; // Instantiated via LookupList configuration structure
+}
+
+export interface GSUBTableV1_0 extends OpenTypeLayoutTableBase {
+	version: 1.0; // represented by binary uint32 value 65536
+}
+
+export interface GSUBTableV1_1 extends OpenTypeLayoutTableBase {
+	version: 1.1; // represented by binary uint32 value 65537
+	/** Pointer to optional design-axis metadata variable feature settings. */
+	featureVariations: any; // Instantiated via FeatureVariations configuration structure
+}
+
+/**
+ * Represents the final parsed OpenType Glyph Substitution table ('GSUB').
+ */
+export type GSUBTable = GSUBTableV1_0 | GSUBTableV1_1;
+
+// ============================================================================
+// 2. Inner Lookup Structure Discriminator Unions
+// ============================================================================
+
+export type GSUBLookupSingle =
+	| { format: 1; coverage: any; deltaGlyphID: number }
+	| { format: 2; coverage: any; glyphCount: number; substitute: number[] };
+
+export interface GSUBLookupMultiple {
+	substFormat: number;
+	coverage: any;
+	count: number;
+	sequences: number[][];
+}
+
+export interface GSUBLookupAlternate {
+	substFormat: number;
+	coverage: any;
+	count: number;
+	alternateSet: number[][];
+}
+
+export interface GSUBLookupLigature {
+	substFormat: number;
+	coverage: any;
+	count: number;
+	ligatureSets: any[];
+}
+
+export interface GSUBLookupReverseChaining {
+	substFormat: number;
+	coverage: any;
+	backtrackCoverage: any[];
+	lookaheadGlyphCount: number;
+	lookaheadCoverage: any[];
+	glyphCount: number;
+	substitutes: number[];
+}
+
+/**
+ * Comprehensive mapping interface representing an individual decoded GSUB Lookup entry.
+ */
+export type GSUBLookupTable =
+	| { lookupType: 1; table: GSUBLookupSingle }
+	| { lookupType: 2; table: GSUBLookupMultiple }
+	| { lookupType: 3; table: GSUBLookupAlternate }
+	| { lookupType: 4; table: GSUBLookupLigature }
+	| { lookupType: 5; table: any } // Contextual Substitution
+	| { lookupType: 6; table: any } // Chaining Contextual Substitution
+	| {
+			lookupType: 7;
+			table: { substFormat: number; lookupType: number; extension: any };
+	  }
+	| { lookupType: 8; table: GSUBLookupReverseChaining };
+
+// ============================================================================
+// 3. Structural Binary Configuration Shapes
+// ============================================================================
 
 const Sequence = new r.Array(r.uint16, r.uint16);
 const AlternateSet = Sequence;
@@ -23,7 +113,6 @@ const LigatureSet = new r.Array(new r.Pointer(r.uint16, Ligature), r.uint16);
 const selfPointer = new r.Pointer(r.uint32, null);
 const GSUBLookup = new r.VersionedStruct('lookupType', {
 	1: new r.VersionedStruct(r.uint16, {
-		// Single Substitution
 		1: {
 			coverage: new r.Pointer(r.uint16, Coverage),
 			deltaGlyphID: r.int16,
@@ -36,7 +125,6 @@ const GSUBLookup = new r.VersionedStruct('lookupType', {
 	}),
 
 	2: {
-		// Multiple Substitution
 		substFormat: r.uint16,
 		coverage: new r.Pointer(r.uint16, Coverage),
 		count: r.uint16,
@@ -44,7 +132,6 @@ const GSUBLookup = new r.VersionedStruct('lookupType', {
 	},
 
 	3: {
-		// Alternate Substitution
 		substFormat: r.uint16,
 		coverage: new r.Pointer(r.uint16, Coverage),
 		count: r.uint16,
@@ -55,7 +142,6 @@ const GSUBLookup = new r.VersionedStruct('lookupType', {
 	},
 
 	4: {
-		// Ligature Substitution
 		substFormat: r.uint16,
 		coverage: new r.Pointer(r.uint16, Coverage),
 		count: r.uint16,
@@ -65,18 +151,16 @@ const GSUBLookup = new r.VersionedStruct('lookupType', {
 		),
 	},
 
-	5: Context, // Contextual Substitution
-	6: ChainingContext, // Chaining Contextual Substitution
+	5: Context,
+	6: ChainingContext,
 
 	7: {
-		// Extension Substitution
 		substFormat: r.uint16,
-		lookupType: r.uint16, // cannot also be 7
+		lookupType: r.uint16,
 		extension: selfPointer,
 	},
 
 	8: {
-		// Reverse Chaining Contextual Single Substitution
 		substFormat: r.uint16,
 		coverage: new r.Pointer(r.uint16, Coverage),
 		backtrackCoverage: new r.Array(
@@ -96,7 +180,7 @@ const GSUBLookup = new r.VersionedStruct('lookupType', {
 // Fix circular reference
 selfPointer.type = GSUBLookup;
 
-export default new r.VersionedStruct(r.uint32, {
+const fields = {
 	header: {
 		scriptList: new r.Pointer(r.uint16, ScriptList),
 		featureList: new r.Pointer(r.uint16, FeatureList),
@@ -107,4 +191,9 @@ export default new r.VersionedStruct(r.uint32, {
 	65537: {
 		featureVariations: new r.Pointer(r.uint32, FeatureVariations),
 	},
-});
+};
+
+export default new r.VersionedStruct<typeof fields, GSUBTable>(
+	r.uint32,
+	fields,
+);

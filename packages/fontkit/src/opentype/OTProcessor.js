@@ -36,6 +36,7 @@ export default class OTProcessor {
 		if (this.table.scriptList == null) {
 			return null;
 		}
+console.dir(this.table.scriptList, { depth: null });
 
 		if (!Array.isArray(script)) {
 			script = [script];
