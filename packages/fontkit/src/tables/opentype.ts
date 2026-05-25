@@ -57,7 +57,7 @@ export interface OpenTypeLookupTable<TSubTable> {
 	flags: OpenTypeLookupFlags;
 	subTableCount: number;
 	subTables: TSubTable[];
-	markFilteringSet: number | null;
+	markFilteringSet?: number | null;
 }
 
 // ==========================================
