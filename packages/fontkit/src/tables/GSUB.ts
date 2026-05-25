@@ -9,7 +9,7 @@ import {
 	type OpenTypeLayoutTableBase,
 	ScriptList,
 } from './opentype.js';
-import { FeatureVariations } from './variations.js';
+import { FeatureVariations, type OpenTypeFeatureVariationsTable } from './variations.js';
 
 export interface GSUBTableV1_0
 	extends OpenTypeLayoutTableBase<GSUBLookupTable> {
@@ -20,7 +20,7 @@ export interface GSUBTableV1_1
 	extends OpenTypeLayoutTableBase<GSUBLookupTable> {
 	version: 1.1; // represented by binary uint32 value 65537
 	/** Pointer to optional design-axis metadata variable feature settings. */
-	featureVariations: any; // Instantiated via FeatureVariations structure
+	featureVariations: OpenTypeFeatureVariationsTable; // Instantiated via FeatureVariations structure
 }
 
 /**
