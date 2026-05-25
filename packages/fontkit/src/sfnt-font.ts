@@ -780,7 +780,7 @@ export class SFNTFont<
 			);
 		}
 
-		return new GlyphVariationProcessor(this, variationCoords);
+		return new GlyphVariationProcessor(this, variationCoords ?? []);
 	}
 
 	get _variationProcessor(): GlyphVariationProcessor | null {

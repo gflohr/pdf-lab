@@ -38,10 +38,6 @@ export interface ItemVariationStoreTable {
 	itemVariationData: (OpenTypeItemVariationData | null)[];
 }
 
-// ==========================================
-// Domain 2: Feature Variations Interfaces
-// ==========================================
-
 export interface OpenTypeConditionTableV1 {
 	version: 1;
 	axisIndex: number;
@@ -78,10 +74,6 @@ export interface OpenTypeFeatureVariationsTable {
 	featureVariationRecordCount: number;
 	featureVariationRecords: OpenTypeFeatureVariationRecord[];
 }
-
-// ==========================================
-// Parsers & Binary Struct Compilation Mapping
-// ==========================================
 
 const F2DOT14 = new r.Fixed(16, 'BE', 14);
 

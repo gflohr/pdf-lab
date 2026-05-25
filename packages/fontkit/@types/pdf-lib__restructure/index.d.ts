@@ -12,13 +12,20 @@ declare module '@pdf-lib/restructure' {
 	export class DecodeStream {
 		buffer: Uint8Array;
 		pos: number;
+		length: number;
 
 		constructor(buffer?: Uint8Array);
 
 		readBuffer(offset: number): Buffer;
+		readInt8(): number;
 		readUInt8(): number;
+		readInt16(): number;
+		readInt16BE(): number;
 		readUInt16BE(): number;
+		readUInt16(): number;
+		readInt24BE(): number;
 		readUInt24BE(): number;
+		readInt32BE(): number;
 		readUInt32BE(): number;
 	}
 
