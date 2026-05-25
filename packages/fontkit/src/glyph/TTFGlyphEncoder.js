@@ -8,20 +8,19 @@ const REPEAT = 1 << 3;
 const SAME_X = 1 << 4;
 const SAME_Y = 1 << 5;
 
-// biome-ignore lint/complexity/noStaticOnlyClass: fix later
-class Point {
-	static size(val) {
+const Point = {
+	size(val) {
 		return val >= 0 && val <= 255 ? 1 : 2;
-	}
+	},
 
-	static encode(stream, value) {
+	encode(stream, value) {
 		if (value >= 0 && value <= 255) {
 			stream.writeUInt8(value);
 		} else {
 			stream.writeInt16BE(value);
 		}
-	}
-}
+	},
+};
 
 const Glyf = new r.Struct({
 	numberOfContours: r.int16, // if negative, this is a composite glyph
