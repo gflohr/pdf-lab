@@ -37,7 +37,7 @@ export default class AATLayoutEngine {
 	}
 
 	_addStrings(glyphs, index, strings, string) {
-		const codePoints = this.font._cmapProcessor.codePointsForGlyph(
+		const codePoints = this.font.codePointsForGlyph(
 			glyphs[index],
 		);
 

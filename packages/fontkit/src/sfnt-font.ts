@@ -60,7 +60,7 @@ export class SFNTFont<
 	// then frozen.
 	private _bbox!: Readonly<BBox>;
 	private _characterSet!: number[];
-	__cmapProcessor!: CmapProcessor;
+	private _cmapProcessor!: CmapProcessor;
 	__layoutEngine!: LayoutEngine;
 	private _variationAxes!: VariationAxes;
 	private _namedVariations!: NamedVariations;
@@ -377,12 +377,12 @@ export class SFNTFont<
 		return this._bbox;
 	}
 
-	get _cmapProcessor(): CmapProcessor {
-		if (typeof this.__cmapProcessor === 'undefined') {
-			this.__cmapProcessor = new CmapProcessor(this.cmap);
+	private get cmapProcessor(): CmapProcessor {
+		if (typeof this._cmapProcessor === 'undefined') {
+			this._cmapProcessor = new CmapProcessor(this.cmap);
 		}
 
-		return this.__cmapProcessor;
+		return this._cmapProcessor;
 	}
 
 	/**
@@ -391,7 +391,7 @@ export class SFNTFont<
 	 */
 	get characterSet(): number[] {
 		if (typeof this._characterSet === 'undefined') {
-			this._characterSet = this._cmapProcessor.getCharacterSet();
+			this._characterSet = this.cmapProcessor.getCharacterSet();
 		}
 
 		return this._characterSet;
@@ -404,7 +404,7 @@ export class SFNTFont<
 	 * @returns `true` if a glyph is available for the code point, `false` otherwise
 	 */
 	hasGlyphForCodePoint(codePoint: number): boolean {
-		return !!this._cmapProcessor.lookup(codePoint);
+		return !!this.cmapProcessor.lookup(codePoint);
 	}
 
 	/**
@@ -417,7 +417,7 @@ export class SFNTFont<
 	 */
 	glyphForCodePoint(codePoint: number): Glyph {
 		// FIXME! Get rid of the cast to never!
-		return this.getGlyph(this._cmapProcessor.lookup(codePoint), [
+		return this.getGlyph(this.cmapProcessor.lookup(codePoint), [
 			codePoint,
 		] as never);
 	}
@@ -467,7 +467,7 @@ export class SFNTFont<
 				// Variation selector following normal codepoint.
 				glyphs.push(
 					// FIXME! Get rid of the cast!
-					this.getGlyph(this._cmapProcessor.lookup(last, code), [
+					this.getGlyph(this.cmapProcessor.lookup(last, code), [
 						last,
 						code,
 					] as never),
@@ -527,6 +527,10 @@ export class SFNTFont<
 	 */
 	stringsForGlyph(gid: number): string[] {
 		return this._layoutEngine.stringsForGlyph(gid);
+	}
+
+	codePointsForGlyph(gid: number): number[] {
+		return this.cmapProcessor.codePointsForGlyph(gid);
 	}
 
 	/**
