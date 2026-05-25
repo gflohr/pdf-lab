@@ -313,7 +313,7 @@ export default class TTFGlyph extends Glyph {
 		}
 
 		// Recompute and cache metrics if we performed variation processing, and don't have an HVAR table
-		if (glyph.phantomPoints && !this._font.directory.tables.HVAR) {
+		if (glyph.phantomPoints && !this._font.HVAR) {
 			this._metrics.advanceWidth =
 				glyph.phantomPoints[1].x - glyph.phantomPoints[0].x;
 			this._metrics.advanceHeight =

@@ -9,7 +9,8 @@ describe('metadata', () => {
 	const font = fontkit.openSync(filename);
 
 	it('decodes SFNT directory values correctly', () => {
-		const dir = font.directory;
+		// biome-ignore lint/complexity/useLiteralKeys: need private access for testing.
+		const dir = font['directory'];
 		expect(dir.numTables).toBe(19);
 		expect(dir.searchRange).toBe(256);
 		expect(dir.entrySelector).toBe(4);
@@ -17,7 +18,8 @@ describe('metadata', () => {
 	});
 
 	it('numTables matches table collection', () => {
-		const dir = font.directory;
+		// biome-ignore lint/complexity/useLiteralKeys: need private access for testing.
+		const dir = font['directory'];
 		expect(Object.keys(dir.tables).length).toBe(dir.numTables);
 	});
 });
