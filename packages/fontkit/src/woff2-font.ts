@@ -12,7 +12,7 @@ import type { SFNTDirectory, SFNTTable } from './tables/directory.js';
 import WOFF2Directory, {
 	type WOFF2DirectoryTable,
 	type WOFF2TableMap,
-} from './tables/WOFF2Directory.js';
+} from './tables/woff2-directory.js';
 import { TrueTypeFont } from './true-type-font.js';
 
 /**

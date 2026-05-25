@@ -1,7 +1,7 @@
 import r, { type DecodeStream, type FieldT } from '@pdf-lib/restructure';
 import inflate from 'tiny-inflate';
 import type { SFNTDirectory, WOFFTable } from './tables/directory.js';
-import WOFFDirectory from './tables/WOFFDirectory.js';
+import WOFFDirectory from './tables/woff-directory.js';
 import { TrueTypeFont } from './true-type-font.js';
 
 export class WOFFFont extends TrueTypeFont {
