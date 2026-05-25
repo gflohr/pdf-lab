@@ -6,6 +6,7 @@
  * inside the parser engine framework.
  */
 import r, {
+	EncodeStream,
 	type DecodeStream,
 	type FieldT,
 	type InferField,
@@ -86,7 +87,7 @@ export const LookupTable = (ValueType: FieldT<any> = r.uint16) => {
 			return this.type.size(val, ctx);
 		}
 
-		encode(stream: DecodeStream, val: number, ctx?: ParsingContext) {
+		encode(stream: EncodeStream, val: number, ctx?: ParsingContext) {
 			ctx = ctx?.parent?.parent;
 
 			return this.type.encode(stream, val, ctx);

@@ -9,6 +9,8 @@
 // grown by fixing typing errors in the tables code, as they occurred. It is
 // probably possible to get rid of a lot of the explicit any types.
 declare module '@pdf-lib/restructure' {
+	export type LengthResolver<T = any> = (t: T) => number;
+	export type Length = number | string | LengthResolver<any> | NumberT;
 	export class DecodeStream {
 		buffer: Uint8Array;
 		pos: number;
@@ -29,6 +31,19 @@ declare module '@pdf-lib/restructure' {
 		readUInt32BE(): number;
 	}
 
+	export class EncodeStream {
+		buffer: Uint8Array;
+
+		// This is weird. The number argument somehow gets converted to a
+		// buffer on the way.
+		constructor(buffer: number);
+
+		fill(val: number, length: number): void;
+
+		writeUInt8(value: number): void;
+		writeInt16BE(value: number): void;
+	}
+
 	// The runtime tracking data context passed into size/decode/encode hooks
 	export interface ParsingContext {
 		parent?: ParsingContext;
@@ -46,11 +61,8 @@ declare module '@pdf-lib/restructure' {
 
 		decode(stream: DecodeStream, ctx?: ParsingContext): T;
 
-		encode(stream: DecodeStream, val: T, ctx?: ParsingContext): void;
+		encode(stream: EncodeStream, val: T, ctx?: ParsingContext): void;
 	}
-
-	export type LengthResolver<T = any> = (t: T) => number;
-	export type Length = number | string | LengthResolver<any> | NumberT;
 
 	export class NumberT implements FieldT<number> {
 		readonly __type?: number;
@@ -61,7 +73,7 @@ declare module '@pdf-lib/restructure' {
 
 		decode(stream: DecodeStream): number;
 
-		encode(stream: DecodeStream, val: number): void;
+		encode(stream: EncodeStream, val: number): void;
 	}
 
 	export class FixedT implements FieldT<number> {
@@ -73,7 +85,7 @@ declare module '@pdf-lib/restructure' {
 
 		decode(stream: DecodeStream): number;
 
-		encode(stream: DecodeStream, val: number): void;
+		encode(stream: EncodeStream, val: number): void;
 	}
 
 	export type EncodingResolver<T = any> = (t: T) => string;
@@ -88,7 +100,7 @@ declare module '@pdf-lib/restructure' {
 
 		decode(stream: DecodeStream, parent?: FieldT<unknown>): string;
 
-		encode(stream: DecodeStream, value: string, parent?: FieldT<unknown>): void;
+		encode(stream: EncodeStream, value: string, parent?: FieldT<unknown>): void;
 	}
 
 	export type InferField<T> =
@@ -108,7 +120,7 @@ declare module '@pdf-lib/restructure' {
 
 		decode(stream: DecodeStream, parent?: any): InferField<TField>[];
 
-		encode(stream: DecodeStream, value: InferField<TField>[]): void;
+		encode(stream: EncodeStream, value: InferField<TField>[]): void;
 	}
 
 	export interface RestructureLazyArray<T> extends Array<T> {
@@ -129,7 +141,7 @@ declare module '@pdf-lib/restructure' {
 
 		decode(stream: DecodeStream): TExplicitOut;
 
-		encode(stream: DecodeStream, value: TExplicitOut): void;
+		encode(stream: EncodeStream, value: TExplicitOut): void;
 	}
 
 	export type TypedStruct<T> = StructT<Record<string, any>, T>;
@@ -158,7 +170,7 @@ declare module '@pdf-lib/restructure' {
 		): TExplicitOut;
 
 		encode(
-			stream: DecodeStream,
+			stream: EncodeStream,
 			value: TExplicitOut,
 			parent?: FieldT<unknown>,
 		): void;
@@ -187,7 +199,7 @@ declare module '@pdf-lib/restructure' {
 
 		size(value?: TExplicitOut, parent?: any, includePointers?: boolean): number;
 
-		encode(stream: DecodeStream, value: TExplicitOut, parent?: any): void;
+		encode(stream: EncodeStream, value: TExplicitOut, parent?: any): void;
 
 		process?: (this: any, stream: DecodeStream) => void;
 		preEncode?: (this: any, stream: DecodeStream) => void;
@@ -213,7 +225,7 @@ declare module '@pdf-lib/restructure' {
 		size(val?: any | null, ctx?: ParsingContext): number;
 
 		encode(
-			stream: DecodeStream,
+			stream: EncodeStream,
 			value: BitfieldResult<TFlags>,
 			ctx?: ParsingContext,
 		): void;
@@ -246,7 +258,7 @@ declare module '@pdf-lib/restructure' {
 
 		size(value?: unknown, ctx?: unknown): number;
 
-		encode(stream: DecodeStream, value: unknown, ctx?: unknown): void;
+		encode(stream: EncodeStream, value: unknown, ctx?: unknown): void;
 	}
 
 	export class VoidPointerT<T = any> {
@@ -263,7 +275,7 @@ declare module '@pdf-lib/restructure' {
 
 		size(value?: undefined, parent?: any): number;
 
-		encode(stream: DecodeStream, value: undefined, parent?: any): void;
+		encode(stream: EncodeStream, value: undefined, parent?: any): void;
 	}
 
 	export class BufferT implements FieldT<Uint8Array> {
@@ -275,7 +287,7 @@ declare module '@pdf-lib/restructure' {
 
 		decode(stream: DecodeStream, ctx?: ParsingContext): Uint8Array;
 
-		encode(stream: DecodeStream, val: Uint8Array, ctx?: ParsingContext): void;
+		encode(stream: EncodeStream, val: Uint8Array, ctx?: ParsingContext): void;
 	}
 
 	export type ConditionResolver<T = any> = (t: T) => boolean;
@@ -292,10 +304,13 @@ declare module '@pdf-lib/restructure' {
 			parent?: FieldT<number>,
 		): InferField<TField> | undefined;
 
-		encode(stream: DecodeStream, val: number, parent?: FieldT<number>): void;
+		encode(stream: EncodeStream, val: number, parent?: FieldT<number>): void;
 	}
 
 	export interface RestructureStatic {
+		DecodeStream: typeof DecodeStream;
+		EncodeStream: typeof EncodeStream;
+
 		Number: typeof NumberT;
 		Fixed: typeof FixedT;
 		String: typeof StringT;
@@ -321,7 +336,6 @@ declare module '@pdf-lib/restructure' {
 		Reserved: typeof ReservedT;
 		Buffer: typeof BufferT;
 		Optional: typeof OptionalT;
-		DecodeStream: typeof DecodeStream;
 
 		int8: NumberT;
 		uint8: NumberT;

@@ -1,4 +1,5 @@
-import r from '@pdf-lib/restructure';
+import r, { type EncodeStream, type FieldT } from '@pdf-lib/restructure';
+import type Path from './path.js';
 
 // Flags for simple glyphs
 const ON_CURVE = 1 << 0;
@@ -9,18 +10,18 @@ const SAME_X = 1 << 4;
 const SAME_Y = 1 << 5;
 
 const Point = {
-	size(val) {
+	size(val: number): 1 | 2 {
 		return val >= 0 && val <= 255 ? 1 : 2;
 	},
 
-	encode(stream, value) {
+	encode(stream: EncodeStream, value: number) {
 		if (value >= 0 && value <= 255) {
 			stream.writeUInt8(value);
 		} else {
 			stream.writeInt16BE(value);
 		}
 	},
-};
+} as FieldT<number>;
 
 const Glyf = new r.Struct({
 	numberOfContours: r.int16, // if negative, this is a composite glyph
@@ -36,13 +37,15 @@ const Glyf = new r.Struct({
 });
 
 /**
- * Encodes TrueType glyph outlines
+ * Encodes TrueType glyph outlines.
+ *
+ * FIXME! This is rather a function than a class.
  */
 export default class TTFGlyphEncoder {
-	encodeSimple(path, instructions = []) {
+	encodeSimple(path: Path, instructions: number[] = []): Uint8Array {
 		const endPtsOfContours = [];
-		const xPoints = [];
-		const yPoints = [];
+		const xPoints: number[] = [];
+		const yPoints: number[] = [];
 		const flags = [];
 		let same = 0;
 		let lastX = 0,
@@ -158,7 +161,7 @@ export default class TTFGlyphEncoder {
 		return stream.buffer;
 	}
 
-	_encodePoint(value, last, points, flag, shortFlag, sameFlag) {
+	_encodePoint(value: number, last: number, points: number[], flag: number, shortFlag: number, sameFlag: number) {
 		let diff = value - last;
 
 		if (value === last) {

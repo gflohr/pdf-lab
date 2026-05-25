@@ -1,7 +1,7 @@
 import type BBox from './glyph/bbox.js';
 import type Glyph from './glyph/glyph.js';
 import type GlyphRun from './layout/GlyphRun.js';
-import type { SFNTDirectoryTable } from './tables/directory.js';
+import type Subset from './subset/Subset.js';
 import type { HVARTable } from './tables/HVAR.js';
 import type { HeadTable } from './tables/head.js';
 import type { HheaTable } from './tables/hhea.js';
@@ -9,7 +9,6 @@ import type { HmtxTable } from './tables/hmtx.js';
 import type { PostTable } from './tables/post.js';
 import type { VmtxTable } from './tables/vmtx.js';
 import type { TypeFeatures } from './types/features.js';
-import type { Subset } from './types/subset.js';
 
 export interface VariationAxis {
 	axisTag: string;
