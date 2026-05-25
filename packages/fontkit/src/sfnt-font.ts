@@ -58,7 +58,7 @@ export class SFNTFont<
 
 	// Those variables are lazily instantiated by their respctive getters, and
 	// then frozen.
-	_bbox!: Readonly<BBox>;
+	private _bbox!: Readonly<BBox>;
 	_characterSet!: number[];
 	__cmapProcessor!: CmapProcessor;
 	__layoutEngine!: LayoutEngine;
