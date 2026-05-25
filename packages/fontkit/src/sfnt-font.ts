@@ -51,8 +51,8 @@ export class SFNTFont<
 > implements Font {
 	public stream: DecodeStream;
 	private variationCoords: number[] | null;
-	_directoryPos: number;
-	_tables: SFNTTableMap = {};
+	private directoryPos: number;
+	private tables: SFNTTableMap = {};
 	_glyphs: Record<number, Glyph> = {};
 	directory: TDirectoryTable; // Create a getter for this.
 
@@ -125,8 +125,8 @@ export class SFNTFont<
 		this.stream = stream;
 		this.variationCoords = variationCoords;
 
-		this._directoryPos = this.stream.pos;
-		this._tables = {};
+		this.directoryPos = this.stream.pos;
+		this.tables = {};
 		this._glyphs = {};
 		this.directory = this.decodeDirectory();
 
@@ -146,12 +146,12 @@ export class SFNTFont<
 	}
 
 	_getTable(table: SFNTTable): SFNTTable | null {
-		if (!(table.tag in this._tables)) {
+		if (!(table.tag in this.tables)) {
 			try {
-				this._tables[table.tag] = this._decodeTable(table);
+				this.tables[table.tag] = this._decodeTable(table);
 			} catch (e) {
 				// Avoid retrying the failed decode attempt.
-				this._tables[table.tag] = null;
+				this.tables[table.tag] = null;
 				if (fontkit.logErrors) {
 					console.error(`Error decoding table ${table.tag}`);
 					if (e instanceof Error) {
@@ -163,7 +163,7 @@ export class SFNTFont<
 			}
 		}
 
-		return this._tables[table.tag];
+		return this.tables[table.tag];
 	}
 
 	_getTableStream(tag: string): DecodeStream | null {
@@ -747,10 +747,10 @@ export class SFNTFont<
 		});
 
 		const stream = new r.DecodeStream(this.stream.buffer);
-		stream.pos = this._directoryPos;
+		stream.pos = this.directoryPos;
 
 		const font = new SFNTFont<TDirectoryTable>(stream, coords);
-		font._tables = this._tables;
+		font.tables = this.tables;
 
 		return font;
 	}
