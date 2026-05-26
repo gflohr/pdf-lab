@@ -18,7 +18,7 @@ const fields = {
 	xMax: r.int16,
 	yMax: r.int16,
 };
-const GlyfHeader = new r.Struct<typeof fields, EmptyGlyph>(fields);
+const GlyphHeader = new r.Struct<typeof fields, EmptyGlyph>(fields);
 
 // Flags for simple glyphs.
 // FIXME! This repeat the same variables in TTFGlyphEncoder.ts!
@@ -87,7 +87,7 @@ export default class TTFGlyph extends Glyph {
 			throw new Error('Malformed font! Cannot decode table \'glyh\'!');
 		}
 		stream.pos += this._font.loca.offsets[this.id];
-		const glyph = GlyfHeader.decode(stream);
+		const glyph = GlyphHeader.decode(stream);
 
 		const cbox = new BBox(glyph.xMin, glyph.yMin, glyph.xMax, glyph.yMax);
 
@@ -119,11 +119,11 @@ export default class TTFGlyph extends Glyph {
 	// Decodes the glyph data into points for simple glyphs,
 	// or components for composite glyphs
 	_decode(): FullGlyph | null {
-		const glyfPos = this._font.loca.offsets[this.id];
+		const glyphPos = this._font.loca.offsets[this.id];
 		const nextPos = this._font.loca.offsets[this.id + 1];
 
 		// Nothing to do if there is no data for this glyph
-		if (glyfPos === nextPos) {
+		if (glyphPos === nextPos) {
 			return null;
 		}
 
@@ -131,10 +131,10 @@ export default class TTFGlyph extends Glyph {
 		if (!stream) {
 			throw new Error('Malformed font! Cannot decode table \'glyh\'!');
 		}
-		stream.pos += glyfPos;
+		stream.pos += glyphPos;
 		const startPos = stream.pos;
 
-		const glyph = GlyfHeader.decode(stream);
+		const glyph = GlyphHeader.decode(stream);
 		if (glyph.numberOfContours > 0) {
 			this._decodeSimple(glyph as FullGlyph, stream);
 		} else if (glyph.numberOfContours < 0) {
