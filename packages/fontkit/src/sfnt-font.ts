@@ -17,7 +17,7 @@ import COLRGlyph from './glyph/COLRGlyph.js';
 import GlyphVariationProcessor from './glyph/GlyphVariationProcessor.js';
 import type Glyph from './glyph/glyph.js';
 import SBIXGlyph from './glyph/SBIXGlyph.js';
-import TTFGlyph from './glyph/TTFGlyph.js';
+import TTFGlyph from './glyph/ttf-glyph.js';
 import LayoutEngine from './layout/LayoutEngine.js';
 import CFFSubset from './subset/CFFSubset.js';
 import type Subset from './subset/Subset.js';

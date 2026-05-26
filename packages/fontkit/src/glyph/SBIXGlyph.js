@@ -1,5 +1,5 @@
 import r from '@pdf-lib/restructure';
-import TTFGlyph from './TTFGlyph.js';
+import TTFGlyph from './ttf-glyph.js';
 
 const SBIXImage = new r.Struct({
 	originX: r.uint16,

@@ -1,6 +1,6 @@
 import type { SFNTFont } from '../sfnt-font.js';
 import type { ItemVariationStoreTable, OpenTypeItemVariationData } from '../tables/variations.js';
-import type { Point } from './TTFGlyph.js';
+import type { Point } from './ttf-glyph.js';
 
 const TUPLES_SHARE_POINT_NUMBERS = 0x8000;
 const TUPLE_COUNT_MASK = 0x0fff;

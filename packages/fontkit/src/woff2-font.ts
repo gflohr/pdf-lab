@@ -6,7 +6,7 @@ import r, {
 	type ParsingContext,
 } from '@pdf-lib/restructure';
 import type Glyph from './glyph/glyph.js';
-import TTFGlyph, { type DecodedCompositeGlyph, Point } from './glyph/TTFGlyph.js';
+import TTFGlyph, { type DecodedCompositeGlyph, Point } from './glyph/ttf-glyph.js';
 import WOFF2Glyph from './glyph/WOFF2Glyph.js';
 import { SFNTFont } from './sfnt-font.js';
 import type { SFNTTable } from './tables/directory.js';
