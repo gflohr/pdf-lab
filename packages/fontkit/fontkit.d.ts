@@ -75,13 +75,19 @@ export interface Path {
 	 * Compiles the path to a JavaScript function that can be applied with a
 	 * graphics context in order to render the path.
 	 */
-	// biome-ignore lint/complexity/noBannedTypes: needs investigation
-	toFunction(): Function;
+	toFunction(): (ctx: Path) => void;
 
 	/**
 	 * Converts the path to an SVG path data string.
 	 */
 	toSVG(): string;
+
+		/**
+	 * Applies a mapping function to each point coordinate in the path.
+	 *
+	 * @param fn - A transformation callback yielding a new [x, y] tuple.
+	 */
+	mapPoints(fn: (x: number, y: number) => [number, number]): Path;
 }
 
 /**

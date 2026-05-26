@@ -123,7 +123,7 @@ export default class GlyphVariationProcessor {
 		// Read the gvar data for this glyph
 		const { stream } = this.font;
 		stream.pos = offset;
-		if (stream.pos >= stream.length) {
+		if (stream.pos >= (stream.length as unknown as number)) {
 			return;
 		}
 

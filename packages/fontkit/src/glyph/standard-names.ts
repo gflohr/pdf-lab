@@ -1,3 +1,4 @@
+// FIXME! Synchronise that with the encoding table from pdf-lab-core!
 export default [
 	'.notdef',
 	'.null',

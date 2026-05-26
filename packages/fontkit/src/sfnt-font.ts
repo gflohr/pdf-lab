@@ -14,8 +14,8 @@ import type {
 import BoundingBox from './glyph/bounding-box.js';
 import CFFGlyph from './glyph/CFFGlyph.js';
 import COLRGlyph from './glyph/COLRGlyph.js';
-import GlyphVariationProcessor from './glyph/GlyphVariationProcessor.js';
 import type Glyph from './glyph/glyph.js';
+import GlyphVariationProcessor from './glyph/glyph-variation-processor.js';
 import SBIXGlyph from './glyph/SBIXGlyph.js';
 import TTFGlyph from './glyph/ttf-glyph.js';
 import LayoutEngine from './layout/LayoutEngine.js';

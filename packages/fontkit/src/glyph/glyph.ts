@@ -319,7 +319,9 @@ export default class Glyph {
 	}
 
 	/**
-	 * Renders the glyph to the given graphics context, at the specified font size.
+	 * Renders the glyph to the given graphics context, at the specified font
+	 * size.
+	 *
 	 * @param {CanvasRenderingContext2d} ctx
 	 * @param {number} size
 	 */
@@ -330,7 +332,7 @@ export default class Glyph {
 		ctx.scale(scale, scale);
 
 		const fn = this.path.toFunction();
-		fn(ctx);
+		fn(ctx as unknown as Path);
 		ctx.fill();
 
 		ctx.restore();

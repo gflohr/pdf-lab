@@ -15,23 +15,6 @@ export interface PathCommand {
 	args: number[];
 }
 
-// A generic interface modeling a canvas or rendering context API.
-export interface PathContext {
-	moveTo(x: number, y: number): void;
-	lineTo(x: number, y: number): void;
-	quadraticCurveTo(cpx: number, cpy: number, x: number, y: number): void;
-	bezierCurveTo(
-		cp1x: number,
-		cp1y: number,
-		cp2x: number,
-		cp2y: number,
-		x: number,
-		y: number,
-	): void;
-	closePath(): void;
-	[key: string]: any; // Allow room for other canvas properties/methods if needed
-}
-
 /**
  * Path objects are returned by glyphs and represent the actual
  * vector outlines for each glyph in the font. Paths can be converted
@@ -55,8 +38,8 @@ export default class Path {
 	 *
 	 * @returns A function accepting a graphics context.
 	 */
-	toFunction(): (ctx: PathContext) => void {
-		return (ctx: PathContext) =>
+	public toFunction(): (ctx: Path) => void {
+		return (ctx: Path) =>
 			this.commands.forEach((c) => {
 				const method = ctx[c.command];
 				if (typeof method === 'function') {
@@ -72,7 +55,7 @@ export default class Path {
 	/**
 	 * Converts the path to an SVG path data string.
 	 */
-	toSVG(): string {
+	public toSVG(): string {
 		const cmds = this.commands.map((c) => {
 			const args = c.args.map((arg) => Math.round(arg * 100) / 100);
 			return `${SVG_COMMANDS[c.command]}${args.join(' ')}`;
@@ -88,7 +71,7 @@ export default class Path {
 	 * bounding box, but less accurate if there are control points outside of the
 	 * visible shape.
 	 */
-	get cbox(): Readonly<BoundingBox> {
+	public get cbox(): Readonly<BoundingBox> {
 		if (!this._cbox) {
 			const cbox = new BoundingBox();
 			for (const command of this.commands) {
@@ -109,7 +92,7 @@ export default class Path {
 	 * bounding box, taking into account control points that may be outside the
 	 * visible shape.
 	 */
-	get bbox(): Readonly<BoundingBox> {
+	public get bbox(): Readonly<BoundingBox> {
 		if (this._bbox) {
 			return this._bbox;
 		}
