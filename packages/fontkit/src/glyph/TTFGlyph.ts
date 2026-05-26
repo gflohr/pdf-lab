@@ -4,7 +4,7 @@ import Glyph, { type GlyphLayoutMetrics } from './glyph.js';
 import Path from './path.js';
 
 // The header for both simple and composite glyphs.
-interface EmptyGlyph {
+interface GlyphHeaderData {
 	numberOfContours: number,
 	xMin: number,
 	yMin: number,
@@ -18,7 +18,7 @@ const fields = {
 	xMax: r.int16,
 	yMax: r.int16,
 };
-const GlyphHeader = new r.Struct<typeof fields, EmptyGlyph>(fields);
+const GlyphHeader = new r.Struct<typeof fields, GlyphHeaderData>(fields);
 
 // Flags for simple glyphs.
 // FIXME! This repeat the same variables in TTFGlyphEncoder.ts!
@@ -63,17 +63,44 @@ class Component {
 	constructor(public glyphID: number, public dx: number, public dy: number) {}
 }
 
-export interface FullGlyph extends EmptyGlyph {
-	points?: Point[];
-	instructions?: number[];
+export interface DecodedSimpleGlyph extends GlyphHeaderData {
+	points: Point[];
+	instructions: number[];
 	phantomPoints?: Point[];
-	components?: Component[];
+	components?: never; // Explicitly missing on simple glyphs.
 }
+
+export interface DecodedCompositeGlyph extends GlyphHeaderData {
+	points: Point[];
+	instructions: number[];
+	components: Component[];
+	phantomPoints?: Point[];
+}
+
+export interface DecodedEmptyGlyph extends GlyphHeaderData {
+	points?: never;
+	instructions?: never;
+	components?: never;
+	phantomPoints?: Point[];
+}
+
+export type DecodedGlyph = DecodedSimpleGlyph | DecodedCompositeGlyph | DecodedEmptyGlyph;
 
 /**
  * Represents a TrueType glyph.
  */
 export default class TTFGlyph extends Glyph {
+	// Legacys Hack: Properties injected via base Glyph constructor mutations.
+	public numberOfContours!: number;
+	public xMin!: number;
+	public yMin!: number;
+	public xMax!: number;
+	public yMax!: number;
+	public points?: Point[];
+	public instructions?: number[];
+	public phantomPoints?: Point[];
+	public components?: Component[];
+
 	// Parses just the glyph header and returns the bounding box.
 	_getCBox(internal: boolean): Readonly<BBox> {
 		// We need to decode the glyph if variation processing is requested,
@@ -118,7 +145,7 @@ export default class TTFGlyph extends Glyph {
 
 	// Decodes the glyph data into points for simple glyphs,
 	// or components for composite glyphs
-	_decode(): FullGlyph | null {
+	_decode(): DecodedGlyph | null {
 		const glyphPos = this._font.loca.offsets[this.id];
 		const nextPos = this._font.loca.offsets[this.id + 1];
 
@@ -136,15 +163,15 @@ export default class TTFGlyph extends Glyph {
 
 		const glyph = GlyphHeader.decode(stream);
 		if (glyph.numberOfContours > 0) {
-			this._decodeSimple(glyph as FullGlyph, stream);
+			this._decodeSimple(glyph as DecodedSimpleGlyph, stream);
 		} else if (glyph.numberOfContours < 0) {
-			this._decodeComposite(glyph as FullGlyph, stream, startPos);
+			this._decodeComposite(glyph as DecodedCompositeGlyph, stream, startPos);
 		}
 
 		return glyph;
 	}
 
-	_decodeSimple(glyph: FullGlyph, stream: DecodeStream): void {
+	_decodeSimple(glyph: DecodedSimpleGlyph, stream: DecodeStream): void {
 		// this is a simple glyph
 		glyph.points = [];
 		glyph.instructions = [];
@@ -213,7 +240,7 @@ export default class TTFGlyph extends Glyph {
 		}
 	}
 
-	_decodeComposite(glyph: FullGlyph, stream: DecodeStream, offset = 0): boolean {
+	_decodeComposite(glyph: DecodedCompositeGlyph, stream: DecodeStream, offset = 0): boolean {
 		glyph.points = [];
 		glyph.instructions = [];
 		glyph.components = [];
@@ -280,7 +307,7 @@ export default class TTFGlyph extends Glyph {
 		return haveInstructions;
 	}
 
-	_getPhantomPoints(glyph: FullGlyph) {
+	_getPhantomPoints(glyph: DecodedGlyph) {
 		const cbox = this._getCBox(true);
 		if (this._metrics == null) {
 			this._metrics = Glyph.prototype._getMetrics.call(this, cbox);

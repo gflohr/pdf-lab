@@ -6,11 +6,10 @@ import r, {
 	type ParsingContext,
 } from '@pdf-lib/restructure';
 import type Glyph from './glyph/glyph.js';
-import TTFGlyph, { FullGlyph, Point } from './glyph/TTFGlyph.js';
+import TTFGlyph, { type DecodedCompositeGlyph, Point } from './glyph/TTFGlyph.js';
 import WOFF2Glyph from './glyph/WOFF2Glyph.js';
 import { SFNTFont } from './sfnt-font.js';
 import type { SFNTTable } from './tables/directory.js';
-import type { WOFFDirectoryTable } from './tables/woff-directory.js';
 import WOFF2Directory, {
 	type WOFF2DirectoryTable,
 	type WOFF2TableMap,
@@ -44,14 +43,14 @@ export class WOFF2Font extends SFNTFont<WOFF2DirectoryTable> {
 		if (!this._decompressed) {
 			this.stream.pos = this._dataPos!;
 			const buffer = this.stream.readBuffer(
-				(this.directory as unknown as WOFF2DirectoryTable).totalCompressedSize,
+				this.directory.totalCompressedSize,
 			);
 
 			let decompressedSize = 0;
 			for (const tag in this.directory.tables) {
 				const entry = this.directory.tables[
 					tag
-				] as unknown as WOFF2DirectoryTable;
+				];
 				entry.offset = decompressedSize;
 				decompressedSize +=
 					entry.transformLength != null ? entry.transformLength : entry.length;
@@ -75,17 +74,17 @@ export class WOFF2Font extends SFNTFont<WOFF2DirectoryTable> {
 	// Override this method to get a glyph and return our
 	// custom subclass if there is a glyf table.
 	_getBaseGlyph(glyph: number, characters: number[] = []): Glyph | null {
-		const tables = this.directory.tables as WOFF2TableMap;
+		const tables = this.directory.tables;
 		if (!this.glyphs[glyph]) {
 			if (tables.glyf?.transformed) {
 				if (!this._transformedGlyphs) {
 					this._transformGlyfTable();
 				}
-				// FIXME! Actually, WOFF2Glyph should extend Glyph.
-				(this.glyphs as Record<number, WOFF2Glyph>)[glyph] = new WOFF2Glyph(
+
+				this.glyphs[glyph] = new WOFF2Glyph(
 					glyph,
 					characters,
-					this as never,
+					this,
 				);
 				return this.glyphs[glyph];
 			} else {
@@ -98,7 +97,7 @@ export class WOFF2Font extends SFNTFont<WOFF2DirectoryTable> {
 
 	_transformGlyfTable() {
 		this._decompress();
-		const tables = this.directory.tables as WOFF2TableMap;
+		const tables = this.directory.tables;
 		this.stream.pos = tables.glyf!.offset;
 		const table = GlyfTable.decode(this.stream);
 		const glyphs = [];
@@ -106,8 +105,7 @@ export class WOFF2Font extends SFNTFont<WOFF2DirectoryTable> {
 		for (let index = 0; index < table.numGlyphs; index++) {
 			const glyph: WOFF2Glyph = {} as WOFF2Glyph;
 			const nContours = table.nContours.readInt16BE();
-			(glyph as unknown as { numberOfContours: number }).numberOfContours =
-				nContours;
+			glyph.numberOfContours = nContours;
 
 			if (nContours > 0) {
 				// simple glyph
@@ -125,14 +123,14 @@ export class WOFF2Font extends SFNTFont<WOFF2DirectoryTable> {
 					points[nPoints[i] - 1].endContour = true;
 				}
 
-				(glyph as unknown as { points: Point[] }).points = points;
+				glyph.points = points;
 
 				read255UInt16(table.glyphs);
 			} else if (nContours < 0) {
 				// composite glyph
 				const haveInstructions = TTFGlyph.prototype._decodeComposite.call(
 					{ _font: this },
-					glyph as unknown as FullGlyph,
+					glyph as DecodedCompositeGlyph,
 					table.composites,
 				);
 				if (haveInstructions) {
