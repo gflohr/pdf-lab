@@ -45,8 +45,8 @@ importers:
         specifier: ^1.17.1
         version: 1.17.1
       pnpm:
-        specifier: ^11.1.3
-        version: 11.1.3
+        specifier: ^11.3.0
+        version: 11.3.0
       tsx:
         specifier: ^4.22.2
         version: 4.22.2
@@ -2440,8 +2440,8 @@ packages:
     resolution: {integrity: sha512-uB80kBFb/tfd68bVleG9T5GGsGPjJrLAUpR5PZIrhBnIaRTQRjqdJSsIKkOP6OAIFbj7GOrcudc5pNjZ+geV2g==}
     engines: {node: '>=6'}
 
-  pnpm@11.1.3:
-    resolution: {integrity: sha512-yFNX/hfKEt0j3XBxgiZm39fjy3b+IU4zcLXqL7NPKiMRhVCbY+cX880KyzjdP42CvNXoFyQArmeLcOpPvtCJbQ==}
+  pnpm@11.3.0:
+    resolution: {integrity: sha512-LEA9ZZRScodnKx9wVjQ6H3w2NANqZ/+r/MKz11ldhDdo+HhxSNG1fPeVbJBga70ZKFfDY68Z6W0tDsnsV0HSFQ==}
     engines: {node: '>=22.13'}
     hasBin: true
 
@@ -5187,7 +5187,7 @@ snapshots:
 
   pify@4.0.1: {}
 
-  pnpm@11.1.3: {}
+  pnpm@11.3.0: {}
 
   possible-typed-array-names@1.1.0: {}
 
