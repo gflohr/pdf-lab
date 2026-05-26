@@ -1,6 +1,6 @@
 import * as path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import type { TrueTypeCollection } from '../src/types/internal/true-type-collection.js';
+import type TrueTypeCollection from '../src/true-type-collection.js';
 import fontkit from './helpers.js';
 
 const datadir = path.resolve(import.meta.dirname, './data');

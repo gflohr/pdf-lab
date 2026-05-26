@@ -18,6 +18,7 @@ declare module '@pdf-lib/restructure' {
 
 		constructor(buffer?: Uint8Array);
 
+		readString(length: number, encoding?: string): string;
 		readBuffer(offset: number): Buffer;
 		readInt8(): number;
 		readUInt8(): number;
