@@ -32,8 +32,8 @@ import Directory from './tables/directory.js';
 import type { HVARTable } from './tables/HVAR.js';
 import type { HheaTable } from './tables/hhea.js';
 import tables from './tables/index.js';
+import type { TypeFeatures } from './tables/opentype.js';
 import type { PostTable } from './tables/post.js';
-import type { TypeFeatures } from './types/features.js';
 
 export interface FontAxis {
 	axisTag: string;
