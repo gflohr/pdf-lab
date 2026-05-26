@@ -5,9 +5,9 @@ import Path from './path.js';
  * Represents an OpenType PostScript glyph, in the Compact Font Format.
  */
 export default class CFFGlyph extends Glyph {
-	_getName() {
+	getName() {
 		if (this._font.CFF2) {
-			return super._getName();
+			return super.getName();
 		}
 
 		return this._font['CFF '].getGlyphName(this.id);
@@ -23,7 +23,7 @@ export default class CFFGlyph extends Glyph {
 		}
 	}
 
-	_getPath() {
+	getPath() {
 		const { stream } = this._font;
 
 		const cff = this._font.CFF2 || this._font['CFF '];

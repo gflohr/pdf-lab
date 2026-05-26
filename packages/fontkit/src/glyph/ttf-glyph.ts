@@ -113,7 +113,7 @@ export default class TTFGlyph extends Glyph {
 	public components?: Component[];
 
 	// Parses just the glyph header and returns the bounding box.
-	protected _getCBox(internal: boolean): Readonly<BoundingBox> {
+	protected getCBox(internal: boolean): Readonly<BoundingBox> {
 		// We need to decode the glyph if variation processing is requested,
 		// so it's easier just to recompute the path's cbox after decoding.
 		if (this._font.variationProcessor && !internal) {
@@ -334,9 +334,9 @@ export default class TTFGlyph extends Glyph {
 	}
 
 	private getPhantomPoints(glyph: DecodedGlyph) {
-		const cbox = this._getCBox(true);
+		const cbox = this.getCBox(true);
 		if (this._metrics == null) {
-			this._metrics = Glyph.prototype._getMetrics.call(this, cbox);
+			this._metrics = Glyph.prototype.getMetrics.call(this, cbox);
 		}
 
 		const { advanceWidth, advanceHeight, leftBearing, topBearing } =
@@ -409,13 +409,13 @@ export default class TTFGlyph extends Glyph {
 		return contours;
 	}
 
-	public _getMetrics(): GlyphLayoutMetrics {
+	public getMetrics(): GlyphLayoutMetrics {
 		if (this._metrics) {
 			return this._metrics;
 		}
 
-		const cbox = this._getCBox(true);
-		super._getMetrics(cbox);
+		const cbox = this.getCBox(true);
+		super.getMetrics(cbox);
 
 		if (this._font.variationProcessor && !this._font.HVAR) {
 			// No HVAR table, decode the glyph. This triggers recomputation of metrics.
@@ -427,7 +427,7 @@ export default class TTFGlyph extends Glyph {
 	}
 
 	// Converts contours to a Path object that can be rendered
-	protected _getPath(): Path {
+	protected getPath(): Path {
 		const contours = this.getContours();
 		const path = new Path();
 

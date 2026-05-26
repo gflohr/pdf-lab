@@ -72,7 +72,7 @@ export default class BoundingBox {
 	 * @param x - The X coordinate of the point to add.
 	 * @param y - The Y coordinate of the point to add.
 	 */
-	addPoint(x: number, y: number): void {
+	public addPoint(x: number, y: number): void {
 		if (Math.abs(x) !== Infinity) {
 			if (x < this.minX) {
 				this._minX = x;
@@ -99,7 +99,7 @@ export default class BoundingBox {
 	 *
 	 * @returns A new `BoundingBox` instance with matching dimensions.
 	 */
-	copy(): BoundingBox {
+	public copy(): BoundingBox {
 		return new BoundingBox(this.minX, this.minY, this.maxX, this.maxY);
 	}
 }

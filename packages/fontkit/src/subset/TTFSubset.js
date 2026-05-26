@@ -40,7 +40,7 @@ export default class TTFSubset extends Subset {
 
 		this.hmtx.metrics.push({
 			advance: glyph.advanceWidth,
-			bearing: glyph._getMetrics().leftBearing,
+			bearing: glyph.getMetrics().leftBearing,
 		});
 
 		this.offset += buffer.length;

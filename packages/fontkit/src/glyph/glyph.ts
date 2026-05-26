@@ -106,11 +106,11 @@ export default class Glyph {
 		this.isLigature = this.codePoints.length > 1;
 	}
 
-	protected _getPath(): Path {
+	protected getPath(): Path {
 		return new Path();
 	}
 
-	protected _getCBox(_?: boolean): Readonly<BoundingBox> {
+	protected getCBox(_?: boolean): Readonly<BoundingBox> {
 		return this.path.cbox;
 	}
 
@@ -132,9 +132,7 @@ export default class Glyph {
 		return res;
 	}
 
-	// FIXME! The only reason, why this is public, and not protected is to
-	// avoid an infinite loop in the method getPhantomPoints() of TTFGlyph.
-	public _getMetrics(cbox?: Readonly<BoundingBox>): GlyphLayoutMetrics {
+	public getMetrics(cbox?: Readonly<BoundingBox>): GlyphLayoutMetrics {
 		if (this._metrics) {
 			return this._metrics;
 		}
@@ -195,7 +193,7 @@ export default class Glyph {
 	 */
 	public get cbox(): Readonly<BoundingBox> {
 		if (typeof this._cbox === 'undefined') {
-			this._cbox = this._getCBox();
+			this._cbox = this.getCBox();
 		}
 
 		return this._cbox;
@@ -221,7 +219,7 @@ export default class Glyph {
 		// Cache the path so we only decode it once
 		// Decoding is actually performed by subclasses
 		if (typeof this._path === 'undefined') {
-			this._path = this._getPath();
+			this._path = this.getPath();
 		}
 
 		return this._path;
@@ -240,7 +238,7 @@ export default class Glyph {
 	 */
 	public get advanceWidth() {
 		if (typeof this._advanceWidth === 'undefined') {
-			this._advanceWidth = this._getMetrics().advanceWidth;
+			this._advanceWidth = this.getMetrics().advanceWidth;
 		}
 
 		return this._advanceWidth;
@@ -251,13 +249,13 @@ export default class Glyph {
 	 */
 	public get advanceHeight(): number {
 		if (typeof this._advanceHeight === 'undefined') {
-			this._advanceHeight = this._getMetrics().advanceHeight;
+			this._advanceHeight = this.getMetrics().advanceHeight;
 		}
 
 		return this._advanceHeight;
 	}
 
-	private _getName(): string | null {
+	protected getName(): string | null {
 		const { post } = this._font;
 
 		if (!post) {
@@ -309,7 +307,7 @@ export default class Glyph {
 	 */
 	public get name(): string | null {
 		if (typeof this._name === 'undefined') {
-			this._name = this._getName();
+			this._name = this.getName();
 		}
 
 		return this._name;

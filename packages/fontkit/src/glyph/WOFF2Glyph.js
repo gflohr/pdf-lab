@@ -9,7 +9,7 @@ export default class WOFF2Glyph extends TTFGlyph {
 		return this._font.transformedGlyphs[this.id];
 	}
 
-	_getCBox() {
+	getCBox() {
 		return this.path.bbox;
 	}
 }
