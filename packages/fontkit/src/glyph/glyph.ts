@@ -106,11 +106,11 @@ export default class Glyph {
 		this.isLigature = this.codePoints.length > 1;
 	}
 
-	private _getPath(): Path {
+	protected _getPath(): Path {
 		return new Path();
 	}
 
-	private _getCBox(_?: boolean): Readonly<BoundingBox> {
+	protected _getCBox(_?: boolean): Readonly<BoundingBox> {
 		return this.path.cbox;
 	}
 
@@ -132,7 +132,7 @@ export default class Glyph {
 		return res;
 	}
 
-	private _getMetrics(cbox?: Readonly<BoundingBox>): GlyphLayoutMetrics {
+	public _getMetrics(cbox?: Readonly<BoundingBox>): GlyphLayoutMetrics {
 		if (this._metrics) {
 			return this._metrics;
 		}

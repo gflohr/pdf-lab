@@ -113,7 +113,7 @@ export default class TTFGlyph extends Glyph {
 	public components?: Component[];
 
 	// Parses just the glyph header and returns the bounding box.
-	_getCBox(internal: boolean): Readonly<BoundingBox> {
+	protected _getCBox(internal: boolean): Readonly<BoundingBox> {
 		// We need to decode the glyph if variation processing is requested,
 		// so it's easier just to recompute the path's cbox after decoding.
 		if (this._font.variationProcessor && !internal) {
@@ -409,8 +409,7 @@ export default class TTFGlyph extends Glyph {
 		return contours;
 	}
 
-	// @returns { advanceWidth: number, advanceHeight: number, leftBearing: number, topBearing: number}
-	_getMetrics(): GlyphLayoutMetrics {
+	public _getMetrics(): GlyphLayoutMetrics {
 		if (this._metrics) {
 			return this._metrics;
 		}
@@ -428,8 +427,7 @@ export default class TTFGlyph extends Glyph {
 	}
 
 	// Converts contours to a Path object that can be rendered
-	// @returns: Path
-	_getPath(): Path {
+	protected _getPath(): Path {
 		const contours = this._getContours();
 		const path = new Path();
 
