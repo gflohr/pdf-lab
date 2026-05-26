@@ -6,7 +6,7 @@ import r, {
 	type ParsingContext,
 } from '@pdf-lib/restructure';
 import type Glyph from './glyph/glyph.js';
-import TTFGlyph, { Point } from './glyph/TTFGlyph.js';
+import TTFGlyph, { FullGlyph, Point } from './glyph/TTFGlyph.js';
 import WOFF2Glyph from './glyph/WOFF2Glyph.js';
 import { SFNTFont } from './sfnt-font.js';
 import type { SFNTTable } from './tables/directory.js';
@@ -132,7 +132,7 @@ export class WOFF2Font extends SFNTFont<WOFF2DirectoryTable> {
 				// composite glyph
 				const haveInstructions = TTFGlyph.prototype._decodeComposite.call(
 					{ _font: this },
-					glyph,
+					glyph as unknown as FullGlyph,
 					table.composites,
 				);
 				if (haveInstructions) {

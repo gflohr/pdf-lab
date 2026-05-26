@@ -71,14 +71,14 @@ export type GlyphLayoutMetrics = {
  * on the font format, but they all inherit from this class.
  */
 export default class Glyph {
-	private readonly id: number;
+	protected readonly id: number;
 	private readonly codePoints: number[];
-	private readonly _font: SFNTFont;
+	protected readonly _font: SFNTFont;
 	// FIXME! Make these two property private and private getters.
 	public readonly isMark: boolean;
 	public readonly isLigature: boolean;
 	private _path?: Path;
-	private _metrics?: GlyphLayoutMetrics;
+	protected _metrics?: GlyphLayoutMetrics;
 	private _bbox?: Readonly<BBox>;
 	private _cbox?: Readonly<BBox>;
 	private _advanceWidth?: number;
@@ -110,7 +110,7 @@ export default class Glyph {
 		return new Path();
 	}
 
-	_getCBox(): Readonly<BBox> {
+	_getCBox(_?: boolean): Readonly<BBox> {
 		return this.path.cbox;
 	}
 
