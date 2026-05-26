@@ -11,14 +11,13 @@ export class WOFFFont extends SFNTFont<WOFFDirectoryTable> {
 		return buffer.toString('ascii', 0, 4) === 'wOFF';
 	}
 
-	// private
-	decodeDirectory(): WOFFDirectoryTable {
+	protected decodeDirectory(): WOFFDirectoryTable {
 		return WOFFDirectory.decode(this.stream, {
 			_startOffset: 0,
 		} as FieldT<unknown>);
 	}
 
-	_getTableStream(tag: string): DecodeStream | null {
+	protected getTableStream(tag: string): DecodeStream | null {
 		const table = this.directory.tables[tag] as WOFFTable;
 		if (table) {
 			this.stream.pos = table.offset;

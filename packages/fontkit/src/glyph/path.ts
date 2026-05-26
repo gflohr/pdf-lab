@@ -337,7 +337,7 @@ export default class Path {
 		return this.pushCommand('closePath', []);
 	}
 
-  /**
+	/**
 	 * Clears cached bounding boxes and appends a new path operation.
 	 */
 	private pushCommand(command: CommandName, args: number[]): this {

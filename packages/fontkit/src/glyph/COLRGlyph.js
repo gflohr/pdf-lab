@@ -57,7 +57,7 @@ export default class COLRGlyph extends Glyph {
 		// 2. Strict check: since we did not initialize baseLayer,
 		// it will be strictly undefined if the loop didn't find a match.
 		if (baseLayer === undefined) {
-			const g = this._font._getBaseGlyph(this.id);
+			const g = this._font.getBaseGlyph(this.id);
 			const color = {
 				red: 0,
 				green: 0,
@@ -77,7 +77,7 @@ export default class COLRGlyph extends Glyph {
 		) {
 			const rec = colr.layerRecords[i];
 			const color = cpal.colorRecords[rec.paletteIndex];
-			const g = this._font._getBaseGlyph(rec.gid);
+			const g = this._font.getBaseGlyph(rec.gid);
 			layers.push(new COLRLayer(g, color));
 		}
 

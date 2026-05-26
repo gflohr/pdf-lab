@@ -1,18 +1,20 @@
 import brotli from '@pdf-lib/brotli/decompress.js';
 import r, {
+	DecodeStream,
 	type BufferT,
-	type DecodeStream,
 	type Length,
 	type ParsingContext,
 } from '@pdf-lib/restructure';
 import type Glyph from './glyph/glyph.js';
-import TTFGlyph, { type DecodedCompositeGlyph, Point } from './glyph/ttf-glyph.js';
+import TTFGlyph, {
+	type DecodedCompositeGlyph,
+	Point,
+} from './glyph/ttf-glyph.js';
 import WOFF2Glyph from './glyph/WOFF2Glyph.js';
 import { SFNTFont } from './sfnt-font.js';
 import type { SFNTTable } from './tables/directory.js';
 import WOFF2Directory, {
 	type WOFF2DirectoryTable,
-	type WOFF2TableMap,
 } from './tables/woff2-directory.js';
 
 /**
@@ -20,37 +22,31 @@ import WOFF2Directory, {
  * See spec here: http://www.w3.org/TR/WOFF2/
  */
 export class WOFF2Font extends SFNTFont<WOFF2DirectoryTable> {
-	_dataPos?: number;
-	_decompressed = false;
-	_glyphs: Record<number, Glyph> = {};
-	_transformedGlyphs?: unknown[];
+	private dataPos?: number;
+	private decompressed = false;
+	public transformedGlyphs?: WOFF2Glyph[];
 
-	static probe(buffer: Buffer) {
+	public static probe(buffer: Buffer) {
 		return buffer.toString('ascii', 0, 4) === 'wOF2';
 	}
 
-	// private
-	decodeDirectory(): WOFF2DirectoryTable {
+	protected decodeDirectory(): WOFF2DirectoryTable {
 		const directory = WOFF2Directory.decode(this.stream);
 
-		this._dataPos = this.stream.pos;
+		this.dataPos = this.stream.pos;
 
 		return directory;
 	}
 
-	_decompress() {
+	private decompress() {
 		// decompress data and setup table offsets if we haven't already
-		if (!this._decompressed) {
-			this.stream.pos = this._dataPos!;
-			const buffer = this.stream.readBuffer(
-				this.directory.totalCompressedSize,
-			);
+		if (!this.decompressed) {
+			this.stream.pos = this.dataPos!;
+			const buffer = this.stream.readBuffer(this.directory.totalCompressedSize);
 
 			let decompressedSize = 0;
 			for (const tag in this.directory.tables) {
-				const entry = this.directory.tables[
-					tag
-				];
+				const entry = this.directory.tables[tag];
 				entry.offset = decompressedSize;
 				decompressedSize +=
 					entry.transformLength != null ? entry.transformLength : entry.length;
@@ -62,45 +58,41 @@ export class WOFF2Font extends SFNTFont<WOFF2DirectoryTable> {
 			}
 
 			this.stream = new r.DecodeStream(Buffer.from(decompressed));
-			this._decompressed = true;
+			this.decompressed = true;
 		}
 	}
 
-	_decodeTable(table: SFNTTable) {
-		this._decompress();
-		return super._decodeTable(table);
+	protected decodeTable(table: SFNTTable) {
+		this.decompress();
+		return super.decodeTable(table);
 	}
 
 	// Override this method to get a glyph and return our
 	// custom subclass if there is a glyf table.
-	_getBaseGlyph(glyph: number, characters: number[] = []): Glyph | null {
+	public getBaseGlyph(glyph: number, characters: number[] = []): Glyph | null {
 		const tables = this.directory.tables;
 		if (!this.glyphs[glyph]) {
 			if (tables.glyf?.transformed) {
-				if (!this._transformedGlyphs) {
-					this._transformGlyfTable();
+				if (!this.transformedGlyphs) {
+					this.transformGlyfTable();
 				}
 
-				this.glyphs[glyph] = new WOFF2Glyph(
-					glyph,
-					characters,
-					this,
-				);
+				this.glyphs[glyph] = new WOFF2Glyph(glyph, characters, this);
 				return this.glyphs[glyph];
 			} else {
-				return super._getBaseGlyph(glyph, characters);
+				return super.getBaseGlyph(glyph, characters);
 			}
 		}
 
 		return null;
 	}
 
-	_transformGlyfTable() {
-		this._decompress();
+	private transformGlyfTable() {
+		this.decompress();
 		const tables = this.directory.tables;
 		this.stream.pos = tables.glyf!.offset;
 		const table = GlyfTable.decode(this.stream);
-		const glyphs = [];
+		const glyphs: WOFF2Glyph[] = [];
 
 		for (let index = 0; index < table.numGlyphs; index++) {
 			const glyph: WOFF2Glyph = {} as WOFF2Glyph;
@@ -141,25 +133,45 @@ export class WOFF2Font extends SFNTFont<WOFF2DirectoryTable> {
 			glyphs.push(glyph);
 		}
 
-		this._transformedGlyphs = glyphs;
+		this.transformedGlyphs = glyphs;
 	}
 }
 
 // Special class that accepts a length and returns a sub-stream for that data
-class Substream {
+class Substream extends DecodeStream {
 	_buf: BufferT;
 
-	constructor(private readonly length: Length) {
+	constructor(readonly length: Length) {
+		super(length);
 		this._buf = new r.Buffer(this.length);
 	}
 
-	decode(stream: DecodeStream, parent?: ParsingContext) {
+	decode(stream: DecodeStream, parent?: ParsingContext): DecodeStream {
 		return new r.DecodeStream(this._buf.decode(stream, parent));
 	}
 }
 
-// This struct represents the entire glyf table
-const GlyfTable = new r.Struct({
+// This struct represents the entire glyf table.
+interface GlyfTableData {
+	version: number,
+	numGlyphs: number,
+	indexFormat: number,
+	nContourStreamSize: number,
+	nPointsStreamSize: number,
+	flagStreamSize: number,
+	glyphStreamSize: number,
+	compositeStreamSize: number,
+	bboxStreamSize: number,
+	instructionStreamSize: number,
+	nContours: Substream,
+	nPoints: Substream,
+	flags: Substream,
+	glyphs: Substream,
+	composites: Substream,
+	bboxes: Substream,
+	instructions: Substream,
+}
+const fields = {
 	version: r.uint32,
 	numGlyphs: r.uint16,
 	indexFormat: r.uint16,
@@ -170,14 +182,15 @@ const GlyfTable = new r.Struct({
 	compositeStreamSize: r.uint32,
 	bboxStreamSize: r.uint32,
 	instructionStreamSize: r.uint32,
-	nContours: new Substream('nContourStreamSize'),
+	nContours: new Substream('nContourStreamSize') as DecodeStream,
 	nPoints: new Substream('nPointsStreamSize'),
 	flags: new Substream('flagStreamSize'),
 	glyphs: new Substream('glyphStreamSize'),
 	composites: new Substream('compositeStreamSize'),
 	bboxes: new Substream('bboxStreamSize'),
 	instructions: new Substream('instructionStreamSize'),
-});
+}
+const GlyfTable = new r.Struct<typeof fields, GlyfTableData>(fields);
 
 const WORD_CODE = 253;
 const ONE_MORE_BYTE_CODE2 = 254;

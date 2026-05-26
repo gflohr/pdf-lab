@@ -18,7 +18,7 @@ export default class TTFSubset extends Subset {
 		const curOffset = this.font.loca.offsets[gid];
 		const nextOffset = this.font.loca.offsets[gid + 1];
 
-		const stream = this.font._getTableStream('glyf');
+		const stream = this.font.getGlyfTableStream();
 		stream.pos += curOffset;
 
 		let buffer = stream.readBuffer(nextOffset - curOffset);

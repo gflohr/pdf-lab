@@ -461,13 +461,19 @@ const langSysTableFields = {
 	featureCount: r.uint16,
 	featureIndexes: new r.Array(r.uint16, 'featureCount'),
 };
-const LangSysTable = new r.Struct<typeof langSysTableFields, OpenTypeLangSysTable>(langSysTableFields);
+const LangSysTable = new r.Struct<
+	typeof langSysTableFields,
+	OpenTypeLangSysTable
+>(langSysTableFields);
 
 const langSysRecordFields = {
 	tag: new r.String(4),
 	langSys: new r.Pointer(r.uint16, LangSysTable, { type: 'parent' }),
 };
-const LangSysRecord = new r.Struct<typeof langSysRecordFields, OpenTypeLangSysRecord>(langSysRecordFields);
+const LangSysRecord = new r.Struct<
+	typeof langSysRecordFields,
+	OpenTypeLangSysRecord
+>(langSysRecordFields);
 
 const Script = new r.Struct<any, OpenTypeScriptTable>({
 	defaultLangSys: new r.Pointer(r.uint16, LangSysTable),

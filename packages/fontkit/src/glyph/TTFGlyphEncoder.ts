@@ -161,7 +161,14 @@ export default class TTFGlyphEncoder {
 		return stream.buffer;
 	}
 
-	_encodePoint(value: number, last: number, points: number[], flag: number, shortFlag: number, sameFlag: number) {
+	_encodePoint(
+		value: number,
+		last: number,
+		points: number[],
+		flag: number,
+		shortFlag: number,
+		sameFlag: number,
+	) {
 		let diff = value - last;
 
 		if (value === last) {

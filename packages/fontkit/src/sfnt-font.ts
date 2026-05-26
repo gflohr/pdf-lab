@@ -149,7 +149,7 @@ export class SFNTFont<
 	_getTable(table: SFNTTable): SFNTTable | null {
 		if (!(table.tag in this.tables)) {
 			try {
-				this.tables[table.tag] = this._decodeTable(table);
+				this.tables[table.tag] = this.decodeTable(table);
 			} catch (e) {
 				// Avoid retrying the failed decode attempt.
 				this.tables[table.tag] = null;
@@ -167,7 +167,7 @@ export class SFNTFont<
 		return this.tables[table.tag];
 	}
 
-	_getTableStream(tag: string): DecodeStream | null {
+	protected getTableStream(tag: string): DecodeStream | null {
 		const table = this.directory.tables[tag];
 		if (table) {
 			this.stream.pos = table.offset;
@@ -177,15 +177,19 @@ export class SFNTFont<
 		return null;
 	}
 
+	public getGlyfTableStream(): DecodeStream | null {
+		return this.getTableStream('glyf');
+	}
+
 	protected decodeDirectory(): TDirectoryTable {
 		return Directory.decode(this.stream, {
 			_startOffset: 0,
 		} as FieldT<unknown>) as TDirectoryTable;
 	}
 
-	_decodeTable(table: SFNTTable) {
+	protected decodeTable(table: SFNTTable) {
 		const pos = this.stream.pos;
-		const stream = this._getTableStream(table.tag);
+		const stream = this.getTableStream(table.tag);
 
 		if (table.tag in tables && stream) {
 			const tag = table.tag as keyof typeof tables;
@@ -572,7 +576,7 @@ export class SFNTFont<
 		return this._layoutEngine.getAvailableFeatures(script, language);
 	}
 
-	_getBaseGlyph(glyph: number, characters: number[] = []): Glyph | null {
+	public getBaseGlyph(glyph: number, characters: number[] = []): Glyph | null {
 		if (!this.glyphs[glyph]) {
 			if (this.directory.tables.glyf) {
 				this.glyphs[glyph] = new TTFGlyph(
@@ -617,7 +621,7 @@ export class SFNTFont<
 					this as never,
 				) as Glyph;
 			} else {
-				this._getBaseGlyph(glyph, characters);
+				this.getBaseGlyph(glyph, characters);
 			}
 		}
 

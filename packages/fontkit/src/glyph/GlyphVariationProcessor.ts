@@ -1,5 +1,8 @@
 import type { SFNTFont } from '../sfnt-font.js';
-import type { ItemVariationStoreTable, OpenTypeItemVariationData } from '../tables/variations.js';
+import type {
+	ItemVariationStoreTable,
+	OpenTypeItemVariationData,
+} from '../tables/variations.js';
 import type { Point } from './ttf-glyph.js';
 
 const TUPLES_SHARE_POINT_NUMBERS = 0x8000;
@@ -286,7 +289,12 @@ export default class GlyphVariationProcessor {
 		return deltas;
 	}
 
-	private tupleFactor(tupleIndex: number, tupleCoords: number[], startCoords?: number[], endCoords?: number[]) {
+	private tupleFactor(
+		tupleIndex: number,
+		tupleCoords: number[],
+		startCoords?: number[],
+		endCoords?: number[],
+	) {
 		const normalized = this.normalizedCoords;
 		const { gvar } = this.font;
 		let factor = 1;
@@ -314,10 +322,14 @@ export default class GlyphVariationProcessor {
 			} else {
 				// Check for malformed font data to avoid crashes.
 				if (!startCoords || !endCoords) {
-					throw new Error('Malformed font: Intermediate tuple missing start or end coordinates.');
+					throw new Error(
+						'Malformed font: Intermediate tuple missing start or end coordinates.',
+					);
 				}
 				if (i >= startCoords.length || i >= endCoords.length) {
-					throw new Error(`Malformed font: Coordinate axis index ${i} is out of bounds.`);
+					throw new Error(
+						`Malformed font: Coordinate axis index ${i} is out of bounds.`,
+					);
 				}
 
 				if (normalized[i] < startCoords[i] || normalized[i] > endCoords[i]) {
@@ -340,7 +352,11 @@ export default class GlyphVariationProcessor {
 	// Interpolates points without delta values.
 	// Needed for the Ø and Q glyphs in Skia.
 	// Algorithm from Freetype.
-	private interpolateMissingDeltas(points: Point[], inPoints: Point[], hasDelta: boolean[]) {
+	private interpolateMissingDeltas(
+		points: Point[],
+		inPoints: Point[],
+		hasDelta: boolean[],
+	) {
 		if (points.length === 0) {
 			return;
 		}
@@ -416,7 +432,14 @@ export default class GlyphVariationProcessor {
 		}
 	}
 
-	private deltaInterpolate(p1: number, p2: number, ref1: number, ref2: number, inPoints: Point[], outPoints: Point[]) {
+	private deltaInterpolate(
+		p1: number,
+		p2: number,
+		ref1: number,
+		ref2: number,
+		inPoints: Point[],
+		outPoints: Point[],
+	) {
 		if (p1 > p2) {
 			return;
 		}
@@ -457,7 +480,13 @@ export default class GlyphVariationProcessor {
 		}
 	}
 
-	private deltaShift(p1: number, p2: number, ref: number, inPoints: Point[], outPoints: Point[]) {
+	private deltaShift(
+		p1: number,
+		p2: number,
+		ref: number,
+		inPoints: Point[],
+		outPoints: Point[],
+	) {
 		const deltaX = outPoints[ref].x - inPoints[ref].x;
 		const deltaY = outPoints[ref].y - inPoints[ref].y;
 
@@ -501,7 +530,11 @@ export default class GlyphVariationProcessor {
 
 	// See pseudo code from `Font Variations Overview'
 	// in the OpenType specification.
-	public getDelta(itemStore: ItemVariationStoreTable, outerIndex: number, innerIndex: number): number {
+	public getDelta(
+		itemStore: ItemVariationStoreTable,
+		outerIndex: number,
+		innerIndex: number,
+	): number {
 		if (outerIndex >= itemStore.itemVariationData.length) {
 			return 0;
 		}
@@ -526,7 +559,10 @@ export default class GlyphVariationProcessor {
 		return netAdjustment;
 	}
 
-	public getBlendVector(itemStore: ItemVariationStoreTable, outerIndex: number): number[] | undefined {
+	public getBlendVector(
+		itemStore: ItemVariationStoreTable,
+		outerIndex: number,
+	): number[] | undefined {
 		if (!itemStore.variationRegionList?.variationRegions) {
 			return;
 		}
@@ -551,7 +587,7 @@ export default class GlyphVariationProcessor {
 			if (!axes) {
 				blendVector[regionIndex] = 0;
 				continue;
-			};
+			}
 
 			// inner loop steps through axes in this region
 			for (let j = 0; j < axes.length; j++) {

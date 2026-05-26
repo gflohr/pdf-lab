@@ -6,8 +6,8 @@
  * inside the parser engine framework.
  */
 import r, {
-	EncodeStream,
 	type DecodeStream,
+	type EncodeStream,
 	type FieldT,
 	type InferField,
 	type ParsingContext,

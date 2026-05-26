@@ -6,13 +6,16 @@ export interface TrueTypeCollectionTableV65536 {
 	offsets: number[];
 }
 
-export interface TrueTypeCollectionTableV131072 extends TrueTypeCollectionTableV65536 {
+export interface TrueTypeCollectionTableV131072
+	extends TrueTypeCollectionTableV65536 {
 	dsigTag: number;
 	dsigLength: number;
 	dsigOffset: number;
 }
 
-export type TrueTypeCollectionTable = TrueTypeCollectionTableV65536 | TrueTypeCollectionTableV65536;
+export type TrueTypeCollectionTable =
+	| TrueTypeCollectionTableV65536
+	| TrueTypeCollectionTableV65536;
 
 const fields = {
 	65536: {
@@ -28,7 +31,10 @@ const fields = {
 	},
 };
 
-const TTCHeader = new r.VersionedStruct<typeof fields, TrueTypeCollectionTable>(r.uint32, fields);
+const TTCHeader = new r.VersionedStruct<typeof fields, TrueTypeCollectionTable>(
+	r.uint32,
+	fields,
+);
 
 export default class TrueTypeCollection {
 	private stream: DecodeStream;

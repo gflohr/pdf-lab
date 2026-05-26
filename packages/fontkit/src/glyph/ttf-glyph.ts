@@ -5,11 +5,11 @@ import Path from './path.js';
 
 // The header for both simple and composite glyphs.
 interface GlyphHeaderData {
-	numberOfContours: number,
-	xMin: number,
-	yMin: number,
-	xMax: number,
-	yMax: number,
+	numberOfContours: number;
+	xMin: number;
+	yMin: number;
+	xMax: number;
+	yMax: number;
 }
 const fields = {
 	numberOfContours: r.int16,
@@ -45,8 +45,12 @@ const WE_HAVE_INSTRUCTIONS = 1 << 8;
 
 // Represents a point in a simple glyph
 export class Point {
-	constructor(public onCurve: boolean, public endContour: boolean, public x = 0, public y = 0) {
-	}
+	constructor(
+		public onCurve: boolean,
+		public endContour: boolean,
+		public x = 0,
+		public y = 0,
+	) {}
 
 	copy() {
 		return new Point(this.onCurve, this.endContour, this.x, this.y);
@@ -60,7 +64,11 @@ class Component {
 	public scaleY = 1;
 	public scale01 = 0;
 	public scale10 = 0;
-	constructor(public glyphID: number, public dx: number, public dy: number) {}
+	constructor(
+		public glyphID: number,
+		public dx: number,
+		public dy: number,
+	) {}
 }
 
 export interface DecodedSimpleGlyph extends GlyphHeaderData {
@@ -84,7 +92,10 @@ export interface DecodedEmptyGlyph extends GlyphHeaderData {
 	phantomPoints?: Point[];
 }
 
-export type DecodedGlyph = DecodedSimpleGlyph | DecodedCompositeGlyph | DecodedEmptyGlyph;
+export type DecodedGlyph =
+	| DecodedSimpleGlyph
+	| DecodedCompositeGlyph
+	| DecodedEmptyGlyph;
 
 /**
  * Represents a TrueType glyph.
@@ -109,21 +120,31 @@ export default class TTFGlyph extends Glyph {
 			return this.path.cbox;
 		}
 
-		const stream = this._font._getTableStream('glyf');
+		const stream = this._font.getGlyfTableStream();
 		if (!stream) {
-			throw new Error('Malformed font! Cannot decode table \'glyh\'!');
+			throw new Error("Malformed font! Cannot decode table 'glyh'!");
 		}
 		stream.pos += this._font.loca.offsets[this.id];
 		const glyph = GlyphHeader.decode(stream);
 
-		const cbox = new BoundingBox(glyph.xMin, glyph.yMin, glyph.xMax, glyph.yMax);
+		const cbox = new BoundingBox(
+			glyph.xMin,
+			glyph.yMin,
+			glyph.xMax,
+			glyph.yMax,
+		);
 
 		return Object.freeze(cbox);
 	}
 
 	// Parses a single glyph coordinate.
 	// _parseGlyphCoord(stream: DecodeStream, prev: number, short: number, same: number) {
-	_parseGlyphCoord(stream: DecodeStream, prev: number, short: number, same: number): number {
+	_parseGlyphCoord(
+		stream: DecodeStream,
+		prev: number,
+		short: number,
+		same: number,
+	): number {
 		let val: number;
 		if (short) {
 			val = stream.readUInt8();
@@ -154,9 +175,9 @@ export default class TTFGlyph extends Glyph {
 			return null;
 		}
 
-		const stream = this._font._getTableStream('glyf');
+		const stream = this._font.getGlyfTableStream();
 		if (!stream) {
-			throw new Error('Malformed font! Cannot decode table \'glyh\'!');
+			throw new Error("Malformed font! Cannot decode table 'glyh'!");
 		}
 		stream.pos += glyphPos;
 		const startPos = stream.pos;
@@ -240,7 +261,11 @@ export default class TTFGlyph extends Glyph {
 		}
 	}
 
-	_decodeComposite(glyph: DecodedCompositeGlyph, stream: DecodeStream, offset = 0): boolean {
+	_decodeComposite(
+		glyph: DecodedCompositeGlyph,
+		stream: DecodeStream,
+		offset = 0,
+	): boolean {
 		glyph.points = [];
 		glyph.instructions = [];
 		glyph.components = [];
@@ -337,7 +362,9 @@ export default class TTFGlyph extends Glyph {
 		if (glyph.numberOfContours < 0) {
 			// resolve composite glyphs
 			for (const component of glyph.components!) {
-				const contours = (this._font.getGlyph(component.glyphID) as unknown as TTFGlyph)._getContours();
+				const contours = (
+					this._font.getGlyph(component.glyphID) as unknown as TTFGlyph
+				)._getContours();
 				for (let i = 0; i < contours.length; i++) {
 					const contour = contours[i];
 					for (let j = 0; j < contour.length; j++) {

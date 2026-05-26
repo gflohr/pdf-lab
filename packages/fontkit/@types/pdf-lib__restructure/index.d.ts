@@ -14,9 +14,9 @@ declare module '@pdf-lib/restructure' {
 	export class DecodeStream {
 		buffer: Uint8Array;
 		pos: number;
-		length: number;
+		length: Length;
 
-		constructor(buffer?: Uint8Array);
+		constructor(length?: Length | Uint8Array);
 
 		readString(length: number, encoding?: string): string;
 		readBuffer(offset: number): Buffer;
@@ -35,8 +35,6 @@ declare module '@pdf-lib/restructure' {
 	export class EncodeStream {
 		buffer: Uint8Array;
 
-		// This is weird. The number argument somehow gets converted to a
-		// buffer on the way.
 		constructor(buffer: number);
 
 		fill(val: number, length: number): void;
