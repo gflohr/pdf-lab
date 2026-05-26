@@ -82,10 +82,11 @@ export default class Path {
 	}
 
 	/**
-	 * Gets the "control box" of a path.
-	 * This is like the bounding box, but it includes all points including
-	 * control points of bezier segments and is much faster to compute than
-	 * the real bounding box.
+	 * This property represents the path’s control box. It is like the
+	 * bounding box, but it includes all points of the path, including control
+	 * points of bezier segments. It is much faster to compute than the real
+	 * bounding box, but less accurate if there are control points outside of the
+	 * visible shape.
 	 */
 	get cbox(): Readonly<BBox> {
 		if (!this._cbox) {
@@ -103,8 +104,10 @@ export default class Path {
 	}
 
 	/**
-	 * Gets the exact bounding box of the path by evaluating curve segments.
-	 * Slower to compute than the control box, but more accurate.
+	 * This property represents the path’s bounding box, i.e. the smallest
+	 * rectangle that contains the entire path shape. This is the exact
+	 * bounding box, taking into account control points that may be outside the
+	 * visible shape.
 	 */
 	get bbox(): Readonly<BBox> {
 		if (this._bbox) {
@@ -288,20 +291,33 @@ export default class Path {
 		return this.transform(scaleX, 0, 0, scaleY, 0, 0);
 	}
 
-	// --- Vector Draw Commands ---
-
+	/**
+	 * Moves the virtual pen to the given x, y coordinates.
+	 */
 	moveTo(x: number, y: number): this {
 		return this.pushCommand('moveTo', [x, y]);
 	}
 
+	/**
+	 * Adds a line to the path from the current point to the
+	 * given x, y coordinates.
+	 */
 	lineTo(x: number, y: number): this {
 		return this.pushCommand('lineTo', [x, y]);
 	}
 
+	/**
+	 * Adds a quadratic curve to the path from the current point to the
+	 * given x, y coordinates using cpx, cpy as a control point.
+	 */
 	quadraticCurveTo(cpx: number, cpy: number, x: number, y: number): this {
 		return this.pushCommand('quadraticCurveTo', [cpx, cpy, x, y]);
 	}
 
+	/**
+	 * Adds a bezier curve to the path from the current point to the
+	 * given x, y coordinates using cp1x, cp1y and cp2x, cp2y as control points.
+	 */
 	bezierCurveTo(
 		cp1x: number,
 		cp1y: number,
@@ -313,11 +329,15 @@ export default class Path {
 		return this.pushCommand('bezierCurveTo', [cp1x, cp1y, cp2x, cp2y, x, y]);
 	}
 
+	/**
+	 * Closes the current sub-path by drawing a straight line back to the
+	 * starting point.
+	 */
 	closePath(): this {
 		return this.pushCommand('closePath', []);
 	}
 
-	/**
+  /**
 	 * Clears cached bounding boxes and appends a new path operation.
 	 */
 	private pushCommand(command: CommandName, args: number[]): this {
