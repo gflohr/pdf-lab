@@ -106,19 +106,19 @@ export default class Glyph {
 		this.isLigature = this.codePoints.length > 1;
 	}
 
-	_getPath(): Path {
+	private _getPath(): Path {
 		return new Path();
 	}
 
-	_getCBox(_?: boolean): Readonly<BoundingBox> {
+	private _getCBox(_?: boolean): Readonly<BoundingBox> {
 		return this.path.cbox;
 	}
 
-	_getBBox(): Readonly<BoundingBox> {
+	private _getBBox(): Readonly<BoundingBox> {
 		return this.path.bbox;
 	}
 
-	_getTableMetrics(table: MetricsTable): GlyphAxisMetrics {
+	private _getTableMetrics(table: MetricsTable): GlyphAxisMetrics {
 		if (this.id < table.metrics.length) {
 			return table.metrics.get(this.id);
 		}
@@ -132,7 +132,7 @@ export default class Glyph {
 		return res;
 	}
 
-	_getMetrics(cbox?: Readonly<BoundingBox>): GlyphLayoutMetrics {
+	private _getMetrics(cbox?: Readonly<BoundingBox>): GlyphLayoutMetrics {
 		if (this._metrics) {
 			return this._metrics;
 		}
@@ -191,7 +191,7 @@ export default class Glyph {
 	 * See [here](http://www.freetype.org/freetype2/docs/glyphs/glyphs-6.html#section-2)
 	 * for a more detailed description.
 	 */
-	get cbox(): Readonly<BoundingBox> {
+	public get cbox(): Readonly<BoundingBox> {
 		if (typeof this._cbox === 'undefined') {
 			this._cbox = this._getCBox();
 		}
@@ -203,7 +203,7 @@ export default class Glyph {
 	 * The glyph’s bounding box, i.e. the rectangle that encloses the
 	 * glyph outline as tightly as possible.
 	 */
-	get bbox(): Readonly<BoundingBox> {
+	public get bbox(): Readonly<BoundingBox> {
 		if (typeof this._bbox === 'undefined') {
 			this._bbox = this._getBBox();
 		}
@@ -215,7 +215,7 @@ export default class Glyph {
 	 * A vector Path object representing the glyph outline.
 	 * @type {Path}
 	 */
-	get path(): Readonly<Path> {
+	public get path(): Readonly<Path> {
 		// Cache the path so we only decode it once
 		// Decoding is actually performed by subclasses
 		if (typeof this._path === 'undefined') {
@@ -227,19 +227,16 @@ export default class Glyph {
 
 	/**
 	 * Returns a path scaled to the given font size.
-	 * @param {number} size
-	 * @return {Path}
 	 */
-	getScaledPath(size: number): Path {
+	public getScaledPath(size: number): Path {
 		const scale = (1 / this._font.unitsPerEm) * size;
 		return this.path.scale(scale);
 	}
 
 	/**
 	 * The glyph's advance width.
-	 * @type {number}
 	 */
-	get advanceWidth() {
+	public get advanceWidth() {
 		if (typeof this._advanceWidth === 'undefined') {
 			this._advanceWidth = this._getMetrics().advanceWidth;
 		}
@@ -249,9 +246,8 @@ export default class Glyph {
 
 	/**
 	 * The glyph's advance height.
-	 * @type {number}
 	 */
-	get advanceHeight() {
+	public get advanceHeight(): number {
 		if (typeof this._advanceHeight === 'undefined') {
 			this._advanceHeight = this._getMetrics().advanceHeight;
 		}
@@ -259,7 +255,7 @@ export default class Glyph {
 		return this._advanceHeight;
 	}
 
-	_getName(): string | null {
+	private _getName(): string | null {
 		const { post } = this._font;
 
 		if (!post) {
@@ -307,10 +303,9 @@ export default class Glyph {
 	}
 
 	/**
-	 * The glyph's name
-	 * @type {string}
+	 * The glyph's name.
 	 */
-	get name() {
+	public get name(): string | null {
 		if (typeof this._name === 'undefined') {
 			this._name = this._getName();
 		}
@@ -321,11 +316,8 @@ export default class Glyph {
 	/**
 	 * Renders the glyph to the given graphics context, at the specified font
 	 * size.
-	 *
-	 * @param {CanvasRenderingContext2d} ctx
-	 * @param {number} size
 	 */
-	render(ctx: CanvasRenderingContext2D, size: number) {
+	public render(ctx: CanvasRenderingContext2D, size: number) {
 		ctx.save();
 
 		const scale = (1 / this._font.unitsPerEm) * size;
