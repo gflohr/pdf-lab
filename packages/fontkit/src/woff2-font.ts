@@ -1,7 +1,7 @@
 import brotli from '@pdf-lib/brotli/decompress.js';
 import r, {
-	DecodeStream,
 	type BufferT,
+	DecodeStream,
 	type Length,
 	type ParsingContext,
 } from '@pdf-lib/restructure';
@@ -153,23 +153,23 @@ class Substream extends DecodeStream {
 
 // This struct represents the entire glyf table.
 interface GlyfTableData {
-	version: number,
-	numGlyphs: number,
-	indexFormat: number,
-	nContourStreamSize: number,
-	nPointsStreamSize: number,
-	flagStreamSize: number,
-	glyphStreamSize: number,
-	compositeStreamSize: number,
-	bboxStreamSize: number,
-	instructionStreamSize: number,
-	nContours: Substream,
-	nPoints: Substream,
-	flags: Substream,
-	glyphs: Substream,
-	composites: Substream,
-	bboxes: Substream,
-	instructions: Substream,
+	version: number;
+	numGlyphs: number;
+	indexFormat: number;
+	nContourStreamSize: number;
+	nPointsStreamSize: number;
+	flagStreamSize: number;
+	glyphStreamSize: number;
+	compositeStreamSize: number;
+	bboxStreamSize: number;
+	instructionStreamSize: number;
+	nContours: Substream;
+	nPoints: Substream;
+	flags: Substream;
+	glyphs: Substream;
+	composites: Substream;
+	bboxes: Substream;
+	instructions: Substream;
 }
 const fields = {
 	version: r.uint32,
@@ -189,7 +189,7 @@ const fields = {
 	composites: new Substream('compositeStreamSize'),
 	bboxes: new Substream('bboxStreamSize'),
 	instructions: new Substream('instructionStreamSize'),
-}
+};
 const GlyfTable = new r.Struct<typeof fields, GlyfTableData>(fields);
 
 const WORD_CODE = 253;

@@ -82,7 +82,7 @@ export interface Path {
 	 */
 	toSVG(): string;
 
-		/**
+	/**
 	 * Applies a mapping function to each point coordinate in the path.
 	 *
 	 * @param fn - A transformation callback yielding a new [x, y] tuple.

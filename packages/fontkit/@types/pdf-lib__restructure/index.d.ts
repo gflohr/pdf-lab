@@ -34,6 +34,7 @@ declare module '@pdf-lib/restructure' {
 
 	export class EncodeStream {
 		buffer: Uint8Array;
+		pos: number;
 
 		constructor(buffer: number);
 
@@ -370,4 +371,15 @@ declare module '@pdf-lib/restructure/src/utils.js' {
 		stream: DecodeStream | null,
 		parent: any,
 	): number;
+
+	/**
+	 * A wrapper configuration descriptor managing compiled metadata assignment rules.
+	 */
+	export class PropertyDescriptor {
+		enumerable: boolean;
+		configurable: boolean;
+		[key: string]: any;
+
+		constructor(opts?: Record<string, any>);
+	}
 }
