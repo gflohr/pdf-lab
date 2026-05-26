@@ -1,4 +1,4 @@
-import BBox from './bbox.js';
+import BoundingBox from './bounding-box.js';
 
 const SVG_COMMANDS = {
 	moveTo: 'M',
@@ -40,8 +40,8 @@ export interface PathContext {
  */
 export default class Path {
 	public commands: PathCommand[];
-	private _bbox: Readonly<BBox> | null;
-	private _cbox: Readonly<BBox> | null;
+	private _bbox: Readonly<BoundingBox> | null;
+	private _cbox: Readonly<BoundingBox> | null;
 
 	constructor() {
 		this.commands = [];
@@ -88,9 +88,9 @@ export default class Path {
 	 * bounding box, but less accurate if there are control points outside of the
 	 * visible shape.
 	 */
-	get cbox(): Readonly<BBox> {
+	get cbox(): Readonly<BoundingBox> {
 		if (!this._cbox) {
-			const cbox = new BBox();
+			const cbox = new BoundingBox();
 			for (const command of this.commands) {
 				for (let i = 0; i < command.args.length; i += 2) {
 					cbox.addPoint(command.args[i], command.args[i + 1]);
@@ -109,12 +109,12 @@ export default class Path {
 	 * bounding box, taking into account control points that may be outside the
 	 * visible shape.
 	 */
-	get bbox(): Readonly<BBox> {
+	get bbox(): Readonly<BoundingBox> {
 		if (this._bbox) {
 			return this._bbox;
 		}
 
-		const bbox = new BBox();
+		const bbox = new BoundingBox();
 		let cx = 0;
 		let cy = 0;
 

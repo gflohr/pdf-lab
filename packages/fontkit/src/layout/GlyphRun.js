@@ -1,4 +1,4 @@
-import BBox from '../glyph/bbox.js';
+import BoundingBox from '../glyph/bounding-box.js';
 import * as Script from '../layout/Script.js';
 
 /**
@@ -84,10 +84,10 @@ export default class GlyphRun {
 
 	/**
 	 * The bounding box containing all glyphs in the run.
-	 * @type {BBox}
+	 * @type {BoundingBox}
 	 */
 	get bbox() {
-		const bbox = new BBox();
+		const bbox = new BoundingBox();
 
 		let x = 0;
 		let y = 0;

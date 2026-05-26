@@ -1,4 +1,4 @@
-import type BBox from './glyph/bbox.js';
+import type BoundingBox from './glyph/bounding-box.js';
 import type Glyph from './glyph/glyph.js';
 import type GlyphRun from './layout/GlyphRun.js';
 import type Subset from './subset/Subset.js';
@@ -57,7 +57,7 @@ export interface Font {
 	italicAngle: number /** If this is an italic font, the angle the cursor should be drawn at to match the font design */;
 	capHeight: number /** Height of capital letters above the baseline. */;
 	xHeight: number /** Height of lower case letters. */;
-	bbox: Readonly<BBox> /** Font’s bounding box, i.e. the box that encloses all glyphs in the font. */;
+	bbox: Readonly<BoundingBox> /** Font’s bounding box, i.e. the box that encloses all glyphs in the font. */;
 
 	// Other properties
 	numGlyphs: number /** Number of glyphs in the font */;

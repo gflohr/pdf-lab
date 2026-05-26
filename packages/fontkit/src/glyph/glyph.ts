@@ -2,7 +2,7 @@ import unicode from '@pdf-lib/unicode-properties';
 import type { Font } from '../font.js';
 import type { SFNTFont } from '../sfnt-font.js';
 import type { MetricsTable } from '../tables/metrics.js';
-import type BBox from './bbox.js';
+import type BoundingBox from './bounding-box.js';
 import Path from './path.js';
 import StandardNames from './standard-names.js';
 
@@ -79,8 +79,8 @@ export default class Glyph {
 	public readonly isLigature: boolean;
 	private _path?: Path;
 	protected _metrics?: GlyphLayoutMetrics;
-	private _bbox?: Readonly<BBox>;
-	private _cbox?: Readonly<BBox>;
+	private _bbox?: Readonly<BoundingBox>;
+	private _cbox?: Readonly<BoundingBox>;
 	private _advanceWidth?: number;
 	private _advanceHeight?: number;
 	private _name?: string | null;
@@ -110,11 +110,11 @@ export default class Glyph {
 		return new Path();
 	}
 
-	_getCBox(_?: boolean): Readonly<BBox> {
+	_getCBox(_?: boolean): Readonly<BoundingBox> {
 		return this.path.cbox;
 	}
 
-	_getBBox(): Readonly<BBox> {
+	_getBBox(): Readonly<BoundingBox> {
 		return this.path.bbox;
 	}
 
@@ -132,7 +132,7 @@ export default class Glyph {
 		return res;
 	}
 
-	_getMetrics(cbox?: Readonly<BBox>): GlyphLayoutMetrics {
+	_getMetrics(cbox?: Readonly<BoundingBox>): GlyphLayoutMetrics {
 		if (this._metrics) {
 			return this._metrics;
 		}
@@ -190,10 +190,8 @@ export default class Glyph {
 	 * `cbox` does not. Thus, cbox is less accurate, but faster to compute.
 	 * See [here](http://www.freetype.org/freetype2/docs/glyphs/glyphs-6.html#section-2)
 	 * for a more detailed description.
-	 *
-	 * @type {BBox}
 	 */
-	get cbox() {
+	get cbox(): Readonly<BoundingBox> {
 		if (typeof this._cbox === 'undefined') {
 			this._cbox = this._getCBox();
 		}
@@ -204,9 +202,8 @@ export default class Glyph {
 	/**
 	 * The glyph’s bounding box, i.e. the rectangle that encloses the
 	 * glyph outline as tightly as possible.
-	 * @type {BBox}
 	 */
-	get bbox() {
+	get bbox(): Readonly<BoundingBox> {
 		if (typeof this._bbox === 'undefined') {
 			this._bbox = this._getBBox();
 		}

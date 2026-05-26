@@ -1,7 +1,7 @@
 /**
  * Represents a glyph bounding box.
  */
-export default class BBox {
+export default class BoundingBox {
 	/** The minimum X position in the bounding box. */
 	private _minX: number;
 
@@ -97,9 +97,9 @@ export default class BBox {
 	/**
 	 * Creates a deep copy of the current bounding box instance.
 	 *
-	 * @returns A new `BBox` instance with matching dimensions.
+	 * @returns A new `BoundingBox` instance with matching dimensions.
 	 */
-	copy(): BBox {
-		return new BBox(this.minX, this.minY, this.maxX, this.maxY);
+	copy(): BoundingBox {
+		return new BoundingBox(this.minX, this.minY, this.maxX, this.maxY);
 	}
 }

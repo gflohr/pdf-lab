@@ -11,7 +11,7 @@ import type {
 	VariationCoordinates,
 	VariationSettings,
 } from './font.js';
-import BBox from './glyph/bbox.js';
+import BoundingBox from './glyph/bounding-box.js';
 import CFFGlyph from './glyph/CFFGlyph.js';
 import COLRGlyph from './glyph/COLRGlyph.js';
 import GlyphVariationProcessor from './glyph/GlyphVariationProcessor.js';
@@ -59,7 +59,7 @@ export class SFNTFont<
 
 	// Those variables are lazily instantiated by their respctive getters, and
 	// then frozen.
-	private _bbox!: Readonly<BBox>;
+	private _bbox!: Readonly<BoundingBox>;
 	private _characterSet!: number[];
 	private _cmapProcessor!: CmapProcessor;
 	__layoutEngine!: LayoutEngine;
@@ -366,7 +366,7 @@ export class SFNTFont<
 	get bbox() {
 		if (typeof this._bbox === 'undefined') {
 			this._bbox = Object.freeze(
-				new BBox(
+				new BoundingBox(
 					this.head.xMin,
 					this.head.yMin,
 					this.head.xMax,

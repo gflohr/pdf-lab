@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import BBox from '../src/glyph/bbox.js';
+import BoundingBox from '../src/glyph/bounding-box.js';
 import fontkit from './helpers.js';
 
 const datadir = path.resolve(import.meta.dirname, './data');
@@ -30,7 +30,7 @@ describe('Font metadata', () => {
 		expect(font.capHeight).toBe(1462);
 		expect(font.xHeight).toBe(1098);
 		expect(font.numGlyphs).toBe(8708);
-		expect(font.bbox).toStrictEqual(new BBox(-1268, -600, 2952, 2189));
+		expect(font.bbox).toStrictEqual(new BoundingBox(-1268, -600, 2952, 2189));
 	});
 
 	it('exposes tables directly', () => {

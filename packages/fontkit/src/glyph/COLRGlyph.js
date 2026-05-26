@@ -1,4 +1,4 @@
-import BBox from './bbox.js';
+import BoundingBox from './bounding-box.js';
 import Glyph from './glyph.js';
 
 class COLRLayer {
@@ -15,7 +15,7 @@ class COLRLayer {
  */
 export default class COLRGlyph extends Glyph {
 	_getBBox() {
-		const bbox = new BBox();
+		const bbox = new BoundingBox();
 		for (let i = 0; i < this.layers.length; i++) {
 			const layer = this.layers[i];
 			const b = layer.glyph.bbox;

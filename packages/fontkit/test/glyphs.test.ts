@@ -1,6 +1,6 @@
 import * as path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import BBox from '../src/glyph/bbox.js';
+import BoundingBox from '../src/glyph/bounding-box.js';
 import fontkit from './helpers.js';
 
 const datadir = path.resolve(import.meta.dirname, './data');
@@ -52,17 +52,17 @@ describe('glyphs', () => {
 
 		it('should get the glyph cbox', () => {
 			const glyph = font.getGlyph(39);
-			expect(glyph.cbox).toStrictEqual(new BBox(201, 0, 1368, 1462));
+			expect(glyph.cbox).toStrictEqual(new BoundingBox(201, 0, 1368, 1462));
 		});
 
 		it('should get the glyph bbox', () => {
 			const glyph = font.getGlyph(39);
-			expect(glyph.bbox).toStrictEqual(new BBox(201, 0, 1368, 1462));
+			expect(glyph.bbox).toStrictEqual(new BoundingBox(201, 0, 1368, 1462));
 		});
 
 		it('should get correct bbox for runs containing blanks', () => {
 			const r = font.layout('abc ef');
-			expect(r.bbox).toStrictEqual(new BBox(94, -20, 5832, 1567));
+			expect(r.bbox).toStrictEqual(new BoundingBox(94, -20, 5832, 1567));
 		});
 
 		it('should get the advance width', () => {
@@ -95,12 +95,12 @@ describe('glyphs', () => {
 
 		it('should get the glyph cbox', () => {
 			const glyph = font.getGlyph(5);
-			expect(glyph.cbox).toStrictEqual(new BBox(90, 0, 564, 656));
+			expect(glyph.cbox).toStrictEqual(new BoundingBox(90, 0, 564, 656));
 		});
 
 		it('should get the glyph bbox', () => {
 			const glyph = font.getGlyph(5);
-			expect(glyph.bbox).toStrictEqual(new BBox(90, 0, 564, 656));
+			expect(glyph.bbox).toStrictEqual(new BoundingBox(90, 0, 564, 656));
 		});
 
 		it('should get the glyph name', () => {
@@ -175,7 +175,7 @@ describe('glyphs', () => {
 
 		it('should get bbox', () => {
 			const glyph = font.glyphsForString('😜')[0]!;
-			expect(glyph.bbox).toStrictEqual(new BBox(0, 0, 2048, 2048));
+			expect(glyph.bbox).toStrictEqual(new BoundingBox(0, 0, 2048, 2048));
 		});
 
 		it('should get the glyph name', () => {
@@ -233,12 +233,12 @@ describe('glyphs', () => {
 
 		it('should get the glyph cbox', () => {
 			const glyph = font.glyphsForString('T')[0]!;
-			expect(glyph.cbox).toStrictEqual(new BBox(28, 0, 508, 656));
+			expect(glyph.cbox).toStrictEqual(new BoundingBox(28, 0, 508, 656));
 		});
 
 		it('should get the glyph bbox', () => {
 			const glyph = font.glyphsForString('T')[0]!;
-			expect(glyph.bbox).toStrictEqual(new BBox(28, 0, 508, 656));
+			expect(glyph.bbox).toStrictEqual(new BoundingBox(28, 0, 508, 656));
 		});
 
 		it('should get the glyph name', () => {

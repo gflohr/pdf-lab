@@ -1,5 +1,5 @@
 import r, { type DecodeStream } from '@pdf-lib/restructure';
-import BBox from './bbox.js';
+import BoundingBox from './bounding-box.js';
 import Glyph, { type GlyphLayoutMetrics } from './glyph.js';
 import Path from './path.js';
 
@@ -102,7 +102,7 @@ export default class TTFGlyph extends Glyph {
 	public components?: Component[];
 
 	// Parses just the glyph header and returns the bounding box.
-	_getCBox(internal: boolean): Readonly<BBox> {
+	_getCBox(internal: boolean): Readonly<BoundingBox> {
 		// We need to decode the glyph if variation processing is requested,
 		// so it's easier just to recompute the path's cbox after decoding.
 		if (this._font.variationProcessor && !internal) {
@@ -116,7 +116,7 @@ export default class TTFGlyph extends Glyph {
 		stream.pos += this._font.loca.offsets[this.id];
 		const glyph = GlyphHeader.decode(stream);
 
-		const cbox = new BBox(glyph.xMin, glyph.yMin, glyph.xMax, glyph.yMax);
+		const cbox = new BoundingBox(glyph.xMin, glyph.yMin, glyph.xMax, glyph.yMax);
 
 		return Object.freeze(cbox);
 	}
