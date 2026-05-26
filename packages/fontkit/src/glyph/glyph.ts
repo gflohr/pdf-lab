@@ -132,6 +132,8 @@ export default class Glyph {
 		return res;
 	}
 
+	// FIXME! The only reason, why this is public, and not protected is to
+	// avoid an infinite loop in the method getPhantomPoints() of TTFGlyph.
 	public _getMetrics(cbox?: Readonly<BoundingBox>): GlyphLayoutMetrics {
 		if (this._metrics) {
 			return this._metrics;

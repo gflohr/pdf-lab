@@ -120,7 +120,7 @@ export class WOFF2Font extends SFNTFont<WOFF2DirectoryTable> {
 				read255UInt16(table.glyphs);
 			} else if (nContours < 0) {
 				// composite glyph
-				const haveInstructions = TTFGlyph.prototype._decodeComposite.call(
+				const haveInstructions = TTFGlyph.prototype.decodeComposite.call(
 					{ _font: this },
 					glyph as DecodedCompositeGlyph,
 					table.composites,

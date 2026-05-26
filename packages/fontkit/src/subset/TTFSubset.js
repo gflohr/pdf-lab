@@ -12,7 +12,7 @@ export default class TTFSubset extends Subset {
 
 	_addGlyph(gid) {
 		const glyph = this.font.getGlyph(gid);
-		const glyf = glyph._decode();
+		const glyf = glyph.decode();
 
 		// get the offset to the glyph from the loca table
 		const curOffset = this.font.loca.offsets[gid];

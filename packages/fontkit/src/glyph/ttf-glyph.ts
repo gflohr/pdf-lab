@@ -138,8 +138,7 @@ export default class TTFGlyph extends Glyph {
 	}
 
 	// Parses a single glyph coordinate.
-	// _parseGlyphCoord(stream: DecodeStream, prev: number, short: number, same: number) {
-	_parseGlyphCoord(
+	private parseGlyphCoord(
 		stream: DecodeStream,
 		prev: number,
 		short: number,
@@ -166,7 +165,7 @@ export default class TTFGlyph extends Glyph {
 
 	// Decodes the glyph data into points for simple glyphs,
 	// or components for composite glyphs
-	_decode(): DecodedGlyph | null {
+	protected decode(): DecodedGlyph | null {
 		const glyphPos = this._font.loca.offsets[this.id];
 		const nextPos = this._font.loca.offsets[this.id + 1];
 
@@ -184,15 +183,15 @@ export default class TTFGlyph extends Glyph {
 
 		const glyph = GlyphHeader.decode(stream);
 		if (glyph.numberOfContours > 0) {
-			this._decodeSimple(glyph as DecodedSimpleGlyph, stream);
+			this.decodeSimple(glyph as DecodedSimpleGlyph, stream);
 		} else if (glyph.numberOfContours < 0) {
-			this._decodeComposite(glyph as DecodedCompositeGlyph, stream, startPos);
+			this.decodeComposite(glyph as DecodedCompositeGlyph, stream, startPos);
 		}
 
 		return glyph;
 	}
 
-	_decodeSimple(glyph: DecodedSimpleGlyph, stream: DecodeStream): void {
+	private decodeSimple(glyph: DecodedSimpleGlyph, stream: DecodeStream): void {
 		// this is a simple glyph
 		glyph.points = [];
 		glyph.instructions = [];
@@ -233,7 +232,7 @@ export default class TTFGlyph extends Glyph {
 		let px = 0;
 		for (let i = 0; i < flags.length; i++) {
 			const flag = flags[i];
-			glyph.points[i].x = px = this._parseGlyphCoord(
+			glyph.points[i].x = px = this.parseGlyphCoord(
 				stream,
 				px,
 				flag & X_SHORT_VECTOR,
@@ -244,7 +243,7 @@ export default class TTFGlyph extends Glyph {
 		let py = 0;
 		for (let i = 0; i < flags.length; i++) {
 			const flag = flags[i];
-			glyph.points[i].y = py = this._parseGlyphCoord(
+			glyph.points[i].y = py = this.parseGlyphCoord(
 				stream,
 				py,
 				flag & Y_SHORT_VECTOR,
@@ -254,14 +253,16 @@ export default class TTFGlyph extends Glyph {
 
 		if (this._font.variationProcessor) {
 			const points = glyph.points.slice();
-			points.push(...this._getPhantomPoints(glyph));
+			points.push(...this.getPhantomPoints(glyph));
 
 			this._font.variationProcessor.transformPoints(this.id, points);
 			glyph.phantomPoints = points.slice(-4);
 		}
 	}
 
-	_decodeComposite(
+	// FIXME! This is only public in order to work around an endless loop
+	// in WOFF2Font by calling the prototype method.
+	public decodeComposite(
 		glyph: DecodedCompositeGlyph,
 		stream: DecodeStream,
 		offset = 0,
@@ -317,7 +318,7 @@ export default class TTFGlyph extends Glyph {
 				points.push(new Point(true, true, component.dx, component.dy));
 			}
 
-			points.push(...this._getPhantomPoints(glyph));
+			points.push(...this.getPhantomPoints(glyph));
 
 			this._font.variationProcessor.transformPoints(this.id, points);
 			glyph.phantomPoints = points.splice(-4, 4);
@@ -332,7 +333,7 @@ export default class TTFGlyph extends Glyph {
 		return haveInstructions;
 	}
 
-	_getPhantomPoints(glyph: DecodedGlyph) {
+	private getPhantomPoints(glyph: DecodedGlyph) {
 		const cbox = this._getCBox(true);
 		if (this._metrics == null) {
 			this._metrics = Glyph.prototype._getMetrics.call(this, cbox);
@@ -350,9 +351,8 @@ export default class TTFGlyph extends Glyph {
 	}
 
 	// Decodes font data, resolves composite glyphs, and returns an array of contours
-	// @returns Point[][]
-	_getContours(): Point[][] {
-		const glyph = this._decode();
+	private getContours(): Point[][] {
+		const glyph = this.decode();
 		if (!glyph) {
 			return [];
 		}
@@ -364,7 +364,7 @@ export default class TTFGlyph extends Glyph {
 			for (const component of glyph.components!) {
 				const contours = (
 					this._font.getGlyph(component.glyphID) as unknown as TTFGlyph
-				)._getContours();
+				).getContours();
 				for (let i = 0; i < contours.length; i++) {
 					const contour = contours[i];
 					for (let j = 0; j < contour.length; j++) {
@@ -428,7 +428,7 @@ export default class TTFGlyph extends Glyph {
 
 	// Converts contours to a Path object that can be rendered
 	protected _getPath(): Path {
-		const contours = this._getContours();
+		const contours = this.getContours();
 		const path = new Path();
 
 		for (let i = 0; i < contours.length; i++) {
