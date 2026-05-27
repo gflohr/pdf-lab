@@ -1,15 +1,19 @@
-import type { DecodeStream, EncodeStream, FieldT } from '@pdf-lib/restructure';
+import type { DecodeStream, EncodeStream, FieldT, ParsingContext } from '@pdf-lib/restructure';
 import isEqual from 'deep-equal';
 import { CFFOperand } from './cff-operand.js';
-import type { CFFPointerValue } from './cff-pointer.js';
+import type { CFFPointerValue, CFFPrivateDictTable } from './cff-pointer.js';
 
-type CFFOpType = 'delta' | 'number' | 'boolean' | null | FieldT<unknown>;
+interface CFFOp extends FieldT<unknown> {
+	decode(stream: DecodeStream, ctx?: ParsingContext, operands?: number[]): unknown;
+}
+
+type CFFOpType = 'delta' | 'number' | 'boolean' | 'offset' | 'sid' | null | CFFOp;
 
 export type CFFOpDefinition = [
 	operator: number | [number, number],
 	name: string,
 	type: CFFOpType,
-	defaultValue?: number | null,
+	defaultValue?: number | boolean | null,
 ];
 
 export interface CFFContext {
@@ -41,16 +45,16 @@ export default class CFFDict implements FieldT<Record<string, any>> {
 	}
 
 	decodeOperands(
-		type: CFFOpType,
+		type: CFFOpType | undefined | null,
 		stream: DecodeStream,
-		ret: Record<string, any>,
+		ret: Record<string, CFFPrivateDictTable>,
 		operands: any[],
 	): any {
 		if (Array.isArray(type)) {
 			return operands.map((op, i) =>
 				this.decodeOperands(type[i], stream, ret, [op]),
 			);
-		} else if (type && typeof type.decode === 'function') {
+		} else if (type && typeof type === 'object' && typeof type.decode === 'function') {
 			return type.decode(stream, ret, operands);
 		} else {
 			switch (type) {

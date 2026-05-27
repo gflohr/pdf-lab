@@ -10,9 +10,9 @@ import type {
 } from '@pdf-lib/restructure';
 import r from '@pdf-lib/restructure';
 
-type CFFSubrsArray = Uint8Array[] | Buffer[];
+export type CFFSubrsArray = Uint8Array[] | Buffer[];
 
-interface CFFPrivateDictTable {
+export interface CFFPrivateDictTable {
 	BlueValues?: number[] | null;
 	OtherBlues?: number[] | null;
 	FamilyBlues?: number[] | null;

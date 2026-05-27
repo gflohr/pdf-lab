@@ -3,7 +3,7 @@ import CFFDict from './cff-dict.js';
 import CFFIndex from './cff-index.js';
 import CFFPointer, { type CFFPointerValue } from './cff-pointer.js';
 
-const CFFBlendOp = {
+const CFFBlendOp: FieldT<unknown> = {
 	decode: (_stream: DecodeStream, _parent: unknown, operands: number[]) => {
 		const numBlends = operands.pop();
 
@@ -13,7 +13,7 @@ const CFFBlendOp = {
 			operands.pop();
 		}
 	}
-}
+} as FieldT<unknown>;
 
 export default new CFFDict([
 	// key, name, type, default
