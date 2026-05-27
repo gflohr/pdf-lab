@@ -19,7 +19,7 @@ import loca from './loca.js';
 import prep from './prep.js';
 
 // PostScript Outlines
-import CFFFont from '../cff/CFFFont.js';
+import CFFFont from '../cff/cff-font.js';
 import VORG from './VORG.js';
 
 import COLR from './COLR.js';

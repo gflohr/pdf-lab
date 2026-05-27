@@ -1,21 +1,31 @@
+import type { DecodeStream } from '@pdf-lib/restructure';
+import type CFFDict from './cff-dict.js';
+import type { CFFPrivateDictTable } from './cff-pointer.js';
 import standardStrings from './cff-standard-strings.js';
 import CFFTop from './cff-top.js';
 
 class CFFFont {
-	constructor(stream) {
-		this.stream = stream;
+	private version!: number;
+	private topDictIndex!: CFFDict[];
+	private topDict!: Record<string, any>;
+	private stringIndex!: string[];
+	private isCIDFont!: boolean;
+	private nameIndex!: string[];
+
+	constructor(private readonly stream: DecodeStream) {
 		this.decode();
 	}
 
-	static decode(stream) {
+	static decode(stream: DecodeStream) {
 		return new CFFFont(stream);
 	}
 
 	decode() {
 		const top = CFFTop.decode(this.stream);
-		for (const key in top) {
+		for (const k in top) {
+			const key = k as keyof typeof top;
 			const val = top[key];
-			this[key] = val;
+			(this as Record<string, unknown>)[key] = val;
 		}
 
 		if (this.version < 2) {
@@ -24,14 +34,16 @@ class CFFFont {
 			}
 
 			this.topDict = this.topDictIndex[0];
-		} // FIXME! Else?
+		}
 
-		this.isCIDFont = this.topDict.ROS != null;
+		this.isCIDFont = 'ROS' in this.topDict && this.topDict.ROS != null;
+
 		return this;
 	}
 
-	string(sid) {
-		if (this.version >= 2) {
+	// sid: number | null
+	string(sid: number | null) {
+		if (sid === null || this.version >= 2) {
 			return null;
 		}
 
@@ -42,7 +54,7 @@ class CFFFont {
 		return this.stringIndex[sid - standardStrings.length];
 	}
 
-	get postscriptName() {
+	get postscriptName(): string | null {
 		if (this.version < 2) {
 			return this.nameIndex[0];
 		}
@@ -58,12 +70,12 @@ class CFFFont {
 		return this.string(this.topDict.FamilyName);
 	}
 
-	getCharString(glyph) {
+	getCharString(glyph: number): Uint8Array {
 		this.stream.pos = this.topDict.CharStrings[glyph].offset;
 		return this.stream.readBuffer(this.topDict.CharStrings[glyph].length);
 	}
 
-	getGlyphName(gid) {
+	getGlyphName(gid: number): string | null {
 		// CFF2 glyph names are in the post table.
 		if (this.version >= 2) {
 			return null;
@@ -103,7 +115,7 @@ class CFFFont {
 		return null;
 	}
 
-	fdForGlyph(gid) {
+	fdForGlyph(gid: number): number | null {
 		if (!this.topDict.FDSelect) {
 			return null;
 		}
@@ -111,7 +123,6 @@ class CFFFont {
 		switch (this.topDict.FDSelect.version) {
 			case 0:
 				return this.topDict.FDSelect.fds[gid];
-
 			case 3:
 			case 4:
 				{
@@ -141,10 +152,11 @@ class CFFFont {
 		}
 	}
 
-	privateDictForGlyph(gid) {
-		if (this.topDict.FDSelect) {
+	// gid: number, @returns { BlueValues: ... }
+	privateDictForGlyph(gid: number): CFFPrivateDictTable | null {
+		if (this.topDict.FDSelect && this.topDict.FDArray) {
 			const fd = this.fdForGlyph(gid);
-			if (this.topDict.FDArray[fd]) {
+			if (fd !== null && this.topDict.FDArray[fd]) {
 				return this.topDict.FDArray[fd].Private;
 			}
 

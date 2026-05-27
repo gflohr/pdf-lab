@@ -161,5 +161,5 @@ export const CFFOperand = {
 			stream.writeInt32BE(val);
 			return;
 		}
-	}
-}
+	},
+};

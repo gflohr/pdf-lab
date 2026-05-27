@@ -1,22 +1,35 @@
-import type { DecodeStream, EncodeStream, FieldT, NumberT, StringT } from '@pdf-lib/restructure';
+import type {
+	DecodeStream,
+	EncodeStream,
+	FieldT,
+	NumberT,
+	StringT,
+} from '@pdf-lib/restructure';
 import r from '@pdf-lib/restructure';
 import type CFFDict from './cff-dict.js';
 
 // FIXME! Change this to the underlying data type of CFFTop, once that is
 // migrated!
 interface CFFIndexContext extends FieldT<unknown> {
-	hdrSize: number,
-	parent?: CFFIndexContext,
+	hdrSize: number;
+	parent?: CFFIndexContext;
 	version: number;
 	length: number;
 }
 
-export type IndexItemValue = Record<string, any> | string | Buffer | { offset: number; length: number };
+export type IndexItemValue =
+	| Record<string, any>
+	| string
+	| Buffer
+	| { offset: number; length: number };
 
 /**
  * Handles variable-length table lookups across structural subroutines, dictionaries, and string tables.
  */
-export default class CFFIndex<TType extends CFFDict | StringT | FieldT<any> = any> implements FieldT<IndexItemValue[]> {
+export default class CFFIndex<
+	TType extends CFFDict | StringT | FieldT<any> = any,
+> implements FieldT<IndexItemValue[]>
+{
 	constructor(public type?: TType) {}
 
 	private getCFFVersion(ctx?: CFFIndexContext) {
@@ -111,7 +124,11 @@ export default class CFFIndex<TType extends CFFDict | StringT | FieldT<any> = an
 		return size;
 	}
 
-	encode(stream: EncodeStream, arr: Buffer[] | CFFDict[], parent: FieldT<unknown>) {
+	encode(
+		stream: EncodeStream,
+		arr: Buffer[] | CFFDict[],
+		parent: FieldT<unknown>,
+	) {
 		stream.writeUInt16BE(arr.length);
 		if (arr.length === 0) {
 			return;

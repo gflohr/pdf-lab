@@ -1,4 +1,9 @@
-import type { DecodeStream, EncodeStream, FieldT, ParsingContext } from '@pdf-lib/restructure';
+import type {
+	DecodeStream,
+	EncodeStream,
+	FieldT,
+	ParsingContext,
+} from '@pdf-lib/restructure';
 import isEqual from 'deep-equal';
 import { CFFOperand } from './cff-operand.js';
 import type { CFFPrivateDictTable } from './cff-pointer.js';
@@ -8,7 +13,17 @@ interface CFFOp extends FieldT<unknown> {
 	decode(stream: DecodeStream, ctx?: ParsingContext, operands?: any): unknown;
 }
 
-type CFFOpType = 'delta' | 'number' | 'boolean' | 'offset' | 'sid' | 'array' | string[] | null | CFFOp | CFFPrivateOp;
+type CFFOpType =
+	| 'delta'
+	| 'number'
+	| 'boolean'
+	| 'offset'
+	| 'sid'
+	| 'array'
+	| string[]
+	| null
+	| CFFOp
+	| CFFPrivateOp;
 
 export type CFFOpDefinition = [
 	operator: number | [number, number],
@@ -55,7 +70,11 @@ export default class CFFDict implements FieldT<Record<string, any>> {
 			return operands.map((op, i) =>
 				this.decodeOperands(type[i], stream, ret, [op]),
 			);
-		} else if (type && typeof type === 'object' && typeof type.decode === 'function') {
+		} else if (
+			type &&
+			typeof type === 'object' &&
+			typeof type.decode === 'function'
+		) {
 			return type.decode(stream, ret, operands);
 		} else {
 			switch (type) {
@@ -129,7 +148,11 @@ export default class CFFDict implements FieldT<Record<string, any>> {
 
 				const val = this.decodeOperands(field[2], stream, ret, operands);
 				if (val != null) {
-					if (val && typeof val === 'object' && val.constructor?.name === 'PropertyDescriptor') {
+					if (
+						val &&
+						typeof val === 'object' &&
+						val.constructor?.name === 'PropertyDescriptor'
+					) {
 						Object.defineProperty(ret, field[1], val as PropertyDescriptor);
 					} else {
 						ret[field[1]] = val;

@@ -12,7 +12,7 @@ const CFFBlendOp: FieldT<unknown> = {
 		while (operands.length > numBlends!) {
 			operands.pop();
 		}
-	}
+	},
 } as FieldT<unknown>;
 
 export default new CFFDict([
@@ -36,5 +36,10 @@ export default new CFFDict([
 	[21, 'nominalWidthX', 'number', 0],
 	[22, 'vsindex', 'number', 0],
 	[23, 'blend', CFFBlendOp, null],
-	[19, 'Subrs', new CFFPointer(new CFFIndex() as FieldT<any>, { type: 'local' }), null],
+	[
+		19,
+		'Subrs',
+		new CFFPointer(new CFFIndex() as FieldT<any>, { type: 'local' }),
+		null,
+	],
 ]);
