@@ -1,19 +1,20 @@
 import type { DecodeStream, EncodeStream, FieldT } from '@pdf-lib/restructure';
 import isEqual from 'deep-equal';
 import { CFFOperand } from './cff-operand.js';
+import type { CFFPointerValue } from './cff-pointer.js';
 
-// Define what a custom operator parser (like CFFBlendOp) looks like
-// Express the operational descriptor tuple map architecture
+type CFFOpType = 'delta' | 'number' | 'boolean' | null | FieldT<unknown>;
+
 export type CFFOpDefinition = [
 	operator: number | [number, number],
 	name: string,
-	type: 'delta' | 'number' | 'boolean' | null | FieldT<unknown> | any,
-	defaultValue?: number | null | any,
+	type: CFFOpType,
+	defaultValue?: number | null,
 ];
 
 export interface CFFContext {
 	parent?: CFFContext;
-	val?: any;
+	val: CFFPointerValue;
 	pointerSize: number;
 	startOffset: number;
 	pointers?: Array<{ type: any; val: any; parent: any }>;
@@ -40,7 +41,7 @@ export default class CFFDict implements FieldT<Record<string, any>> {
 	}
 
 	decodeOperands(
-		type: any,
+		type: CFFOpType,
 		stream: DecodeStream,
 		ret: Record<string, any>,
 		operands: any[],
