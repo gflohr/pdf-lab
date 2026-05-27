@@ -1,15 +1,15 @@
+import type { DecodeStream, FieldT } from '@pdf-lib/restructure';
 import CFFDict from './CFFDict.js';
 import CFFIndex from './cff-index.js';
-import CFFPointer from './cff-pointer.js';
+import CFFPointer, { type CFFPointerValue } from './cff-pointer.js';
 
-// biome-ignore lint/complexity/noStaticOnlyClass: needs better checking
-class CFFBlendOp {
-	static decode(_stream, _parent, operands) {
+const CFFBlendOp = {
+	decode: (_stream: DecodeStream, _parent: unknown, operands: number[]) => {
 		const numBlends = operands.pop();
 
 		// TODO: actually blend. For now just consume the deltas
 		// since we don't use any of the values anyway.
-		while (operands.length > numBlends) {
+		while (operands.length > numBlends!) {
 			operands.pop();
 		}
 	}
@@ -36,5 +36,5 @@ export default new CFFDict([
 	[21, 'nominalWidthX', 'number', 0],
 	[22, 'vsindex', 'number', 0],
 	[23, 'blend', CFFBlendOp, null],
-	[19, 'Subrs', new CFFPointer(new CFFIndex(), { type: 'local' }), null],
+	[19, 'Subrs', new CFFPointer(new CFFIndex() as FieldT<CFFPointerValue>, { type: 'local' }), null],
 ]);

@@ -35,7 +35,7 @@ interface CFFPrivateDict {
 	initialRandomSeed?: number;
 }
 
-type CFFPointerValue = CFFSubrsArray | CFFPrivateDict;
+export type CFFPointerValue = CFFSubrsArray | CFFPrivateDict;
 
 /**
  * A specialized CFF wrapper representing an encapsulation pointer handle
