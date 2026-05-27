@@ -2,6 +2,7 @@ import BoundingBox from './bounding-box.js';
 import Glyph from './glyph.js';
 
 class COLRLayer {
+	// glyph: TTFGlyph, color: { blue, ...}
 	constructor(glyph, color) {
 		this.glyph = glyph;
 		this.color = color;
@@ -84,6 +85,7 @@ export default class COLRGlyph extends Glyph {
 		return layers;
 	}
 
+	// ctx: CanvasRenderingContext2D, size: number
 	render(ctx, size) {
 		for (const { glyph, color } of this.layers) {
 			ctx.fillColor(
