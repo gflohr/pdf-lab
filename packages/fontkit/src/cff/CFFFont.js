@@ -1,5 +1,5 @@
-import standardStrings from './CFFStandardStrings.js';
 import CFFTop from './CFFTop.js';
+import standardStrings from './cff-standard-strings.js';
 
 class CFFFont {
 	constructor(stream) {
