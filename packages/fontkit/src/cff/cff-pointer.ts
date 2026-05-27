@@ -41,7 +41,7 @@ type CFFPointerValue = CFFSubrsArray | CFFPrivateDict;
  * A specialized CFF wrapper representing an encapsulation pointer handle
  * that forces large 4-byte spacing output structures during encoding.
  */
-class Ptr {
+export class Ptr {
 	public val: number;
 	public forceLarge = true;
 

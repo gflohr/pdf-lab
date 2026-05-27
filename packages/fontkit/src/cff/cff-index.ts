@@ -1,11 +1,18 @@
+import type { DecodeStream, EncodeStream, FieldT, NumberT, StringT } from '@pdf-lib/restructure';
 import r from '@pdf-lib/restructure';
+import type CFFDict from './CFFDict.js';
 
+// FIXME! This is jsut a preliminary type!
+interface CFFIndexContext extends FieldT<unknown> {
+	hdrSize: number,
+	parent?: CFFIndexContext,
+	version: number;
+	length: number;
+}
 export default class CFFIndex {
-	constructor(type) {
-		this.type = type;
-	}
+	constructor(private type?: CFFDict | StringT) {}
 
-	getCFFVersion(ctx) {
+	private getCFFVersion(ctx?: CFFIndexContext) {
 		while (ctx && !ctx.hdrSize) {
 			ctx = ctx.parent;
 		}
@@ -13,7 +20,7 @@ export default class CFFIndex {
 		return ctx ? ctx.version : -1;
 	}
 
-	decode(stream, parent) {
+	decode(stream: DecodeStream, parent: CFFIndexContext) {
 		const version = this.getCFFVersion(parent);
 		const count = version >= 2 ? stream.readUInt32BE() : stream.readUInt16BE();
 
@@ -22,7 +29,7 @@ export default class CFFIndex {
 		}
 
 		const offSize = stream.readUInt8();
-		let offsetType;
+		let offsetType: NumberT;
 		if (offSize === 1) {
 			offsetType = r.uint8;
 		} else if (offSize === 2) {
@@ -63,7 +70,7 @@ export default class CFFIndex {
 		return ret;
 	}
 
-	size(arr, parent) {
+	size(arr: Buffer[] | CFFDict[], parent: FieldT<unknown>) {
 		let size = 2;
 		if (arr.length === 0) {
 			return size;
@@ -78,7 +85,7 @@ export default class CFFIndex {
 			offset += type.size(item, parent);
 		}
 
-		let offsetType;
+		let offsetType: NumberT;
 		if (offset <= 0xff) {
 			offsetType = r.uint8;
 		} else if (offset <= 0xffff) {
@@ -97,7 +104,7 @@ export default class CFFIndex {
 		return size;
 	}
 
-	encode(stream, arr, parent) {
+	encode(stream: EncodeStream, arr: Buffer[] | CFFDict[], parent: FieldT<unknown>) {
 		stream.writeUInt16BE(arr.length);
 		if (arr.length === 0) {
 			return;
@@ -114,7 +121,7 @@ export default class CFFIndex {
 			offset += s;
 		}
 
-		let offsetType;
+		let offsetType: NumberT;
 		if (offset <= 0xff) {
 			offsetType = r.uint8;
 		} else if (offset <= 0xffff) {

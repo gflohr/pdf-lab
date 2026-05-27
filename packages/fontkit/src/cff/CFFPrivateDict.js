@@ -1,5 +1,5 @@
 import CFFDict from './CFFDict.js';
-import CFFIndex from './CFFIndex.js';
+import CFFIndex from './cff-index.js';
 import CFFPointer from './cff-pointer.js';
 
 // biome-ignore lint/complexity/noStaticOnlyClass: needs better checking

@@ -1,6 +1,6 @@
 import { PropertyDescriptor } from '@pdf-lib/restructure/src/utils.js';
 import isEqual from 'deep-equal';
-import CFFOperand from './CFFOperand.js';
+import { CFFOperand } from './cff-operand.js';
 
 export default class CFFDict {
 	constructor(ops = []) {

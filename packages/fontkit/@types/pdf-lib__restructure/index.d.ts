@@ -40,8 +40,15 @@ declare module '@pdf-lib/restructure' {
 
 		fill(val: number, length: number): void;
 
-		writeUInt8(value: number): void;
-		writeInt16BE(value: number): void;
+		writeUInt8(val: number): void;
+		writeInt16(val: number): void;
+		writeInt16BE(val: number): void;
+		writeUInt16BE(val: number): void;
+		writeUInt16(val: number): void;
+		writeInt24BE(val: number): void;
+		writeUInt24BE(val: number): void;
+		writeInt32BE(val: number): void;
+		writeUInt32BE(val: number): void;
 	}
 
 	// The runtime tracking data context passed into size/decode/encode hooks
@@ -188,7 +195,7 @@ declare module '@pdf-lib/restructure' {
 	export class VersionedStructT<TVersions = any, TExplicitOut = any>
 		implements FieldT<TExplicitOut>
 	{
-		/** Holds the structural signature of your compiled output type safely */
+		/** Holds the structural signature of the compiled output type safely. */
 		readonly __type?: TExplicitOut;
 
 		versions: TVersions;
