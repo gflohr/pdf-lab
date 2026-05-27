@@ -1,11 +1,36 @@
-import { PropertyDescriptor } from '@pdf-lib/restructure/src/utils.js';
+import type { DecodeStream, EncodeStream, FieldT } from '@pdf-lib/restructure';
 import isEqual from 'deep-equal';
 import { CFFOperand } from './cff-operand.js';
 
-export default class CFFDict {
-	constructor(ops = []) {
+// Define what a custom operator parser (like CFFBlendOp) looks like
+// Express the operational descriptor tuple map architecture
+export type CFFOpDefinition = [
+	operator: number | [number, number],
+	name: string,
+	type: 'delta' | 'number' | 'boolean' | null | FieldT<unknown> | any,
+	defaultValue?: number | null | any,
+];
+
+export interface CFFContext {
+	parent?: CFFContext;
+	val?: any;
+	pointerSize: number;
+	startOffset: number;
+	pointers?: Array<{ type: any; val: any; parent: any }>;
+	pointerOffset?: number;
+}
+
+/**
+ * Handles binary decoding and encoding of Compact Font Format (CFF) key-value dictionaries.
+ */
+export default class CFFDict implements FieldT<Record<string, any>> {
+	public ops: CFFOpDefinition[];
+	public fields: Record<number, CFFOpDefinition>;
+
+	constructor(ops: CFFOpDefinition[] = []) {
 		this.ops = ops;
 		this.fields = {};
+
 		for (const field of ops) {
 			const key = Array.isArray(field[0])
 				? (field[0][0] << 8) | field[0][1]
@@ -14,12 +39,17 @@ export default class CFFDict {
 		}
 	}
 
-	decodeOperands(type, stream, ret, operands) {
+	decodeOperands(
+		type: any,
+		stream: DecodeStream,
+		ret: Record<string, any>,
+		operands: any[],
+	): any {
 		if (Array.isArray(type)) {
 			return operands.map((op, i) =>
 				this.decodeOperands(type[i], stream, ret, [op]),
 			);
-		} else if (type.decode != null) {
+		} else if (type && typeof type.decode === 'function') {
 			return type.decode(stream, ret, operands);
 		} else {
 			switch (type) {
@@ -35,12 +65,18 @@ export default class CFFDict {
 		}
 	}
 
-	encodeOperands(type, stream, ctx, operands) {
+	encodeOperands(
+		type: any,
+		stream: EncodeStream | null,
+		ctx: CFFContext,
+		operands: any,
+	): any[] {
 		if (Array.isArray(type)) {
 			return operands.map(
-				(op, i) => this.encodeOperands(type[i], stream, ctx, op)[0],
+				(op: any, i: number) =>
+					this.encodeOperands(type[i], stream, ctx, op)[0],
 			);
-		} else if (type.encode != null) {
+		} else if (type && typeof type.encode === 'function') {
 			return type.encode(stream, operands, ctx);
 		} else if (typeof operands === 'number') {
 			return [operands];
@@ -53,18 +89,18 @@ export default class CFFDict {
 		}
 	}
 
-	decode(stream, parent) {
-		const end = stream.pos + parent.length;
-		const ret = {};
-		let operands = [];
+	decode(stream: DecodeStream, parent?: any): Record<string, any> {
+		const end = stream.pos + (parent?.length ?? 0);
+		const ret: Record<string, any> = {};
+		let operands: any[] = [];
 
-		// define hidden properties
+		// Define hidden context metadata engine properties
 		Object.defineProperties(ret, {
-			parent: { value: parent },
-			_startOffset: { value: stream.pos },
+			parent: { value: parent, enumerable: false },
+			_startOffset: { value: stream.pos, enumerable: false },
 		});
 
-		// fill in defaults
+		// Fill in defaults specified by the operators configuration schema
 		for (const key in this.fields) {
 			const field = this.fields[key];
 			const defaultValue = field[3];
@@ -82,13 +118,13 @@ export default class CFFDict {
 
 				const field = this.fields[b];
 				if (!field) {
-					throw new Error(`Unknown operator ${b}`);
+					throw new Error(`Unknown CFF operator token: ${b}`);
 				}
 
 				const val = this.decodeOperands(field[2], stream, ret, operands);
 				if (val != null) {
-					if (val instanceof PropertyDescriptor) {
-						Object.defineProperty(ret, field[1], val);
+					if (val && typeof val === 'object' && val.constructor?.name === 'PropertyDescriptor') {
+						Object.defineProperty(ret, field[1], val as PropertyDescriptor);
 					} else {
 						ret[field[1]] = val;
 					}
@@ -103,12 +139,16 @@ export default class CFFDict {
 		return ret;
 	}
 
-	size(dict, parent, includePointers = true) {
-		const ctx = {
+	size(
+		dict: Record<string, any>,
+		parent?: any,
+		includePointers = true,
+	): number {
+		const ctx: CFFContext = {
 			parent,
 			val: dict,
 			pointerSize: 0,
-			startOffset: parent.startOffset || 0,
+			startOffset: parent?.startOffset || 0,
 		};
 
 		let len = 0;
@@ -136,8 +176,8 @@ export default class CFFDict {
 		return len;
 	}
 
-	encode(stream, dict, parent) {
-		const ctx = {
+	encode(stream: EncodeStream, dict: Record<string, any>, parent?: any): void {
+		const ctx: CFFContext = {
 			pointers: [],
 			startOffset: stream.pos,
 			parent,
@@ -164,10 +204,12 @@ export default class CFFDict {
 			}
 		}
 
-		let i = 0;
-		while (i < ctx.pointers.length) {
-			const ptr = ctx.pointers[i++];
-			ptr.type.encode(stream, ptr.val, ptr.parent);
+		if (ctx.pointers) {
+			let i = 0;
+			while (i < ctx.pointers.length) {
+				const ptr = ctx.pointers[i++];
+				ptr.type.encode(stream, ptr.val, ptr.parent);
+			}
 		}
 	}
 }

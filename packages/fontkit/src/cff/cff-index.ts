@@ -1,16 +1,23 @@
 import type { DecodeStream, EncodeStream, FieldT, NumberT, StringT } from '@pdf-lib/restructure';
 import r from '@pdf-lib/restructure';
-import type CFFDict from './CFFDict.js';
+import type CFFDict from './cff-dict.js';
 
-// FIXME! This is jsut a preliminary type!
+// FIXME! Change this to the underlying data type of CFFTop, once that is
+// migrated!
 interface CFFIndexContext extends FieldT<unknown> {
 	hdrSize: number,
 	parent?: CFFIndexContext,
 	version: number;
 	length: number;
 }
-export default class CFFIndex {
-	constructor(private type?: CFFDict | StringT) {}
+
+type IndexItemValue = Record<string, any> | string | Buffer | { offset: number; length: number };
+
+/**
+ * Handles variable-length table lookups across structural subroutines, dictionaries, and string tables.
+ */
+export default class CFFIndex<TType extends CFFDict | StringT | FieldT<any> = any> implements FieldT<IndexItemValue[]> {
+	constructor(public type?: TType) {}
 
 	private getCFFVersion(ctx?: CFFIndexContext) {
 		while (ctx && !ctx.hdrSize) {
@@ -20,7 +27,7 @@ export default class CFFIndex {
 		return ctx ? ctx.version : -1;
 	}
 
-	decode(stream: DecodeStream, parent: CFFIndexContext) {
+	decode(stream: DecodeStream, parent: CFFIndexContext): IndexItemValue[] {
 		const version = this.getCFFVersion(parent);
 		const count = version >= 2 ? stream.readUInt32BE() : stream.readUInt16BE();
 
@@ -42,7 +49,7 @@ export default class CFFIndex {
 			throw new Error(`Bad offset size in CFFIndex: ${offSize} ${stream.pos}`);
 		}
 
-		const ret = [];
+		const ret: IndexItemValue[] = [];
 		const startPos = stream.pos + (count + 1) * offSize - 1;
 
 		let start = offsetType.decode(stream);

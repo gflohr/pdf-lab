@@ -12,7 +12,7 @@ import r from '@pdf-lib/restructure';
 
 type CFFSubrsArray = Uint8Array[] | Buffer[];
 
-interface CFFPrivateDict {
+interface CFFPrivateDictTable {
 	BlueValues?: number[] | null;
 	OtherBlues?: number[] | null;
 	FamilyBlues?: number[] | null;
@@ -35,7 +35,7 @@ interface CFFPrivateDict {
 	initialRandomSeed?: number;
 }
 
-export type CFFPointerValue = CFFSubrsArray | CFFPrivateDict;
+export type CFFPointerValue = CFFSubrsArray | CFFPrivateDictTable;
 
 /**
  * A specialized CFF wrapper representing an encapsulation pointer handle

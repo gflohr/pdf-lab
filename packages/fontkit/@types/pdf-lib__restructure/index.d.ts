@@ -195,7 +195,7 @@ declare module '@pdf-lib/restructure' {
 	export class VersionedStructT<TVersions = any, TExplicitOut = any>
 		implements FieldT<TExplicitOut>
 	{
-		/** Holds the structural signature of the compiled output type safely. */
+		/** Holds the structural signature of the compiled output type safely */
 		readonly __type?: TExplicitOut;
 
 		versions: TVersions;

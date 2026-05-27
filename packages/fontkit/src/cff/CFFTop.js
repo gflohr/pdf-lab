@@ -1,12 +1,12 @@
 import r from '@pdf-lib/restructure';
 import { resolveLength } from '@pdf-lib/restructure/src/utils.js';
 import { ItemVariationStore } from '../tables/variations.js';
-import CFFDict from './CFFDict.js';
 import {
 	ExpertCharset,
 	ExpertSubsetCharset,
 	ISOAdobeCharset,
 } from './cff-charsets.js';
+import CFFDict from './cff-dict.js';
 import { ExpertEncoding, StandardEncoding } from './cff-encodings.js';
 import CFFIndex from './cff-index.js';
 import CFFPointer from './cff-pointer.js';
