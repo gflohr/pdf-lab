@@ -1,3 +1,4 @@
+import type { DecodeStream, EncodeStream, FieldT, InferField, ParsingContext } from '@pdf-lib/restructure';
 import r from '@pdf-lib/restructure';
 import { resolveLength } from '@pdf-lib/restructure/src/utils.js';
 import { ItemVariationStore } from '../tables/variations.js';
@@ -9,18 +10,24 @@ import {
 import CFFDict from './cff-dict.js';
 import { ExpertEncoding, StandardEncoding } from './cff-encodings.js';
 import CFFIndex from './cff-index.js';
-import CFFPointer from './cff-pointer.js';
+import CFFPointer, { type Ptr } from './cff-pointer.js';
 import CFFPrivateDict from './cff-private-dict.js';
+
+interface RangeRecord {
+	first: number,
+	nLeft: number,
+	offset?: number;
+}
+
 
 // Checks if an operand is an index of a predefined value,
 // otherwise delegates to the provided type.
 class PredefinedOp {
-	constructor(predefinedOps, type) {
-		this.predefinedOps = predefinedOps;
-		this.type = type;
-	}
+	constructor(
+		private readonly predefinedOps: any[],
+		private readonly type: CFFPointer<any>) {}
 
-	decode(stream, parent, operands) {
+	decode(stream: DecodeStream, parent: unknown, operands: [number]): any {
 		if (this.predefinedOps[operands[0]]) {
 			return this.predefinedOps[operands[0]];
 		}
@@ -28,11 +35,11 @@ class PredefinedOp {
 		return this.type.decode(stream, parent, operands);
 	}
 
-	size(value, ctx) {
+	size(value: any, ctx?: ParsingContext) {
 		return this.type.size(value, ctx);
 	}
 
-	encode(stream, value, ctx) {
+	encode(stream: EncodeStream, value: any, ctx?: ParsingContext): number | Ptr | Ptr[] {
 		const index = this.predefinedOps.indexOf(value);
 		if (index !== -1) {
 			return index;
@@ -47,22 +54,38 @@ class CFFEncodingVersion extends r.Number {
 		super('UInt8');
 	}
 
-	decode(stream) {
+	decode(stream: DecodeStream) {
 		return r.uint8.decode(stream) & 0x7f;
 	}
 }
 
-const Range1 = new r.Struct({
+const range1Fields = {
 	first: r.uint16,
 	nLeft: r.uint8,
-});
+};
+const Range1 = new r.Struct<typeof range1Fields, RangeRecord>(range1Fields);
 
-const Range2 = new r.Struct({
+const range2Fields = {
 	first: r.uint16,
 	nLeft: r.uint16,
-});
+};
+const Range2 = new r.Struct<typeof range2Fields, RangeRecord>(range2Fields);
 
-const CFFCustomEncoding = new r.VersionedStruct(new CFFEncodingVersion(), {
+interface CFFCustomEncodingDataV0 {
+	version: 0,
+	nCodes: number,
+	codes: number[],
+}
+
+interface CFFCustomEncodingDataV1 {
+	version: 1,
+	nRanges: number,
+	ranges: number[],
+}
+
+type CFFCustomEncodingData = CFFCustomEncodingDataV0 | CFFCustomEncodingDataV1;
+
+const cffCustomEncodingFields = {
 	0: {
 		nCodes: r.uint8,
 		codes: new r.Array(r.uint8, 'nCodes'),
@@ -74,7 +97,8 @@ const CFFCustomEncoding = new r.VersionedStruct(new CFFEncodingVersion(), {
 	},
 
 	// TODO: supplement?
-});
+};
+const CFFCustomEncoding = new r.VersionedStruct<typeof cffCustomEncodingFields, CFFCustomEncodingData>(new CFFEncodingVersion(), cffCustomEncodingFields);
 
 const CFFEncoding = new PredefinedOp(
 	[StandardEncoding, ExpertEncoding],
@@ -83,8 +107,8 @@ const CFFEncoding = new PredefinedOp(
 
 // Decodes an array of ranges until the total
 // length is equal to the provided length.
-class RangeArray extends r.Array {
-	decode(stream, parent) {
+export class RangeArray extends r.Array<FieldT<RangeRecord>> {
+	override decode(stream: DecodeStream, parent?: ParsingContext) {
 		const length = resolveLength(this.length, stream, parent);
 		let count = 0;
 		const res = [];
@@ -99,7 +123,26 @@ class RangeArray extends r.Array {
 	}
 }
 
-const CFFCustomCharset = new r.VersionedStruct(r.uint8, {
+interface CFFCustomCharsetDataV0 {
+	version: 0,
+	glyphs: number[],
+}
+
+interface CFFCustomCharsetDataV1 {
+	version: 1,
+	ranges: RangeRecord[],
+}
+
+interface CFFCustomCharsetDataV2 {
+	version: 2,
+	ranges: RangeRecord[],
+}
+
+type CFFCustomCharsetData = CFFCustomCharsetDataV0 | CFFCustomCharsetDataV1 | CFFCustomCharsetDataV2;
+
+// Subtracting 1 from the length rops the .notdef glyph from the total length
+// count constraint.
+const cffCustomCharsetFields = {
 	0: {
 		glyphs: new r.Array(r.uint16, (t) => t.parent.CharStrings.length - 1),
 	},
@@ -111,7 +154,8 @@ const CFFCustomCharset = new r.VersionedStruct(r.uint8, {
 	2: {
 		ranges: new RangeArray(Range2, (t) => t.parent.CharStrings.length - 1),
 	},
-});
+};
+const CFFCustomCharset = new r.VersionedStruct<typeof cffCustomCharsetFields, CFFCustomCharsetData>(r.uint8, cffCustomCharsetFields);
 
 const CFFCharset = new PredefinedOp(
 	[ISOAdobeCharset, ExpertCharset, ExpertSubsetCharset],
@@ -147,17 +191,20 @@ const FDSelect = new r.VersionedStruct(r.uint8, {
 });
 
 const ptr = new CFFPointer(CFFPrivateDict);
-class CFFPrivateOp {
-	decode(stream, parent, operands) {
+export class CFFPrivateOp {
+	decode(stream: DecodeStream, parent: ParsingContext, operands: number[]): InferField<FieldT<any>> {
 		parent.length = operands[0];
 		return ptr.decode(stream, parent, [operands[1]]);
 	}
 
-	size(dict, ctx) {
-		return [CFFPrivateDict.size(dict, ctx, false), ptr.size(dict, ctx)[0]];
+	size(dict: CFFDict, ctx?: ParsingContext): [number, number] {
+		// The original version used ptr.size(dict, ctx)[0] as the second
+		// value. But invoking size() on ptr would cause a crash, as "this"
+		// is undefined in that context.
+		return [CFFPrivateDict.size(dict, ctx, false), 0];
 	}
 
-	encode(stream, dict, ctx) {
+	encode(stream: EncodeStream, dict: CFFDict, ctx?: ParsingContext) {
 		return [
 			CFFPrivateDict.size(dict, ctx, false),
 			ptr.encode(stream, dict, ctx)[0],
@@ -166,13 +213,13 @@ class CFFPrivateOp {
 }
 
 const FontDict = new CFFDict([
-	// key       name                   type(s)                                 default
+	// key, name, type(s), default
 	[18, 'Private', new CFFPrivateOp(), null],
 	[[12, 38], 'FontName', 'sid', null],
 ]);
 
 const CFFTopDict = new CFFDict([
-	// key       name                   type(s)                                 default
+	// key, name, type(s), default
 	[[12, 30], 'ROS', ['sid', 'sid', 'number'], null],
 
 	[0, 'version', 'sid', null],
@@ -226,7 +273,27 @@ const CFF2TopDict = new CFFDict([
 	[25, 'maxstack', 'number', 193],
 ]);
 
-const CFFTop = new r.VersionedStruct(r.fixed16, {
+interface CFFTopDataV1 {
+	version: 1,
+	hdrSize: number,
+	offSize: number,
+	nameIndex: string,
+	topDictIndex: CFFDict,
+	stringIndex: string[],
+	globalSubrIndex: { offset: number, length: number },
+}
+
+interface CFFTopDataV2 {
+	version: 2,
+	hdrSize: number,
+	length: number,
+	topDict: CFFDict[],
+	globalSubrIndex: { offset: number, length: number }[],
+}
+
+export type CFFTopData = CFFTopDataV1 | CFFTopDataV2;
+
+const fields = {
 	1: {
 		hdrSize: r.uint8,
 		offSize: r.uint8,
@@ -242,6 +309,8 @@ const CFFTop = new r.VersionedStruct(r.fixed16, {
 		topDict: CFF2TopDict,
 		globalSubrIndex: new CFFIndex(),
 	},
-});
+};
+
+const CFFTop = new r.VersionedStruct<typeof fields, CFFTopData>(r.fixed16, fields);
 
 export default CFFTop;

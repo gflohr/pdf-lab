@@ -116,10 +116,12 @@ declare module '@pdf-lib/restructure' {
 			: T extends (...args: any[]) => infer R
 				? R
 				: never;
-	export class ArrayT<TField extends FieldT<unknown>>
+	export class ArrayT<TField extends FieldT<any>>
 		implements FieldT<InferField<TField>[]>
 	{
 		readonly __type?: InferField<TField>[];
+		readonly type: TField;
+		readonly length: number;
 
 		constructor(type: TField, length?: Length, lengthType?: 'count' | 'bytes');
 

@@ -35,8 +35,6 @@ export interface CFFPrivateDictTable {
 	initialRandomSeed?: number;
 }
 
-export type CFFPointerValue = CFFSubrsArray | CFFPrivateDictTable;
-
 /**
  * A specialized CFF wrapper representing an encapsulation pointer handle
  * that forces large 4-byte spacing output structures during encoding.
@@ -59,7 +57,7 @@ export class Ptr {
  * from the dictionary stack as dynamic lookahead offsets.
  */
 export default class CFFPointer<
-	TField extends FieldT<CFFPointerValue>,
+	TField extends FieldT<any>,
 > extends r.Pointer<TField> {
 	constructor(type: TField, options: PointerTOptions = {}) {
 		if (options.type == null) {
@@ -95,9 +93,9 @@ export default class CFFPointer<
 	 */
 	override encode(
 		stream: EncodeStream | null,
-		value: CFFPointerValue,
+		value: InferField<TField>,
 		ctx: unknown,
-	): Ptr[] {
+	): any {
 		if (!stream) {
 			// Compute phase size generation mock.
 			(this as any).offsetType = {

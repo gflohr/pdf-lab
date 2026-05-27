@@ -1,5 +1,5 @@
-import CFFTop from './CFFTop.js';
 import standardStrings from './cff-standard-strings.js';
+import CFFTop from './cff-top.js';
 
 class CFFFont {
 	constructor(stream) {
@@ -24,7 +24,7 @@ class CFFFont {
 			}
 
 			this.topDict = this.topDictIndex[0];
-		}
+		} // FIXME! Else?
 
 		this.isCIDFont = this.topDict.ROS != null;
 		return this;

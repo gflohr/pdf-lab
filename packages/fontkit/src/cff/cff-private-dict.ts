@@ -1,7 +1,7 @@
 import type { DecodeStream, FieldT } from '@pdf-lib/restructure';
 import CFFDict from './cff-dict.js';
 import CFFIndex from './cff-index.js';
-import CFFPointer, { type CFFPointerValue } from './cff-pointer.js';
+import CFFPointer from './cff-pointer.js';
 
 const CFFBlendOp: FieldT<unknown> = {
 	decode: (_stream: DecodeStream, _parent: unknown, operands: number[]) => {
@@ -36,5 +36,5 @@ export default new CFFDict([
 	[21, 'nominalWidthX', 'number', 0],
 	[22, 'vsindex', 'number', 0],
 	[23, 'blend', CFFBlendOp, null],
-	[19, 'Subrs', new CFFPointer(new CFFIndex() as FieldT<CFFPointerValue>, { type: 'local' }), null],
+	[19, 'Subrs', new CFFPointer(new CFFIndex() as FieldT<any>, { type: 'local' }), null],
 ]);

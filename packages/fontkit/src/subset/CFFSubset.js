@@ -1,5 +1,5 @@
-import CFFTop from '../cff/CFFTop.js';
 import standardStrings from '../cff/cff-standard-strings.js';
+import CFFTop from '../cff/cff-top.js';
 import Subset from './Subset.js';
 
 export default class CFFSubset extends Subset {
