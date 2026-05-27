@@ -14,7 +14,7 @@ class COLRLayer {
  * of which  is another vector glyph.
  */
 export default class COLRGlyph extends Glyph {
-	_getBBox() {
+	getBBox() {
 		const bbox = new BoundingBox();
 		for (let i = 0; i < this.layers.length; i++) {
 			const layer = this.layers[i];
