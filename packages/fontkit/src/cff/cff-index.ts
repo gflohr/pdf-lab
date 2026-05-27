@@ -17,11 +17,16 @@ interface CFFIndexContext extends FieldT<unknown> {
 	length: number;
 }
 
+export interface CFFIndexRecord {
+	offset: number;
+	length: number;
+}
+
 export type IndexItemValue =
 	| Record<string, any>
 	| string
 	| Buffer
-	| { offset: number; length: number };
+	| CFFIndexRecord;
 
 /**
  * Handles variable-length table lookups across structural subroutines, dictionaries, and string tables.

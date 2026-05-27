@@ -5,7 +5,7 @@ import r from '@pdf-lib/restructure';
 import { describe, expect, it } from 'vitest';
 import CFFFont from '../src/cff/cff-font.js';
 import type { Font } from '../src/font.js';
-import CFFGlyph from '../src/glyph/CFFGlyph.js';
+import CFFGlyph from '../src/glyph/cff-glyph.js';
 import type { Subset, SubsetStream } from '../src/subset/Subset.js';
 import fontkit from './helpers.js';
 

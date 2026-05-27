@@ -9,8 +9,7 @@ import type {
 	PointerTOptions,
 } from '@pdf-lib/restructure';
 import r from '@pdf-lib/restructure';
-
-export type CFFSubrsArray = Uint8Array[] | Buffer[];
+import type { CFFIndexRecord } from './cff-index.js';
 
 export interface CFFPrivateDictTable {
 	BlueValues?: number[] | null;
@@ -19,7 +18,7 @@ export interface CFFPrivateDictTable {
 	FamilyOtherBlues?: number[] | null;
 	StdHW?: number;
 	StdVW?: number;
-	Subrs?: CFFSubrsArray;
+	Subrs?: CFFIndexRecord[];
 	defaultWidthX?: number;
 	nominalWidthX?: number;
 	vsindex?: number;

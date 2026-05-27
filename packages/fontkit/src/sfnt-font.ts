@@ -12,8 +12,8 @@ import type {
 	VariationSettings,
 } from './font.js';
 import BoundingBox from './glyph/bounding-box.js';
-import CFFGlyph from './glyph/CFFGlyph.js';
 import COLRGlyph from './glyph/COLRGlyph.js';
+import CFFGlyph from './glyph/cff-glyph.js';
 import type Glyph from './glyph/glyph.js';
 import GlyphVariationProcessor from './glyph/glyph-variation-processor.js';
 import SBIXGlyph from './glyph/SBIXGlyph.js';
@@ -81,7 +81,9 @@ export class SFNTFont<
 	public prep: FilteredTableMap['prep'];
 	public 'cvt '?: FilteredTableMap['cvt '];
 	public glyf?: FilteredTableMap['glyf'];
+	// FIXME! Which of the two is actually used?
 	cff!: FilteredTableMap['CFF '];
+	public 'CFF ': FilteredTableMap['CFF '];
 	public CFF2?: FilteredTableMap['CFF2'];
 	public VORG?: FilteredTableMap['VORG'];
 	public EBLC?: FilteredTableMap['EBLC'];

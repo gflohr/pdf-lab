@@ -1,16 +1,18 @@
 import type { DecodeStream } from '@pdf-lib/restructure';
 import type CFFDict from './cff-dict.js';
+import type { CFFIndexRecord } from './cff-index.js';
 import type { CFFPrivateDictTable } from './cff-pointer.js';
 import standardStrings from './cff-standard-strings.js';
 import CFFTop from './cff-top.js';
 
 class CFFFont {
-	private version!: number;
+	public version!: number;
 	private topDictIndex!: CFFDict[];
-	private topDict!: Record<string, any>;
+	public topDict!: Record<string, any>;
 	private stringIndex!: string[];
 	private isCIDFont!: boolean;
 	private nameIndex!: string[];
+	public globalSubrIndex!: CFFIndexRecord[];
 
 	constructor(private readonly stream: DecodeStream) {
 		this.decode();

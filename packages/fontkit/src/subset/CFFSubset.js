@@ -23,7 +23,7 @@ export default class CFFSubset extends Subset {
 			// FIXME! The getter must have a side-effect.
 			glyph.path; // this causes the glyph to be parsed
 
-			for (const subr in glyph._usedGsubrs) {
+			for (const subr in glyph.usedGsubrs) {
 				gsubrs[subr] = true;
 			}
 		}
@@ -73,7 +73,7 @@ export default class CFFSubset extends Subset {
 
 			// FIXME! The getter must have a side-effect.
 			glyph.path; // this causes the glyph to be parsed
-			for (const subr in glyph._usedSubrs) {
+			for (const subr in glyph.usedSubrs) {
 				used_subrs[used_subrs.length - 1][subr] = true;
 			}
 		}
@@ -101,7 +101,7 @@ export default class CFFSubset extends Subset {
 			// FIXME! The getter must have a side-effect.
 			glyph.path; // this causes the glyph to be parsed
 
-			for (const subr in glyph._usedSubrs) {
+			for (const subr in glyph.usedSubrs) {
 				used_subrs[subr] = true;
 			}
 		}
