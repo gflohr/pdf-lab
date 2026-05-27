@@ -114,7 +114,7 @@ export default class Glyph {
 		return this.path.cbox;
 	}
 
-	private _getBBox(): Readonly<BoundingBox> {
+	protected _getBBox(): Readonly<BoundingBox> {
 		return this.path.bbox;
 	}
 

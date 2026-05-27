@@ -231,6 +231,14 @@ declare module '@pdf-lib/restructure' {
 		): void;
 	}
 
+	export interface PointerTOptions {
+		type?: 'local' | 'immediate' | 'parent' | 'global';
+		allowNull?: boolean;
+		nullValue?: number;
+		lazy?: boolean;
+		relativeTo?: string;
+	}
+
 	export class PointerT<TField extends FieldT<any>>
 		implements
 			FieldT<
@@ -238,17 +246,12 @@ declare module '@pdf-lib/restructure' {
 			>
 	{
 		type?: TField;
+		offsetType: number;
 
 		constructor(
 			offsetType: FieldT<number>,
 			type: TField | 'void' | null,
-			options?: {
-				type?: 'local' | 'immediate' | 'parent' | 'global';
-				allowNull?: boolean;
-				nullValue?: number;
-				lazy?: boolean;
-				relativeTo?: string;
-			},
+			options?: PointerTOptions,
 		);
 
 		decode(

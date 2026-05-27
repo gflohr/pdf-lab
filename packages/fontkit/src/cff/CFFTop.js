@@ -1,16 +1,16 @@
 import r from '@pdf-lib/restructure';
 import { resolveLength } from '@pdf-lib/restructure/src/utils.js';
 import { ItemVariationStore } from '../tables/variations.js';
+import CFFDict from './CFFDict.js';
+import { ExpertEncoding, StandardEncoding } from './CFFEncodings.js';
+import CFFIndex from './CFFIndex.js';
+import CFFPrivateDict from './CFFPrivateDict.js';
 import {
 	ExpertCharset,
 	ExpertSubsetCharset,
 	ISOAdobeCharset,
-} from './CFFCharsets.js';
-import CFFDict from './CFFDict.js';
-import { ExpertEncoding, StandardEncoding } from './CFFEncodings.js';
-import CFFIndex from './CFFIndex.js';
-import CFFPointer from './CFFPointer.js';
-import CFFPrivateDict from './CFFPrivateDict.js';
+} from './cff-charsets.js';
+import CFFPointer from './cff-pointer.js';
 
 // Checks if an operand is an index of a predefined value,
 // otherwise delegates to the provided type.
