@@ -15,7 +15,7 @@ describe('variations', () => {
 		);
 		let font: SFNTFont;
 
-		beforeAll(async () => {
+		beforeAll(() => {
 			font = fontkit.openSync('/System/Library/Fonts/Supplemental/Skia.ttf');
 		});
 
