@@ -117,3 +117,6 @@ const tables = {
 } satisfies FontTable;
 
 export default tables;
+
+//export { SFNTTable } from './vmtx.js';
+//...

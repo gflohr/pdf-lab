@@ -1,3 +1,4 @@
+import type CFFFont from './cff/cff-font.js';
 import type BoundingBox from './glyph/bounding-box.js';
 import type Glyph from './glyph/glyph.js';
 import type GlyphRun from './layout/GlyphRun.js';
@@ -123,7 +124,7 @@ export interface Font {
 	/**
 	 * Horizontal header metrics (hhea table).
 	 */
-	readonly hhea: HheaTable;
+	hhea: HheaTable;
 
 	/**
 	 * Variable font axes (if present in the font).
@@ -154,17 +155,15 @@ export interface Font {
 
 	/**
 	 * The font's `CFF ` table.
-	 *
-	 * FIXME! Expose the entire table.
 	 */
-	cff: any;
+	cff: CFFFont | null;
 
 	/**
 	 * The font's 'OS/2' table.
 	 *
 	 * FIXME! Expose the entire table!
 	 */
-	'OS/2': { sFamilyClass: number };
+	'OS/2': any;
 
 	/**
 	 * The font's `head` table.
@@ -189,5 +188,5 @@ export interface Font {
 	/**
 	 * The font's `vmtx` table.
 	 */
-	vmtx?: VmtxTable;
+	vmtx: VmtxTable;
 }

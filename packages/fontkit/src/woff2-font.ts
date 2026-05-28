@@ -13,16 +13,16 @@ import TTFGlyph, {
 } from './glyph/ttf-glyph.js';
 import WOFF2Glyph from './glyph/woff2-glyph.js';
 import { SFNTFont } from './sfnt-font.js';
-import type { SFNTTable } from './tables/directory.js';
-import WOFF2Directory, {
-	type WOFF2DirectoryTable,
-} from './tables/woff2-directory.js';
+import type { SFNTDirectoryEntry } from './tables/directory.js';
+import type tables from './tables/index.js';
+import type { WOFF2Directory } from './tables/woff2-directory.js';
+import WOFF2DirectoryStruct from './tables/woff2-directory.js';
 
 /**
  * Subclass of TrueTypeFont that represents a TTF/OTF font compressed by WOFF2
  * See spec here: http://www.w3.org/TR/WOFF2/
  */
-export class WOFF2Font extends SFNTFont<WOFF2DirectoryTable> {
+export class WOFF2Font extends SFNTFont<WOFF2Directory> {
 	private dataPos?: number;
 	private decompressed = false;
 	public transformedGlyphs?: DecodedGlyph[];
@@ -31,8 +31,8 @@ export class WOFF2Font extends SFNTFont<WOFF2DirectoryTable> {
 		return buffer.toString('ascii', 0, 4) === 'wOF2';
 	}
 
-	protected decodeDirectory(): WOFF2DirectoryTable {
-		const directory = WOFF2Directory.decode(this.stream);
+	protected decodeDirectory(): WOFF2Directory {
+		const directory = WOFF2DirectoryStruct.decode(this.stream);
 
 		this.dataPos = this.stream.pos;
 
@@ -63,9 +63,9 @@ export class WOFF2Font extends SFNTFont<WOFF2DirectoryTable> {
 		}
 	}
 
-	protected decodeTable(table: SFNTTable) {
+	protected decodeTable<K extends keyof typeof tables>(table: SFNTDirectoryEntry): ReturnType<(typeof tables)[K]['decode']> {
 		this.decompress();
-		return super.decodeTable(table);
+		return super.decodeTable<K>(table as unknown as SFNTDirectoryEntry);
 	}
 
 	// Override this method to get a glyph and return our

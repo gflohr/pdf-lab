@@ -1,9 +1,8 @@
-import r, { type DecodeStream } from '@pdf-lib/restructure';
-import type { SFNTDirectoryTable } from './directory.js';
-import type { WOFFTable, WOFFTableMap } from './woff-directory.js';
+import r, { type DecodeStream } from "@pdf-lib/restructure";
+import type { WOFFDirectoryEntry } from "./woff-directory.js";
 
 const Base128 = {
-	decode(stream: DecodeStream) {
+	decode(stream: DecodeStream): number {
 		let result = 0;
 		const iterable = [0, 1, 2, 3, 4];
 		for (let j = 0; j < iterable.length; j++) {
@@ -11,7 +10,7 @@ const Base128 = {
 
 			// If any of the top seven bits are set then we're about to overflow.
 			if (result & 0xe0000000) {
-				throw new Error('Overflow');
+				throw new Error("Overflow");
 			}
 
 			result = (result << 7) | (code & 0x7f);
@@ -20,82 +19,115 @@ const Base128 = {
 			}
 		}
 
-		throw new Error('Bad base 128 number');
+		throw new Error("Bad base 128 number");
 	},
-	size() {
-		throw new Error('Base128 does not have a size');
+	size(): never {
+		throw new Error("Base128 does not have a size");
 	},
-	encode() {
-		throw new Error('Base128 does not implement encoding');
+	encode(): never {
+		throw new Error("Base128 does not implement encoding");
 	},
 };
 
 const knownTags = [
-	'cmap',
-	'head',
-	'hhea',
-	'hmtx',
-	'maxp',
-	'name',
-	'OS/2',
-	'post',
-	'cvt ',
-	'fpgm',
-	'glyf',
-	'loca',
-	'prep',
-	'CFF ',
-	'VORG',
-	'EBDT',
-	'EBLC',
-	'gasp',
-	'hdmx',
-	'kern',
-	'LTSH',
-	'PCLT',
-	'VDMX',
-	'vhea',
-	'vmtx',
-	'BASE',
-	'GDEF',
-	'GPOS',
-	'GSUB',
-	'EBSC',
-	'JSTF',
-	'MATH',
-	'CBDT',
-	'CBLC',
-	'COLR',
-	'CPAL',
-	'SVG ',
-	'sbix',
-	'acnt',
-	'avar',
-	'bdat',
-	'bloc',
-	'bsln',
-	'cvar',
-	'fdsc',
-	'feat',
-	'fmtx',
-	'fvar',
-	'gvar',
-	'hsty',
-	'just',
-	'lcar',
-	'mort',
-	'morx',
-	'opbd',
-	'prop',
-	'trak',
-	'Zapf',
-	'Silf',
-	'Glat',
-	'Gloc',
-	'Feat',
-	'Sill',
+	"cmap",
+	"head",
+	"hhea",
+	"hmtx",
+	"maxp",
+	"name",
+	"OS/2",
+	"post",
+	"cvt ",
+	"fpgm",
+	"glyf",
+	"loca",
+	"prep",
+	"CFF ",
+	"VORG",
+	"EBDT",
+	"EBLC",
+	"gasp",
+	"hdmx",
+	"kern",
+	"LTSH",
+	"PCLT",
+	"VDMX",
+	"vhea",
+	"vmtx",
+	"BASE",
+	"GDEF",
+	"GPOS",
+	"GSUB",
+	"EBSC",
+	"JSTF",
+	"MATH",
+	"CBDT",
+	"CBLC",
+	"COLR",
+	"CPAL",
+	"SVG ",
+	"sbix",
+	"acnt",
+	"avar",
+	"bdat",
+	"bloc",
+	"bsln",
+	"cvar",
+	"fdsc",
+	"feat",
+	"fmtx",
+	"fvar",
+	"gvar",
+	"hsty",
+	"just",
+	"lcar",
+	"mort",
+	"morx",
+	"opbd",
+	"prop",
+	"trak",
+	"Zapf",
+	"Silf",
+	"Glat",
+	"Gloc",
+	"Feat",
+	"Sill",
 ];
 
+/**
+ * Tier 1: Pure Binary Representation (Matches file bytes exactly)
+ */
+export interface WOFF2TableEntryBinary {
+	flags: number;
+	customTag?: string;
+	tag: string;
+	length: number;
+	transformVersion: number;
+	transformed: boolean;
+	transformLength?: number;
+}
+
+export interface WOFF2DirectoryBinary {
+	tag: string; // Should be 'wOF2'
+	flavor: number;
+	length: number;
+	numTables: number;
+	totalSfntSize: number;
+	totalCompressedSize: number;
+	majorVersion: number;
+	minorVersion: number;
+	metaOffset: number;
+	metaLength: number;
+	metaOrigLength: number;
+	privOffset: number;
+	privLength: number;
+	tables: WOFF2TableEntryBinary[];
+}
+
+/**
+ * Tier 2: Post-Processed Runtime Representation (Clean App API)
+ */
 export interface WOFF2TableMetadata {
 	offset: number;
 	transformed: boolean;
@@ -104,53 +136,59 @@ export interface WOFF2TableMetadata {
 	flags: number;
 }
 
-export type WOFF2TableMap = {
-	// Intersect metadata onto every possible table type from WOFFTableMap
-	[K in keyof WOFFTableMap]: WOFFTableMap[K] extends null
-		? null
-		: WOFFTableMap[K] & WOFF2TableMetadata;
-} & Record<string, (WOFFTable & WOFF2TableMetadata) | null>;
+// Re-map WOFFDirectoryEntry directly to retain compressed structural properties
+// while appending specific WOFF2 stream transformation fields safely.
+export interface WOFF2DirectoryEntry extends WOFFDirectoryEntry, WOFF2TableMetadata {}
 
-export interface WOFF2DirectoryTable extends SFNTDirectoryTable {
-	totalCompressedSize: number;
-	length: number;
-	transformLength: number;
-	offset: number;
-
-	/**
-	 * Record mapping identifying table tags directly to parsed table
-	 * configurations.
-	 */
-	tables: WOFF2TableMap;
-}
-
-interface WOFF2DirectoryEntry {
-	flags: number;
-	customTag?: string;
+export interface WOFF2Directory {
 	tag: string;
-	length: number,
-	transformVersion: number;
-	transformed: boolean;
-	transformLength?: number;
+	flavor: number;
+	length: number;
+	numTables: number;
+	totalSfntSize: number;
+	totalCompressedSize: number;
+	majorVersion: number;
+	minorVersion: number;
+	metaOffset: number;
+	metaLength: number;
+	metaOrigLength: number;
+	privOffset: number;
+	privLength: number;
+	/** Satisfies the BaseFontDirectory requirement */
+	tables: Record<string, WOFF2DirectoryEntry>;
 }
+
+/**
+ * Internal context layout map used strictly for restructuring hooks
+ */
+interface WOFF2DirectoryContext extends Omit<WOFF2Directory, "tables"> {
+	tables: WOFF2TableEntryBinary[] & Record<string, WOFF2DirectoryEntry>;
+}
+
+/* ========================================================================== */
+/* Binary Layout Definitions                                                  */
+/* ========================================================================== */
 
 const WOFF2DirectoryEntryFields = {
 	flags: r.uint8,
 	customTag: new r.Optional(new r.String(4), (t) => (t.flags & 0x3f) === 0x3f),
-	tag: (t: WOFF2DirectoryEntry) =>
-		t.customTag || knownTags[t.flags & 0x3f], // || (() => { throw new Error(`Bad tag: ${flags & 0x3f}`); })(); },
+	tag: (t: WOFF2TableEntryBinary) => t.customTag || knownTags[t.flags & 0x3f],
 	length: Base128,
-	transformVersion: (t: WOFF2DirectoryEntry) => (t.flags >>> 6) & 0x03,
-	transformed: (t: WOFF2DirectoryEntry) =>
-		t.tag === 'glyf' || t.tag === 'loca'
+	transformVersion: (t: WOFF2TableEntryBinary) => (t.flags >>> 6) & 0x03,
+	transformed: (t: WOFF2TableEntryBinary) =>
+		t.tag === "glyf" || t.tag === "loca"
 			? t.transformVersion === 0
 			: t.transformVersion !== 0,
 	transformLength: new r.Optional(Base128, (t) => t.transformed),
-}
-const WOFF2DirectoryEntryStruct = new r.Struct<typeof WOFF2DirectoryEntryFields, WOFF2DirectoryEntry>(WOFF2DirectoryEntryFields);
+};
+
+const WOFF2DirectoryEntryStruct = new r.Struct<
+	typeof WOFF2DirectoryEntryFields,
+	WOFF2TableEntryBinary
+>(WOFF2DirectoryEntryFields);
 
 const fields = {
-	tag: new r.String(4), // should be 'wOF2'
+	tag: new r.String(4),
 	flavor: r.uint32,
 	length: r.uint32,
 	numTables: r.uint16,
@@ -164,20 +202,24 @@ const fields = {
 	metaOrigLength: r.uint32,
 	privOffset: r.uint32,
 	privLength: r.uint32,
-	tables: new r.Array(WOFF2DirectoryEntryStruct, 'numTables'),
+	tables: new r.Array(WOFF2DirectoryEntryStruct, "numTables"),
 };
-const WOFF2Directory = new r.Struct<typeof fields, WOFF2DirectoryTable>(fields);
 
-WOFF2Directory.process = function () {
-	const tables: Record<string, unknown> = {};
+const WOFF2DirectoryStruct = new r.Struct<typeof fields, WOFF2Directory>(fields);
+
+/* ========================================================================== */
+/* Restructure Lifecycle Hooks                                                */
+/* ========================================================================== */
+
+WOFF2DirectoryStruct.process = function (this: WOFF2DirectoryContext): void {
+	const mappedTables: Record<string, WOFF2DirectoryEntry> = {};
+
 	for (let i = 0; i < this.tables.length; i++) {
 		const table = this.tables[i];
-		tables[table.tag] = table;
+		mappedTables[table.tag] = table as any;
 	}
 
-	this.tables = tables;
-
-	return tables;
+	this.tables = mappedTables as any;
 };
 
-export default WOFF2Directory;
+export default WOFF2DirectoryStruct;

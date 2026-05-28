@@ -1,46 +1,21 @@
 import r from '@pdf-lib/restructure';
-import type {
-	FilteredTableMap,
-	SFNTDirectoryTable,
-	SFNTTable,
-} from './directory.js';
 
-export interface WOFFTable extends SFNTTable {
+/**
+ * Tier 1: Pure Binary Representation (Matches file bytes exactly)
+ */
+export interface WOFFTableEntryBinary {
+	tag: string;
+	offset: number; // Pointer target resolution placeholder
 	compLength: number;
+	length: number;
+	origChecksum: number; // Corrected camelCase typo from binary definition
 }
 
-/**
- * A strongly-typed dictionary map collection of all tables inside an SFNT font.
- * Keys match known font tags ('post', 'hvar') or fallback to arbitrary custom
- * strings.
- */
-export type WOFFTableMap = Record<string, WOFFTable | null> &
-	Partial<FilteredTableMap>;
-
-/**
- * Represents the parsed master Table Directory at the head of every SFNT
- * (TrueType/OpenType) file.
- *
- * Scaled layout calculation parameters (`searchRange`, `entrySelector`,
- * `rangeShift`) are configured automatically by the directory compilation
- * engine during binary generation phases.
- */
-export interface WOFFDirectoryTable extends SFNTDirectoryTable {
-	/**
-	 * Scaled signature layout tag (e.g., 'true' or 'OTTO' for OpenType
-	 * PostScript layouts).
-	 */
+export interface WOFFDirectoryBinary {
 	tag: string;
-
 	flavor: number;
 	length: number;
-
-	/**
-	 * Total number of functional individual tables embedded within the font
-	 * package.
-	 */
 	numTables: number;
-
 	totalSfntSize: number;
 	majorVersion: number;
 	minorVersion: number;
@@ -49,35 +24,61 @@ export interface WOFFDirectoryTable extends SFNTDirectoryTable {
 	metaOrigLength: number;
 	privOffset: number;
 	privLength: number;
-
-	/**
-	 * Record mapping identifying table tags directly to parsed table
-	 * configurations.
-	 */
-	tables: WOFFTableMap;
+	tables: WOFFTableEntryBinary[];
 }
 
-interface WOFFDirectoryEntry {
+/**
+ * Tier 2: Post-Processed Runtime Representation (Clean App API).
+ */
+export interface WOFFDirectoryEntry extends WOFFTableEntryBinary {
+	/** The actual decoded table payload stream, or null if unparsed */
+	unwrapped?: unknown;
+}
+
+export interface WOFFDirectory {
 	tag: string;
-	offset: number;
-	compLength: number;
+	flavor: number;
 	length: number;
-	origCheckSum: number;
+	numTables: number;
+	totalSfntSize: number;
+	majorVersion: number;
+	minorVersion: number;
+	metaOffset: number;
+	metaLength: number;
+	metaOrigLength: number;
+	privOffset: number;
+	privLength: number;
+	/** The index map built during the `.process()` lifecycle hook */
+	tables: Record<string, WOFFDirectoryEntry>;
 }
-const woffDirectoryFields = {
+
+/**
+ * Context interface matching the internal state inside restructure lifecycle hooks
+ */
+interface WOFFDirectoryContext extends Omit<WOFFDirectory, 'tables'> {
+	// During execution, tables transitions from the raw array to the mapped record
+	tables: WOFFTableEntryBinary[] & Record<string, WOFFDirectoryEntry>;
+}
+
+/* ========================================================================== */
+/* Binary Layout Definitions                                                  */
+/* ========================================================================== */
+
+const woffDirectoryEntryFields = {
 	tag: new r.String(4),
 	offset: new r.Pointer(r.uint32, 'void', { type: 'global' }),
 	compLength: r.uint32,
 	length: r.uint32,
 	origChecksum: r.uint32,
 };
+
 const WOFFDirectoryEntryStruct = new r.Struct<
-	typeof woffDirectoryFields,
-	WOFFDirectoryEntry
->(woffDirectoryFields);
+	typeof woffDirectoryEntryFields,
+	WOFFTableEntryBinary
+>(woffDirectoryEntryFields);
 
 const fields = {
-	tag: new r.String(4), // should be 'wOFF'
+	tag: new r.String(4), // Should be 'wOFF'
 	flavor: r.uint32,
 	length: r.uint32,
 	numTables: r.uint16,
@@ -92,15 +93,22 @@ const fields = {
 	privLength: r.uint32,
 	tables: new r.Array(WOFFDirectoryEntryStruct, 'numTables'),
 };
-const WOFFDirectory = new r.Struct<typeof fields, WOFFDirectoryTable>(fields);
 
-WOFFDirectory.process = function () {
-	const tables: Record<string, unknown> = {};
+const WOFFDirectoryStruct = new r.Struct<typeof fields, WOFFDirectory>(fields);
+
+/* ========================================================================== */
+/* Restructure Lifecycle Hooks                                                */
+/* ========================================================================== */
+
+WOFFDirectoryStruct.process = function (this: WOFFDirectoryContext): void {
+	const mappedTables: Record<string, WOFFDirectoryEntry> = {};
+
 	for (const table of this.tables) {
-		tables[table.tag] = table;
+		mappedTables[table.tag] = table;
 	}
 
-	this.tables = tables;
+	// Safely cast away the binary array representation to the clean runtime map
+	this.tables = mappedTables as any;
 };
 
-export default WOFFDirectory;
+export default WOFFDirectoryStruct;

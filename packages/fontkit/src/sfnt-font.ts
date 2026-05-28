@@ -24,16 +24,43 @@ import type Subset from './subset/Subset.js';
 import TTFSubset from './subset/TTFSubset.js';
 import type {
 	FilteredTableMap,
-	SFNTDirectoryTable,
-	SFNTTable,
+	SFNTDirectory,
+	SFNTDirectoryEntry,
 	SFNTTableMap,
 } from './tables/directory.js';
 import Directory from './tables/directory.js';
 import type { HVARTable } from './tables/HVAR.js';
+import type { HeadTable } from './tables/head.js';
 import type { HheaTable } from './tables/hhea.js';
+import type { HmtxTable } from './tables/hmtx.js';
 import tables from './tables/index.js';
 import type { TypeFeatures } from './tables/opentype.js';
 import type { PostTable } from './tables/post.js';
+import type { VmtxTable } from './tables/vmtx.js';
+
+/**
+ * Automatically calculates all available font table properties
+ * directly from the registry keys.
+ */
+type RegistryTableProps = {
+	[K in keyof typeof tables]: FilteredTableMap[K];
+};
+
+/**
+ * Temporary ...
+ */
+export interface FontTableFields extends RegistryTableProps {
+	hhea: HheaTable;
+	post: PostTable;
+	HVAR: HVARTable;
+	'OS/2': any;
+	head: HeadTable;
+	hmtx: HmtxTable;
+	vmtx: VmtxTable;
+
+	// A clean programmatic alias for the 'CFF ' PostScript stream.
+	cff: FilteredTableMap['CFF '];
+}
 
 export interface FontAxis {
 	axisTag: string;
@@ -43,19 +70,32 @@ export interface FontAxis {
 }
 
 /**
+ * A universal base interface for any font directory (SFNT, WOFF, WOFF2).
+ */
+export interface BaseFontDirectory {
+	tag: string;
+	numTables: number;
+	tables: Record<string, any>;
+}
+
+export interface SFNTFont<TDirectory extends BaseFontDirectory = BaseFontDirectory>
+	extends Font,
+		FontTableFields {
+	directory: TDirectory;
+}
+
+/**
  * This is the base class for all SFNT-based font formats in fontkit.
  * It supports TrueType, and PostScript glyphs, and several color glyph formats.
  */
-export class SFNTFont<
-	TDirectoryTable extends SFNTDirectoryTable = SFNTDirectoryTable,
-> implements Font
-{
+// biome-ignore lint/suspicious/noUnsafeDeclarationMerging: Merged with FontTableFields to map table layout properties dynamically via the constructor loop.
+export class SFNTFont<TDirectory extends BaseFontDirectory = BaseFontDirectory> {
 	public stream: DecodeStream;
 	private variationCoords: number[] | null;
 	private directoryPos: number;
 	private tables: SFNTTableMap = {};
 	protected glyphs: Record<number, Glyph> = {};
-public directory: TDirectoryTable;
+	public directory: TDirectory;
 
 	// Those variables are lazily instantiated by their respctive getters, and
 	// then frozen.
@@ -67,7 +107,15 @@ public directory: TDirectoryTable;
 	private _namedVariations!: NamedVariations;
 	private _variationProcessor!: GlyphVariationProcessor | null;
 
+	// Explicitly declare the custom alias property.
+	public cff!: FilteredTableMap['CFF '];
+
+	// Infers all other table properties (cmap, head, OS/2, etc.) via the
+	// interface heritage!
+	[key: string]: any;
+
 	// Tables.
+	/*
 	public cmap: FilteredTableMap['cmap'];
 	public head: FilteredTableMap['head'];
 	public hhea!: HheaTable;
@@ -114,6 +162,7 @@ public directory: TDirectoryTable;
 	public just?: FilteredTableMap['just'];
 	public morx?: FilteredTableMap['morx'];
 	public opbd?: FilteredTableMap['opbd'];
+	*/
 
 	public static probe(buffer: Buffer): boolean {
 		const format = buffer.toString('ascii', 0, 4);
@@ -135,20 +184,27 @@ public directory: TDirectoryTable;
 
 		// define properties for each table to lazily parse
 		for (const tag in this.directory.tables) {
-			const table = this.directory.tables[tag];
-			if (
-				table &&
-				(tables as Record<string, unknown>)[tag] &&
-				table.length > 0
-			) {
+			const entry = this.directory.tables[tag];
+			if (entry && tables[tag as keyof typeof tables] && entry.length > 0) {
 				Object.defineProperty(this, tag, {
-					get: this._getTable.bind(this, table),
+					get: () => this._getTable(entry),
+				});
+			}
+
+			// Clean fallback mapping: if the tag is 'CFF ', mirror it to 'cff'.
+			if (tag === 'CFF ') {
+				Object.defineProperty(this, 'cff', {
+					get: () => this._getTable(entry),
+					configurable: true,
+					enumerable: true,
 				});
 			}
 		}
 	}
 
-	_getTable(table: SFNTTable): SFNTTable | null {
+	_getTable<K extends string>(
+		table: SFNTDirectoryEntry,
+	): SFNTTableMap[K] | null {
 		if (!(table.tag in this.tables)) {
 			try {
 				this.tables[table.tag] = this.decodeTable(table);
@@ -166,7 +222,7 @@ public directory: TDirectoryTable;
 			}
 		}
 
-		return this.tables[table.tag];
+		return this.tables[table.tag] as SFNTTableMap[K] | null;
 	}
 
 	protected getTableStream(tag: string): DecodeStream | null {
@@ -183,24 +239,27 @@ public directory: TDirectoryTable;
 		return this.getTableStream('glyf');
 	}
 
-	protected decodeDirectory(): TDirectoryTable {
+	protected decodeDirectory(): TDirectory {
 		return Directory.decode(this.stream, {
 			_startOffset: 0,
-		} as FieldT<unknown>) as TDirectoryTable;
+		} as FieldT<unknown>) as unknown as TDirectory;
 	}
 
-	protected decodeTable(table: SFNTTable) {
+	protected decodeTable<K extends keyof typeof tables>(
+		table: SFNTDirectoryEntry,
+	): ReturnType<(typeof tables)[K]['decode']> {
 		const pos = this.stream.pos;
 		const stream = this.getTableStream(table.tag);
 
 		if (table.tag in tables && stream) {
-			const tag = table.tag as keyof typeof tables;
+			const tag = table.tag as K;
 			const result = tables[tag].decode(
 				stream,
 				this as unknown as FieldT<unknown>,
 				table.length,
 			);
 			this.stream.pos = pos;
+
 			return result;
 		}
 
@@ -335,7 +394,8 @@ public directory: TDirectoryTable;
 	 */
 	get capHeight() {
 		const os2 = this['OS/2'];
-		return os2 ? os2.capHeight : this.ascent;
+		// The partial exposure of the OS/2 table will be fixed later.
+		return os2 ? (os2 as any).capHeight : this.ascent;
 	}
 
 	/**
@@ -345,7 +405,7 @@ public directory: TDirectoryTable;
 	 */
 	get xHeight() {
 		const os2 = this['OS/2'];
-		return os2 ? os2.xHeight : 0;
+		return os2 ? (os2 as any).xHeight : 0;
 	}
 
 	/**
@@ -717,9 +777,7 @@ public directory: TDirectoryTable;
 	 * @param settings the instance name or variation settings
 	 * @returns the generated font
 	 */
-	getVariation(
-		settings: string | VariationCoordinates,
-	): SFNTFont<TDirectoryTable> {
+	getVariation(settings: string | VariationCoordinates): Font {
 		if (
 			!(
 				this.directory.tables.fvar &&
@@ -762,10 +820,10 @@ public directory: TDirectoryTable;
 		const stream = new r.DecodeStream(this.stream.buffer);
 		stream.pos = this.directoryPos;
 
-		const font = new SFNTFont<TDirectoryTable>(stream, coords);
+		const font = new SFNTFont<TDirectory>(stream, coords);
 		font.tables = this.tables;
 
-		return font;
+		return font as unknown as Font;
 	}
 
 	private computeVariationProcessor(): GlyphVariationProcessor | null {
@@ -798,11 +856,11 @@ public directory: TDirectoryTable;
 	}
 
 	/**
-	 * The font variation by variationv name.
+	 * The font variation by variation name.
 	 * @param name the variation name
 	 * @returns the font
 	 */
-	getFont(name: string): SFNTFont {
+	getFont(name: string): Font {
 		return this.getVariation(name);
 	}
 }
