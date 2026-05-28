@@ -58,11 +58,11 @@ export interface WOFFDirectoryTable extends SFNTDirectoryTable {
 }
 
 interface WOFFDirectoryEntry {
-	tag: string,
-	offset: number,
-	compLength: number,
-	length: number,
-	origCheckSum: number,
+	tag: string;
+	offset: number;
+	compLength: number;
+	length: number;
+	origCheckSum: number;
 }
 const woffDirectoryFields = {
 	tag: new r.String(4),
@@ -71,7 +71,10 @@ const woffDirectoryFields = {
 	length: r.uint32,
 	origChecksum: r.uint32,
 };
-const WOFFDirectoryEntryStruct = new r.Struct<typeof woffDirectoryFields, WOFFDirectoryEntry>(woffDirectoryFields);
+const WOFFDirectoryEntryStruct = new r.Struct<
+	typeof woffDirectoryFields,
+	WOFFDirectoryEntry
+>(woffDirectoryFields);
 
 const fields = {
 	tag: new r.String(4), // should be 'wOFF'

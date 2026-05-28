@@ -1,15 +1,15 @@
 import r from '@pdf-lib/restructure';
+import type { SBIXImageTableType } from '../tables/sbix.js';
+import type { FontkitRenderingContext } from './glyph.js';
 import TTFGlyph from './ttf-glyph.js';
-import { FontkitRenderingContext } from './glyph.js';
-import { SBIXImageTableType } from '../tables/sbix.js';
 
 export interface SBIXImageType {
-	originX: number,
-	originY: number,
-	type: string,
-	data: Uint8Array,
+	originX: number;
+	originY: number;
+	type: string;
+	data: Uint8Array;
 }
-const sbixFields ={
+const sbixFields = {
 	originX: r.uint16,
 	originY: r.uint16,
 	type: new r.String(4),

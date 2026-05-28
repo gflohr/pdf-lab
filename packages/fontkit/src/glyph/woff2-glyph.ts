@@ -7,7 +7,9 @@ import TTFGlyph, { type DecodedGlyph } from './ttf-glyph.js';
 export default class WOFF2Glyph extends TTFGlyph {
 	decode() {
 		// We have to decode in advance (in WOFF2Font), so just return the pre-decoded data.
-		return (this._font as WOFF2Font).transformedGlyphs?.[this.id] as DecodedGlyph;
+		return (this._font as WOFF2Font).transformedGlyphs?.[
+			this.id
+		] as DecodedGlyph;
 	}
 
 	getCBox() {

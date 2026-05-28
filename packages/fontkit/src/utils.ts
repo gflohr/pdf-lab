@@ -12,7 +12,10 @@
  * @param cmp a comparison function
  * @returns the index of the item or -1 if it cannot be found
  */
-export function binarySearch<T = unknown>(arr: T[], cmp: (item: T) => number): number {
+export function binarySearch<T = unknown>(
+	arr: T[],
+	cmp: (item: T) => number,
+): number {
 	let min = 0;
 	let max = arr.length - 1;
 	while (min <= max) {

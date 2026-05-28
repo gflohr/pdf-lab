@@ -164,11 +164,7 @@ declare module '@pdf-lib/restructure' {
 			includePointers?: boolean,
 		): number;
 
-		decode(
-			stream: DecodeStream,
-			parent?: any,
-			length?: number,
-		): TExplicitOut;
+		decode(stream: DecodeStream, parent?: any, length?: number): TExplicitOut;
 
 		encode(
 			stream: EncodeStream,

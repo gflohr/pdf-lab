@@ -1,9 +1,9 @@
 import r from '@pdf-lib/restructure';
 
 export interface SBIXImageTableType {
-	ppem: number,
-	resolution: number,
-	imageOffsets: number[],
+	ppem: number;
+	resolution: number;
+	imageOffsets: number[];
 }
 
 const imageTableFields = {
@@ -14,16 +14,18 @@ const imageTableFields = {
 		(t) => t.parent.parent.maxp.numGlyphs + 1,
 	),
 };
-const ImageTable = new r.Struct<typeof imageTableFields, SBIXImageTableType>(imageTableFields);
+const ImageTable = new r.Struct<typeof imageTableFields, SBIXImageTableType>(
+	imageTableFields,
+);
 
 export interface SBIXFlagsType {
-	renderOutlines: boolean,
+	renderOutlines: boolean;
 }
 interface SBIXType {
-	version: number,
-	flags: SBIXFlagsType,
-	numImgTables: number,
-	imageTables: SBIXImageTableType[],
+	version: number;
+	flags: SBIXFlagsType;
+	numImgTables: number;
+	imageTables: SBIXImageTableType[];
 }
 
 const sbixFields = {

@@ -8,7 +8,7 @@ import r, {
 import type Glyph from './glyph/glyph.js';
 import TTFGlyph, {
 	type DecodedCompositeGlyph,
-	DecodedGlyph,
+	type DecodedGlyph,
 	Point,
 } from './glyph/ttf-glyph.js';
 import WOFF2Glyph from './glyph/woff2-glyph.js';
