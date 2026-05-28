@@ -19,6 +19,6 @@ const VmtxFields = {
 	),
 };
 export default new r.Struct<
-	typeof vmxtFields,
+	typeof VmtxFields,
 	VmtxTable
 >(VmtxFields);
