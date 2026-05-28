@@ -8,9 +8,10 @@ import r, {
 import type Glyph from './glyph/glyph.js';
 import TTFGlyph, {
 	type DecodedCompositeGlyph,
+	DecodedGlyph,
 	Point,
 } from './glyph/ttf-glyph.js';
-import WOFF2Glyph from './glyph/WOFF2Glyph.js';
+import WOFF2Glyph from './glyph/woff2-glyph.js';
 import { SFNTFont } from './sfnt-font.js';
 import type { SFNTTable } from './tables/directory.js';
 import WOFF2Directory, {
@@ -24,7 +25,7 @@ import WOFF2Directory, {
 export class WOFF2Font extends SFNTFont<WOFF2DirectoryTable> {
 	private dataPos?: number;
 	private decompressed = false;
-	public transformedGlyphs?: WOFF2Glyph[];
+	public transformedGlyphs?: DecodedGlyph[];
 
 	public static probe(buffer: Buffer) {
 		return buffer.toString('ascii', 0, 4) === 'wOF2';
@@ -92,10 +93,10 @@ export class WOFF2Font extends SFNTFont<WOFF2DirectoryTable> {
 		const tables = this.directory.tables;
 		this.stream.pos = tables.glyf!.offset;
 		const table = GlyfTable.decode(this.stream);
-		const glyphs: WOFF2Glyph[] = [];
+		const glyphs: DecodedGlyph[] = [];
 
 		for (let index = 0; index < table.numGlyphs; index++) {
-			const glyph: WOFF2Glyph = {} as WOFF2Glyph;
+			const glyph: DecodedGlyph = {} as DecodedGlyph;
 			const nContours = table.nContours.readInt16BE();
 			glyph.numberOfContours = nContours;
 
