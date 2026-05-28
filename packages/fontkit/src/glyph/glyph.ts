@@ -68,6 +68,12 @@ export type GlyphLayoutMetrics = {
 export interface FontkitRenderingContext {
 	fill(): void;
 	fillColor(rgb: [number, number, number], alphaPercent?: number): this;
+	image(data: Uint8Array, options?: {
+		x?: number,
+		y?: number,
+		width?: number,
+		height?: number,
+	}): void;
 	restore(): void;
 	save(): void;
 	scale(x: number, y: number): void;

@@ -10,7 +10,7 @@ import type { CFFPrivateDictTable } from './cff-pointer.js';
 import type { CFFPrivateOp } from './cff-top.js';
 
 interface CFFOp extends FieldT<unknown> {
-	decode(stream: DecodeStream, ctx?: ParsingContext, operands?: any): unknown;
+	decode(stream: DecodeStream, ctx?: ParsingContext, operands?: ParsingContext): unknown;
 }
 
 type CFFOpType =

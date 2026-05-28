@@ -9,6 +9,7 @@
 // grown by fixing typing errors in the tables code, as they occurred. It is
 // probably possible to get rid of a lot of the explicit any types.
 declare module '@pdf-lib/restructure' {
+	export type ParsingContext = any;
 	export type LengthResolver<T = any> = (t: T) => number;
 	export type Length = number | string | LengthResolver<any> | NumberT;
 	export class DecodeStream {
@@ -51,24 +52,15 @@ declare module '@pdf-lib/restructure' {
 		writeUInt32BE(val: number): void;
 	}
 
-	// The runtime tracking data context passed into size/decode/encode hooks
-	export interface ParsingContext {
-		parent?: ParsingContext;
-		_startOffset?: number;
-		_currentOffset?: number;
-		_length?: number;
-		[key: string]: any;
-	}
-
 	export interface FieldT<T> {
 		readonly __type?: T;
 		readonly _startOffset?: number;
 
-		size(val?: any | null, ctx?: ParsingContext): number;
+		size(val?: any | null, ctx?: any): number;
 
-		decode(stream: DecodeStream, ctx?: ParsingContext): T;
+		decode(stream: DecodeStream, ctx?: any): T;
 
-		encode(stream: EncodeStream, val: T, ctx?: ParsingContext): void;
+		encode(stream: EncodeStream, val: T, ctx?: any): void;
 	}
 
 	export class NumberT implements FieldT<number> {
@@ -125,7 +117,7 @@ declare module '@pdf-lib/restructure' {
 
 		constructor(type: TField, length?: Length, lengthType?: 'count' | 'bytes');
 
-		size(val?: any | null, ctx?: ParsingContext): number;
+		size(val?: any | null, ctx?: any): number;
 
 		decode(stream: DecodeStream, parent?: any): InferField<TField>[];
 
@@ -145,7 +137,7 @@ declare module '@pdf-lib/restructure' {
 
 		constructor(type: TField, length?: Length, lengthType?: 'count' | 'bytes');
 
-		size(val?: any | null, ctx?: ParsingContext): number;
+		size(val?: any | null, ctx?: any): number;
 		size(items?: any[], parent?: FieldT<unknown>): number;
 
 		decode(stream: DecodeStream): TExplicitOut;
@@ -174,7 +166,7 @@ declare module '@pdf-lib/restructure' {
 
 		decode(
 			stream: DecodeStream,
-			parent?: FieldT<unknown>,
+			parent?: any,
 			length?: number,
 		): TExplicitOut;
 
@@ -229,14 +221,14 @@ declare module '@pdf-lib/restructure' {
 		// literal names from the configuration arrays.
 		constructor(type: FieldT<number>, flags: TFlags);
 
-		decode(stream: DecodeStream, ctx?: ParsingContext): BitfieldResult<TFlags>;
+		decode(stream: DecodeStream, ctx?: any): BitfieldResult<TFlags>;
 
-		size(val?: any | null, ctx?: ParsingContext): number;
+		size(val?: any | null, ctx?: any): number;
 
 		encode(
 			stream: EncodeStream,
 			value: BitfieldResult<TFlags>,
-			ctx?: ParsingContext,
+			ctx?: any,
 		): void;
 	}
 
@@ -297,9 +289,9 @@ declare module '@pdf-lib/restructure' {
 
 		size(value?: FieldT<unknown>): number;
 
-		decode(stream: DecodeStream, ctx?: ParsingContext): Uint8Array;
+		decode(stream: DecodeStream, ctx?: any): Uint8Array;
 
-		encode(stream: EncodeStream, val: Uint8Array, ctx?: ParsingContext): void;
+		encode(stream: EncodeStream, val: Uint8Array, ctx?: any): void;
 	}
 
 	export type ConditionResolver<T = any> = (t: T) => boolean;
