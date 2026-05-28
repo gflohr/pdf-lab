@@ -55,7 +55,7 @@ export class SFNTFont<
 	private directoryPos: number;
 	private tables: SFNTTableMap = {};
 	protected glyphs: Record<number, Glyph> = {};
-	protected directory: TDirectoryTable;
+public directory: TDirectoryTable;
 
 	// Those variables are lazily instantiated by their respctive getters, and
 	// then frozen.

@@ -124,26 +124,30 @@ export interface WOFF2DirectoryTable extends SFNTDirectoryTable {
 	tables: WOFF2TableMap;
 }
 
-interface WOFF2DirectoryEntryContext {
-	customTag: string;
-	tag: string;
+interface WOFF2DirectoryEntry {
 	flags: number;
+	customTag?: string;
+	tag: string;
+	length: number,
 	transformVersion: number;
+	transformed: boolean;
+	transformLength?: number;
 }
 
-const WOFF2DirectoryEntry = new r.Struct({
+const WOFF2DirectoryEntryFields = {
 	flags: r.uint8,
 	customTag: new r.Optional(new r.String(4), (t) => (t.flags & 0x3f) === 0x3f),
-	tag: (t: WOFF2DirectoryEntryContext) =>
+	tag: (t: WOFF2DirectoryEntry) =>
 		t.customTag || knownTags[t.flags & 0x3f], // || (() => { throw new Error(`Bad tag: ${flags & 0x3f}`); })(); },
 	length: Base128,
-	transformVersion: (t: WOFF2DirectoryEntryContext) => (t.flags >>> 6) & 0x03,
-	transformed: (t: WOFF2DirectoryEntryContext) =>
+	transformVersion: (t: WOFF2DirectoryEntry) => (t.flags >>> 6) & 0x03,
+	transformed: (t: WOFF2DirectoryEntry) =>
 		t.tag === 'glyf' || t.tag === 'loca'
 			? t.transformVersion === 0
 			: t.transformVersion !== 0,
 	transformLength: new r.Optional(Base128, (t) => t.transformed),
-});
+}
+const WOFF2DirectoryEntryStruct = new r.Struct<typeof WOFF2DirectoryEntryFields, WOFF2DirectoryEntry>(WOFF2DirectoryEntryFields);
 
 const fields = {
 	tag: new r.String(4), // should be 'wOF2'
@@ -160,7 +164,7 @@ const fields = {
 	metaOrigLength: r.uint32,
 	privOffset: r.uint32,
 	privLength: r.uint32,
-	tables: new r.Array(WOFF2DirectoryEntry, 'numTables'),
+	tables: new r.Array(WOFF2DirectoryEntryStruct, 'numTables'),
 };
 const WOFF2Directory = new r.Struct<typeof fields, WOFF2DirectoryTable>(fields);
 

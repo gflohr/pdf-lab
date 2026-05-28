@@ -16,7 +16,7 @@ describe('Font metadata', () => {
 		expect(font.copyright).toBe(
 			'Copyright 2012 Google Inc. All Rights Reserved.',
 		);
-		return expect(font.version).toBe('Version 1.05 uh');
+		expect(font.version).toBe('Version 1.05 uh');
 	});
 
 	it('exposes some metrics', () => {

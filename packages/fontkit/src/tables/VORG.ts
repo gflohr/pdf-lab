@@ -20,11 +20,11 @@ export interface VORGTable {
 	numVertOriginYMetrics: number;
 	metrics: VerticalOrigin[];
 }
-const vorgFields = {
+const VORGFields = {
 	majorVersion: r.uint16,
 	minorVersion: r.uint16,
 	defaultVertOriginY: r.int16,
 	numVertOriginYMetrics: r.uint16,
 	metrics: new r.Array(VerticalOriginStruct, 'numVertOriginYMetrics'),
 };
-export default new r.Struct<typeof vorgFields, VORGTable>(vorgFields);
+export default new r.Struct<typeof VORGFields, VORGTable>(VORGFields);
