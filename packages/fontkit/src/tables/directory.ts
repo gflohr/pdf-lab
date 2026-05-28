@@ -1,13 +1,16 @@
 import r, { type FieldT, type StructT } from '@pdf-lib/restructure';
+import type { SFNTTable } from './index.js';
 import Tables from './index.js';
 
-/**
- * Automatically infers the decoded return type of every table
- * registered in src/tables/index.ts
- */
-export type FilteredTableMap = {
+type InferredTableMap = {
 	[K in keyof typeof Tables]: ReturnType<(typeof Tables)[K]['decode']>;
 };
+
+export type FilteredTableMap = InferredTableMap & {
+	VORG: SFNTTable.VORG;
+} & Record<string, unknown>;
+
+export type SFNTTableMap = Record<string, unknown> & Partial<FilteredTableMap>;
 
 /**
  * Tier 1: Pure Binary Representation (Matches file bytes exactly).
@@ -35,15 +38,6 @@ export interface SFNTDirectoryEntry extends SFNTTableEntryBinary {
 	/** The actual decoded table payload stream, or null if unparsed */
 	unwrapped?: unknown;
 }
-
-/**
- * Strongly-typed mapping of the font's active tables.
- * Maps exact case-sensitive tags ('vmtx', 'VORG') directly to their schema
- * shapes.
- */
-export type SFNTTableMap = {
-	[K in keyof typeof Tables]?: ReturnType<(typeof Tables)[K]['decode']>;
-} & Record<string, unknown>;
 
 export interface SFNTDirectory {
 	tag: string;

@@ -1,5 +1,5 @@
-import r, { type DecodeStream } from "@pdf-lib/restructure";
-import type { WOFFDirectoryEntry } from "./woff-directory.js";
+import r, { type DecodeStream } from '@pdf-lib/restructure';
+import type { WOFFDirectoryEntry } from './woff-directory.js';
 
 const Base128 = {
 	decode(stream: DecodeStream): number {
@@ -10,7 +10,7 @@ const Base128 = {
 
 			// If any of the top seven bits are set then we're about to overflow.
 			if (result & 0xe0000000) {
-				throw new Error("Overflow");
+				throw new Error('Overflow');
 			}
 
 			result = (result << 7) | (code & 0x7f);
@@ -19,80 +19,80 @@ const Base128 = {
 			}
 		}
 
-		throw new Error("Bad base 128 number");
+		throw new Error('Bad base 128 number');
 	},
 	size(): never {
-		throw new Error("Base128 does not have a size");
+		throw new Error('Base128 does not have a size');
 	},
 	encode(): never {
-		throw new Error("Base128 does not implement encoding");
+		throw new Error('Base128 does not implement encoding');
 	},
 };
 
 const knownTags = [
-	"cmap",
-	"head",
-	"hhea",
-	"hmtx",
-	"maxp",
-	"name",
-	"OS/2",
-	"post",
-	"cvt ",
-	"fpgm",
-	"glyf",
-	"loca",
-	"prep",
-	"CFF ",
-	"VORG",
-	"EBDT",
-	"EBLC",
-	"gasp",
-	"hdmx",
-	"kern",
-	"LTSH",
-	"PCLT",
-	"VDMX",
-	"vhea",
-	"vmtx",
-	"BASE",
-	"GDEF",
-	"GPOS",
-	"GSUB",
-	"EBSC",
-	"JSTF",
-	"MATH",
-	"CBDT",
-	"CBLC",
-	"COLR",
-	"CPAL",
-	"SVG ",
-	"sbix",
-	"acnt",
-	"avar",
-	"bdat",
-	"bloc",
-	"bsln",
-	"cvar",
-	"fdsc",
-	"feat",
-	"fmtx",
-	"fvar",
-	"gvar",
-	"hsty",
-	"just",
-	"lcar",
-	"mort",
-	"morx",
-	"opbd",
-	"prop",
-	"trak",
-	"Zapf",
-	"Silf",
-	"Glat",
-	"Gloc",
-	"Feat",
-	"Sill",
+	'cmap',
+	'head',
+	'hhea',
+	'hmtx',
+	'maxp',
+	'name',
+	'OS/2',
+	'post',
+	'cvt ',
+	'fpgm',
+	'glyf',
+	'loca',
+	'prep',
+	'CFF ',
+	'VORG',
+	'EBDT',
+	'EBLC',
+	'gasp',
+	'hdmx',
+	'kern',
+	'LTSH',
+	'PCLT',
+	'VDMX',
+	'vhea',
+	'vmtx',
+	'BASE',
+	'GDEF',
+	'GPOS',
+	'GSUB',
+	'EBSC',
+	'JSTF',
+	'MATH',
+	'CBDT',
+	'CBLC',
+	'COLR',
+	'CPAL',
+	'SVG ',
+	'sbix',
+	'acnt',
+	'avar',
+	'bdat',
+	'bloc',
+	'bsln',
+	'cvar',
+	'fdsc',
+	'feat',
+	'fmtx',
+	'fvar',
+	'gvar',
+	'hsty',
+	'just',
+	'lcar',
+	'mort',
+	'morx',
+	'opbd',
+	'prop',
+	'trak',
+	'Zapf',
+	'Silf',
+	'Glat',
+	'Gloc',
+	'Feat',
+	'Sill',
 ];
 
 /**
@@ -138,7 +138,9 @@ export interface WOFF2TableMetadata {
 
 // Re-map WOFFDirectoryEntry directly to retain compressed structural properties
 // while appending specific WOFF2 stream transformation fields safely.
-export interface WOFF2DirectoryEntry extends WOFFDirectoryEntry, WOFF2TableMetadata {}
+export interface WOFF2DirectoryEntry
+	extends WOFFDirectoryEntry,
+		WOFF2TableMetadata {}
 
 export interface WOFF2Directory {
 	tag: string;
@@ -161,7 +163,7 @@ export interface WOFF2Directory {
 /**
  * Internal context layout map used strictly for restructuring hooks
  */
-interface WOFF2DirectoryContext extends Omit<WOFF2Directory, "tables"> {
+interface WOFF2DirectoryContext extends Omit<WOFF2Directory, 'tables'> {
 	tables: WOFF2TableEntryBinary[] & Record<string, WOFF2DirectoryEntry>;
 }
 
@@ -176,7 +178,7 @@ const WOFF2DirectoryEntryFields = {
 	length: Base128,
 	transformVersion: (t: WOFF2TableEntryBinary) => (t.flags >>> 6) & 0x03,
 	transformed: (t: WOFF2TableEntryBinary) =>
-		t.tag === "glyf" || t.tag === "loca"
+		t.tag === 'glyf' || t.tag === 'loca'
 			? t.transformVersion === 0
 			: t.transformVersion !== 0,
 	transformLength: new r.Optional(Base128, (t) => t.transformed),
@@ -202,10 +204,12 @@ const fields = {
 	metaOrigLength: r.uint32,
 	privOffset: r.uint32,
 	privLength: r.uint32,
-	tables: new r.Array(WOFF2DirectoryEntryStruct, "numTables"),
+	tables: new r.Array(WOFF2DirectoryEntryStruct, 'numTables'),
 };
 
-const WOFF2DirectoryStruct = new r.Struct<typeof fields, WOFF2Directory>(fields);
+const WOFF2DirectoryStruct = new r.Struct<typeof fields, WOFF2Directory>(
+	fields,
+);
 
 /* ========================================================================== */
 /* Restructure Lifecycle Hooks                                                */

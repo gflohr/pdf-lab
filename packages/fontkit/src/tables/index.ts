@@ -118,5 +118,4 @@ const tables = {
 
 export default tables;
 
-//export { SFNTTable } from './vmtx.js';
-//...
+export { SFNTTable } from './VORG.js';

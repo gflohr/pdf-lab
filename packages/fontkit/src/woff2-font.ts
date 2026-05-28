@@ -63,7 +63,9 @@ export class WOFF2Font extends SFNTFont<WOFF2Directory> {
 		}
 	}
 
-	protected decodeTable<K extends keyof typeof tables>(table: SFNTDirectoryEntry): ReturnType<(typeof tables)[K]['decode']> {
+	protected decodeTable<K extends keyof typeof tables>(
+		table: SFNTDirectoryEntry,
+	): ReturnType<(typeof tables)[K]['decode']> {
 		this.decompress();
 		return super.decodeTable<K>(table as unknown as SFNTDirectoryEntry);
 	}

@@ -24,7 +24,6 @@ import type Subset from './subset/Subset.js';
 import TTFSubset from './subset/TTFSubset.js';
 import type {
 	FilteredTableMap,
-	SFNTDirectory,
 	SFNTDirectoryEntry,
 	SFNTTableMap,
 } from './tables/directory.js';
@@ -33,7 +32,7 @@ import type { HVARTable } from './tables/HVAR.js';
 import type { HeadTable } from './tables/head.js';
 import type { HheaTable } from './tables/hhea.js';
 import type { HmtxTable } from './tables/hmtx.js';
-import tables from './tables/index.js';
+import tables, { type SFNTTable } from './tables/index.js';
 import type { TypeFeatures } from './tables/opentype.js';
 import type { PostTable } from './tables/post.js';
 import type { VmtxTable } from './tables/vmtx.js';
@@ -50,6 +49,7 @@ type RegistryTableProps = {
  * Temporary ...
  */
 export interface FontTableFields extends RegistryTableProps {
+	VORG: SFNTTable.VORG;
 	hhea: HheaTable;
 	post: PostTable;
 	HVAR: HVARTable;
@@ -78,8 +78,9 @@ export interface BaseFontDirectory {
 	tables: Record<string, any>;
 }
 
-export interface SFNTFont<TDirectory extends BaseFontDirectory = BaseFontDirectory>
-	extends Font,
+export interface SFNTFont<
+	TDirectory extends BaseFontDirectory = BaseFontDirectory,
+> extends Font,
 		FontTableFields {
 	directory: TDirectory;
 }
@@ -89,7 +90,9 @@ export interface SFNTFont<TDirectory extends BaseFontDirectory = BaseFontDirecto
  * It supports TrueType, and PostScript glyphs, and several color glyph formats.
  */
 // biome-ignore lint/suspicious/noUnsafeDeclarationMerging: Merged with FontTableFields to map table layout properties dynamically via the constructor loop.
-export class SFNTFont<TDirectory extends BaseFontDirectory = BaseFontDirectory> {
+export class SFNTFont<
+	TDirectory extends BaseFontDirectory = BaseFontDirectory,
+> {
 	public stream: DecodeStream;
 	private variationCoords: number[] | null;
 	private directoryPos: number;
