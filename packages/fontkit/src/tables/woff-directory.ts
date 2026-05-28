@@ -57,13 +57,21 @@ export interface WOFFDirectoryTable extends SFNTDirectoryTable {
 	tables: WOFFTableMap;
 }
 
-export const WOFFDirectoryEntry = new r.Struct({
+interface WOFFDirectoryEntry {
+	tag: string,
+	offset: number,
+	compLength: number,
+	length: number,
+	origCheckSum: number,
+}
+const woffDirectoryFields = {
 	tag: new r.String(4),
 	offset: new r.Pointer(r.uint32, 'void', { type: 'global' }),
 	compLength: r.uint32,
 	length: r.uint32,
 	origChecksum: r.uint32,
-});
+};
+const WOFFDirectoryEntryStruct = new r.Struct<typeof woffDirectoryFields, WOFFDirectoryEntry>(woffDirectoryFields);
 
 const fields = {
 	tag: new r.String(4), // should be 'wOFF'
@@ -79,7 +87,7 @@ const fields = {
 	metaOrigLength: r.uint32,
 	privOffset: r.uint32,
 	privLength: r.uint32,
-	tables: new r.Array(WOFFDirectoryEntry, 'numTables'),
+	tables: new r.Array(WOFFDirectoryEntryStruct, 'numTables'),
 };
 const WOFFDirectory = new r.Struct<typeof fields, WOFFDirectoryTable>(fields);
 
