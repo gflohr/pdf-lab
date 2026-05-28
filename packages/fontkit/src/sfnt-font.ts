@@ -12,8 +12,8 @@ import type {
 	VariationSettings,
 } from './font.js';
 import BoundingBox from './glyph/bounding-box.js';
-import COLRGlyph from './glyph/COLRGlyph.js';
 import CFFGlyph from './glyph/cff-glyph.js';
+import COLRGlyph from './glyph/colr-glyph.js';
 import type Glyph from './glyph/glyph.js';
 import GlyphVariationProcessor from './glyph/glyph-variation-processor.js';
 import SBIXGlyph from './glyph/SBIXGlyph.js';

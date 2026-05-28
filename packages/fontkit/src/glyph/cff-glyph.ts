@@ -552,8 +552,26 @@ export default class CFFGlyph extends Glyph {
 											pts.push(x, y);
 										}
 
-										path.bezierCurveTo(...(pts.slice(0, 6) as [number, number, number, number, number, number]));
-										path.bezierCurveTo(...(pts.slice(6) as [number, number, number, number, number, number]));
+										path.bezierCurveTo(
+											...(pts.slice(0, 6) as [
+												number,
+												number,
+												number,
+												number,
+												number,
+												number,
+											]),
+										);
+										path.bezierCurveTo(
+											...(pts.slice(6) as [
+												number,
+												number,
+												number,
+												number,
+												number,
+												number,
+											]),
+										);
 										stack.shift()!; // fd
 									}
 									break;
@@ -602,8 +620,26 @@ export default class CFFGlyph extends Glyph {
 										}
 
 										pts.push(x, y);
-										path.bezierCurveTo(...(pts.slice(0, 6) as [number, number, number, number, number, number]));
-										path.bezierCurveTo(...(pts.slice(6) as [number, number, number, number, number, number]));
+										path.bezierCurveTo(
+											...(pts.slice(0, 6) as [
+												number,
+												number,
+												number,
+												number,
+												number,
+												number,
+											]),
+										);
+										path.bezierCurveTo(
+											...(pts.slice(6) as [
+												number,
+												number,
+												number,
+												number,
+												number,
+												number,
+											]),
+										);
 									}
 									break;
 

@@ -63,6 +63,17 @@ export type GlyphLayoutMetrics = {
 };
 
 /**
+ * The minimum vector context shape fontkit expects for rendering.
+ */
+export interface FontkitRenderingContext {
+	fill(): void;
+	fillColor(rgb: [number, number, number], alphaPercent?: number): this;
+	restore(): void;
+	save(): void;
+	scale(x: number, y: number): void;
+}
+
+/**
  * Glyph objects represent a glyph in the font. They have various properties for accessing metrics and
  * the actual vector path the glyph represents, and methods for rendering the glyph to a graphics context.
  *
@@ -317,7 +328,7 @@ export default class Glyph {
 	 * Renders the glyph to the given graphics context, at the specified font
 	 * size.
 	 */
-	public render(ctx: CanvasRenderingContext2D, size: number) {
+	public render(ctx: FontkitRenderingContext, size: number) {
 		ctx.save();
 
 		const scale = (1 / this._font.unitsPerEm) * size;
