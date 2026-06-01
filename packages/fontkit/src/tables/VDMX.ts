@@ -1,36 +1,36 @@
 import r from '@pdf-lib/restructure';
 
-export namespace SFNTTable {
+export namespace VDMXTable {
 	export interface VDMXRatio {
-		bCharSet: number, /** The character set. */
-		xRatio: number, /** The alue to use for x-Ratio. */
-		yStartRatio: number, /** The starting y-Ratio value. */
-		yEndRatio: number, /** The ending y-Ratio value. */
+		bCharSet: number /** The character set. */;
+		xRatio: number /** The alue to use for x-Ratio. */;
+		yStartRatio: number /** The starting y-Ratio value. */;
+		yEndRatio: number /** The ending y-Ratio value. */;
 	}
 
 	export interface VDMXvTable {
-		yPelHeight: number, /** The yPelHeight to which values apply. */
-		yMax: number, /** The maximum value (in pels) for this yPelHeight. */
-		yMin: number, /** The minimum value (in pels) for this yPelHeight. */
+		yPelHeight: number /** The yPelHeight to which values apply. */;
+		yMax: number /** The maximum value (in pels) for this yPelHeight. */;
+		yMin: number /** The minimum value (in pels) for this yPelHeight. */;
 	}
 
 	export interface VDMXGroup {
-		recs: number, /** The number of height records in this group. */
-		startsz: number, /** The starting yPelHeight. */
-		endsz: number, /** The ending yPelHeight. */
-		entries: VDMXvTable[], /** The VDMX records. */
+		recs: number /** The number of height records in this group. */;
+		startsz: number /** The starting yPelHeight. */;
+		endsz: number /** The ending yPelHeight. */;
+		entries: VDMXvTable[] /** The VDMX records. */;
 	}
 
 	/** VDMX tables contain ascender/descender overrides for certain (usually
 	 * small sizes. This is needed in order to match font metrics on Windows.
 	 */
 	export interface VDMX {
-		version: number, /* The version number (0 or 1). */
-		numRecs: number, /* The number of VDMX groups present. */
-		numRatios: number, /* The number of aspect ratio groupings. */
-		ratioRanges: VDMXRatio[], /** The ratio ranges. */
-		offsets: number[], /** The offset to the VDMX group for this ratio range. */
-		groups: VDMXGroup[], /** The actual VDMX groupings. */
+		version: number /* The version number (0 or 1). */;
+		numRecs: number /* The number of VDMX groups present. */;
+		numRatios: number /* The number of aspect ratio groupings. */;
+		ratioRanges: VDMXRatio[] /** The ratio ranges. */;
+		offsets: number[] /** The offset to the VDMX group for this ratio range. */;
+		groups: VDMXGroup[] /** The actual VDMX groupings. */;
 	}
 }
 
@@ -61,8 +61,8 @@ const VDMXFields = {
 	ratioRanges: new r.Array(Ratio, 'numRatios'), // Ratio ranges
 	offsets: new r.Array(r.uint16, 'numRatios'), // Offset to the VDMX group for this ratio range
 	groups: new r.Array(VdmxGroup, 'numRecs'), // The actual VDMX groupings
-}
+};
 
-const VDMXStruct = new r.Struct<typeof VDMXFields, SFNTTable.VDMX>(VDMXFields);
+const VDMXStruct = new r.Struct<typeof VDMXFields, VDMXTable.VDMX>(VDMXFields);
 
 export default VDMXStruct;

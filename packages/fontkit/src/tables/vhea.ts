@@ -1,44 +1,44 @@
 import r from '@pdf-lib/restructure';
 
-export namespace SFNTTable {
+export namespace vheaTable {
 	export interface vhea {
 		/** Version number of the Vertical Header Table. */
-		version: number,
+		version: number;
 
 		/** The vertical typographic ascender for this font. */
-		ascent: number,
+		ascent: number;
 
 		/** The vertical typographic descender for this font. */
-		descent: number,
+		descent: number;
 
 		/** The vertical typographic line gap for this font. */
-		lineGap: number,
+		lineGap: number;
 
 		/** The maximum advance height measurement found in the font. */
-		advanceHeightMax: number,
+		advanceHeightMax: number;
 
 		/** The minimum top side bearing measurement found in the font. */
-		minTopSideBearing: number,
+		minTopSideBearing: number;
 
 		/** The minimum bottom side bearing measurement found in the font. */
-		minBottomSideBearing: number,
+		minBottomSideBearing: number;
 
-		yMaxExtent: number,
+		yMaxExtent: number;
 
 		/** The caret slope rise. */
-		caretSlopeRise: number,
+		caretSlopeRise: number;
 
 		/** The caret slope run. */
-		caretSlopeRun: number,
+		caretSlopeRun: number;
 
 		/** Set value equal to 0 for nonslanted fonts. */
-		caretOffset: number,
+		caretOffset: number;
 
 		/** Set to 0. */
-		metricDataFormat: number,
+		metricDataFormat: number;
 
 		/** The number of advance heights in the Vertical Metrics table. */
-		numberOfMetrics: number,
+		numberOfMetrics: number;
 	}
 }
 
@@ -60,6 +60,6 @@ const vheaFields = {
 };
 
 // Vertical Header Table
-const vheaStruct = new r.Struct<typeof vheaFields, SFNTTable.vhea>(vheaFields);
+const vheaStruct = new r.Struct<typeof vheaFields, vheaTable.vhea>(vheaFields);
 
 export default vheaStruct;

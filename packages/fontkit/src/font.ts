@@ -8,7 +8,6 @@ import type { HeadTable } from './tables/head.js';
 import type { HheaTable } from './tables/hhea.js';
 import type { SFNTTable } from './tables/index.js';
 import type { TypeFeatures } from './tables/opentype.js';
-import type { PostTable } from './tables/post.js';
 
 export interface VariationAxis {
 	axisTag: string;
@@ -182,7 +181,7 @@ export interface Font {
 	/**
 	 * The font's `post` table.
 	 */
-	post: PostTable;
+	post: SFNTTable.post;
 
 	/**
 	 * The font's `vmtx` table.

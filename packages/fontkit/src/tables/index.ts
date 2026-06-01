@@ -5,22 +5,22 @@ import type { ArrayT, StructT, VersionedStructT } from '@pdf-lib/restructure';
 import cmap from './cmap.js';
 import head from './head.js';
 import hhea from './hhea.js';
-import hmtx, { type SFNTTable as hmtxTable }  from './hmtx.js';
+import hmtx, { type hmtxTable } from './hmtx.js';
 import maxp from './maxp.js';
 import name from './name.js';
 import OS2 from './OS2.js';
-import post from './post.js';
+import post, { type postTable } from './post.js';
 
 // TrueType Outlines
 import cvt from './cvt.js';
 import fpgm from './fpgm.js';
 import glyf from './glyf.js';
 import loca from './loca.js';
-import prep, { type SFNTTable as prepTable } from './prep.js';
+import prep, { type prepTable } from './prep.js';
 
 // PostScript Outlines
 import CFFFont from '../cff/cff-font.js';
-import VORG, { type SFNTTable as VORGTable } from './VORG.js';
+import VORG, { type VORGTable } from './VORG.js';
 
 import COLR from './COLR.js';
 import CPAL from './CPAL.js';
@@ -30,7 +30,7 @@ import HVAR from './HVAR.js';
 
 // Bitmap Glyphs
 import EBLC from './EBLC.js';
-import sbix, { type SFNTTable as sbixTable } from './sbix.js';
+import sbix, { type sbixTable } from './sbix.js';
 
 // Advanced OpenType Tables
 import BASE from './BASE.js';
@@ -46,9 +46,9 @@ import hdmx from './hdmx.js';
 import kern from './kern.js';
 import LTSH from './LTSH.js';
 import PCLT from './PCLT.js';
-import VDMX, { type SFNTTable as VDMXTable } from './VDMX.js';
-import vhea, { type SFNTTable as vheaTable } from './vhea.js';
-import vmtx, { type SFNTTable as vmtxTable } from './vmtx.js';
+import VDMX, { type VDMXTable } from './VDMX.js';
+import vhea, { type vheaTable } from './vhea.js';
+import vmtx, { type vmtxTable } from './vmtx.js';
 
 // Apple Advanced Typography Tables
 import avar from './avar.js';
@@ -120,6 +120,13 @@ export default tables;
 
 export namespace SFNTTable {
 	export type hmtx = hmtxTable.hmtx;
+
+	export type postV1 = postTable.postV1;
+	export type postV2 = postTable.postV2;
+	export type postV2_5 = postTable.postV2_5;
+	export type postV3 = postTable.postV3;
+	export type postV4 = postTable.postV4;
+	export type post = postTable.post;
 
 	export type prep = prepTable.prep;
 

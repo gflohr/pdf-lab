@@ -4,15 +4,17 @@ import r from '@pdf-lib/restructure';
  * The set of instructions executed whenever the point size or font
  * transformation change.\
  */
-export namespace SFNTTable {
+export namespace prepTable {
 	export interface prep {
-		controlValueProgram: number[],
+		controlValueProgram: number[];
 	}
 }
 
 const prepStructFields = {
 	controlValueProgram: new r.Array(r.uint8),
 };
-const prepStruct = new r.Struct<typeof prepStructFields, SFNTTable.prep>(prepStructFields);
+const prepStruct = new r.Struct<typeof prepStructFields, prepTable.prep>(
+	prepStructFields,
+);
 
 export default prepStruct;

@@ -1,6 +1,6 @@
 import r from '@pdf-lib/restructure';
 
-export namespace SFNTTable {
+export namespace sbixTable {
 	export interface sbixFlags {
 		renderOutlines: boolean;
 	}
@@ -22,7 +22,6 @@ export namespace SFNTTable {
 		numImgTables: number;
 		imageTables: sbixImageTable[];
 	}
-
 }
 
 const imageTableFields = {
@@ -33,9 +32,10 @@ const imageTableFields = {
 		(t) => t.parent.parent.maxp.numGlyphs + 1,
 	),
 };
-const ImageTable = new r.Struct<typeof imageTableFields, SFNTTable.sbixImageTable>(
-	imageTableFields,
-);
+const ImageTable = new r.Struct<
+	typeof imageTableFields,
+	sbixTable.sbixImageTable
+>(imageTableFields);
 
 const sbixFields = {
 	version: r.uint16,
@@ -44,6 +44,6 @@ const sbixFields = {
 	imageTables: new r.Array(new r.Pointer(r.uint32, ImageTable), 'numImgTables'),
 };
 
-const sbixStruct = new r.Struct<typeof sbixFields, SFNTTable.sbix>(sbixFields);
+const sbixStruct = new r.Struct<typeof sbixFields, sbixTable.sbix>(sbixFields);
 
 export default sbixStruct;

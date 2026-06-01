@@ -31,9 +31,8 @@ import Directory from './tables/directory.js';
 import type { HVARTable } from './tables/HVAR.js';
 import type { HeadTable } from './tables/head.js';
 import type { HheaTable } from './tables/hhea.js';
-import tables, { type FontTable } from './tables/index.js';
+import tables from './tables/index.js';
 import type { TypeFeatures } from './tables/opentype.js';
-import type { PostTable } from './tables/post.js';
 
 /**
  * Automatically calculates all available font table properties
@@ -48,7 +47,6 @@ type RegistryTableProps = {
  */
 export interface FontTableFields extends RegistryTableProps {
 	hhea: HheaTable;
-	post: PostTable;
 	HVAR: HVARTable;
 	'OS/2': any;
 	head: HeadTable;
@@ -75,7 +73,8 @@ export interface BaseFontDirectory {
 
 export interface SFNTFont<
 	TDirectory extends BaseFontDirectory = BaseFontDirectory,
-> extends Font, FontTableFields {
+> extends Font,
+		FontTableFields {
 	directory: TDirectory;
 }
 

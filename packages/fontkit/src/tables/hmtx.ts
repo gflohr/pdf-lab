@@ -1,8 +1,8 @@
 import r from '@pdf-lib/restructure';
 import type { MetricsTable } from './metrics.js';
 
-export namespace SFNTTable {
-	export interface hmtx extends MetricsTable {};
+export namespace hmtxTable {
+	export interface hmtx extends MetricsTable {}
 }
 
 const HmtxEntry = new r.Struct({
@@ -18,9 +18,6 @@ const fields = {
 	),
 };
 
-const hmtxTableStruct = new r.Struct<
-	typeof fields,
-	SFNTTable.hmtx
->(fields);
+const hmtxTableStruct = new r.Struct<typeof fields, hmtxTable.hmtx>(fields);
 
 export default hmtxTableStruct;
