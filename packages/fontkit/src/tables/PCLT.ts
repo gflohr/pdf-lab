@@ -2,20 +2,20 @@ import r from '@pdf-lib/restructure';
 
 export namespace PCLTTable {
 	export interface PCLT {
-		version: number,
-		fontNumber: number,
-		pitch: number,
-		xHeight: number,
-		style: number,
-		typeFamily: number,
-		capHeight: number,
-		symbolSet: number,
-		typeface: string,
-		characterComplement: string,
-		fileName: string,
-		strokeWeight: string,
-		widthType: string,
-		serifStyle: number,
+		version: number;
+		fontNumber: number;
+		pitch: number;
+		xHeight: number;
+		style: number;
+		typeFamily: number;
+		capHeight: number;
+		symbolSet: number;
+		typeface: string;
+		characterComplement: string;
+		fileName: string;
+		strokeWeight: string;
+		widthType: string;
+		serifStyle: number;
 	}
 }
 

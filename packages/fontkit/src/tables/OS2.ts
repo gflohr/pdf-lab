@@ -5,90 +5,90 @@ export namespace OS2Table {
 		/**
 		 * The average weighted advance width of lower case letters and space.
 		 */
-		xAvgCharWidth: number,
+		xAvgCharWidth: number;
 
 		/** The visual weight of stroke in glyphs. */
-		usWeightClass: number,
+		usWeightClass: number;
 
 		/**
 		 * The relative change from the normal aspect ratio (width to height
 		 * ratio).
 		 */
-		usWidthClass: number,
+		usWidthClass: number;
 
 		/** The indication of font embedding licensing rights. */
 		fsType: {
-			noEmbedding: boolean,
-			viewOnly: boolean,
-			editable: boolean,
-			noSubsetting: boolean,
-			bitmapOnly: boolean,
-		},
+			noEmbedding: boolean;
+			viewOnly: boolean;
+			editable: boolean;
+			noSubsetting: boolean;
+			bitmapOnly: boolean;
+		};
 
 		/** The recommended horizontal size in pixels for subscripts. */
-		ySubscriptXSize: number,
+		ySubscriptXSize: number;
 
 		/** The recommended horizontal size in pixels for subscripts. */
-		ySubscriptYSize: number,
+		ySubscriptYSize: number;
 
 		/** The recommended horizontal offset for subscripts. */
-		ySubscriptXOffset: number,
+		ySubscriptXOffset: number;
 
 		/** The recommended vertical offset from the baseline for subscripts. */
-		ySubscriptYOffset: number,
+		ySubscriptYOffset: number;
 
 		/** The recommended horizontal size in pixels for superscripts. */
-		ySuperscriptXSize: number,
+		ySuperscriptXSize: number;
 
 		/** The recommended vertical size in pixels for superscripts. */
-		ySuperscriptYSize: number,
+		ySuperscriptYSize: number;
 
 		/** The recommended horizontal offset for superscripts */
-		ySuperscriptXOffset: number,
+		ySuperscriptXOffset: number;
 
 		/**
 		 * The recommended vertical offset from the baseline for superscripts.
 		 */
-		ySuperscriptYOffset: number,
+		ySuperscriptYOffset: number;
 
 		/* The width of the strikeout stroke. */
-		yStrikeoutSize: number,
+		yStrikeoutSize: number;
 
 		/** The position of the strikeout stroke relative to the baseline. */
-		yStrikeoutPosition: number,
+		yStrikeoutPosition: number;
 
 		/** The classification of font-family design. */
-		sFamilyClass: number,
+		sFamilyClass: number;
 
 		/**
 		 * The description of the visual characteristics of a given typeface.
 		 */
-		panose: number[],
+		panose: number[];
 
-		ulCharRange: number[],
+		ulCharRange: number[];
 
 		/** The four character identifier for the font vendor. */
-		vendorID: string,
+		vendorID: string;
 
 		/** A bit field containing information about the font. */
 		fsSelection: {
-			italic: boolean,
-			underscore: boolean,
-			negative: boolean,
-			outlined: boolean,
-			strikeout: boolean,
-			bold: boolean,
-			regular: boolean,
-			useTypoMetrics: boolean,
-			wws: boolean,
-			oblique: boolean,
-		},
+			italic: boolean;
+			underscore: boolean;
+			negative: boolean;
+			outlined: boolean;
+			strikeout: boolean;
+			bold: boolean;
+			regular: boolean;
+			useTypoMetrics: boolean;
+			wws: boolean;
+			oblique: boolean;
+		};
 
 		/** The minimum Unicode index in this font. */
-		usFirstCharIndex: number,
+		usFirstCharIndex: number;
 
 		/** The maximum Unicode index in this font. */
-		usLastCharIndex: number,
+		usLastCharIndex: number;
 	}
 
 	/**
@@ -96,94 +96,94 @@ export namespace OS2Table {
 	 * continues on...
 	 */
 	export interface OS2V0 extends OS2Header {
-		version: 0,
-	};
+		version: 0;
+	}
 
 	export interface OS2V1 extends OS2Header {
-		version: 1,
-		typoAscender: number,
-		typoDescender: number,
-		typoLineGap: number,
-		winAscent: number,
-		winDescent: number,
-		codePageRange: [number, number],
-	};
+		version: 1;
+		typoAscender: number;
+		typoDescender: number;
+		typoLineGap: number;
+		winAscent: number;
+		winDescent: number;
+		codePageRange: [number, number];
+	}
 
 	export interface OS2V2 extends OS2Header {
 		// Common with version 1.
-		version: 2,
-		typoAscender: number,
-		typoDescender: number,
-		typoLineGap: number,
-		winAscent: number,
-		winDescent: number,
-		codePageRange: [number, number],
+		version: 2;
+		typoAscender: number;
+		typoDescender: number;
+		typoLineGap: number;
+		winAscent: number;
+		winDescent: number;
+		codePageRange: [number, number];
 
 		// Extensions.
-		xHeight: number,
-		capHeight: number,
-		defaultChar: number,
-		breakChar: number,
-		maxContent: number,
-	};
+		xHeight: number;
+		capHeight: number;
+		defaultChar: number;
+		breakChar: number;
+		maxContent: number;
+	}
 
 	export interface OS2V3 extends OS2Header {
 		// Common with version 1.
-		version: 3,
-		typoAscender: number,
-		typoDescender: number,
-		typoLineGap: number,
-		winAscent: number,
-		winDescent: number,
-		codePageRange: [number, number],
+		version: 3;
+		typoAscender: number;
+		typoDescender: number;
+		typoLineGap: number;
+		winAscent: number;
+		winDescent: number;
+		codePageRange: [number, number];
 
 		// Extensions.
-		xHeight: number,
-		capHeight: number,
-		defaultChar: number,
-		breakChar: number,
-		maxContent: number,
-	};
+		xHeight: number;
+		capHeight: number;
+		defaultChar: number;
+		breakChar: number;
+		maxContent: number;
+	}
 
 	export interface OS2V4 extends OS2Header {
 		// Common with version 1.
-		version: 4,
-		typoAscender: number,
-		typoDescender: number,
-		typoLineGap: number,
-		winAscent: number,
-		winDescent: number,
-		codePageRange: [number, number],
+		version: 4;
+		typoAscender: number;
+		typoDescender: number;
+		typoLineGap: number;
+		winAscent: number;
+		winDescent: number;
+		codePageRange: [number, number];
 
 		// Extensions.
-		xHeight: number,
-		capHeight: number,
-		defaultChar: number,
-		breakChar: number,
-		maxContent: number,
-	};
+		xHeight: number;
+		capHeight: number;
+		defaultChar: number;
+		breakChar: number;
+		maxContent: number;
+	}
 
 	export interface OS2V5 extends OS2Header {
 		// Common with version 1.
-		version: 5,
-		typoAscender: number,
-		typoDescender: number,
-		typoLineGap: number,
-		winAscent: number,
-		winDescent: number,
-		codePageRange: [number, number],
+		version: 5;
+		typoAscender: number;
+		typoDescender: number;
+		typoLineGap: number;
+		winAscent: number;
+		winDescent: number;
+		codePageRange: [number, number];
 
 		// Common with version 2.
-		xHeight: number,
-		capHeight: number,
-		defaultChar: number,
-		breakChar: number,
-		maxContent: number,
+		xHeight: number;
+		capHeight: number;
+		defaultChar: number;
+		breakChar: number;
+		maxContent: number;
 
 		// Extensions.
-		usLowerOpticalPointSize: number,
-		usUpperOpticalPointSize: number,
-	};
+		usLowerOpticalPointSize: number;
+		usUpperOpticalPointSize: number;
+	}
 
 	export type OS2 = OS2V0 | OS2V1 | OS2V2 | OS2V3 | OS2V4 | OS2V5;
 }
@@ -264,6 +264,9 @@ const os2Fields = {
 	5: os2V5Fields,
 };
 
-const OS2Struct = new r.VersionedStruct<typeof os2Fields, OS2Table.OS2>(r.uint16, os2Fields);
+const OS2Struct = new r.VersionedStruct<typeof os2Fields, OS2Table.OS2>(
+	r.uint16,
+	os2Fields,
+);
 
 export default OS2Struct;
