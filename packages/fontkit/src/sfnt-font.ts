@@ -47,7 +47,6 @@ type RegistryTableProps = {
  * Temporary ...
  */
 export interface FontTableFields extends RegistryTableProps {
-	VORG: SFNTTable.VORG;
 	hhea: HheaTable;
 	post: PostTable;
 	HVAR: HVARTable;

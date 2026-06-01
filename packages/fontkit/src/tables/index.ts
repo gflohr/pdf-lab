@@ -46,7 +46,7 @@ import hdmx from './hdmx.js';
 import kern from './kern.js';
 import LTSH from './LTSH.js';
 import PCLT from './PCLT.js';
-import VDMX from './VDMX.js';
+import VDMX, { type SFNTTable as VDMXTable } from './VDMX.js';
 import vhea, { type SFNTTable as vheaTable } from './vhea.js';
 import vmtx, { type SFNTTable as vmtxTable } from './vmtx.js';
 
@@ -120,6 +120,11 @@ export default tables;
 
 export namespace SFNTTable {
 	export type hmtx = hmtxTable.hmtx;
+
+	export type VDMXRatio = VDMXTable.VDMXRatio;
+	export type VDMXvTable = VDMXTable.VDMXvTable;
+	export type VDMXGroup = VDMXTable.VDMXGroup;
+	export type VDMX = VDMXTable.VDMX;
 
 	export type vhea = vheaTable.vhea;
 
