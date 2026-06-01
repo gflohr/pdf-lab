@@ -1,4 +1,4 @@
-import r, { StructT } from "@pdf-lib/restructure";
+import r from "@pdf-lib/restructure";
 import type { GlyphAxisMetrics } from "../glyph/glyph.js";
 import type { MetricsTable } from './metrics.js';
 
@@ -38,6 +38,6 @@ const vmtxFields = {
 	),
 };
 
-const vmtxTableStruct: StructT<typeof vmtxFields, SFNTTable.vmtx> = new r.Struct<typeof vmtxFields, SFNTTable.vmtx>(vmtxFields);
+const vmtxTableStruct = new r.Struct<typeof vmtxFields, SFNTTable.vmtx>(vmtxFields);
 
 export default vmtxTableStruct;

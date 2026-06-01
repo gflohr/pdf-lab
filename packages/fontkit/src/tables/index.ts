@@ -47,7 +47,7 @@ import kern from './kern.js';
 import LTSH from './LTSH.js';
 import PCLT from './PCLT.js';
 import VDMX from './VDMX.js';
-import vhea from './vhea.js';
+import vhea, { type SFNTTable as vheaTable } from './vhea.js';
 import vmtx, { type SFNTTable as vmtxTable } from './vmtx.js';
 
 // Apple Advanced Typography Tables
@@ -120,6 +120,8 @@ export default tables;
 
 export namespace SFNTTable {
 	export type hmtx = hmtxTable.hmtx;
+
+	export type vhea = vheaTable.vhea;
 
 	export type vmtx = vmtxTable.vmtx;
 

@@ -1,4 +1,3 @@
-import type { StructT } from '@pdf-lib/restructure';
 import r from '@pdf-lib/restructure';
 import type { MetricsTable } from './metrics.js';
 
@@ -19,7 +18,7 @@ const fields = {
 	),
 };
 
-const hmtxTableStruct: StructT<typeof fields, SFNTTable.hmtx> = new r.Struct<
+const hmtxTableStruct = new r.Struct<
 	typeof fields,
 	SFNTTable.hmtx
 >(fields);
