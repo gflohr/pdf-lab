@@ -48,7 +48,6 @@ type RegistryTableProps = {
 export interface FontTableFields extends RegistryTableProps {
 	hhea: HheaTable;
 	HVAR: HVARTable;
-	'OS/2': any;
 	head: HeadTable;
 
 	// A clean programmatic alias for the 'CFF ' PostScript stream.

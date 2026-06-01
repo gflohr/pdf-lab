@@ -8,7 +8,7 @@ import hhea from './hhea.js';
 import hmtx, { type hmtxTable } from './hmtx.js';
 import maxp from './maxp.js';
 import name from './name.js';
-import OS2 from './OS2.js';
+import OS2, { type OS2Table } from './OS2.js';
 import post, { type postTable } from './post.js';
 
 // TrueType Outlines
@@ -120,6 +120,14 @@ export default tables;
 
 export namespace SFNTTable {
 	export type hmtx = hmtxTable.hmtx;
+
+	export type OS2V0 = OS2Table.OS2V0;
+	export type OS2V1 = OS2Table.OS2V1;
+	export type OS2V2 = OS2Table.OS2V2;
+	export type OS2V3 = OS2Table.OS2V3;
+	export type OS2V4 = OS2Table.OS2V4;
+	export type OS2V5 = OS2Table.OS2V5;
+	export type OS2 = OS2Table.OS2;
 
 	export type PCLT = PCLTTable.PCLT;
 

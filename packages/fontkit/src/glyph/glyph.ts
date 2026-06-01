@@ -174,7 +174,7 @@ export default class Glyph {
 
 			const os2 = this._font['OS/2'];
 
-			if (os2 && os2.version > 0) {
+			if (os2 && os2.version !== 0) {
 				advanceHeight = Math.abs(os2.typoAscender - os2.typoDescender);
 				topBearing = os2.typoAscender - localCbox.maxY;
 			} else {

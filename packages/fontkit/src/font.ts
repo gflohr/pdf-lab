@@ -158,10 +158,8 @@ export interface Font {
 
 	/**
 	 * The font's 'OS/2' table.
-	 *
-	 * FIXME! Expose the entire table!
 	 */
-	'OS/2': any;
+	'OS/2': SFNTTable.OS2;
 
 	/**
 	 * The font's `head` table.
