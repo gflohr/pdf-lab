@@ -33,7 +33,7 @@ const imageTableFields = {
 		(t) => t.parent.parent.maxp.numGlyphs + 1,
 	),
 };
-const ImageTable = new r.Struct<typeof imageTableFields, SFNTTable.SBIXImageTable>(
+const ImageTable = new r.Struct<typeof imageTableFields, SFNTTable.sbixImageTable>(
 	imageTableFields,
 );
 
