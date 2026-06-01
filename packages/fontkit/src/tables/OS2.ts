@@ -188,6 +188,27 @@ export namespace OS2Table {
 	export type OS2 = OS2V0 | OS2V1 | OS2V2 | OS2V3 | OS2V4 | OS2V5;
 }
 
+const os2V1Fields = {
+	typoAscender: r.int16,
+	typoDescender: r.int16,
+	typoLineGap: r.int16,
+	winAscent: r.uint16,
+	winDescent: r.uint16,
+	codePageRange: new r.Array(r.uint32, 2),
+};
+const os2V2Fields = {
+	...os2V1Fields,
+	xHeight: r.int16,
+	capHeight: r.int16,
+	defaultChar: r.uint16,
+	breakChar: r.uint16,
+	maxContent: r.uint16,
+};
+const os2V5Fields = {
+	...os2V2Fields,
+	usLowerOpticalPointSize: r.uint16,
+	usUpperOpticalPointSize: r.uint16,
+};
 const os2Fields = {
 	header: {
 		xAvgCharWidth: r.int16,
@@ -236,81 +257,11 @@ const os2Fields = {
 	},
 
 	0: {},
-
-	1: {
-		typoAscender: r.int16,
-		typoDescender: r.int16,
-		typoLineGap: r.int16,
-		winAscent: r.uint16,
-		winDescent: r.uint16,
-		codePageRange: new r.Array(r.uint32, 2),
-	},
-
-	2: {
-		// these should be common with version 1 somehow
-		typoAscender: r.int16,
-		typoDescender: r.int16,
-		typoLineGap: r.int16,
-		winAscent: r.uint16,
-		winDescent: r.uint16,
-		codePageRange: new r.Array(r.uint32, 2),
-
-		xHeight: r.int16,
-		capHeight: r.int16,
-		defaultChar: r.uint16,
-		breakChar: r.uint16,
-		maxContent: r.uint16,
-	},
-
-	3: {
-		// these should be common with version 1 somehow
-		typoAscender: r.int16,
-		typoDescender: r.int16,
-		typoLineGap: r.int16,
-		winAscent: r.uint16,
-		winDescent: r.uint16,
-		codePageRange: new r.Array(r.uint32, 2),
-
-		xHeight: r.int16,
-		capHeight: r.int16,
-		defaultChar: r.uint16,
-		breakChar: r.uint16,
-		maxContent: r.uint16,
-	},
-
-	4: {
-		// these should be common with version 1 somehow
-		typoAscender: r.int16,
-		typoDescender: r.int16,
-		typoLineGap: r.int16,
-		winAscent: r.uint16,
-		winDescent: r.uint16,
-		codePageRange: new r.Array(r.uint32, 2),
-
-		xHeight: r.int16,
-		capHeight: r.int16,
-		defaultChar: r.uint16,
-		breakChar: r.uint16,
-		maxContent: r.uint16,
-	},
-
-	5: {
-		typoAscender: r.int16,
-		typoDescender: r.int16,
-		typoLineGap: r.int16,
-		winAscent: r.uint16,
-		winDescent: r.uint16,
-		codePageRange: new r.Array(r.uint32, 2),
-
-		xHeight: r.int16,
-		capHeight: r.int16,
-		defaultChar: r.uint16,
-		breakChar: r.uint16,
-		maxContent: r.uint16,
-
-		usLowerOpticalPointSize: r.uint16,
-		usUpperOpticalPointSize: r.uint16,
-	},
+	1: os2V1Fields,
+	2: os2V2Fields,
+	3: os2V2Fields,
+	4: os2V2Fields,
+	5: os2V5Fields,
 };
 
 const OS2Struct = new r.VersionedStruct<typeof os2Fields, OS2Table.OS2>(r.uint16, os2Fields);
