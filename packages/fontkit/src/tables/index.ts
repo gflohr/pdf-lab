@@ -5,7 +5,7 @@ import type { ArrayT, StructT, VersionedStructT } from '@pdf-lib/restructure';
 import cmap from './cmap.js';
 import head from './head.js';
 import hhea from './hhea.js';
-import hmtx from './hmtx.js';
+import hmtx, { type SFNTTable as hmtxTable }  from './hmtx.js';
 import maxp from './maxp.js';
 import name from './name.js';
 import OS2 from './OS2.js';
@@ -119,6 +119,8 @@ const tables = {
 export default tables;
 
 export namespace SFNTTable {
+	export type hmtx = hmtxTable.hmtx;
+
 	export type vmtx = vmtxTable.vmtx;
 
 	export type VORG = VORGTable.VORG;

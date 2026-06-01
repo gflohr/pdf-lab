@@ -1,4 +1,4 @@
-import r from "@pdf-lib/restructure";
+import r, { StructT } from "@pdf-lib/restructure";
 import type { GlyphAxisMetrics } from "../glyph/glyph.js";
 import type { MetricsTable } from './metrics.js';
 
@@ -27,7 +27,7 @@ const VmtxEntryStruct = new r.Struct<typeof VmtxEntryFields, GlyphAxisMetrics>(
 );
 
 // Vertical Metrics Table
-const VmtxFields = {
+const vmtxFields = {
 	metrics: new r.LazyArray(
 		VmtxEntryStruct,
 		(t: VmtxParentContext) => t.parent.vhea.numberOfMetrics,
@@ -38,4 +38,6 @@ const VmtxFields = {
 	),
 };
 
-export default new r.Struct<typeof VmtxFields, SFNTTable.vmtx>(VmtxFields);
+const vmtxTableStruct: StructT<typeof vmtxFields, SFNTTable.vmtx> = new r.Struct<typeof vmtxFields, SFNTTable.vmtx>(vmtxFields);
+
+export default vmtxTableStruct;

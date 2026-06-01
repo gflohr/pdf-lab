@@ -31,7 +31,6 @@ import Directory from './tables/directory.js';
 import type { HVARTable } from './tables/HVAR.js';
 import type { HeadTable } from './tables/head.js';
 import type { HheaTable } from './tables/hhea.js';
-import type { HmtxTable } from './tables/hmtx.js';
 import tables, { type SFNTTable } from './tables/index.js';
 import type { TypeFeatures } from './tables/opentype.js';
 import type { PostTable } from './tables/post.js';
@@ -54,8 +53,6 @@ export interface FontTableFields extends RegistryTableProps {
 	HVAR: HVARTable;
 	'OS/2': any;
 	head: HeadTable;
-	hmtx: HmtxTable;
-	vmtx: SFNTTable.vmtx;
 
 	// A clean programmatic alias for the 'CFF ' PostScript stream.
 	cff: FilteredTableMap['CFF '];
