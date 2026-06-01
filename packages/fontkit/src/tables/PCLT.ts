@@ -1,8 +1,27 @@
 import r from '@pdf-lib/restructure';
 
+export namespace PCLTTable {
+	export interface PCLT {
+		version: number,
+		fontNumber: number,
+		pitch: number,
+		xHeight: number,
+		style: number,
+		typeFamily: number,
+		capHeight: number,
+		symbolSet: number,
+		typeface: string,
+		characterComplement: string,
+		fileName: string,
+		strokeWeight: string,
+		widthType: string,
+		serifStyle: number,
+	}
+}
+
 // PCL 5 Table
 // NOTE: The PCLT table is strongly discouraged for OpenType fonts with TrueType outlines
-export default new r.Struct({
+const pcltFields = {
 	version: r.uint16,
 	fontNumber: r.uint32,
 	pitch: r.uint16,
@@ -18,4 +37,7 @@ export default new r.Struct({
 	widthType: new r.String(1),
 	serifStyle: r.uint8,
 	reserved: new r.Reserved(r.uint8),
-});
+};
+const PCLTStruct = new r.Struct<typeof pcltFields, PCLTTable.PCLT>(pcltFields);
+
+export default PCLTStruct;

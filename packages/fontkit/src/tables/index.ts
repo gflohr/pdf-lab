@@ -45,7 +45,7 @@ import gasp from './gasp.js';
 import hdmx from './hdmx.js';
 import kern from './kern.js';
 import LTSH from './LTSH.js';
-import PCLT from './PCLT.js';
+import PCLT, { type PCLTTable } from './PCLT.js';
 import VDMX, { type VDMXTable } from './VDMX.js';
 import vhea, { type vheaTable } from './vhea.js';
 import vmtx, { type vmtxTable } from './vmtx.js';
@@ -120,6 +120,8 @@ export default tables;
 
 export namespace SFNTTable {
 	export type hmtx = hmtxTable.hmtx;
+
+	export type PCLT = PCLTTable.PCLT;
 
 	export type postV1 = postTable.postV1;
 	export type postV2 = postTable.postV2;
