@@ -31,7 +31,7 @@ import Directory from './tables/directory.js';
 import type { HVARTable } from './tables/HVAR.js';
 import type { HeadTable } from './tables/head.js';
 import type { HheaTable } from './tables/hhea.js';
-import tables, { type SFNTTable } from './tables/index.js';
+import tables, { type FontTable } from './tables/index.js';
 import type { TypeFeatures } from './tables/opentype.js';
 import type { PostTable } from './tables/post.js';
 
@@ -75,8 +75,7 @@ export interface BaseFontDirectory {
 
 export interface SFNTFont<
 	TDirectory extends BaseFontDirectory = BaseFontDirectory,
-> extends Font,
-		FontTableFields {
+> extends Font, FontTableFields {
 	directory: TDirectory;
 }
 
@@ -111,56 +110,6 @@ export class SFNTFont<
 	// Infers all other table properties (cmap, head, OS/2, etc.) via the
 	// interface heritage.
 	[key: string]: any;
-
-	// Tables.
-	/*
-	public cmap: FilteredTableMap['cmap'];
-	public head: FilteredTableMap['head'];
-	public hhea!: HheaTable;
-	public hmtx!: FilteredTableMap['hmtx'];
-	public maxp: FilteredTableMap['maxp'];
-	public name: FilteredTableMap['name'];
-	public 'OS/2': FilteredTableMap['OS/2'];
-	public post!: PostTable;
-	public fpgm?: FilteredTableMap['fpgm'];
-	public loca: FilteredTableMap['loca'];
-	public prep: FilteredTableMap['prep'];
-	public 'cvt '?: FilteredTableMap['cvt '];
-	public glyf?: FilteredTableMap['glyf'];
-	// FIXME! Which of the two is actually used?
-	cff!: FilteredTableMap['CFF '];
-	public 'CFF ': FilteredTableMap['CFF '];
-	public CFF2?: FilteredTableMap['CFF2'];
-	public VORG?: FilteredTableMap['VORG'];
-	public EBLC?: FilteredTableMap['EBLC'];
-	public CBLC?: FilteredTableMap['CBLC'];
-	public sbix?: FilteredTableMap['sbix'];
-	public COLR?: FilteredTableMap['COLR'];
-	public CPAL?: FilteredTableMap['CPAL'];
-	public BASE?: FilteredTableMap['BASE'];
-	public GDEF?: FilteredTableMap['GDEF'];
-	public GPOS?: FilteredTableMap['GPOS'];
-	public GSUB?: FilteredTableMap['GSUB'];
-	public JSTF?: FilteredTableMap['JSTF'];
-	public HVAR!: HVARTable;
-	public DSIG?: FilteredTableMap['DSIG'];
-	public gasp?: FilteredTableMap['gasp'];
-	public hdmx?: FilteredTableMap['hdmx'];
-	public kern?: FilteredTableMap['kern'];
-	public LTSH?: FilteredTableMap['LTSH'];
-	public PCLT?: FilteredTableMap['PCLT'];
-	public VDMX?: FilteredTableMap['VDMX'];
-	public vhea?: FilteredTableMap['vhea'];
-	public vmtx?: FilteredTableMap['vmtx'];
-	public avar?: FilteredTableMap['avar'];
-	public bsln?: FilteredTableMap['bsln'];
-	public feat?: FilteredTableMap['feat'];
-	public fvar?: FilteredTableMap['fvar'];
-	public gvar?: FilteredTableMap['gvar'];
-	public just?: FilteredTableMap['just'];
-	public morx?: FilteredTableMap['morx'];
-	public opbd?: FilteredTableMap['opbd'];
-	*/
 
 	public static probe(buffer: Buffer): boolean {
 		const format = buffer.toString('ascii', 0, 4);
