@@ -1,7 +1,82 @@
 import r from '@pdf-lib/restructure';
 import { getEncoding, LANGUAGES } from '../encodings.js';
 
-const NameRecord = new r.Struct({
+export namespace nameTable {
+	export interface nameRecord {
+		platformID: number;
+		encodingID: number;
+		languageID: number;
+		nameID: number;
+		length: number;
+		string: string;
+	}
+
+	export interface nameLangTagRecord {
+		length: number;
+		tag: string;
+	}
+
+	/**
+	 * Reusable mapping structure that represents the localized strings.
+	 * E.g., { en: "Arial", de: "Arial" }
+	 */
+	export type LocalizedStrings = Record<string, string>;
+
+	/**
+	 * The final, processed form of the name records dictionary after `.process()` executes.
+	 */
+	export interface ProcessedNameRecords {
+		copyright?: LocalizedStrings;
+		fontFamily?: LocalizedStrings;
+		fontSubfamily?: LocalizedStrings;
+		uniqueSubfamily?: LocalizedStrings;
+		fullName?: LocalizedStrings;
+		version?: LocalizedStrings;
+		postscriptName?: LocalizedStrings;
+		trademark?: LocalizedStrings;
+		manufacturer?: LocalizedStrings;
+		designer?: LocalizedStrings;
+		description?: LocalizedStrings;
+		vendorURL?: LocalizedStrings;
+		designerURL?: LocalizedStrings;
+		license?: LocalizedStrings;
+		licenseURL?: LocalizedStrings;
+		preferredFamily?: LocalizedStrings;
+		preferredSubfamily?: LocalizedStrings;
+		compatibleFull?: LocalizedStrings;
+		sampleText?: LocalizedStrings;
+		postscriptCIDFontName?: LocalizedStrings;
+		wwsFamilyName?: LocalizedStrings;
+		wwsSubfamilyName?: LocalizedStrings;
+		fontFeatures?: Record<number, LocalizedStrings>;
+		// Fallback catch-all for vendor custom IDs or anything outside the spec list
+		[customIdOrKey: string]:
+			| LocalizedStrings
+			| Record<number, LocalizedStrings>
+			| undefined;
+	}
+
+	// Notice that "records" is typed as ProcessedNameRecords to match the output state!
+	export interface nameV1 {
+		version: 1;
+		count: number;
+		stringOffset: number;
+		records: ProcessedNameRecords;
+	}
+
+	export interface nameV2 {
+		version: 2;
+		count: number;
+		stringOffset: number;
+		records: ProcessedNameRecords;
+		langTagCount: number;
+		langTags: nameLangTagRecord[];
+	}
+
+	export type name = nameV1 | nameV2;
+}
+
+const nameRecordFields = {
 	platformID: r.uint16,
 	encodingID: r.uint16,
 	languageID: r.uint16,
@@ -15,17 +90,24 @@ const NameRecord = new r.Struct({
 		),
 		{ type: 'parent', relativeTo: 'parent.stringOffset', allowNull: false },
 	),
-});
+};
+const NameRecord = new r.Struct<typeof nameRecordFields, nameTable.nameRecord>(
+	nameRecordFields,
+);
 
-const LangTagRecord = new r.Struct({
+const langTagRecordFields = {
 	length: r.uint16,
 	tag: new r.Pointer(r.uint16, new r.String('length', 'utf16be'), {
 		type: 'parent',
 		relativeTo: 'stringOffset',
 	}),
-});
+};
+const LangTagRecord = new r.Struct<
+	typeof langTagRecordFields,
+	nameTable.nameLangTagRecord
+>(langTagRecordFields);
 
-var NameTable = new r.VersionedStruct(r.uint16, {
+const nameFields = {
 	0: {
 		count: r.uint16,
 		stringOffset: r.uint16,
@@ -38,9 +120,16 @@ var NameTable = new r.VersionedStruct(r.uint16, {
 		langTagCount: r.uint16,
 		langTags: new r.Array(LangTagRecord, 'langTagCount'),
 	},
-});
+};
 
-export default NameTable;
+// We explicitly cast the base generic here to pass the runtime array format checks
+// internally inside restructure, but map it gracefully to the finalized nameTable.name shape.
+const nameStruct = new r.VersionedStruct<typeof nameFields, nameTable.name>(
+	r.uint16,
+	nameFields,
+);
+
+export default nameStruct;
 
 const NAMES = [
 	'copyright',
@@ -49,7 +138,7 @@ const NAMES = [
 	'uniqueSubfamily',
 	'fullName',
 	'version',
-	'postscriptName', // Note: A font may have only one PostScript name and that name must be ASCII.
+	'postscriptName',
 	'trademark',
 	'manufacturer',
 	'designer',
@@ -68,29 +157,9 @@ const NAMES = [
 	'wwsSubfamilyName',
 ];
 
-// 1. The clean, final public state type for the class property.
-interface CompiledNameRecords {
-	fontFeatures?: Record<number, Record<string, string>>;
-	[nameKey: string]:
-		| Record<string, string>
-		| Record<number, Record<string, string>>
-		| undefined;
-}
-
-// 2. An explicit internal interface for the temporary raw decoding format
-interface RawFontRecord {
-	platformID: number;
-	languageID: number;
-	nameID: number;
-	string: string;
-}
-
-NameTable.process = function (this: {
-	records: RawFontRecord[] | CompiledNameRecords;
-	langTags?: { tag: string }[];
-}) {
-	const rawRecords = this.records as RawFontRecord[];
-	const processedRecords: CompiledNameRecords = {};
+nameStruct.process = function (this: any) {
+	const rawRecords = this.records as nameTable.nameRecord[];
+	const processedRecords: nameTable.ProcessedNameRecords = {};
 
 	for (const record of rawRecords) {
 		let language: string | null =
@@ -140,14 +209,17 @@ NameTable.process = function (this: {
 	this.records = processedRecords;
 };
 
-NameTable.preEncode = function () {
+nameStruct.preEncode = function (this: any) {
 	if (Array.isArray(this.records)) return;
 	this.version = 0;
 
 	const records = [];
-	for (const key in this.records) {
-		const val = this.records[key];
+	const processed = this.records as nameTable.ProcessedNameRecords;
+
+	for (const key in processed) {
 		if (key === 'fontFeatures') continue;
+		const val = processed[key] as nameTable.LocalizedStrings;
+		if (!val || !val.en) continue;
 
 		records.push({
 			platformID: 3,
@@ -172,5 +244,5 @@ NameTable.preEncode = function () {
 
 	this.records = records;
 	this.count = records.length;
-	this.stringOffset = NameTable.size(this, null, false);
+	this.stringOffset = nameStruct.size(this, null, false);
 };

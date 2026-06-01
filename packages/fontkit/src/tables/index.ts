@@ -7,7 +7,7 @@ import head from './head.js';
 import hhea from './hhea.js';
 import hmtx, { type hmtxTable } from './hmtx.js';
 import maxp from './maxp.js';
-import name from './name.js';
+import name, { type nameTable } from './name.js';
 import OS2, { type OS2Table } from './OS2.js';
 import post, { type postTable } from './post.js';
 
@@ -120,6 +120,12 @@ export default tables;
 
 export namespace SFNTTable {
 	export type hmtx = hmtxTable.hmtx;
+
+	export type nameLangTagRecord = nameTable.nameLangTagRecord;
+	export type nameRecord = nameTable.nameRecord;
+	export type nameV1 = nameTable.nameV1;
+	export type nameV2 = nameTable.nameV2;
+	export type name = nameTable.name;
 
 	export type OS2V0 = OS2Table.OS2V0;
 	export type OS2V1 = OS2Table.OS2V1;
