@@ -16,7 +16,7 @@ import cvt from './cvt.js';
 import fpgm from './fpgm.js';
 import glyf from './glyf.js';
 import loca from './loca.js';
-import prep from './prep.js';
+import prep, { type SFNTTable as prepTable } from './prep.js';
 
 // PostScript Outlines
 import CFFFont from '../cff/cff-font.js';
@@ -120,6 +120,8 @@ export default tables;
 
 export namespace SFNTTable {
 	export type hmtx = hmtxTable.hmtx;
+
+	export type prep = prepTable.prep;
 
 	export type sbixFlags = sbixTable.sbixFlags;
 	export type sbixImageTable = sbixTable.sbixImageTable;
