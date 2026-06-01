@@ -30,7 +30,7 @@ import HVAR from './HVAR.js';
 
 // Bitmap Glyphs
 import EBLC from './EBLC.js';
-import sbix from './sbix.js';
+import sbix, { type SFNTTable as sbixTable } from './sbix.js';
 
 // Advanced OpenType Tables
 import BASE from './BASE.js';
@@ -120,6 +120,10 @@ export default tables;
 
 export namespace SFNTTable {
 	export type hmtx = hmtxTable.hmtx;
+
+	export type sbixFlags = sbixTable.sbixFlags;
+	export type sbixImageTable = sbixTable.sbixImageTable;
+	export type sbix = sbixTable.sbix;
 
 	export type VDMXRatio = VDMXTable.VDMXRatio;
 	export type VDMXvTable = VDMXTable.VDMXvTable;

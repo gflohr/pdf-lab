@@ -1,9 +1,28 @@
 import r from '@pdf-lib/restructure';
 
-export interface SBIXImageTableType {
-	ppem: number;
-	resolution: number;
-	imageOffsets: number[];
+export namespace SFNTTable {
+	export interface sbixFlags {
+		renderOutlines: boolean;
+	}
+
+	export interface sbixImageTable {
+		ppem: number;
+		resolution: number;
+		imageOffsets: number[];
+	}
+
+	/**
+	 * This is the Apple sbix table, used by the "Apple Color Emoji" font.
+	 * It includes several image tables with images for each bitmap glyph
+	 * of several different sizes.
+	 */
+	export interface sbix {
+		version: number;
+		flags: sbixFlags;
+		numImgTables: number;
+		imageTables: sbixImageTable[];
+	}
+
 }
 
 const imageTableFields = {
@@ -14,19 +33,9 @@ const imageTableFields = {
 		(t) => t.parent.parent.maxp.numGlyphs + 1,
 	),
 };
-const ImageTable = new r.Struct<typeof imageTableFields, SBIXImageTableType>(
+const ImageTable = new r.Struct<typeof imageTableFields, SFNTTable.SBIXImageTable>(
 	imageTableFields,
 );
-
-export interface SBIXFlagsType {
-	renderOutlines: boolean;
-}
-interface SBIXType {
-	version: number;
-	flags: SBIXFlagsType;
-	numImgTables: number;
-	imageTables: SBIXImageTableType[];
-}
 
 const sbixFields = {
 	version: r.uint16,
@@ -35,7 +44,6 @@ const sbixFields = {
 	imageTables: new r.Array(new r.Pointer(r.uint32, ImageTable), 'numImgTables'),
 };
 
-// This is the Apple sbix table, used by the "Apple Color Emoji" font.
-// It includes several image tables with images for each bitmap glyph
-// of several different sizes.
-export default new r.Struct<typeof sbixFields, SBIXType>(sbixFields);
+const sbixStruct = new r.Struct<typeof sbixFields, SFNTTable.sbix>(sbixFields);
+
+export default sbixStruct;
