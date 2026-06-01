@@ -1,7 +1,7 @@
 import r from '@pdf-lib/restructure';
+import type { SFNTTable } from '../tables/index.js';
 import type { FontkitRenderingContext } from './glyph.js';
 import TTFGlyph from './ttf-glyph.js';
-import { SFNTTable } from '../tables/index.js';
 
 export interface SBIXImageType {
 	originX: number;

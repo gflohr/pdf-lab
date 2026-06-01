@@ -53,12 +53,7 @@ export namespace postTable {
 	/**
 	 * Represents the parsed OpenType PostScript information table ('post').
 	 */
-	export type post =
-		| postV1
-		| postV2
-		| postV2_5
-		| postV3
-		| postV4;
+	export type post = postV1 | postV2 | postV2_5 | postV3 | postV4;
 }
 
 interface ParentContext {
