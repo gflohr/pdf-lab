@@ -20,7 +20,7 @@ import prep from './prep.js';
 
 // PostScript Outlines
 import CFFFont from '../cff/cff-font.js';
-import VORG from './VORG.js';
+import VORG, { type SFNTTable as VORGTable } from './VORG.js';
 
 import COLR from './COLR.js';
 import CPAL from './CPAL.js';
@@ -48,7 +48,7 @@ import LTSH from './LTSH.js';
 import PCLT from './PCLT.js';
 import VDMX from './VDMX.js';
 import vhea from './vhea.js';
-import vmtx from './vmtx.js';
+import vmtx, { type SFNTTable as vmtxTable } from './vmtx.js';
 
 // Apple Advanced Typography Tables
 import avar from './avar.js';
@@ -118,4 +118,9 @@ const tables = {
 
 export default tables;
 
-export { SFNTTable } from './VORG.js';
+export namespace SFNTTable {
+	export type vmtx = vmtxTable.vmtx;
+
+	export type VORG = VORGTable.VORG;
+	export type VORGVerticalOrigin = VORGTable.VORGVerticalOrigin;
+}

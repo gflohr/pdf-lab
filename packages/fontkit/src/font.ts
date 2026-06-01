@@ -7,9 +7,9 @@ import type { HVARTable } from './tables/HVAR.js';
 import type { HeadTable } from './tables/head.js';
 import type { HheaTable } from './tables/hhea.js';
 import type { HmtxTable } from './tables/hmtx.js';
+import type { SFNTTable } from './tables/index.js';
 import type { TypeFeatures } from './tables/opentype.js';
 import type { PostTable } from './tables/post.js';
-import type { VmtxTable } from './tables/vmtx.js';
 
 export interface VariationAxis {
 	axisTag: string;
@@ -188,5 +188,5 @@ export interface Font {
 	/**
 	 * The font's `vmtx` table.
 	 */
-	vmtx: VmtxTable;
+	vmtx: SFNTTable.vmtx;
 }

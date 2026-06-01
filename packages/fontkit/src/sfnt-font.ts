@@ -35,7 +35,6 @@ import type { HmtxTable } from './tables/hmtx.js';
 import tables, { type SFNTTable } from './tables/index.js';
 import type { TypeFeatures } from './tables/opentype.js';
 import type { PostTable } from './tables/post.js';
-import type { VmtxTable } from './tables/vmtx.js';
 
 /**
  * Automatically calculates all available font table properties
@@ -56,7 +55,7 @@ export interface FontTableFields extends RegistryTableProps {
 	'OS/2': any;
 	head: HeadTable;
 	hmtx: HmtxTable;
-	vmtx: VmtxTable;
+	vmtx: SFNTTable.vmtx;
 
 	// A clean programmatic alias for the 'CFF ' PostScript stream.
 	cff: FilteredTableMap['CFF '];
@@ -114,7 +113,7 @@ export class SFNTFont<
 	public cff!: FilteredTableMap['CFF '];
 
 	// Infers all other table properties (cmap, head, OS/2, etc.) via the
-	// interface heritage!
+	// interface heritage.
 	[key: string]: any;
 
 	// Tables.

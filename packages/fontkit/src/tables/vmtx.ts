@@ -1,13 +1,27 @@
-import r from '@pdf-lib/restructure';
-import type { GlyphAxisMetrics } from '../glyph/glyph.js';
+import r from "@pdf-lib/restructure";
+import type { GlyphAxisMetrics } from "../glyph/glyph.js";
 import type { MetricsTable } from './metrics.js';
 
-export interface VmtxTable extends MetricsTable {}
+export namespace SFNTTable {
+	export interface vmtx extends MetricsTable {};
+}
+
+/**
+ * Context interface mapping parent table structures required during
+ * dynamic runtime array slicing calculation phases.
+ */
+interface VmtxParentContext {
+	parent: {
+		vhea: { numberOfMetrics: number };
+		maxp: { numGlyphs: number };
+	};
+}
 
 const VmtxEntryFields = {
 	advance: r.uint16, // The advance height of the glyph
-	bearing: r.int16, // The top sidebearing of the glyph
+	bearing: r.int16,  // The top sidebearing of the glyph
 };
+
 const VmtxEntryStruct = new r.Struct<typeof VmtxEntryFields, GlyphAxisMetrics>(
 	VmtxEntryFields,
 );
@@ -16,11 +30,12 @@ const VmtxEntryStruct = new r.Struct<typeof VmtxEntryFields, GlyphAxisMetrics>(
 const VmtxFields = {
 	metrics: new r.LazyArray(
 		VmtxEntryStruct,
-		(t) => t.parent.vhea.numberOfMetrics,
+		(t: VmtxParentContext) => t.parent.vhea.numberOfMetrics,
 	),
 	bearings: new r.LazyArray(
 		r.int16,
-		(t) => t.parent.maxp.numGlyphs - t.parent.vhea.numberOfMetrics,
+		(t: VmtxParentContext) => t.parent.maxp.numGlyphs - t.parent.vhea.numberOfMetrics,
 	),
 };
-export default new r.Struct<typeof VmtxFields, VmtxTable>(VmtxFields);
+
+export default new r.Struct<typeof VmtxFields, SFNTTable.vmtx>(VmtxFields);
