@@ -1,10 +1,6 @@
 import r from '@pdf-lib/restructure';
 import { Feature, type OpenTypeFeatureTable } from './opentype.js';
 
-// ==========================================
-// Domain 1: Variation Store Interfaces
-// ==========================================
-
 export interface OpenTypeRegionAxisCoordinates {
 	startCoord: number;
 	peakCoord: number;
@@ -77,20 +73,28 @@ export interface OpenTypeFeatureVariationsTable {
 
 const F2DOT14 = new r.Fixed(16, 'BE', 14);
 
-const RegionAxisCoordinates = new r.Struct<any, OpenTypeRegionAxisCoordinates>({
+const regionAxisCoordinatesFields = {
 	startCoord: F2DOT14,
 	peakCoord: F2DOT14,
 	endCoord: F2DOT14,
-});
+};
+const RegionAxisCoordinates = new r.Struct<
+	typeof regionAxisCoordinatesFields,
+	OpenTypeRegionAxisCoordinates
+>(regionAxisCoordinatesFields);
 
-const VariationRegionList = new r.Struct<any, OpenTypeVariationRegionList>({
+const variationRegionListFields = {
 	axisCount: r.uint16,
 	regionCount: r.uint16,
 	variationRegions: new r.Array(
 		new r.Array(RegionAxisCoordinates, 'axisCount'),
 		'regionCount',
 	),
-});
+};
+const VariationRegionList = new r.Struct<
+	typeof variationRegionListFields,
+	OpenTypeVariationRegionList
+>(variationRegionListFields);
 
 interface DeltaSetParentContext {
 	shortDeltaCount: number;
@@ -103,7 +107,7 @@ interface DeltaSetContext {
 	regionDeltas: number[];
 }
 
-const DeltaSet = new r.Struct<any, OpenTypeDeltaSet>({
+const deltaSetFields = {
 	shortDeltas: new r.Array(
 		r.int16,
 		(t: { parent: DeltaSetParentContext }) => t.parent.shortDeltaCount,
@@ -115,15 +119,22 @@ const DeltaSet = new r.Struct<any, OpenTypeDeltaSet>({
 	),
 	deltas: (t: DeltaSetContext): number[] =>
 		t.shortDeltas.concat(t.regionDeltas),
-});
+};
+const DeltaSet = new r.Struct<typeof deltaSetFields, OpenTypeDeltaSet>(
+	deltaSetFields,
+);
 
-const ItemVariationData = new r.Struct<any, OpenTypeItemVariationData>({
+const itemVariationDataFields = {
 	itemCount: r.uint16,
 	shortDeltaCount: r.uint16,
 	regionIndexCount: r.uint16,
 	regionIndexes: new r.Array(r.uint16, 'regionIndexCount'),
 	deltaSets: new r.Array(DeltaSet, 'itemCount'),
-});
+};
+const ItemVariationData = new r.Struct<
+	typeof itemVariationDataFields,
+	OpenTypeItemVariationData
+>(itemVariationDataFields);
 
 const variationStoreFields = {
 	format: r.uint16,
@@ -134,60 +145,67 @@ const variationStoreFields = {
 		'variationDataCount',
 	),
 };
-
 export const ItemVariationStore = new r.Struct<
 	typeof variationStoreFields,
 	ItemVariationStoreTable
 >(variationStoreFields);
 
-const ConditionTable = new r.VersionedStruct<any, OpenTypeConditionTable>(
-	r.uint16,
-	{
-		1: {
-			axisIndex: r.uint16,
-			filterRangeMinValue: F2DOT14,
-			filterRangeMaxValue: F2DOT14,
-		},
+const conditionTableFields = {
+	1: {
+		axisIndex: r.uint16,
+		filterRangeMinValue: F2DOT14,
+		filterRangeMaxValue: F2DOT14,
 	},
-);
+};
+const ConditionTable = new r.VersionedStruct<
+	typeof conditionTableFields,
+	OpenTypeConditionTable
+>(r.uint16, conditionTableFields);
 
-const ConditionSet = new r.Struct<any, OpenTypeConditionSet>({
+const conditionSetFields = {
 	conditionCount: r.uint16,
 	conditionTable: new r.Array(
 		new r.Pointer(r.uint32, ConditionTable),
 		'conditionCount',
 	),
-});
+};
+const ConditionSet = new r.Struct<
+	typeof conditionSetFields,
+	OpenTypeConditionSet
+>(conditionSetFields);
 
-const FeatureTableSubstitutionRecord = new r.Struct<
-	any,
-	OpenTypeFeatureTableSubstitutionRecord
->({
+const featureTableSubstitutionRecordFields = {
 	featureIndex: r.uint16,
 	alternateFeatureTable: new r.Pointer(r.uint32, Feature, { type: 'parent' }),
-});
+};
+const FeatureTableSubstitutionRecord = new r.Struct<
+	typeof featureTableSubstitutionRecordFields,
+	OpenTypeFeatureTableSubstitutionRecord
+>(featureTableSubstitutionRecordFields);
 
-const FeatureTableSubstitution = new r.Struct<
-	any,
-	OpenTypeFeatureTableSubstitution
->({
+const featureTableSubstitutionFields = {
 	version: r.fixed32,
 	substitutionCount: r.uint16,
 	substitutions: new r.Array(
 		FeatureTableSubstitutionRecord,
 		'substitutionCount',
 	),
-});
+};
+const FeatureTableSubstitution = new r.Struct<
+	typeof featureTableSubstitutionFields,
+	OpenTypeFeatureTableSubstitution
+>(featureTableSubstitutionFields);
 
-const FeatureVariationRecord = new r.Struct<
-	any,
-	OpenTypeFeatureVariationRecord
->({
+const featureVariationRecordFields = {
 	conditionSet: new r.Pointer(r.uint32, ConditionSet, { type: 'parent' }),
 	featureTableSubstitution: new r.Pointer(r.uint32, FeatureTableSubstitution, {
 		type: 'parent',
 	}),
-});
+};
+const FeatureVariationRecord = new r.Struct<
+	typeof featureVariationRecordFields,
+	OpenTypeFeatureVariationRecord
+>(featureVariationRecordFields);
 
 const featureVariationsFields = {
 	majorVersion: r.uint16,
