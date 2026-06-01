@@ -13,6 +13,53 @@ import r, {
 	type ParsingContext,
 } from '@pdf-lib/restructure';
 
+// Common AAT binary search header structure
+interface AATBinarySearchHeader {
+	unitSize: number;
+	nUnits: number;
+	searchRange: number;
+	entrySelector: number;
+	rangeShift: number;
+}
+
+export type AATLookupTable<T> =
+	| {
+			version: 0;
+			values: T[];
+	  }
+	| {
+			version: 2;
+			binarySearchHeader: AATBinarySearchHeader;
+			segments: {
+				lastGlyph: number;
+				firstGlyph: number;
+				value: T;
+			}[];
+	  }
+	| {
+			version: 4;
+			binarySearchHeader: AATBinarySearchHeader;
+			segments: {
+				lastGlyph: number;
+				firstGlyph: number;
+				values: T[]; // Pointer translates directly to the resolved value array
+			}[];
+	  }
+	| {
+			version: 6;
+			binarySearchHeader: AATBinarySearchHeader;
+			segments: {
+				glyph: number;
+				value: T;
+			}[];
+	  }
+	| {
+			version: 8;
+			firstGlyph: number;
+			count: number;
+			values: T[];
+	  };
+
 class UnboundedArrayAccessor<TField extends FieldT<any>> {
 	private type: TField;
 	private stream: DecodeStream;
