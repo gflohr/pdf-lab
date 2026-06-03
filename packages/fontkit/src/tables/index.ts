@@ -1,6 +1,9 @@
 /** biome-ignore-all assist/source/organizeImports: tables are sorted by topic */
 import type { ArrayT, StructT, VersionedStructT } from '@pdf-lib/restructure';
 
+// AAT.
+import type { AAT } from './aat.js';
+
 // Required Tables
 import cmap from './cmap.js';
 import head from './head.js';
@@ -119,6 +122,17 @@ const tables = {
 export default tables;
 
 export namespace SFNTTable {
+	export type AATBinarySearchHeader = AAT.BinarySearchHeader;
+	export type AATLookupTableV0<T> = AAT.LookupTableV0<T>;
+	export type AATLookupTableV2<T> = AAT.LookupTableV2<T>;
+	export type AATLookupTableV4<T> = AAT.LookupTableV4<T>;
+	export type AATLookupTableV6<T> = AAT.LookupTableV6<T>;
+	export type AATLookupTableV8<T> = AAT.LookupTableV8<T>;
+	export type AATLookupTable<T> = AAT.LookupTable<T>;
+	export type AATStateHeader = AAT.StateHeader;
+	export type AATStateEntry = AAT.StateEntry;
+	export type AATStateHeader1 = AAT.StateHeader1;
+
 	export type hmtx = hmtxTable.hmtx;
 
 	export type nameLocalizedStrings = nameTable.nameLocalizedStrings;

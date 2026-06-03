@@ -1,5 +1,5 @@
 import r from '@pdf-lib/restructure';
-import { type AATLookupTable, LookupTable } from './aat.js';
+import { type AAT, LookupTable } from './aat.js';
 
 export namespace opbdTable {
 	export interface opbdOpticalBounds {
@@ -12,16 +12,20 @@ export namespace opbdTable {
 	export interface opbd {
 		version: number;
 		format: number;
-		lookupTable: AATLookupTable<opbdOpticalBounds>;
+		lookupTable: AAT.LookupTable<opbdOpticalBounds>;
 	}
 }
 
-const OpticalBounds = new r.Struct({
+const opticalBoundsStructFields = {
 	left: r.int16,
 	top: r.int16,
 	right: r.int16,
 	bottom: r.int16,
-});
+};
+const OpticalBounds = new r.Struct<
+	typeof opticalBoundsStructFields,
+	opbdTable.opbdOpticalBounds
+>(opticalBoundsStructFields);
 
 const opticalBoundsFields = {
 	version: r.fixed32,

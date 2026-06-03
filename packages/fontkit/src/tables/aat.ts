@@ -13,52 +13,91 @@ import r, {
 	type ParsingContext,
 } from '@pdf-lib/restructure';
 
-// Common AAT binary search header structure
-interface AATBinarySearchHeader {
-	unitSize: number;
-	nUnits: number;
-	searchRange: number;
-	entrySelector: number;
-	rangeShift: number;
-}
+export namespace AAT {
+	// Common AAT binary search header structure
+	export interface BinarySearchHeader {
+		unitSize: number;
+		nUnits: number;
+		searchRange: number;
+		entrySelector: number;
+		rangeShift: number;
+	}
 
-export type AATLookupTable<T> =
-	| {
-			version: 0;
-			values: T[];
-	  }
-	| {
-			version: 2;
-			binarySearchHeader: AATBinarySearchHeader;
-			segments: {
-				lastGlyph: number;
-				firstGlyph: number;
-				value: T;
-			}[];
-	  }
-	| {
-			version: 4;
-			binarySearchHeader: AATBinarySearchHeader;
-			segments: {
-				lastGlyph: number;
-				firstGlyph: number;
-				values: T[]; // Pointer translates directly to the resolved value array
-			}[];
-	  }
-	| {
-			version: 6;
-			binarySearchHeader: AATBinarySearchHeader;
-			segments: {
-				glyph: number;
-				value: T;
-			}[];
-	  }
-	| {
-			version: 8;
-			firstGlyph: number;
-			count: number;
-			values: T[];
-	  };
+	export interface LookupTableV0<T> {
+		version: 0;
+		values: T[];
+	}
+
+	interface LookupSegmentSingle<T> {
+		lastGlyph: number;
+		firstGlyph: number;
+		value: T;
+	}
+
+	export interface LookupTableV2<T> {
+		version: 2;
+		binarySearchHeader: BinarySearchHeader;
+		segments: LookupSegmentSingle<T>[];
+	}
+
+	interface LookupSegmentArray<T> {
+		lastGlyph: number;
+		firstGlyph: number;
+		values: T[]; // Pointer translates directly to the resolved value array.
+	}
+
+	export interface LookupTableV4<T> {
+		version: 4;
+		binarySearchHeader: AAT.BinarySearchHeader;
+		segments: LookupSegmentArray<T>[];
+	}
+
+	interface LookupSingle<T> {
+		glyph: number;
+		value: T;
+	}
+
+	export interface LookupTableV6<T> {
+		version: 6;
+		binarySearchHeader: AAT.BinarySearchHeader;
+		segments: LookupSingle<T>[];
+	}
+
+	export interface LookupTableV8<T> {
+		version: 8;
+		firstGlyph: number;
+		count: number;
+		values: T[];
+	}
+
+	export type LookupTable<T> =
+		| LookupTableV0<T>
+		| LookupTableV2<T>
+		| LookupTableV4<T>
+		| LookupTableV6<T>
+		| LookupTableV8<T>;
+
+	export interface StateHeader {
+		nClasses: number;
+		classTable: number;
+		stateArray: number;
+		entryTable: number;
+	}
+
+	export interface StateEntry {
+		newStateOffset: number;
+		newState: number;
+		flags: number;
+		[additionalKeys: string]: any;
+	}
+
+	export interface StateHeader1 {
+		nClasses: number;
+		classTable: Omit<LookupTableV8<number>, 'count'>;
+		stateArray: any;
+		entryTable: any;
+	}
+}
 
 class UnboundedArrayAccessor<TField extends FieldT<any>> {
 	private type: TField;
@@ -113,7 +152,9 @@ export class UnboundedArray<
 /**
  * Builds an AAT lookup-table parser for the provided value field type.
  */
-export const LookupTable = (ValueType: FieldT<any> = r.uint16) => {
+export const LookupTable = <TField extends FieldT<any> = typeof r.uint16>(
+	ValueType: TField = r.uint16 as unknown as TField,
+) => {
 	// Helper class that makes internal structures invisible to pointers
 	class Shadow<TField extends FieldT<any>> implements FieldT<any> {
 		private type: TField;
@@ -141,23 +182,31 @@ export const LookupTable = (ValueType: FieldT<any> = r.uint16) => {
 		}
 	}
 
-	ValueType = new Shadow(ValueType);
+	ValueType = new Shadow(ValueType) as unknown as TField;
 
-	const BinarySearchHeader = new r.Struct({
+	const binarySearchHeaderFields = {
 		unitSize: r.uint16,
 		nUnits: r.uint16,
 		searchRange: r.uint16,
 		entrySelector: r.uint16,
 		rangeShift: r.uint16,
-	});
+	};
+	const BinarySearchHeader = new r.Struct<
+		typeof binarySearchHeaderFields,
+		AAT.BinarySearchHeader
+	>(binarySearchHeaderFields);
 
-	const LookupSegmentSingle = new r.Struct({
+	const lookupSegmentSingleFields = {
 		lastGlyph: r.uint16,
 		firstGlyph: r.uint16,
 		value: ValueType,
-	});
+	};
+	const LookupSegmentSingle = new r.Struct<
+		typeof lookupSegmentSingleFields,
+		AAT.LookupSegmentSingle<InferField<TField>>
+	>(lookupSegmentSingleFields);
 
-	const LookupSegmentArray = new r.Struct({
+	const lookupSegmentArrayFields = {
 		lastGlyph: r.uint16,
 		firstGlyph: r.uint16,
 		values: new r.Pointer(
@@ -165,14 +214,22 @@ export const LookupTable = (ValueType: FieldT<any> = r.uint16) => {
 			new r.Array(ValueType, (t) => t.lastGlyph - t.firstGlyph + 1),
 			{ type: 'parent' },
 		),
-	});
+	};
+	const LookupSegmentArray = new r.Struct<
+		typeof lookupSegmentArrayFields,
+		AAT.LookupSegmentArray<InferField<TField>>
+	>(lookupSegmentArrayFields);
 
-	const LookupSingle = new r.Struct({
+	const lookupSingleFields = {
 		glyph: r.uint16,
 		value: ValueType,
-	});
+	};
+	const LookupSingle = new r.Struct<
+		typeof lookupSingleFields,
+		AAT.LookupSingle<InferField<TField>>
+	>(lookupSingleFields);
 
-	return new r.VersionedStruct(r.uint16, {
+	const lookupTableFields = {
 		0: {
 			values: new UnboundedArray(ValueType), // length == number of glyphs maybe?
 		},
@@ -199,7 +256,12 @@ export const LookupTable = (ValueType: FieldT<any> = r.uint16) => {
 			count: r.uint16,
 			values: new r.Array(ValueType, 'count'),
 		},
-	});
+	};
+
+	return new r.VersionedStruct<
+		typeof lookupTableFields,
+		AAT.LookupTable<InferField<TField>>
+	>(r.uint16, lookupTableFields);
 };
 
 export function StateTable(entryData = {}, lookupType = r.uint16) {
@@ -211,30 +273,39 @@ export function StateTable(entryData = {}, lookupType = r.uint16) {
 		entryData,
 	);
 
-	const Entry = new r.Struct(entry);
+	const Entry = new r.Struct<typeof entry>(entry);
 	const StateArray = new UnboundedArray(
 		new r.Array(r.uint16, (t) => t.nClasses),
 	);
 
-	const StateHeader = new r.Struct({
+	const stateHeaderFields = {
 		nClasses: r.uint32,
 		classTable: new r.Pointer(r.uint32, LookupTable(lookupType)),
 		stateArray: new r.Pointer(r.uint32, StateArray),
 		entryTable: new r.Pointer(r.uint32, new UnboundedArray(Entry)),
-	});
+	};
+	const StateHeader = new r.Struct<typeof stateHeaderFields, AAT.StateHeader>(
+		stateHeaderFields,
+	);
 
 	return StateHeader;
 }
 
 // This is the old version of the StateTable structure
 export function StateTable1(entryData = {}) {
-	const ClassLookupTable = new r.Struct({
+	const classLookupTableFields = {
 		version() {
 			return 8;
 		}, // simulate LookupTable
 		firstGlyph: r.uint16,
 		values: new r.Array(r.uint8, r.uint16),
-	});
+	};
+
+	// 💡 FIX: Access the interface via the AAT namespace, and pass 'count' as a string literal type
+	const ClassLookupTable = new r.Struct<
+		typeof classLookupTableFields,
+		Omit<AAT.LookupTableV8<number>, 'count'>
+	>(classLookupTableFields);
 
 	const entry = Object.assign(
 		{
@@ -249,17 +320,23 @@ export function StateTable1(entryData = {}) {
 		entryData,
 	);
 
-	const Entry = new r.Struct(entry);
+	// 💡 FIX: Swap out the FIXME with the new dynamic AAT.StateEntry type mapping
+	const Entry = new r.Struct<typeof entry, AAT.StateEntry>(entry);
 	const StateArray = new UnboundedArray(
 		new r.Array(r.uint8, (t) => t.nClasses),
 	);
 
-	const StateHeader1 = new r.Struct({
+	const stateHeader1Fields = {
 		nClasses: r.uint16,
 		classTable: new r.Pointer(r.uint16, ClassLookupTable),
 		stateArray: new r.Pointer(r.uint16, StateArray),
 		entryTable: new r.Pointer(r.uint16, new UnboundedArray(Entry)),
-	});
+	};
+
+	const StateHeader1 = new r.Struct<
+		typeof stateHeader1Fields,
+		AAT.StateHeader1
+	>(stateHeader1Fields);
 
 	return StateHeader1;
 }
