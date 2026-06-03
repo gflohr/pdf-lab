@@ -24,7 +24,26 @@ import WOFF2DirectoryStruct from './tables/woff2-directory.js';
  */
 export class WOFF2Font extends SFNTFont<WOFF2Directory> {
 	private dataPos?: number;
-	private decompressed = false;
+	// FIXME: DO NOT initialize this inline (e.g., `= false`).
+	// SFNTFont's constructor invokes overridable subclass methods (like
+	// `decodeTable`). But the property initialisation happens *after* the
+	// parent constructor returns.
+	//
+	// In other words: If the parent constructor invokes code that causes
+	// the font data to be decompressed, the currently undefined property
+	// `decompressed` is correctly set to `true` after decompression took
+	// place. However, after that, the JavaScript engine resets the property
+	// to `false`, so that the decompression happens a second time.
+	//
+ 	// You can verify this by adding a statement like `console.dir(this.name)`
+	// at the end of the constructor of the parent class. At the end of the
+	// day, the cmap table - necessary for the cmapProcessor - fails to decode,
+	// because the decompression is totally out of sync.
+	//
+	// Long-term solution: Refactor SFNTFont to remove callbacks from the
+	// constructor and use an explicit lifecycle initialization method (e.g.,
+	// `.init()`).
+	private decompressed!: boolean;
 	public transformedGlyphs?: DecodedGlyph[];
 
 	public static probe(buffer: Buffer) {
