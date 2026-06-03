@@ -5,6 +5,7 @@ import r, {
 	type Length,
 	type ParsingContext,
 } from '@pdf-lib/restructure';
+import { FatalFontError } from './fatal-font-error.js';
 import type Glyph from './glyph/glyph.js';
 import TTFGlyph, {
 	type DecodedCompositeGlyph,
@@ -25,29 +26,19 @@ import WOFF2DirectoryStruct from './tables/woff2-directory.js';
 export class WOFF2Font extends SFNTFont<WOFF2Directory> {
 	private dataPos?: number;
 	// FIXME: DO NOT initialize this inline (e.g., `= false`).
-	// SFNTFont's constructor invokes overridable subclass methods (like
-	// `decodeTable`). But the property initialisation happens *after* the
-	// parent constructor returns.
 	//
-	// In other words: If the parent constructor invokes code that causes
-	// the font data to be decompressed, the currently undefined property
-	// `decompressed` is correctly set to `true` after decompression took
-	// place. However, after that, the JavaScript engine resets the property
-	// to `false`, so that the decompression happens a second time.
-	//
- 	// You can verify this by adding a statement like `console.dir(this.name)`
-	// at the end of the constructor of the parent class. At the end of the
-	// day, the cmap table - necessary for the cmapProcessor - fails to decode,
-	// because the decompression is totally out of sync.
-	//
-	// Long-term solution: Refactor SFNTFont to remove callbacks from the
-	// constructor and use an explicit lifecycle initialization method (e.g.,
-	// `.init()`).
-	private decompressed!: boolean;
+	// See https://www.guido-flohr.net/a-javascript-lifecycle-trap-how-class-field-initialisers-break-inheritance/
+	private decompressed: boolean;
 	public transformedGlyphs?: DecodedGlyph[];
 
 	public static probe(buffer: Buffer) {
 		return buffer.toString('ascii', 0, 4) === 'wOF2';
+	}
+
+	constructor(stream: DecodeStream, variationCoords: number[] | null = null) {
+		super(stream, variationCoords);
+		this.decompress();
+		this.decompressed = true;
 	}
 
 	protected decodeDirectory(): WOFF2Directory {
@@ -59,33 +50,34 @@ export class WOFF2Font extends SFNTFont<WOFF2Directory> {
 	}
 
 	private decompress() {
-		// decompress data and setup table offsets if we haven't already
-		if (!this.decompressed) {
-			this.stream.pos = this.dataPos!;
-			const buffer = this.stream.readBuffer(this.directory.totalCompressedSize);
+		this.stream.pos = this.dataPos!;
+		const buffer = this.stream.readBuffer(this.directory.totalCompressedSize);
 
-			let decompressedSize = 0;
-			for (const tag in this.directory.tables) {
-				const entry = this.directory.tables[tag];
-				entry.offset = decompressedSize;
-				decompressedSize +=
-					entry.transformLength != null ? entry.transformLength : entry.length;
-			}
-
-			const decompressed = brotli(buffer, decompressedSize);
-			if (!decompressed) {
-				throw new Error('Error decoding compressed data in WOFF2');
-			}
-
-			this.stream = new r.DecodeStream(Buffer.from(decompressed));
-			this.decompressed = true;
+		let decompressedSize = 0;
+		for (const tag in this.directory.tables) {
+			const entry = this.directory.tables[tag];
+			entry.offset = decompressedSize;
+			decompressedSize +=
+				entry.transformLength != null ? entry.transformLength : entry.length;
 		}
+
+		const decompressed = brotli(buffer, decompressedSize);
+		if (!decompressed) {
+			throw new Error('Error decoding compressed data in WOFF2');
+		}
+
+		this.stream = new r.DecodeStream(Buffer.from(decompressed));
 	}
 
 	protected decodeTable<K extends keyof typeof tables>(
 		table: SFNTDirectoryEntry,
 	): ReturnType<(typeof tables)[K]['decode']> {
-		this.decompress();
+		if (!this.decompressed) {
+			throw new FatalFontError(
+				'Attempt to access uninitialised font table data!',
+			);
+		}
+
 		return super.decodeTable<K>(table as unknown as SFNTDirectoryEntry);
 	}
 
@@ -110,7 +102,6 @@ export class WOFF2Font extends SFNTFont<WOFF2Directory> {
 	}
 
 	private transformGlyfTable() {
-		this.decompress();
 		const tables = this.directory.tables;
 		this.stream.pos = tables.glyf!.offset;
 		const table = GlyfTable.decode(this.stream);

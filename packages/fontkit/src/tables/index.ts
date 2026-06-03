@@ -121,7 +121,9 @@ export default tables;
 export namespace SFNTTable {
 	export type hmtx = hmtxTable.hmtx;
 
+	export type nameLocalizedStrings = nameTable.nameLocalizedStrings;
 	export type nameLangTagRecord = nameTable.nameLangTagRecord;
+	export type nameProcessedRecords = nameTable.nameProcessedRecords;
 	export type nameRecord = nameTable.nameRecord;
 	export type nameV1 = nameTable.nameV1;
 	export type nameV2 = nameTable.nameV2;

@@ -20,55 +20,50 @@ export namespace nameTable {
 	 * Reusable mapping structure that represents the localized strings.
 	 * E.g., { en: "Arial", de: "Arial" }
 	 */
-	export type LocalizedStrings = Record<string, string>;
+	export type nameLocalizedStrings = Record<string, string>;
 
 	/**
 	 * The final, processed form of the name records dictionary after `.process()` executes.
 	 */
-	export interface ProcessedNameRecords {
-		copyright?: LocalizedStrings;
-		fontFamily?: LocalizedStrings;
-		fontSubfamily?: LocalizedStrings;
-		uniqueSubfamily?: LocalizedStrings;
-		fullName?: LocalizedStrings;
-		version?: LocalizedStrings;
-		postscriptName?: LocalizedStrings;
-		trademark?: LocalizedStrings;
-		manufacturer?: LocalizedStrings;
-		designer?: LocalizedStrings;
-		description?: LocalizedStrings;
-		vendorURL?: LocalizedStrings;
-		designerURL?: LocalizedStrings;
-		license?: LocalizedStrings;
-		licenseURL?: LocalizedStrings;
-		preferredFamily?: LocalizedStrings;
-		preferredSubfamily?: LocalizedStrings;
-		compatibleFull?: LocalizedStrings;
-		sampleText?: LocalizedStrings;
-		postscriptCIDFontName?: LocalizedStrings;
-		wwsFamilyName?: LocalizedStrings;
-		wwsSubfamilyName?: LocalizedStrings;
-		fontFeatures?: Record<number, LocalizedStrings>;
-		// Fallback catch-all for vendor custom IDs or anything outside the spec list
-		[customIdOrKey: string]:
-			| LocalizedStrings
-			| Record<number, LocalizedStrings>
-			| undefined;
+	export interface nameProcessedRecords {
+		copyright?: nameLocalizedStrings;
+		fontFamily?: nameLocalizedStrings;
+		fontSubfamily?: nameLocalizedStrings;
+		uniqueSubfamily?: nameLocalizedStrings;
+		fullName?: nameLocalizedStrings;
+		version?: nameLocalizedStrings;
+		postscriptName?: nameLocalizedStrings;
+		trademark?: nameLocalizedStrings;
+		manufacturer?: nameLocalizedStrings;
+		designer?: nameLocalizedStrings;
+		description?: nameLocalizedStrings;
+		vendorURL?: nameLocalizedStrings;
+		designerURL?: nameLocalizedStrings;
+		license?: nameLocalizedStrings;
+		licenseURL?: nameLocalizedStrings;
+		preferredFamily?: nameLocalizedStrings;
+		preferredSubfamily?: nameLocalizedStrings;
+		compatibleFull?: nameLocalizedStrings;
+		sampleText?: nameLocalizedStrings;
+		postscriptCIDFontName?: nameLocalizedStrings;
+		wwsFamilyName?: nameLocalizedStrings;
+		wwsSubfamilyName?: nameLocalizedStrings;
+		fontFeatures?: Record<number, nameLocalizedStrings>;
 	}
 
-	// Notice that "records" is typed as ProcessedNameRecords to match the output state!
+	// Notice that "records" is typed as nameProcessedRecords to match the output state!
 	export interface nameV1 {
 		version: 1;
 		count: number;
 		stringOffset: number;
-		records: ProcessedNameRecords;
+		records: nameProcessedRecords;
 	}
 
 	export interface nameV2 {
 		version: 2;
 		count: number;
 		stringOffset: number;
-		records: ProcessedNameRecords;
+		records: nameProcessedRecords;
 		langTagCount: number;
 		langTags: nameLangTagRecord[];
 	}
@@ -159,7 +154,7 @@ const NAMES = [
 
 nameStruct.process = function (this: any) {
 	const rawRecords = this.records as nameTable.nameRecord[];
-	const processedRecords: nameTable.ProcessedNameRecords = {};
+	const processedRecords: nameTable.nameProcessedRecords = {};
 
 	for (const record of rawRecords) {
 		let language: string | null =
@@ -214,11 +209,11 @@ nameStruct.preEncode = function (this: any) {
 	this.version = 0;
 
 	const records = [];
-	const processed = this.records as nameTable.ProcessedNameRecords;
+	const processed = this.records as nameTable.nameProcessedRecords;
 
 	for (const key in processed) {
 		if (key === 'fontFeatures') continue;
-		const val = processed[key] as nameTable.LocalizedStrings;
+		const val = processed[key] as nameTable.nameLocalizedStrings;
 		if (!val || !val.en) continue;
 
 		records.push({

@@ -2,6 +2,7 @@ import type { DecodeStream, FieldT } from '@pdf-lib/restructure';
 import r from '@pdf-lib/restructure';
 import fontkit from './base.js';
 import CmapProcessor from './CmapProcessor.js';
+import { FatalFontError } from './fatal-font-error.js';
 import type {
 	Font,
 	NamedVariation,
@@ -31,7 +32,7 @@ import Directory from './tables/directory.js';
 import type { HVARTable } from './tables/HVAR.js';
 import type { HeadTable } from './tables/head.js';
 import type { HheaTable } from './tables/hhea.js';
-import tables from './tables/index.js';
+import tables, { type SFNTTable } from './tables/index.js';
 import type { TypeFeatures } from './tables/opentype.js';
 
 /**
@@ -154,6 +155,10 @@ export class SFNTFont<
 			try {
 				this.tables[table.tag] = this.decodeTable(table);
 			} catch (e) {
+				if (e instanceof FatalFontError) {
+					throw e;
+				}
+
 				// Avoid retrying the failed decode attempt.
 				this.tables[table.tag] = null;
 				if (fontkit.logErrors) {
@@ -232,10 +237,13 @@ export class SFNTFont<
 	 * `lang` is a BCP-47 language code.
 	 * @returns the table entry or `null` if not present.
 	 */
-	getName(key: string, lang = 'en'): string | null {
+	getName(
+		key: keyof SFNTTable.nameProcessedRecords,
+		lang = 'en',
+	): string | null {
 		const record = this.name.records[key];
 		if (record) {
-			return record[lang];
+			return (record as Record<string, string>)[lang];
 		}
 
 		return null;
