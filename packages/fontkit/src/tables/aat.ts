@@ -28,7 +28,7 @@ export namespace AAT {
 		values: T[];
 	}
 
-	interface LookupSegmentSingle<T> {
+	export interface LookupSegmentSingle<T> {
 		lastGlyph: number;
 		firstGlyph: number;
 		value: T;
@@ -40,7 +40,7 @@ export namespace AAT {
 		segments: LookupSegmentSingle<T>[];
 	}
 
-	interface LookupSegmentArray<T> {
+	export interface LookupSegmentArray<T> {
 		lastGlyph: number;
 		firstGlyph: number;
 		values: T[]; // Pointer translates directly to the resolved value array.
@@ -52,7 +52,7 @@ export namespace AAT {
 		segments: LookupSegmentArray<T>[];
 	}
 
-	interface LookupSingle<T> {
+	export interface LookupSingle<T> {
 		glyph: number;
 		value: T;
 	}
@@ -77,25 +77,31 @@ export namespace AAT {
 		| LookupTableV6<T>
 		| LookupTableV8<T>;
 
-	export interface StateHeader {
-		nClasses: number;
-		classTable: number;
-		stateArray: number;
-		entryTable: number;
-	}
-
-	export interface StateEntry {
+	export type StateEntry<TEntry> = {
 		newStateOffset: number;
 		newState: number;
 		flags: number;
 		[additionalKeys: string]: any;
+	} & TEntry;
+
+	export interface StateHeader<TLookup = number, TEntry = Record<string, any>> {
+		nClasses: number;
+		classTable: LookupTable<TLookup>;
+		stateArray: number;
+		entryTable: StateEntry<TEntry>[];
 	}
 
-	export interface StateHeader1 {
+	export type StateEntry1<TEntry> = {
+		newStateOffset: number;
+		newState: number;
+		flags: number;
+	} & TEntry;
+
+	export interface StateHeader1<TEntry = Record<string, any>> {
 		nClasses: number;
 		classTable: Omit<LookupTableV8<number>, 'count'>;
-		stateArray: any;
-		entryTable: any;
+		stateArray: number[][];
+		entryTable: StateEntry1<TEntry>[];
 	}
 }
 
@@ -264,7 +270,13 @@ export const LookupTable = <TField extends FieldT<any> = typeof r.uint16>(
 	>(r.uint16, lookupTableFields);
 };
 
-export function StateTable(entryData = {}, lookupType = r.uint16) {
+export function StateTable<
+	TLookupField extends FieldT<any> = typeof r.uint16,
+	TEntryData extends Record<string, any> = Record<string, never>,
+>(
+	entryData: TEntryData = {} as TEntryData,
+	lookupType: TLookupField = r.uint16 as unknown as TLookupField,
+) {
 	const entry = Object.assign(
 		{
 			newState: r.uint16,
@@ -291,8 +303,10 @@ export function StateTable(entryData = {}, lookupType = r.uint16) {
 	return StateHeader;
 }
 
-// This is the old version of the StateTable structure
-export function StateTable1(entryData = {}) {
+// This is the old version of the StateTable structure.
+export function StateTable1<
+	TEntryData extends Record<string, any> = Record<string, never>,
+>(entryData: TEntryData = {} as TEntryData) {
 	const classLookupTableFields = {
 		version() {
 			return 8;
@@ -301,7 +315,6 @@ export function StateTable1(entryData = {}) {
 		values: new r.Array(r.uint8, r.uint16),
 	};
 
-	// 💡 FIX: Access the interface via the AAT namespace, and pass 'count' as a string literal type
 	const ClassLookupTable = new r.Struct<
 		typeof classLookupTableFields,
 		Omit<AAT.LookupTableV8<number>, 'count'>
@@ -320,8 +333,7 @@ export function StateTable1(entryData = {}) {
 		entryData,
 	);
 
-	// 💡 FIX: Swap out the FIXME with the new dynamic AAT.StateEntry type mapping
-	const Entry = new r.Struct<typeof entry, AAT.StateEntry>(entry);
+	const Entry = new r.Struct<typeof entry, AAT.StateEntry1<TEntryData>>(entry);
 	const StateArray = new UnboundedArray(
 		new r.Array(r.uint8, (t) => t.nClasses),
 	);
@@ -335,7 +347,7 @@ export function StateTable1(entryData = {}) {
 
 	const StateHeader1 = new r.Struct<
 		typeof stateHeader1Fields,
-		AAT.StateHeader1
+		AAT.StateHeader1<TEntryData>
 	>(stateHeader1Fields);
 
 	return StateHeader1;

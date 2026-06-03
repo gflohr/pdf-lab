@@ -173,9 +173,11 @@ nameStruct.process = function (this: any) {
 		}
 
 		const isFontFeature = record.nameID >= 256;
-		const key = (isFontFeature
-			? 'fontFeatures'
-			: NAMES[record.nameID] || String(record.nameID)) as keyof nameTable.nameProcessedRecords;
+		const key = (
+			isFontFeature
+				? 'fontFeatures'
+				: NAMES[record.nameID] || String(record.nameID)
+		) as keyof nameTable.nameProcessedRecords;
 
 		if (isFontFeature) {
 			processedRecords.fontFeatures ||= {};
@@ -213,7 +215,9 @@ nameStruct.preEncode = function (this: any) {
 
 	for (const key in processed) {
 		if (key === 'fontFeatures') continue;
-		const val = processed[key as keyof nameTable.nameProcessedRecords] as nameTable.nameLocalizedStrings;
+		const val = processed[
+			key as keyof nameTable.nameProcessedRecords
+		] as nameTable.nameLocalizedStrings;
 		if (!val?.en) continue;
 
 		records.push({

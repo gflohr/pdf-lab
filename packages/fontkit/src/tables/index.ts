@@ -60,7 +60,7 @@ import feat from './feat.js';
 import fvar from './fvar.js';
 import gvar from './gvar.js';
 import just from './just.js';
-import morx from './morx.js';
+import morx, { type morxTable } from './morx.js';
 import opbd from './opbd.js';
 
 export type FontTable = Record<
@@ -130,10 +130,25 @@ export namespace SFNTTable {
 	export type AATLookupTableV8<T> = AAT.LookupTableV8<T>;
 	export type AATLookupTable<T> = AAT.LookupTable<T>;
 	export type AATStateHeader = AAT.StateHeader;
-	export type AATStateEntry = AAT.StateEntry;
+	export type AATStateEntry<T> = AAT.StateEntry<T>;
 	export type AATStateHeader1 = AAT.StateHeader1;
 
 	export type hmtx = hmtxTable.hmtx;
+
+	export type morxSubtableDataV0 = morxTable.morxSubtableDataV0;
+	export type morxContextualData = morxTable.morxContextualData;
+	export type morxSubstitutionTable = morxTable.morxSubstitutionTable;
+	export type morxSubtableDataV1 = morxTable.morxSubtableDataV1;
+	export type morxLigatureData = morxTable.morxLigatureData;
+	export type morxSubtableDataV2 = morxTable.morxSubtableDataV2;
+	export type morxSubtableDataV4 = morxTable.morxSubtableDataV4;
+	export type morxInsertionData = morxTable.morxInsertionData;
+	export type morxSubtableDataV5 = morxTable.morxSubtableDataV5;
+	export type morxSubtableData = morxTable.morxSubtableData;
+	export type morxSubtable = morxTable.morxSubtable;
+	export type morxFeatureEntry = morxTable.morxFeatureEntry;
+	export type morxChain = morxTable.morxChain;
+	export type morx = morxTable.morx;
 
 	export type nameLocalizedStrings = nameTable.nameLocalizedStrings;
 	export type nameLangTagRecord = nameTable.nameLangTagRecord;

@@ -1,5 +1,99 @@
-import r from '@pdf-lib/restructure';
-import { LookupTable, StateTable, UnboundedArray } from './aat.js';
+import r, { type PointerT } from '@pdf-lib/restructure';
+import { type AAT, LookupTable, StateTable, UnboundedArray } from './aat.js';
+
+export namespace morxTable {
+	// Format 0: Indic rearrangement subtable.
+	export interface morxSubtableDataV0 {
+		version: 0;
+		stateTable: AAT.StateHeader;
+	}
+
+	// Format 1: Contextual glyph substitution subtable.
+	export interface morxContextualData {
+		markIndex: number;
+		currentIndex: number;
+	}
+
+	export interface morxSubstitutionTable {
+		items: AAT.LookupTable<number>[];
+	}
+
+	export interface morxSubtableDataV1 {
+		version: 1;
+		stateTable: AAT.StateHeader<number, morxContextualData>;
+		substitutionTable: typeof SubstitutionTable extends PointerT<infer T>
+			? T
+			: unknown;
+	}
+
+	// Format 2: Ligature subtable.
+	export interface morxLigatureData {
+		action: number;
+	}
+
+	export interface morxSubtableDataV2 {
+		version: 2;
+		stateTable: AAT.StateHeader<number, morxLigatureData>;
+		ligatureActions: number[];
+		components: number[];
+		ligatureList: number[];
+	}
+
+	// Format 4: Non-contextual glyph substitution subtable.
+
+	export interface morxSubtableDataV4 {
+		version: 4;
+		lookupTable: AAT.LookupTable<number>;
+	}
+
+	// Format 5: Glyph insertion subtable.
+	export interface morxInsertionData {
+		currentInsertIndex: number;
+		markedInsertIndex: number;
+	}
+
+	export interface morxSubtableDataV5 {
+		version: 5;
+		stateTable: AAT.StateHeader<number, morxInsertionData>;
+		insertionActions: number[];
+	}
+
+	export type morxSubtableData =
+		| morxSubtableDataV0
+		| morxSubtableDataV1
+		| morxSubtableDataV2
+		| morxSubtableDataV4
+		| morxSubtableDataV5;
+
+	export interface morxSubtable {
+		length: number;
+		coverage: number;
+		type: number;
+		subFeatureFlags: number;
+		table: morxSubtable;
+	}
+	export interface morxFeatureEntry {
+		featureType: number;
+		featureSetting: number;
+		enableFlags: number;
+		disableFlags: number;
+	}
+
+	export interface morxChain {
+		defaultFlags: number;
+		chainLength: number;
+		nFeatureEntries: number;
+		nSubtables: number;
+		features: morxFeatureEntry[];
+		subtables: morxSubtable[];
+	}
+
+	export interface morx {
+		version: number;
+		nChains: number;
+		chains: morxChain[];
+	}
+}
 
 const LigatureData = {
 	action: r.uint16,
@@ -15,11 +109,15 @@ const InsertionData = {
 	markedInsertIndex: r.uint16,
 };
 
-const SubstitutionTable = new r.Struct({
+const subtitutionTableFields = {
 	items: new UnboundedArray(new r.Pointer(r.uint32, LookupTable())),
-});
+};
+const SubstitutionTable = new r.Struct<
+	typeof subtitutionTableFields,
+	morxTable.morxSubstitutionTable
+>(subtitutionTableFields);
 
-const SubtableData = new r.VersionedStruct('type', {
+const subtableDataFields = {
 	0: {
 		// Indic Rearrangement Subtable
 		stateTable: StateTable(),
@@ -49,36 +147,51 @@ const SubtableData = new r.VersionedStruct('type', {
 		stateTable: StateTable(InsertionData),
 		insertionActions: new r.Pointer(r.uint32, new UnboundedArray(r.uint16)),
 	},
-});
+};
+const SubtableData = new r.VersionedStruct<
+	typeof subtableDataFields,
+	morxTable.morxSubtableData
+>('type', subtableDataFields);
 
-const Subtable = new r.Struct({
+const subtableFields = {
 	length: r.uint32,
 	coverage: r.uint24,
 	type: r.uint8,
 	subFeatureFlags: r.uint32,
 	table: SubtableData,
 	padding: new r.Reserved(r.uint8, (t) => t.length - t._currentOffset),
-});
+};
+const Subtable = new r.Struct<typeof subtableFields, morxTable.morxSubtable>(
+	subtableFields,
+);
 
-const FeatureEntry = new r.Struct({
+const featureEntryFields = {
 	featureType: r.uint16,
 	featureSetting: r.uint16,
 	enableFlags: r.uint32,
 	disableFlags: r.uint32,
-});
+};
+const FeatureEntry = new r.Struct<
+	typeof featureEntryFields,
+	morxTable.morxFeatureEntry
+>(featureEntryFields);
 
-const MorxChain = new r.Struct({
+const morxChainFields = {
 	defaultFlags: r.uint32,
 	chainLength: r.uint32,
 	nFeatureEntries: r.uint32,
 	nSubtables: r.uint32,
 	features: new r.Array(FeatureEntry, 'nFeatureEntries'),
 	subtables: new r.Array(Subtable, 'nSubtables'),
-});
+};
+const MorxChain = new r.Struct(morxChainFields);
 
-export default new r.Struct({
+const morxFields = {
 	version: r.uint16,
 	unused: new r.Reserved(r.uint16),
 	nChains: r.uint32,
 	chains: new r.Array(MorxChain, 'nChains'),
-});
+};
+const morxStruct = new r.Struct<typeof morxFields, morxTable.morx>(morxFields);
+
+export default morxStruct;
