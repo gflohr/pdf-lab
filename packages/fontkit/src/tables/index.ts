@@ -9,7 +9,7 @@ import cmap from './cmap.js';
 import head from './head.js';
 import hhea from './hhea.js';
 import hmtx, { type hmtxTable } from './hmtx.js';
-import maxp from './maxp.js';
+import maxp, { type maxpTable } from './maxp.js';
 import name, { type nameTable } from './name.js';
 import OS2, { type OS2Table } from './OS2.js';
 import post, { type postTable } from './post.js';
@@ -134,6 +134,8 @@ export namespace SFNTTable {
 	export type AATStateHeader1 = AAT.StateHeader1;
 
 	export type hmtx = hmtxTable.hmtx;
+
+	export type maxp = maxpTable.maxp;
 
 	export type morxSubtableDataV0 = morxTable.morxSubtableDataV0;
 	export type morxContextualData = morxTable.morxContextualData;
