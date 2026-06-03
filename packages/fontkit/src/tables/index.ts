@@ -47,7 +47,7 @@ import DSIG from './DSIG.js';
 import gasp from './gasp.js';
 import hdmx from './hdmx.js';
 import kern from './kern.js';
-import LTSH from './LTSH.js';
+import LTSH, { type LTSHTable } from './LTSH.js';
 import PCLT, { type PCLTTable } from './PCLT.js';
 import VDMX, { type VDMXTable } from './VDMX.js';
 import vhea, { type vheaTable } from './vhea.js';
@@ -134,6 +134,8 @@ export namespace SFNTTable {
 	export type AATStateHeader1 = AAT.StateHeader1;
 
 	export type hmtx = hmtxTable.hmtx;
+
+	export type LTSH = LTSHTable.LTSH;
 
 	export type maxp = maxpTable.maxp;
 
