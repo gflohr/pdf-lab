@@ -29,7 +29,7 @@ import COLR from './COLR.js';
 import CPAL from './CPAL.js';
 
 // OpenType variations tables
-import HVAR from './HVAR.js';
+import HVAR, { type HVARTable } from './HVAR.js';
 
 // Bitmap Glyphs
 import EBLC from './EBLC.js';
@@ -134,6 +134,10 @@ export namespace SFNTTable {
 	export type AATStateHeader1 = AAT.StateHeader1;
 
 	export type hmtx = hmtxTable.hmtx;
+
+	export type HVARMapDataEntry = HVARTable.HVARMapDataEntry;
+	export type HVARDeltaSetIndexMap = HVARTable.HVARDeltaSetIndexMap;
+	export type HVAR = HVARTable.HVAR;
 
 	export type LTSH = LTSHTable.LTSH;
 
