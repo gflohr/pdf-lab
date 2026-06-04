@@ -46,7 +46,7 @@ import JSTF from './JSTF.js';
 import DSIG from './DSIG.js';
 import gasp from './gasp.js';
 import hdmx from './hdmx.js';
-import kern from './kern.js';
+import kern, { kernTable } from './kern.js';
 import LTSH, { type LTSHTable } from './LTSH.js';
 import PCLT, { type PCLTTable } from './PCLT.js';
 import VDMX, { type VDMXTable } from './VDMX.js';
@@ -138,6 +138,17 @@ export namespace SFNTTable {
 	export type HVARMapDataEntry = HVARTable.HVARMapDataEntry;
 	export type HVARDeltaSetIndexMap = HVARTable.HVARDeltaSetIndexMap;
 	export type HVAR = HVARTable.HVAR;
+
+	export type kernClassTable = kernTable.kernClassTable;
+	export type kern2Array = kernTable.kern2Array;
+	export type kernPair = kernTable.kernPair;
+	export type kernSubtableV0 = kernTable.kernSubtableV0;
+	export type kernSubtableV2 = kernTable.kernSubtableV2;
+	export type kernSubtableV3 = kernTable.kernSubtableV3;
+	export type kernSubtable = kernTable.kernSubtable;
+	export type kernV0 = kernTable.kernV0;
+	export type kernV1 = kernTable.kernV1;
+	export type kern = kernTable.kern;
 
 	export type locaV0 = locaTable.locaV0;
 	export type locaV1 = locaTable.locaV1;

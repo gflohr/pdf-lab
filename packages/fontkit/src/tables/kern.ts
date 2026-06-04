@@ -1,22 +1,163 @@
-import r, { type ParsingContext } from '@pdf-lib/restructure';
+import r, {
+	type ParsingContext,
+	type RestructureLazyArray,
+} from '@pdf-lib/restructure';
 
-const KernPair = new r.Struct({
+export namespace kernTable {
+	export interface kernPair {
+		left: number;
+		right: number;
+		value: number;
+	}
+
+	export interface kernClassTable {
+		firstGlyph: number;
+		nGlyphs: number;
+		offset: number[];
+		max: number;
+	}
+
+	export interface kern2Array {
+		off: number;
+		len: number;
+		values: RestructureLazyArray<number>;
+	}
+
+	export interface kernSubtableV0 {
+		version: 0;
+		nPairs: number;
+		searchRange: number;
+		entrySelector: number;
+		rangeShift: number;
+		pairs: kernPair[];
+	}
+
+	export interface kernSubtableV2 {
+		version: 2;
+		rowWidth: number;
+		leftTable: kernClassTable;
+		array: kern2Array;
+	}
+
+	export interface kernSubtableV3 {
+		version: 3;
+		glyphCount: number;
+		kernValueCount: number;
+		leftClassCount: number;
+		rightClassCount: number;
+		flags: number;
+		kernValue: number[];
+		leftClass: number[];
+		rightClass: number[];
+		kernIndex: number[];
+	}
+
+	export type kernSubtable = kernSubtableV0 | kernSubtableV2 | kernSubtableV3;
+
+	/**
+	 * Microsoft uses this format.
+	 */
+	export interface kernTableV0 {
+		version: 0;
+
+		/** Microsoft has an extra sub-table version number. */
+		subVersion: number;
+
+		/** Length of the subtable in bytes. */
+		length: number;
+
+		/** Format of the subtable. */
+		format: number;
+		coverage: {
+			/** `true` if table has horizontal data, `false` if vertical. */
+			horizontal: boolean;
+
+			/**
+			 * If `true`, the table has minimum values. If `false`, the table
+			 * has kerning values.
+			 */
+			minimum: boolean;
+
+			/**
+			 * If true, kerning is perpendicular to the flow of the text.
+			 */
+			crossStream: boolean;
+
+			/**
+			 * If `true`, the value in this table replaces the accumulated
+			 * value.
+			 */
+			override: boolean;
+		};
+		subtable: kernSubtable;
+	}
+
+	/**
+	 * Apple uses this format.
+	 */
+	export interface kernTableV1 {
+		version: 1;
+		length: number;
+		coverage: {
+			variation: boolean;
+
+			/**
+			 * If true, kerning is perpendicular to the flow of the text.
+			 */
+			crossStream: boolean;
+
+			/** `true` if table has vertical data, `false` if horizontal. */
+			vertical: boolean;
+		};
+		format: number;
+		tupleIndex: number;
+		subtable: kernSubtable;
+	}
+
+	export type kernTable = kernTableV0 | kernTableV1;
+
+	/**
+	 * Microsoft uses this format.
+	 */
+	export interface kernV0 {
+		version: 0;
+		ntables: number[];
+		tables: kernTable[];
+	}
+
+	/**
+	 * Apple uses this format.
+	 */
+	export interface kernV1 {
+		version: 1;
+		ntables: number[];
+		tables: kernTable[];
+	}
+
+	export type kern = kernV0 | kernV1;
+}
+
+const kernPairFields = {
 	left: r.uint16,
 	right: r.uint16,
 	value: r.int16,
-});
+};
+const kernPair = new r.Struct<typeof kernPairFields, kernTable.kernPair>(
+	kernPairFields,
+);
 
 interface ClassTableContext {
 	offsets: number[];
 }
 
-const ClassTable = new r.Struct({
+const classTableFields = {
 	firstGlyph: r.uint16,
 	nGlyphs: r.uint16,
 	offsets: new r.Array(r.uint16, 'nGlyphs'),
 	max: (t: ClassTableContext) =>
 		t.offsets.length && Math.max.apply(Math, t.offsets),
-});
+};
+const ClassTable = new r.Struct(classTableFields);
 interface LeftTableConfig {
 	max: number;
 }
@@ -36,22 +177,25 @@ interface Kern2ArrayContext extends ParsingContext {
 	off: number;
 }
 
-const Kern2Array = new r.Struct({
+const kern2ArrayFields = {
 	off: (t: Kern2ArrayContext) =>
 		t._startOffset! - t.parent!.parent!._startOffset!,
 	len: (t: Kern2ArrayContext) =>
 		((t.parent.leftTable.max - t.off) / t.parent.rowWidth + 1) *
 		(t.parent.rowWidth / 2),
 	values: new r.LazyArray(r.int16, 'len'),
-});
+};
+const Kern2Array = new r.Struct<typeof kern2ArrayFields, kernTable.kern2Array>(
+	kern2ArrayFields,
+);
 
-const KernSubtable = new r.VersionedStruct('format', {
+const kernSubtableFields = {
 	0: {
 		nPairs: r.uint16,
 		searchRange: r.uint16,
 		entrySelector: r.uint16,
 		rangeShift: r.uint16,
-		pairs: new r.Array(KernPair, 'nPairs'),
+		pairs: new r.Array(kernPair, 'nPairs'),
 	},
 
 	2: {
@@ -75,9 +219,13 @@ const KernSubtable = new r.VersionedStruct('format', {
 			(t) => t.leftClassCount * t.rightClassCount,
 		),
 	},
-});
+};
+const KernSubtable = new r.VersionedStruct<
+	typeof kernSubtableFields,
+	kernTable.kernSubtable
+>('format', kernSubtableFields);
 
-const KernTable = new r.VersionedStruct('version', {
+const kernTableFields = {
 	0: {
 		// Microsoft uses this format
 		subVersion: r.uint16, // Microsoft has an extra sub-table version number
@@ -110,9 +258,13 @@ const KernTable = new r.VersionedStruct('version', {
 		subtable: KernSubtable,
 		padding: new r.Reserved(r.uint8, (t) => t.length - t._currentOffset),
 	},
-});
+};
+const KernTable = new r.VersionedStruct<
+	typeof kernTableFields,
+	kernTable.kernTable
+>('version', kernTableFields);
 
-export default new r.VersionedStruct(r.uint16, {
+const kernFields = {
 	0: {
 		// Microsoft Version
 		nTables: r.uint16,
@@ -125,4 +277,10 @@ export default new r.VersionedStruct(r.uint16, {
 		nTables: r.uint32,
 		tables: new r.Array(KernTable, 'nTables'),
 	},
-});
+};
+const kernStruct = new r.VersionedStruct<typeof kernFields, kernTable.kern>(
+	r.uint16,
+	kernFields,
+);
+
+export default kernStruct;
