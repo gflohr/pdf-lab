@@ -1,16 +1,35 @@
 import r from '@pdf-lib/restructure';
 
-/**
- * It is expected that the offsets are sorted arrays!
- */
-const loca = new r.VersionedStruct('head.indexToLocFormat', {
+export namespace locaTable {
+	export interface locaV0 {
+		version: 0;
+		offset: number[];
+	}
+
+	export interface locaV1 {
+		version: 1;
+		offset: number[];
+	}
+
+	/**
+	 * Version 0 of the loca table has 16-bit offsets, version 1 has 32-bit
+	 * offsets. It is expected that the offsets are sorted.
+	 */
+	export type loca = locaV0 | locaV1;
+}
+
+const locaFields = {
 	0: {
 		offsets: new r.Array(r.uint16),
 	},
 	1: {
 		offsets: new r.Array(r.uint32),
 	},
-});
+};
+const loca = new r.VersionedStruct<typeof locaFields, locaTable.loca>(
+	'head.indexToLocFormat',
+	locaFields,
+);
 
 loca.process = function () {
 	if (this.version === 0) {

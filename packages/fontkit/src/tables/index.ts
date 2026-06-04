@@ -18,7 +18,7 @@ import post, { type postTable } from './post.js';
 import cvt from './cvt.js';
 import fpgm from './fpgm.js';
 import glyf from './glyf.js';
-import loca from './loca.js';
+import loca, { type locaTable } from './loca.js';
 import prep, { type prepTable } from './prep.js';
 
 // PostScript Outlines
@@ -138,6 +138,10 @@ export namespace SFNTTable {
 	export type HVARMapDataEntry = HVARTable.HVARMapDataEntry;
 	export type HVARDeltaSetIndexMap = HVARTable.HVARDeltaSetIndexMap;
 	export type HVAR = HVARTable.HVAR;
+
+	export type locaV0 = locaTable.locaV0;
+	export type locaV1 = locaTable.locaV1;
+	export type loca = locaTable.loca;
 
 	export type LTSH = LTSHTable.LTSH;
 
