@@ -155,7 +155,11 @@ const actionFields = {
 		return false; // Tells restructure not to actually parse anything
 	}),
 	actionData: ActionData,
-	padding: new r.Reserved(r.uint8, (t: { actionLength: number, currentOffset: number}) => t.actionLength - t.currentOffset),
+	padding: new r.Reserved(
+		r.uint8,
+		(t: { actionLength: number; currentOffset: number }) =>
+			t.actionLength - t.currentOffset,
+	),
 };
 const Action = new r.Struct<typeof actionFields, justTable.justAction>(
 	actionFields,
