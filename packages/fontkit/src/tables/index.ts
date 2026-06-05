@@ -46,7 +46,7 @@ import JSTF from './JSTF.js';
 import DSIG from './DSIG.js';
 import gasp from './gasp.js';
 import hdmx from './hdmx.js';
-import kern, { kernTable } from './kern.js';
+import kern, { type kernTable } from './kern.js';
 import LTSH, { type LTSHTable } from './LTSH.js';
 import PCLT, { type PCLTTable } from './PCLT.js';
 import VDMX, { type VDMXTable } from './VDMX.js';
@@ -59,7 +59,7 @@ import bsln from './bsln.js';
 import feat from './feat.js';
 import fvar from './fvar.js';
 import gvar from './gvar.js';
-import just from './just.js';
+import just, { type justTable } from './just.js';
 import morx, { type morxTable } from './morx.js';
 import opbd from './opbd.js';
 
@@ -138,6 +138,20 @@ export namespace SFNTTable {
 	export type HVARMapDataEntry = HVARTable.HVARMapDataEntry;
 	export type HVARDeltaSetIndexMap = HVARTable.HVARDeltaSetIndexMap;
 	export type HVAR = HVARTable.HVAR;
+
+	export type justClassTable = justTable.justClassTable;
+	export type justWidthDeltaRecord = justTable.justWidthDeltaRecord;
+	export type justActionDataV0 = justTable.justActionDataV0;
+	export type justActionDataV1 = justTable.justActionDataV1;
+	export type justActionDataV2 = justTable.justActionDataV2;
+	export type justActionDataV3 = justTable.justActionDataV3;
+	export type justActionDataV4 = justTable.justActionDataV4;
+	export type justActionDataV5 = justTable.justActionDataV5;
+	export type justActionData = justTable.justActionData;
+	export type justAction = justTable.justAction;
+	export type justPostCompensationTable = justTable.justPostCompensationTable;
+	export type justificationTable = justTable.justificationTable;
+	export type just = justTable.just;
 
 	export type kernClassTable = kernTable.kernClassTable;
 	export type kern2Array = kernTable.kern2Array;

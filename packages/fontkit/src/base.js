@@ -18,6 +18,7 @@ const fontkit = {
 				if (postscriptName) {
 					return font.getFont(postscriptName);
 				}
+				if (font.just) console.dir(font.just, { depth: null });
 				return font;
 			}
 		}
