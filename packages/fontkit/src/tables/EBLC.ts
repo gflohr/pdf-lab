@@ -1,5 +1,5 @@
 import r from '@pdf-lib/restructure';
-import { bigMetrics, EBDTTable } from './EBDT.js';
+import { bigMetrics, type EBDTTable } from './EBDT.js';
 
 export namespace EBLCTable {
 	export interface SBitLineMetrics {

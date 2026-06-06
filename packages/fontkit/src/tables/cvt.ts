@@ -1,6 +1,13 @@
 import r from '@pdf-lib/restructure';
 
-// An array of predefined values accessible by instructions
-export default new r.Struct({
+export namespace cvtTable {
+	/** An array of predefined values accessible by instructions. */
+	export interface cvt {
+		controlValues: number[];
+	}
+}
+
+const cvtStructFields = {
 	controlValues: new r.Array(r.int16),
-});
+};
+export default new r.Struct<typeof cvtStructFields, cvtTable.cvt>(cvtStructFields);

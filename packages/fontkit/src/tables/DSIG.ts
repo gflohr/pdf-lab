@@ -1,21 +1,58 @@
 import r from '@pdf-lib/restructure';
 
-const Signature = new r.Struct({
+export namespace DSIGTable {
+	export interface Signature {
+		format: number;
+		length: number;
+		offset: number;
+	}
+
+	export interface SignatureBlock {
+		cbSignature: number;
+		signature: Buffer;
+	}
+
+	export interface DSIG {
+		/** Version number of the DSIG table (0x00000001). */
+		ulVersion: number;
+
+		/** Number of signatures in the table. */
+		usNumSigs: number;
+
+		/** Permission flags. */
+		usFlag: number;
+
+		signatures: Signature[];
+		signatureBlocks: Signature[];
+	}
+}
+
+const signatureFields = {
 	format: r.uint32,
 	length: r.uint32,
 	offset: r.uint32,
-});
+};
+const signature = new r.Struct<typeof signatureFields, DSIGTable.Signature>(
+	signatureFields,
+);
 
-const SignatureBlock = new r.Struct({
+const signatureBlockFields = {
 	reserved: new r.Reserved(r.uint16, 2),
 	cbSignature: r.uint32, // Length (in bytes) of the PKCS#7 packet in pbSignature
 	signature: new r.Buffer('cbSignature'),
-});
+};
+const signatureBlock = new r.Struct<
+	typeof signatureBlockFields,
+	DSIGTable.SignatureBlock
+>(signatureBlockFields);
 
-export default new r.Struct({
-	ulVersion: r.uint32, // Version number of the DSIG table (0x00000001)
-	usNumSigs: r.uint16, // Number of signatures in the table
-	usFlag: r.uint16, // Permission flags
-	signatures: new r.Array(Signature, 'usNumSigs'),
-	signatureBlocks: new r.Array(SignatureBlock, 'usNumSigs'),
-});
+const dsigStructFields = {
+	ulVersion: r.uint32,
+	usNumSigs: r.uint16,
+	usFlag: r.uint16,
+	signatures: new r.Array(signature, 'usNumSigs'),
+	signatureBlocks: new r.Array(signatureBlock, 'usNumSigs'),
+};
+export default new r.Struct<typeof dsigStructFields, DSIGTable.DSIG>(
+	dsigStructFields,
+);
