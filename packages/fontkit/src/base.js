@@ -18,6 +18,7 @@ const fontkit = {
 				if (postscriptName) {
 					return font.getFont(postscriptName);
 				}
+
 				return font;
 			}
 		}

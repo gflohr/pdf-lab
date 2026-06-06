@@ -23,7 +23,7 @@ export namespace morxTable {
 		stateTable: AAT.StateHeader<number, morxContextualData>;
 		substitutionTable: typeof SubstitutionTable extends PointerT<infer T>
 			? T
-			: unknown;
+			: morxSubstitutionTable;
 	}
 
 	// Format 2: Ligature subtable.

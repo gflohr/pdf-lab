@@ -2,6 +2,16 @@ import r from '@pdf-lib/restructure';
 import { GPOSLookup } from './GPOS.js';
 import { LookupList } from './opentype.js';
 
+export namespace JSTFTable {
+	export interface JSTFPriority {
+		shrinkableEnableGSUB: number[];
+		shrinkableDisableGSUB: number[];
+		shrinkableEnableGPOS: number[];
+		shrinkableDisableGPOS: number[];
+		// ???
+	}
+}
+
 const JstfGSUBModList = new r.Array(r.uint16, r.uint16);
 
 const JstfPriority = new r.Struct({
@@ -39,8 +49,11 @@ const JstfScriptRecord = new r.Struct({
 	script: new r.Pointer(r.uint16, JstfScript, { type: 'parent' }),
 });
 
-export default new r.Struct({
+const JSTFStructFields = {
 	version: r.uint32, // should be 0x00010000
 	scriptCount: r.uint16,
 	scriptList: new r.Array(JstfScriptRecord, 'scriptCount'),
-});
+};
+const JSTFStruct = new r.Struct<typeof JSTFStructFields>(JSTFStructFields);
+
+export default JSTFStruct;

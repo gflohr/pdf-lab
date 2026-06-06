@@ -38,7 +38,7 @@ import sbix, { type sbixTable } from './sbix.js';
 // Advanced OpenType Tables
 import BASE from './BASE.js';
 import GDEF from './GDEF.js';
-import GPOS from './GPOS.js';
+import GPOS, { type GPOSTable } from './GPOS.js';
 import GSUB from './GSUB.js';
 import JSTF from './JSTF.js';
 
@@ -132,6 +132,33 @@ export namespace SFNTTable {
 	export type AATStateHeader = AAT.StateHeader;
 	export type AATStateEntry<T> = AAT.StateEntry<T>;
 	export type AATStateHeader1 = AAT.StateHeader1;
+
+	export type GPOSDecodedValueRecord = GPOSTable.GPOSDecodedValueRecord;
+	export type GPOSPairValueRecord = GPOSTable.GPOSPairValueRecord;
+	export type GPOSClass2Record = GPOSTable.GPOSClass2Record;
+	export type GPOSAnchorV1 = GPOSTable.GPOSAnchorV1;
+	export type GPOSAnchorV2 = GPOSTable.GPOSAnchorV2;
+	export type GPOSAnchorV3 = GPOSTable.GPOSAnchorV3;
+	export type GPOSAnchor = GPOSTable.GPOSAnchor;
+	export type GPOSEntryExitRecord = GPOSTable.GPOSEntryExitRecord;
+	export type GPOSMarkRecord = GPOSTable.GPOSMarkRecord;
+	export type GPOSLookupV1_1 = GPOSTable.GPOSLookupV1_1;
+	export type GPOSLookupV1_2 = GPOSTable.GPOSLookupV1_2;
+	export type GPOSLookupV1 = GPOSTable.GPOSLookupV1;
+	export type GPOSLookupV2_1 = GPOSTable.GPOSLookupV2_1;
+	export type GPOSLookupV2_2 = GPOSTable.GPOSLookupV2_2;
+	export type GPOSLookupV2 = GPOSTable.GPOSLookupV2;
+	export type GPOSLookupV3 = GPOSTable.GPOSLookupV3;
+	export type GPOSLookupV4 = GPOSTable.GPOSLookupV4;
+	export type GPOSLookupV5 = GPOSTable.GPOSLookupV5;
+	export type GPOSLookupV6 = GPOSTable.GPOSLookupV6;
+	export type GPOSLookupV7 = GPOSTable.GPOSLookupV7;
+	export type GPOSLookupV8 = GPOSTable.GPOSLookupV8;
+	export type GPOSLookupV9 = GPOSTable.GPOSLookupV9;
+	export type GPOSLookup = GPOSTable.GPOSLookup;
+	export type GPOSV65536 = GPOSTable.GPOSV65536;
+	export type GPOSV65537 = GPOSTable.GPOSV65537;
+	export type GPOS = GPOSTable.GPOS;
 
 	export type hmtx = hmtxTable.hmtx;
 

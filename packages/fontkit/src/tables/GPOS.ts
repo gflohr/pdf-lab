@@ -1,4 +1,10 @@
-import r, { type DecodeStream, type FieldT } from '@pdf-lib/restructure';
+import r, {
+	type DecodeStream,
+	type FieldT,
+	type PointerT,
+	type RestructureLazyArray,
+	type StructT,
+} from '@pdf-lib/restructure';
 import {
 	ChainingContext,
 	ClassDef,
@@ -7,9 +13,20 @@ import {
 	Device,
 	FeatureList,
 	LookupList,
+	type OpenTypeChainingContextTable,
+	type OpenTypeClassDefTable,
+	type OpenTypeContextTable,
+	type OpenTypeCoverageTable,
+	type OpenTypeDeviceTable,
+	type OpenTypeFeatureRecord,
+	type OpenTypeLookupTable,
+	type OpenTypeScriptRecord,
 	ScriptList,
 } from './opentype.js';
-import { FeatureVariations } from './variations.js';
+import {
+	FeatureVariations,
+	type OpenTypeFeatureVariationsTable,
+} from './variations.js';
 
 const ValueFormat = new r.Bitfield(r.uint16, [
 	'xPlacement',
@@ -45,12 +62,7 @@ const types = {
 	}),
 };
 
-/**
- * biome-ignore lint/suspicious/noExplicitAny: This class is a dynamic layout factory.
- * It breaks static encapsulation to crawl arbitrary ancestral parent parsing nodes
- * and compile transient types on the fly at runtime.
- */
-export class ValueRecord implements FieldT<any> {
+export class ValueRecord implements FieldT<GPOSTable.GPOSDecodedValueRecord> {
 	private key: string;
 
 	constructor(key: string = 'valueFormat') {
@@ -63,7 +75,7 @@ export class ValueRecord implements FieldT<any> {
 	 */
 
 	// biome-ignore lint/suspicious/noExplicitAny: see above!
-	private buildStruct(parent: any): any {
+	private buildStruct(parent: any): StructT<GPOSTable.GPOSDecodedValueRecord> {
 		let struct = parent;
 
 		// Crawl up the hierarchy until we find the format dictionary and a parent
@@ -90,7 +102,9 @@ export class ValueRecord implements FieldT<any> {
 			}
 		}
 
-		return new r.Struct(fields);
+		return new r.Struct<typeof fields, GPOSTable.GPOSDecodedValueRecord>(
+			fields,
+		);
 	}
 
 	// biome-ignore lint/suspicious/noExplicitAny: see above!
@@ -113,20 +127,232 @@ export class ValueRecord implements FieldT<any> {
 	}
 }
 
-const PairValueRecord = new r.Struct({
+export namespace GPOSTable {
+	export interface GPOSDecodedValueRecord {
+		xPlacement?: number;
+		yPlacement?: number;
+		xAdvance?: number;
+		yAdvance?: number;
+		// Pointers wrap the underlying Device structure.
+		xPlaDevice?: typeof types.xPlaDevice extends PointerT<infer T>
+			? T
+			: OpenTypeDeviceTable;
+		yPlaDevice?: typeof types.yPlaDevice extends PointerT<infer T>
+			? T
+			: OpenTypeDeviceTable;
+		xAdvDevice?: typeof types.xAdvDevice extends PointerT<infer T>
+			? T
+			: OpenTypeDeviceTable;
+		yAdvDevice?: typeof types.yAdvDevice extends PointerT<infer T>
+			? T
+			: OpenTypeDeviceTable;
+	}
+
+	export interface GPOSPairValueRecord {
+		secondGlyph: number;
+		value1: ValueRecord;
+		value2: ValueRecord;
+	}
+
+	export interface GPOSClass2Record {
+		value1: ValueRecord;
+		value2: ValueRecord;
+	}
+
+	/** Design units only. */
+	export interface GPOSAnchorV1 {
+		version: 1;
+		xCoordinate: number;
+		yCoordinate: number;
+	}
+
+	/** Design units plus contour point. */
+	export interface GPOSAnchorV2 {
+		version: 2;
+		xCoordinate: number;
+		yCoordinate: number;
+		anchorPoint: number;
+	}
+
+	/** Design units plus device tables. */
+	export interface GPOSAnchorV3 {
+		version: 3;
+		xCoordinate: number;
+		yCoordinate: number;
+		xDeviceTable: OpenTypeDeviceTable;
+		yDeviceTable: OpenTypeDeviceTable;
+	}
+
+	export type GPOSAnchor = GPOSAnchorV1 | GPOSAnchorV2 | GPOSAnchorV3;
+
+	// Restored conditional extraction matching your morx table implementation
+	export interface GPOSEntryExitRecord {
+		entryAnchor: typeof Anchor extends PointerT<infer T> ? T : GPOSAnchor;
+		exitAnchor: typeof Anchor extends PointerT<infer T> ? T : GPOSAnchor;
+	}
+
+	export interface GPOSMarkRecord {
+		class: number;
+		markAnchor: typeof Anchor extends PointerT<infer T> ? T : GPOSAnchor;
+	}
+
+	// Single Adjustment
+	export interface GPOSLookupV1_1 {
+		version: 1;
+
+		// Single positioning value
+		coverage: OpenTypeCoverageTable | null;
+		valueFormat: typeof ValueFormat;
+		value: ValueRecord;
+	}
+
+	export interface GPOSLookupV1_2 {
+		version: 2;
+		coverage: OpenTypeCoverageTable | null;
+		valueFormat: typeof ValueFormat;
+		valueCount: number;
+		values: RestructureLazyArray<ValueRecord>;
+	}
+
+	export type GPOSLookupV1 = GPOSLookupV1_1 | GPOSLookupV1_2;
+
+	// Pair Adjustment Positioning
+	export interface GPOSLookupV2_1 {
+		version: 1;
+
+		// Adjustments for glyph pairs
+		coverage: OpenTypeCoverageTable | null;
+		valueFormat1: typeof ValueFormat;
+		valueFormat2: typeof ValueFormat;
+		pairSetCount: number;
+		pairSets: RestructureLazyArray<GPOSPairValueRecord>;
+	}
+
+	// Class pair adjustment
+	export interface GPOSLookupV2_2 {
+		version: 2;
+
+		coverage: OpenTypeCoverageTable | null;
+		valueFormat1: typeof ValueFormat;
+		valueFormat2: typeof ValueFormat;
+		classDef1: OpenTypeClassDefTable | null;
+		classDef2: OpenTypeClassDefTable | null;
+		class1Count: number;
+		class2Count: number;
+		classRecords: RestructureLazyArray<GPOSClass2Record>;
+	}
+
+	export type GPOSLookupV2 = GPOSLookupV2_1 | GPOSLookupV2_2;
+
+	// Cursive Attachment Positioning.
+	export interface GPOSLookupV3 {
+		version: 3;
+		format: number;
+		coverage: OpenTypeCoverageTable | null;
+		entryExitCount: number;
+		entryExitRecords: GPOSEntryExitRecord[];
+	}
+
+	// MarkToBase Attachment Positioning.
+	export interface GPOSLookupV4 {
+		version: 4;
+		format: number;
+		markCoverage: OpenTypeCoverageTable | null;
+		baseCoverage: OpenTypeCoverageTable | null;
+		classCount: number;
+		markArray: GPOSMarkRecord | null;
+		// FIXME! This is maybe wrong!
+		baseArray: GPOSAnchor[] | null;
+	}
+
+	// MarkToLigature Attachment Positioning
+	export interface GPOSLookupV5 {
+		version: 5;
+		format: number;
+		markCoverage: OpenTypeCoverageTable | null;
+		ligatureCoverage: OpenTypeCoverageTable | null;
+		classCount: number;
+		markArray: GPOSMarkRecord[] | null;
+		// FIXME! This has to checked later!
+		ligatureArray: unknown;
+	}
+
+	// MarkToMark Attachment Positioning
+	export interface GPOSLookupV6 {
+		version: 6;
+		format: number;
+		mark1Coverage: OpenTypeCoverageTable | null;
+		mark2Coverage: OpenTypeCoverageTable | null;
+		classCount: number;
+		mark1Array: GPOSMarkRecord[] | null;
+		// FIXME! Check later.
+		mark2Array: unknown;
+	}
+
+	export type GPOSLookupV7 = OpenTypeContextTable & { version: 7 };
+
+	export type GPOSLookupV8 = OpenTypeChainingContextTable & { version: 8 };
+
+	export interface GPOSLookupV9 {
+		version: 9;
+		// Extension Positioning
+		posFormat: number;
+		lookupType: number; // cannot also be 9
+		// FIXME!
+		extension: GPOSLookup;
+	}
+
+	export type GPOSLookup =
+		| GPOSLookupV1
+		| GPOSLookupV2
+		| GPOSLookupV3
+		| GPOSLookupV4
+		| GPOSLookupV5
+		| GPOSLookupV6
+		| GPOSLookupV7
+		| GPOSLookupV8
+		| GPOSLookupV9;
+
+	interface GPOSBase {
+		scriptList: OpenTypeScriptRecord[];
+		featureList: OpenTypeFeatureRecord;
+		lookupList: FieldT<OpenTypeLookupTable<GPOSLookup>[]> | null;
+	}
+
+	export interface GPOSV65536 extends GPOSBase {
+		version: GPOSV65536;
+	}
+
+	export interface GPOSV65537 extends GPOSBase {
+		version: 65537;
+		featureVariations: OpenTypeFeatureVariationsTable | null;
+	}
+
+	export type GPOS = GPOSV65536 | GPOSV65537;
+}
+
+const pairValueRecordFields = {
 	secondGlyph: r.uint16,
 	value1: new ValueRecord('valueFormat1'),
 	value2: new ValueRecord('valueFormat2'),
-});
+};
+const PairValueRecord = new r.Struct<
+	typeof pairValueRecordFields,
+	GPOSTable.GPOSPairValueRecord
+>(pairValueRecordFields);
 
 const PairSet = new r.Array(PairValueRecord, r.uint16);
 
-const Class2Record = new r.Struct({
+const class2RecordFields = {
 	value1: new ValueRecord('valueFormat1'),
 	value2: new ValueRecord('valueFormat2'),
-});
+};
+const Class2Record = new r.Struct<
+	typeof class2RecordFields,
+	GPOSTable.GPOSClass2Record
+>(class2RecordFields);
 
-const Anchor = new r.VersionedStruct(r.uint16, {
+const anchorFields = {
 	1: {
 		// Design units only
 		xCoordinate: r.int16,
@@ -147,17 +373,29 @@ const Anchor = new r.VersionedStruct(r.uint16, {
 		xDeviceTable: new r.Pointer(r.uint16, Device),
 		yDeviceTable: new r.Pointer(r.uint16, Device),
 	},
-});
+};
+const Anchor = new r.VersionedStruct<typeof anchorFields, GPOSTable.GPOSAnchor>(
+	r.uint16,
+	anchorFields,
+);
 
-const EntryExitRecord = new r.Struct({
+const entryExitRecordFields = {
 	entryAnchor: new r.Pointer(r.uint16, Anchor, { type: 'parent' }),
 	exitAnchor: new r.Pointer(r.uint16, Anchor, { type: 'parent' }),
-});
+};
+const EntryExitRecord = new r.Struct<
+	typeof entryExitRecordFields,
+	GPOSTable.GPOSEntryExitRecord
+>(entryExitRecordFields);
 
-const MarkRecord = new r.Struct({
+const markRecordFields = {
 	class: r.uint16,
 	markAnchor: new r.Pointer(r.uint16, Anchor, { type: 'parent' }),
-});
+};
+const MarkRecord = new r.Struct<
+	typeof markRecordFields,
+	GPOSTable.GPOSMarkRecord
+>(markRecordFields);
 
 const MarkArray = new r.Array(MarkRecord, r.uint16);
 
@@ -178,55 +416,61 @@ const LigatureArray = new r.Array(
 );
 
 const selfPointer = new r.Pointer(r.uint32, null);
-const GPOSLookup = new r.VersionedStruct('lookupType', {
-	1: new r.VersionedStruct(r.uint16, {
-		// Single Adjustment
-		1: {
-			// Single positioning value
-			coverage: new r.Pointer(r.uint16, Coverage),
-			valueFormat: ValueFormat,
-			value: new ValueRecord(),
-		},
-		2: {
-			coverage: new r.Pointer(r.uint16, Coverage),
-			valueFormat: ValueFormat,
-			valueCount: r.uint16,
-			values: new r.LazyArray(new ValueRecord(), 'valueCount'),
-		},
-	}),
+const gposLookupFieldsV1 = {
+	// Single Adjustment
+	1: {
+		// Single positioning value
+		coverage: new r.Pointer(r.uint16, Coverage),
+		valueFormat: ValueFormat,
+		value: new ValueRecord(),
+	},
+	2: {
+		coverage: new r.Pointer(r.uint16, Coverage),
+		valueFormat: ValueFormat,
+		valueCount: r.uint16,
+		values: new r.LazyArray(new ValueRecord(), 'valueCount'),
+	},
+};
+const gposLookupFieldsV2 = {
+	// Pair Adjustment Positioning
+	1: {
+		// Adjustments for glyph pairs
+		coverage: new r.Pointer(r.uint16, Coverage),
+		valueFormat1: ValueFormat,
+		valueFormat2: ValueFormat,
+		pairSetCount: r.uint16,
+		pairSets: new r.LazyArray(new r.Pointer(r.uint16, PairSet), 'pairSetCount'),
+	},
 
-	2: new r.VersionedStruct(r.uint16, {
-		// Pair Adjustment Positioning
-		1: {
-			// Adjustments for glyph pairs
-			coverage: new r.Pointer(r.uint16, Coverage),
-			valueFormat1: ValueFormat,
-			valueFormat2: ValueFormat,
-			pairSetCount: r.uint16,
-			pairSets: new r.LazyArray(
-				new r.Pointer(r.uint16, PairSet),
-				'pairSetCount',
-			),
-		},
+	2: {
+		// Class pair adjustment
+		coverage: new r.Pointer(r.uint16, Coverage),
+		valueFormat1: ValueFormat,
+		valueFormat2: ValueFormat,
+		classDef1: new r.Pointer(r.uint16, ClassDef),
+		classDef2: new r.Pointer(r.uint16, ClassDef),
+		class1Count: r.uint16,
+		class2Count: r.uint16,
+		classRecords: new r.LazyArray(
+			new r.LazyArray(Class2Record, 'class2Count'),
+			'class1Count',
+		),
+	},
+};
 
-		2: {
-			// Class pair adjustment
-			coverage: new r.Pointer(r.uint16, Coverage),
-			valueFormat1: ValueFormat,
-			valueFormat2: ValueFormat,
-			classDef1: new r.Pointer(r.uint16, ClassDef),
-			classDef2: new r.Pointer(r.uint16, ClassDef),
-			class1Count: r.uint16,
-			class2Count: r.uint16,
-			classRecords: new r.LazyArray(
-				new r.LazyArray(Class2Record, 'class2Count'),
-				'class1Count',
-			),
-		},
-	}),
+const gposLookupFields = {
+	1: new r.VersionedStruct<typeof gposLookupFieldsV1, GPOSTable.GPOSLookupV1>(
+		r.uint16,
+		gposLookupFieldsV1,
+	),
+
+	2: new r.VersionedStruct<typeof gposLookupFieldsV2, GPOSTable.GPOSLookupV2>(
+		r.uint16,
+		gposLookupFieldsV2,
+	),
 
 	3: {
-		// Cursive Attachment Positioning
+		// Cursive Attachment Positioning.
 		format: r.uint16,
 		coverage: new r.Pointer(r.uint16, Coverage),
 		entryExitCount: r.uint16,
@@ -234,7 +478,7 @@ const GPOSLookup = new r.VersionedStruct('lookupType', {
 	},
 
 	4: {
-		// MarkToBase Attachment Positioning
+		// MarkToBase Attachment Positioning.
 		format: r.uint16,
 		markCoverage: new r.Pointer(r.uint16, Coverage),
 		baseCoverage: new r.Pointer(r.uint16, Coverage),
@@ -272,12 +516,16 @@ const GPOSLookup = new r.VersionedStruct('lookupType', {
 		lookupType: r.uint16, // cannot also be 9
 		extension: selfPointer,
 	},
-});
+};
+const GPOSLookup = new r.VersionedStruct<
+	typeof gposLookupFields,
+	GPOSTable.GPOSLookup
+>('lookupType', gposLookupFields);
 
 // Fix circular reference
 selfPointer.type = GPOSLookup;
 
-export default new r.VersionedStruct(r.uint32, {
+const gposStructFields = {
 	header: {
 		scriptList: new r.Pointer(r.uint16, ScriptList),
 		featureList: new r.Pointer(r.uint16, FeatureList),
@@ -288,7 +536,11 @@ export default new r.VersionedStruct(r.uint32, {
 	65537: {
 		featureVariations: new r.Pointer(r.uint32, FeatureVariations),
 	},
-});
+};
+const GPOSStruct = new r.VersionedStruct<typeof gposStructFields>(
+	r.uint32,
+	gposStructFields,
+);
+export default GPOSStruct;
 
-// export GPOSLookup for JSTF table
 export { GPOSLookup };
