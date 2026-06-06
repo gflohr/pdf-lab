@@ -54,7 +54,7 @@ import vhea, { type vheaTable } from './vhea.js';
 import vmtx, { type vmtxTable } from './vmtx.js';
 
 // Apple Advanced Typography Tables
-import avar from './avar.js';
+import avar, { avarTable } from './avar.js';
 import bsln from './bsln.js';
 import feat from './feat.js';
 import fvar from './fvar.js';
@@ -132,6 +132,10 @@ export namespace SFNTTable {
 	export type AATStateHeader = AAT.StateHeader;
 	export type AATStateEntry<T> = AAT.StateEntry<T>;
 	export type AATStateHeader1 = AAT.StateHeader1;
+
+	export type avarCorrespondence = avarTable.avarCorrespondence;
+	export type avarSegment = avarTable.avarSegment;
+	export type avar = avarTable.avar;
 
 	export type glyf = glyfTable.glyph;
 
