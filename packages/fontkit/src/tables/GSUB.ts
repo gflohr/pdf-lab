@@ -17,84 +17,79 @@ import {
 } from './variations.js';
 
 export namespace GSUBTable {
-	export interface GSUBV1_0
-		extends OpenTypeLayoutTableBase<GSUBLookupTable> {
+	export type GSUBLookupSingle =
+		| { format: 1; coverage?: OpenTypeCoverageTable; deltaGlyphID: number }
+		| {
+				format: 2;
+				coverage?: OpenTypeCoverageTable;
+				glyphCount: number;
+				substitute: number[];
+		  };
+
+	export interface GSUBLookupMultiple {
+		substFormat: number;
+		coverage?: OpenTypeCoverageTable;
+		count: number;
+		sequences: number[][];
+	}
+
+	export interface GSUBLookupAlternate {
+		substFormat: number;
+		coverage?: OpenTypeCoverageTable;
+		count: number;
+		alternateSet: number[][];
+	}
+
+	export interface GSUBLookupLigatureSet {
+		glyph: number;
+		compCount: number;
+		components: number[];
+	}
+	export interface GSUBLookupLigature {
+		substFormat: number;
+		coverage?: OpenTypeCoverageTable;
+		count: number;
+		ligatureSets: GSUBLookupLigatureSet[];
+	}
+
+	export interface GSUBLookupReverseChaining {
+		substFormat: number;
+		coverage?: OpenTypeCoverageTable;
+		backtrackCoverage: OpenTypeCoverageTable[];
+		lookaheadGlyphCount: number;
+		lookaheadCoverage: OpenTypeCoverageTable[];
+		glyphCount: number;
+		substitutes: number[];
+	}
+
+	export type GSUBLookupTable =
+		| { lookupType: 1; table: GSUBLookupSingle }
+		| { lookupType: 2; table: GSUBLookupMultiple }
+		| { lookupType: 3; table: GSUBLookupAlternate }
+		| { lookupType: 4; table: GSUBLookupLigature }
+		| { lookupType: 5; table: OpenTypeContextTable }
+		| { lookupType: 6; table: OpenTypeChainingContextTable }
+		| {
+				lookupType: 7;
+				table: {
+					substFormat: number;
+					lookupType: Exclude<number, 7>;
+					extension: GSUBLookupTable;
+				};
+		  }
+		| { lookupType: 8; table: GSUBLookupReverseChaining };
+
+	export interface GSUBV1_0 extends OpenTypeLayoutTableBase<GSUBLookupTable> {
 		version: 1.0; // represented by binary uint32 value 65536
 	}
 
-	export interface GSUBV1_1
-		extends OpenTypeLayoutTableBase<GSUBLookupTable> {
+	export interface GSUBV1_1 extends OpenTypeLayoutTableBase<GSUBLookupTable> {
 		version: 1.1; // represented by binary uint32 value 65537
 		featureVariations: OpenTypeFeatureVariationsTable;
 	}
 
 	export type GSUB = GSUBV1_0 | GSUBV1_1;
 }
-
-export type GSUBLookupSingle =
-	| { format: 1; coverage?: OpenTypeCoverageTable; deltaGlyphID: number }
-	| {
-			format: 2;
-			coverage?: OpenTypeCoverageTable;
-			glyphCount: number;
-			substitute: number[];
-	  };
-
-export interface GSUBLookupMultiple {
-	substFormat: number;
-	coverage?: OpenTypeCoverageTable;
-	count: number;
-	sequences: number[][];
-}
-
-export interface GSUBLookupAlternate {
-	substFormat: number;
-	coverage?: OpenTypeCoverageTable;
-	count: number;
-	alternateSet: number[][];
-}
-
-export interface GSUBLookupLigatureSet {
-	glyph: number;
-	compCount: number;
-	components: number[];
-}
-export interface GSUBLookupLigature {
-	substFormat: number;
-	coverage?: OpenTypeCoverageTable;
-	count: number;
-	ligatureSets: GSUBLookupLigatureSet[];
-}
-
-export interface GSUBLookupReverseChaining {
-	substFormat: number;
-	coverage?: OpenTypeCoverageTable;
-	backtrackCoverage: OpenTypeCoverageTable[];
-	lookaheadGlyphCount: number;
-	lookaheadCoverage: OpenTypeCoverageTable[];
-	glyphCount: number;
-	substitutes: number[];
-}
-
-/**
- * Comprehensive mapping interface representing an individual decoded GSUB Lookup entry.
- */
-export type GSUBLookupTable =
-	| { lookupType: 1; table: GSUBLookupSingle }
-	| { lookupType: 2; table: GSUBLookupMultiple }
-	| { lookupType: 3; table: GSUBLookupAlternate }
-	| { lookupType: 4; table: GSUBLookupLigature }
-	| { lookupType: 5; table: OpenTypeContextTable }
-	| { lookupType: 6; table: OpenTypeChainingContextTable }
-	| {
-			lookupType: 7;
-			table: {
-				substFormat: number;
-				lookupType: Exclude<number, 7>;
-				extension: GSUBLookupTable;
-			};
-	  }
-	| { lookupType: 8; table: GSUBLookupReverseChaining };
 
 const Sequence = new r.Array(r.uint16, r.uint16);
 const AlternateSet = Sequence;

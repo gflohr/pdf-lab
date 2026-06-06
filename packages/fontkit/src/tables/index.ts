@@ -39,7 +39,7 @@ import sbix, { type sbixTable } from './sbix.js';
 import BASE from './BASE.js';
 import GDEF from './GDEF.js';
 import GPOS, { type GPOSTable } from './GPOS.js';
-import GSUB, { GSUBTable } from './GSUB.js';
+import GSUB, { type GSUBTable } from './GSUB.js';
 import JSTF, { type JSTFTable } from './JSTF.js';
 
 // Other OpenType Tables
