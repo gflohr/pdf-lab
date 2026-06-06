@@ -29,9 +29,6 @@ import type {
 	SFNTTableMap,
 } from './tables/directory.js';
 import Directory from './tables/directory.js';
-import type { HVARTable } from './tables/HVAR.js';
-import type { HeadTable } from './tables/head.js';
-import type { HheaTable } from './tables/hhea.js';
 import tables, { type SFNTTable } from './tables/index.js';
 import type { TypeFeatures } from './tables/opentype.js';
 
@@ -47,10 +44,6 @@ type RegistryTableProps = {
  * Temporary ...
  */
 export interface FontTableFields extends RegistryTableProps {
-	hhea: HheaTable;
-	HVAR: HVARTable;
-	head: HeadTable;
-
 	// A clean programmatic alias for the 'CFF ' PostScript stream.
 	cff: FilteredTableMap['CFF '];
 }

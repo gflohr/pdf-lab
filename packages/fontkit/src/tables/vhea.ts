@@ -1,6 +1,9 @@
 import r from '@pdf-lib/restructure';
 
 export namespace vheaTable {
+	/**
+	 * Vertical header table.
+	 */
 	export interface vhea {
 		/** Version number of the Vertical Header Table. */
 		version: number;
@@ -60,6 +63,4 @@ const vheaFields = {
 };
 
 // Vertical Header Table
-const vheaStruct = new r.Struct<typeof vheaFields, vheaTable.vhea>(vheaFields);
-
-export default vheaStruct;
+export default new r.Struct<typeof vheaFields, vheaTable.vhea>(vheaFields);

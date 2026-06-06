@@ -39,8 +39,6 @@ const vmtxFields = {
 	),
 };
 
-const vmtxTableStruct = new r.Struct<typeof vmtxFields, vmtxTable.vmtx>(
+export default new r.Struct<typeof vmtxFields, vmtxTable.vmtx>(
 	vmtxFields,
 );
-
-export default vmtxTableStruct;

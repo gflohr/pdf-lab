@@ -278,9 +278,7 @@ const kernFields = {
 		tables: new r.Array(KernTable, 'nTables'),
 	},
 };
-const kernStruct = new r.VersionedStruct<typeof kernFields, kernTable.kern>(
+export default new r.VersionedStruct<typeof kernFields, kernTable.kern>(
 	r.uint16,
 	kernFields,
 );
-
-export default kernStruct;

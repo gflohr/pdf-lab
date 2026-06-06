@@ -38,6 +38,4 @@ const pcltFields = {
 	serifStyle: r.uint8,
 	reserved: new r.Reserved(r.uint8),
 };
-const PCLTStruct = new r.Struct<typeof pcltFields, PCLTTable.PCLT>(pcltFields);
-
-export default PCLTStruct;
+export default new r.Struct<typeof pcltFields, PCLTTable.PCLT>(pcltFields);

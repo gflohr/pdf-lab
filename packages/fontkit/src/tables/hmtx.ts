@@ -18,6 +18,4 @@ const fields = {
 	),
 };
 
-const hmtxTableStruct = new r.Struct<typeof fields, hmtxTable.hmtx>(fields);
-
-export default hmtxTableStruct;
+export default new r.Struct<typeof fields, hmtxTable.hmtx>(fields);

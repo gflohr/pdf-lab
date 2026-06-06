@@ -3,12 +3,12 @@ import r from '@pdf-lib/restructure';
 export namespace locaTable {
 	export interface locaV0 {
 		version: 0;
-		offset: number[];
+		offsets: number[];
 	}
 
 	export interface locaV1 {
 		version: 1;
-		offset: number[];
+		offsets: number[];
 	}
 
 	/**

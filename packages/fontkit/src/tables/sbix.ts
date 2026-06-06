@@ -44,6 +44,4 @@ const sbixFields = {
 	imageTables: new r.Array(new r.Pointer(r.uint32, ImageTable), 'numImgTables'),
 };
 
-const sbixStruct = new r.Struct<typeof sbixFields, sbixTable.sbix>(sbixFields);
-
-export default sbixStruct;
+export default new r.Struct<typeof sbixFields, sbixTable.sbix>(sbixFields);

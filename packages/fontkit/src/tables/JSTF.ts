@@ -89,6 +89,6 @@ const JSTFStructFields = {
 	scriptCount: r.uint16,
 	scriptList: new r.Array(JstfScriptRecord, 'scriptCount'),
 };
-const JSTFStruct = new r.Struct<typeof JSTFStructFields, JSTFTable.JSTF>(JSTFStructFields);
-
-export default JSTFStruct;
+export default new r.Struct<typeof JSTFStructFields, JSTFTable.JSTF>(
+	JSTFStructFields,
+);

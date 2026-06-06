@@ -264,9 +264,7 @@ const os2Fields = {
 	5: os2V5Fields,
 };
 
-const OS2Struct = new r.VersionedStruct<typeof os2Fields, OS2Table.OS2>(
+export default new r.VersionedStruct<typeof os2Fields, OS2Table.OS2>(
 	r.uint16,
 	os2Fields,
 );
-
-export default OS2Struct;

@@ -192,6 +192,4 @@ const morxFields = {
 	nChains: r.uint32,
 	chains: new r.Array(MorxChain, 'nChains'),
 };
-const morxStruct = new r.Struct<typeof morxFields, morxTable.morx>(morxFields);
-
-export default morxStruct;
+export default new r.Struct<typeof morxFields, morxTable.morx>(morxFields);

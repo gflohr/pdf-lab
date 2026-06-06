@@ -69,6 +69,4 @@ const maxpFields = {
 	maxComponentElements: r.uint16,
 	maxComponentDepth: r.uint16,
 };
-const maxpStruct = new r.Struct<typeof maxpFields, maxpTable.maxp>(maxpFields);
-
-export default maxpStruct;
+export default new r.Struct<typeof maxpFields, maxpTable.maxp>(maxpFields);

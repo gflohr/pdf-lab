@@ -3,9 +3,6 @@ import type BoundingBox from './glyph/bounding-box.js';
 import type Glyph from './glyph/glyph.js';
 import type GlyphRun from './layout/GlyphRun.js';
 import type Subset from './subset/Subset.js';
-import type { HVARTable } from './tables/HVAR.js';
-import type { HeadTable } from './tables/head.js';
-import type { HheaTable } from './tables/hhea.js';
 import type { SFNTTable } from './tables/index.js';
 import type { TypeFeatures } from './tables/opentype.js';
 
@@ -122,7 +119,7 @@ export interface Font {
 	/**
 	 * Horizontal header metrics (hhea table).
 	 */
-	hhea: HheaTable;
+	hhea: SFNTTable.hhea;
 
 	/**
 	 * Variable font axes (if present in the font).
@@ -164,7 +161,7 @@ export interface Font {
 	/**
 	 * The font's `head` table.
 	 */
-	head: HeadTable;
+	head: SFNTTable.head;
 
 	/**
 	 * The font's `hmtx` table.
@@ -174,7 +171,7 @@ export interface Font {
 	/**
 	 * The font's `HVAR` table.
 	 */
-	HVAR: HVARTable;
+	HVAR: SFNTTable.HVAR;
 
 	/**
 	 * The font's `post` table.
