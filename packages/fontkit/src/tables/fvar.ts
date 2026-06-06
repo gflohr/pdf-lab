@@ -1,12 +1,44 @@
 import r from '@pdf-lib/restructure';
 
+export namespace fvarTable {
+	export interface Axis {
+		axisTag: string;
+		minValue: number;
+		defaultValue: number;
+		maxValue: number;
+		flags: number;
+		nameID: number;
+		name: string;
+	}
+
+	export interface Instance {
+		nameID: number;
+		name: string;
+		flags: number;
+		coord: number[];
+		postScriptNameID?: number;
+	}
+
+	export interface fvar {
+		version: number;
+		offsetToData: number;
+		countSizePairs: number;
+		axisCount: number;
+		axisSize: number;
+		instanceCount: number;
+		instanceSize: number;
+		axis: Axis[];
+		instance: Instance[];
+	}
+}
+
 interface FvarContext {
 	nameID: number;
 	parent: FvarContext;
 	name: { records: { fontFeatures: string[] } };
 }
 
-const Axis = new r.Struct({
+const axisFields = {
 	axisTag: new r.String(4),
 	minValue: r.fixed32,
 	defaultValue: r.fixed32,
@@ -14,9 +46,10 @@ const Axis = new r.Struct({
 	flags: r.uint16,
 	nameID: r.uint16,
 	name: (t: FvarContext) => t.parent.parent.name.records.fontFeatures[t.nameID],
-});
+};
+const axis = new r.Struct<typeof axisFields, fvarTable.Axis>(axisFields);
 
-const Instance = new r.Struct({
+const instanceFields = {
 	nameID: r.uint16,
 	name: (t: FvarContext) => t.parent.parent.name.records.fontFeatures[t.nameID],
 	flags: r.uint16,
@@ -25,9 +58,12 @@ const Instance = new r.Struct({
 		r.uint16,
 		(t) => t.parent.instanceSize - t._currentOffset > 0,
 	),
-});
+};
+const instance = new r.Struct<typeof instanceFields, fvarTable.Instance>(
+	instanceFields,
+);
 
-export default new r.Struct({
+const fvarStructFields = {
 	version: r.fixed32,
 	offsetToData: r.uint16,
 	countSizePairs: r.uint16,
@@ -35,6 +71,9 @@ export default new r.Struct({
 	axisSize: r.uint16,
 	instanceCount: r.uint16,
 	instanceSize: r.uint16,
-	axis: new r.Array(Axis, 'axisCount'),
-	instance: new r.Array(Instance, 'instanceCount'),
-});
+	axis: new r.Array(axis, 'axisCount'),
+	instance: new r.Array(instance, 'instanceCount'),
+};
+export default new r.Struct<typeof fvarStructFields, fvarTable.fvar>(
+	fvarStructFields,
+);
