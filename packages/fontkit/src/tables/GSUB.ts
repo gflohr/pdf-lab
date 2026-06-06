@@ -16,22 +16,20 @@ import {
 	type OpenTypeFeatureVariationsTable,
 } from './variations.js';
 
-export interface GSUBTableV1_0
-	extends OpenTypeLayoutTableBase<GSUBLookupTable> {
-	version: 1.0; // represented by binary uint32 value 65536
-}
+export namespace GSUBTable {
+	export interface GSUBV1_0
+		extends OpenTypeLayoutTableBase<GSUBLookupTable> {
+		version: 1.0; // represented by binary uint32 value 65536
+	}
 
-export interface GSUBTableV1_1
-	extends OpenTypeLayoutTableBase<GSUBLookupTable> {
-	version: 1.1; // represented by binary uint32 value 65537
-	/** Pointer to optional design-axis metadata variable feature settings. */
-	featureVariations: OpenTypeFeatureVariationsTable; // Instantiated via FeatureVariations structure
-}
+	export interface GSUBV1_1
+		extends OpenTypeLayoutTableBase<GSUBLookupTable> {
+		version: 1.1; // represented by binary uint32 value 65537
+		featureVariations: OpenTypeFeatureVariationsTable;
+	}
 
-/**
- * Represents the final parsed OpenType Glyph Substitution table ('GSUB').
- */
-export type GSUBTable = GSUBTableV1_0 | GSUBTableV1_1;
+	export type GSUB = GSUBV1_0 | GSUBV1_1;
+}
 
 export type GSUBLookupSingle =
 	| { format: 1; coverage?: OpenTypeCoverageTable; deltaGlyphID: number }
@@ -192,7 +190,7 @@ const fields = {
 	},
 };
 
-export default new r.VersionedStruct<typeof fields, GSUBTable>(
+export default new r.VersionedStruct<typeof fields, GSUBTable.GSUB>(
 	r.uint32,
 	fields,
 );

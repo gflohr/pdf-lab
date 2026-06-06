@@ -39,7 +39,7 @@ import sbix, { type sbixTable } from './sbix.js';
 import BASE from './BASE.js';
 import GDEF from './GDEF.js';
 import GPOS, { type GPOSTable } from './GPOS.js';
-import GSUB from './GSUB.js';
+import GSUB, { GSUBTable } from './GSUB.js';
 import JSTF, { type JSTFTable } from './JSTF.js';
 
 // Other OpenType Tables
@@ -156,9 +156,13 @@ export namespace SFNTTable {
 	export type GPOSLookupV8 = GPOSTable.GPOSLookupV8;
 	export type GPOSLookupV9 = GPOSTable.GPOSLookupV9;
 	export type GPOSLookup = GPOSTable.GPOSLookup;
-	export type GPOSV65536 = GPOSTable.GPOSV65536;
-	export type GPOSV65537 = GPOSTable.GPOSV65537;
+	export type GPOSV1_0 = GPOSTable.GPOSV1_0;
+	export type GPOSV1_1 = GPOSTable.GPOSV1_1;
 	export type GPOS = GPOSTable.GPOS;
+
+	export type GSUBV1_0 = GSUBTable.GSUBV1_0;
+	export type GSUBV1_1 = GSUBTable.GSUBV1_1;
+	export type GSUB = GSUBTable.GSUB;
 
 	export type gvar = gvarTable.gvar;
 

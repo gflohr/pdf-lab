@@ -147,7 +147,7 @@ export default class GlyphVariationProcessor {
 		for (let i = 0; i < tupleCount; i++) {
 			const tupleDataSize = stream.readUInt16BE();
 			const tupleIndex = stream.readUInt16BE();
-			let tupleCoords = [];
+			let tupleCoords: number[] = [];
 
 			if (tupleIndex & EMBEDDED_TUPLE_COORD) {
 				for (let a = 0; a < gvar.axisCount; a++) {

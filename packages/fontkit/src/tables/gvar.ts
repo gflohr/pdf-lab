@@ -5,7 +5,7 @@ export namespace gvarTable {
 		version: number;
 		axisCount: number;
 		globalCoordCount: number;
-		globalCoords: number[];
+		globalCoords: number[][];
 		glyphCount: number;
 		flags: number;
 		offsetToData: number;

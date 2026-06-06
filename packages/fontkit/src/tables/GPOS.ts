@@ -319,16 +319,16 @@ export namespace GPOSTable {
 		lookupList: FieldT<OpenTypeLookupTable<GPOSLookup>[]> | null;
 	}
 
-	export interface GPOSV65536 extends GPOSBase {
-		version: GPOSV65536;
+	export interface GPOSV1_0 extends GPOSBase {
+		version: 1.0;
 	}
 
-	export interface GPOSV65537 extends GPOSBase {
-		version: 65537;
+	export interface GPOSV1_1 extends GPOSBase {
+		version: 1.1;
 		featureVariations: OpenTypeFeatureVariationsTable | null;
 	}
 
-	export type GPOS = GPOSV65536 | GPOSV65537;
+	export type GPOS = GPOSV1_0 | GPOSV1_1;
 }
 
 const pairValueRecordFields = {
