@@ -58,10 +58,10 @@ import avar from './avar.js';
 import bsln from './bsln.js';
 import feat from './feat.js';
 import fvar from './fvar.js';
-import gvar from './gvar.js';
+import gvar, { type gvarTable } from './gvar.js';
 import just, { type justTable } from './just.js';
 import morx, { type morxTable } from './morx.js';
-import opbd from './opbd.js';
+import opbd, { type opbdTable } from './opbd.js';
 
 export type FontTable = Record<
 	string,
@@ -160,6 +160,8 @@ export namespace SFNTTable {
 	export type GPOSV65537 = GPOSTable.GPOSV65537;
 	export type GPOS = GPOSTable.GPOS;
 
+	export type gvar = gvarTable.gvar;
+
 	export type hdmxDeviceRecord = hdmxTable.hdmxDeviceRecord;
 	export type hdmx = hdmxTable.hdmx;
 
@@ -234,6 +236,9 @@ export namespace SFNTTable {
 	export type nameV1 = nameTable.nameV1;
 	export type nameV2 = nameTable.nameV2;
 	export type name = nameTable.name;
+
+	export type opbdOpticalBounds = opbdTable.opbdOpticalBounds;
+	export type opbd = opbdTable.opbd;
 
 	export type OS2V0 = OS2Table.OS2V0;
 	export type OS2V1 = OS2Table.OS2V1;

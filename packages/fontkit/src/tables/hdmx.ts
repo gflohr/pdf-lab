@@ -29,8 +29,11 @@ const deviceRecordFields = {
 		(t) =>
 			t.parent.parent.sizeDeviceRecord - 2 - t.parent.parent.maxp.numGlyphs,
 	),
-}
-const DeviceRecord = new r.Struct<typeof deviceRecordFields, hdmxTable.hdmxDeviceRecord>(deviceRecordFields);
+};
+const DeviceRecord = new r.Struct<
+	typeof deviceRecordFields,
+	hdmxTable.hdmxDeviceRecord
+>(deviceRecordFields);
 
 const hdmxStructFields = {
 	version: r.uint16,
@@ -38,4 +41,6 @@ const hdmxStructFields = {
 	sizeDeviceRecord: r.int32,
 	records: new r.Array(DeviceRecord, 'numRecords'),
 };
-export default new r.Struct<typeof hdmxStructFields, hdmxTable.hdmx>(hdmxStructFields);
+export default new r.Struct<typeof hdmxStructFields, hdmxTable.hdmx>(
+	hdmxStructFields,
+);

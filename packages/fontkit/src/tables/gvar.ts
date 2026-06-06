@@ -1,5 +1,18 @@
 import r, { type DecodeStream, type FieldT } from '@pdf-lib/restructure';
 
+export namespace gvarTable {
+	export interface gvar {
+		version: number;
+		axisCount: number;
+		globalCoordCount: number;
+		globalCoords: number[];
+		glyphCount: number;
+		flags: number;
+		offsetToData: number;
+		offsets: number[];
+	}
+}
+
 const shortFrac = new r.Fixed(16, 'BE', 14);
 
 const Offset = {
@@ -17,7 +30,7 @@ const Offset = {
 	},
 } as FieldT<number>;
 
-const gvar = new r.Struct({
+const gvarStructFields = {
 	version: r.uint16,
 	reserved: new r.Reserved(r.uint16),
 	axisCount: r.uint16,
@@ -36,6 +49,7 @@ const gvar = new r.Struct({
 		}),
 		(t) => t.glyphCount + 1,
 	),
-});
-
-export default gvar;
+};
+export default new r.Struct<typeof gvarStructFields, gvarTable.gvar>(
+	gvarStructFields,
+);
