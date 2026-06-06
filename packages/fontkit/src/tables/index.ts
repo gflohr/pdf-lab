@@ -6,7 +6,7 @@ import type { AAT } from './aat.js';
 
 // Required Tables
 import cmap from './cmap.js';
-import head, { headTable } from './head.js';
+import head, { type headTable } from './head.js';
 import hhea, { type hheaTable } from './hhea.js';
 import hmtx, { type hmtxTable } from './hmtx.js';
 import maxp, { type maxpTable } from './maxp.js';
@@ -45,7 +45,7 @@ import JSTF, { type JSTFTable } from './JSTF.js';
 // Other OpenType Tables
 import DSIG from './DSIG.js';
 import gasp from './gasp.js';
-import hdmx from './hdmx.js';
+import hdmx, { type hdmxTable } from './hdmx.js';
 import kern, { type kernTable } from './kern.js';
 import LTSH, { type LTSHTable } from './LTSH.js';
 import PCLT, { type PCLTTable } from './PCLT.js';
@@ -159,6 +159,9 @@ export namespace SFNTTable {
 	export type GPOSV65536 = GPOSTable.GPOSV65536;
 	export type GPOSV65537 = GPOSTable.GPOSV65537;
 	export type GPOS = GPOSTable.GPOS;
+
+	export type hdmxDeviceRecord = hdmxTable.hdmxDeviceRecord;
+	export type hdmx = hdmxTable.hdmx;
 
 	export type headMacStyle = headTable.headMacStyle;
 	export type head = headTable.head;
