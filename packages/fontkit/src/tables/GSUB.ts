@@ -17,14 +17,20 @@ import {
 } from './variations.js';
 
 export namespace GSUBTable {
-	export type GSUBLookupSingle =
-		| { format: 1; coverage?: OpenTypeCoverageTable; deltaGlyphID: number }
-		| {
-				format: 2;
-				coverage?: OpenTypeCoverageTable;
-				glyphCount: number;
-				substitute: number[];
-		  };
+	export interface GSUBLookupSingleV1 {
+		format: 1;
+		coverage?: OpenTypeCoverageTable;
+		deltaGlyphID: number;
+	}
+
+	export interface GSUBLookupSingleV2 {
+		format: 2;
+		coverage?: OpenTypeCoverageTable;
+		glyphCount: number;
+		substitute: number[];
+	}
+
+	export type GSUBLookupSingle = GSUBLookupSingleV1 | GSUBLookupSingleV2;
 
 	export interface GSUBLookupMultiple {
 		substFormat: number;
@@ -94,27 +100,36 @@ export namespace GSUBTable {
 const Sequence = new r.Array(r.uint16, r.uint16);
 const AlternateSet = Sequence;
 
-const Ligature = new r.Struct({
+const ligatureFields = {
 	glyph: r.uint16,
 	compCount: r.uint16,
 	components: new r.Array(r.uint16, (t) => t.compCount - 1),
-});
+};
+const Ligature = new r.Struct<
+	typeof ligatureFields,
+	GSUBTable.GSUBLookupLigatureSet
+>(ligatureFields);
 
 const LigatureSet = new r.Array(new r.Pointer(r.uint16, Ligature), r.uint16);
 
 const selfPointer = new r.Pointer(r.uint32, null);
-const GSUBLookup = new r.VersionedStruct('lookupType', {
-	1: new r.VersionedStruct(r.uint16, {
-		1: {
-			coverage: new r.Pointer(r.uint16, Coverage),
-			deltaGlyphID: r.int16,
-		},
-		2: {
-			coverage: new r.Pointer(r.uint16, Coverage),
-			glyphCount: r.uint16,
-			substitute: new r.LazyArray(r.uint16, 'glyphCount'),
-		},
-	}),
+
+const gsubLookupSingleFields = {
+	1: {
+		coverage: new r.Pointer(r.uint16, Coverage),
+		deltaGlyphID: r.int16,
+	},
+	2: {
+		coverage: new r.Pointer(r.uint16, Coverage),
+		glyphCount: r.uint16,
+		substitute: new r.LazyArray(r.uint16, 'glyphCount'),
+	},
+};
+const gsubLookupFields = {
+	1: new r.VersionedStruct<
+		typeof gsubLookupSingleFields,
+		GSUBTable.GSUBLookupSingle
+	>(r.uint16, gsubLookupSingleFields),
 
 	2: {
 		substFormat: r.uint16,
@@ -167,7 +182,11 @@ const GSUBLookup = new r.VersionedStruct('lookupType', {
 		glyphCount: r.uint16,
 		substitutes: new r.Array(r.uint16, 'glyphCount'),
 	},
-});
+};
+const GSUBLookup = new r.VersionedStruct<
+	typeof gsubLookupFields,
+	GSUBTable.GSUBLookupTable
+>('lookupType', gsubLookupFields);
 
 // Fix circular reference
 selfPointer.type = GSUBLookup;

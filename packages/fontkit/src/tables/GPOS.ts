@@ -196,8 +196,7 @@ export namespace GPOSTable {
 		markAnchor: typeof Anchor extends PointerT<infer T> ? T : GPOSAnchor;
 	}
 
-	// Single Adjustment
-	export interface GPOSLookupV1_1 {
+	export interface GPOSLookupSingleV1 {
 		version: 1;
 
 		// Single positioning value
@@ -206,7 +205,7 @@ export namespace GPOSTable {
 		value: ValueRecord;
 	}
 
-	export interface GPOSLookupV1_2 {
+	export interface GPOSLookupSingleV2 {
 		version: 2;
 		coverage: OpenTypeCoverageTable | null;
 		valueFormat: typeof ValueFormat;
@@ -214,10 +213,12 @@ export namespace GPOSTable {
 		values: RestructureLazyArray<ValueRecord>;
 	}
 
-	export type GPOSLookupV1 = GPOSLookupV1_1 | GPOSLookupV1_2;
+	// Single Adjustment
+	export type GPOSLookupSingle = (GPOSLookupSingleV1 | GPOSLookupSingleV2) & {
+		lookupType: 1;
+	};
 
-	// Pair Adjustment Positioning
-	export interface GPOSLookupV2_1 {
+	export interface GPOSLookupPairV1 {
 		version: 1;
 
 		// Adjustments for glyph pairs
@@ -228,8 +229,7 @@ export namespace GPOSTable {
 		pairSets: RestructureLazyArray<GPOSPairValueRecord>;
 	}
 
-	// Class pair adjustment
-	export interface GPOSLookupV2_2 {
+	export interface GPOSLookupPairV2 {
 		version: 2;
 
 		coverage: OpenTypeCoverageTable | null;
@@ -242,11 +242,13 @@ export namespace GPOSTable {
 		classRecords: RestructureLazyArray<GPOSClass2Record>;
 	}
 
-	export type GPOSLookupV2 = GPOSLookupV2_1 | GPOSLookupV2_2;
+	export type GPOSLookupPair = (GPOSLookupPairV1 | GPOSLookupPairV2) & {
+		lookupType: 2;
+	};
 
 	// Cursive Attachment Positioning.
-	export interface GPOSLookupV3 {
-		version: 3;
+	export interface GPOSLookupCursive {
+		lookupType: 3;
 		format: number;
 		coverage: OpenTypeCoverageTable | null;
 		entryExitCount: number;
@@ -254,8 +256,8 @@ export namespace GPOSTable {
 	}
 
 	// MarkToBase Attachment Positioning.
-	export interface GPOSLookupV4 {
-		version: 4;
+	export interface GPOSLookupMarkToBase {
+		lookupType: 4;
 		format: number;
 		markCoverage: OpenTypeCoverageTable | null;
 		baseCoverage: OpenTypeCoverageTable | null;
@@ -266,8 +268,8 @@ export namespace GPOSTable {
 	}
 
 	// MarkToLigature Attachment Positioning
-	export interface GPOSLookupV5 {
-		version: 5;
+	export interface GPOSLookupMarkToLigature {
+		lookupType: 5;
 		format: number;
 		markCoverage: OpenTypeCoverageTable | null;
 		ligatureCoverage: OpenTypeCoverageTable | null;
@@ -278,8 +280,8 @@ export namespace GPOSTable {
 	}
 
 	// MarkToMark Attachment Positioning
-	export interface GPOSLookupV6 {
-		version: 6;
+	export interface GPOSLookupMarkToMark {
+		lookupType: 6;
 		format: number;
 		mark1Coverage: OpenTypeCoverageTable | null;
 		mark2Coverage: OpenTypeCoverageTable | null;
@@ -289,34 +291,35 @@ export namespace GPOSTable {
 		mark2Array: unknown;
 	}
 
-	export type GPOSLookupV7 = OpenTypeContextTable & { version: 7 };
+	export type GPOSLookupContext = OpenTypeContextTable & { lookupType: 7 };
 
-	export type GPOSLookupV8 = OpenTypeChainingContextTable & { version: 8 };
+	export type GPOSLookupChainingContext = OpenTypeChainingContextTable & {
+		lookupType: 8;
+	};
 
-	export interface GPOSLookupV9 {
-		version: 9;
+	export interface GPOSLookupExtension {
 		// Extension Positioning
 		posFormat: number;
 		lookupType: number; // cannot also be 9
 		// FIXME!
-		extension: GPOSLookup;
+		extension: GPOSLookupTable;
 	}
 
-	export type GPOSLookup =
-		| GPOSLookupV1
-		| GPOSLookupV2
-		| GPOSLookupV3
-		| GPOSLookupV4
-		| GPOSLookupV5
-		| GPOSLookupV6
-		| GPOSLookupV7
-		| GPOSLookupV8
-		| GPOSLookupV9;
+	export type GPOSLookupTable =
+		| GPOSLookupSingle
+		| GPOSLookupPair
+		| GPOSLookupCursive
+		| GPOSLookupMarkToBase
+		| GPOSLookupMarkToLigature
+		| GPOSLookupMarkToMark
+		| GPOSLookupContext
+		| GPOSLookupChainingContext
+		| GPOSLookupExtension;
 
 	interface GPOSBase {
 		scriptList: OpenTypeScriptRecord[];
 		featureList: OpenTypeFeatureRecord;
-		lookupList: FieldT<OpenTypeLookupTable<GPOSLookup>[]> | null;
+		lookupList: FieldT<OpenTypeLookupTable<GPOSLookupTable>[]> | null;
 	}
 
 	export interface GPOSV1_0 extends GPOSBase {
@@ -459,12 +462,12 @@ const gposLookupFieldsV2 = {
 };
 
 const gposLookupFields = {
-	1: new r.VersionedStruct<typeof gposLookupFieldsV1, GPOSTable.GPOSLookupV1>(
-		r.uint16,
-		gposLookupFieldsV1,
-	),
+	1: new r.VersionedStruct<
+		typeof gposLookupFieldsV1,
+		GPOSTable.GPOSLookupSingle
+	>(r.uint16, gposLookupFieldsV1),
 
-	2: new r.VersionedStruct<typeof gposLookupFieldsV2, GPOSTable.GPOSLookupV2>(
+	2: new r.VersionedStruct<typeof gposLookupFieldsV2, GPOSTable.GPOSLookupPair>(
 		r.uint16,
 		gposLookupFieldsV2,
 	),
@@ -519,7 +522,7 @@ const gposLookupFields = {
 };
 const GPOSLookup = new r.VersionedStruct<
 	typeof gposLookupFields,
-	GPOSTable.GPOSLookup
+	GPOSTable.GPOSLookupTable
 >('lookupType', gposLookupFields);
 
 // Fix circular reference
