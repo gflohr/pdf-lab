@@ -1,24 +1,24 @@
 import r from '@pdf-lib/restructure';
 
 export namespace VDMXTable {
-	export interface VDMXRatio {
+	export interface Ratio {
 		bCharSet: number /** The character set. */;
 		xRatio: number /** The alue to use for x-Ratio. */;
 		yStartRatio: number /** The starting y-Ratio value. */;
 		yEndRatio: number /** The ending y-Ratio value. */;
 	}
 
-	export interface VDMXvTable {
+	export interface vTable {
 		yPelHeight: number /** The yPelHeight to which values apply. */;
 		yMax: number /** The maximum value (in pels) for this yPelHeight. */;
 		yMin: number /** The minimum value (in pels) for this yPelHeight. */;
 	}
 
-	export interface VDMXGroup {
+	export interface Group {
 		recs: number /** The number of height records in this group. */;
 		startsz: number /** The starting yPelHeight. */;
 		endsz: number /** The ending yPelHeight. */;
-		entries: VDMXvTable[] /** The VDMX records. */;
+		entries: vTable[] /** The VDMX records. */;
 	}
 
 	/** VDMX tables contain ascender/descender overrides for certain (usually
@@ -28,9 +28,9 @@ export namespace VDMXTable {
 		version: number /* The version number (0 or 1). */;
 		numRecs: number /* The number of VDMX groups present. */;
 		numRatios: number /* The number of aspect ratio groupings. */;
-		ratioRanges: VDMXRatio[] /** The ratio ranges. */;
+		ratioRanges: Ratio[] /** The ratio ranges. */;
 		offsets: number[] /** The offset to the VDMX group for this ratio range. */;
-		groups: VDMXGroup[] /** The actual VDMX groupings. */;
+		groups: Group[] /** The actual VDMX groupings. */;
 	}
 }
 

@@ -17,48 +17,48 @@ import {
 } from './variations.js';
 
 export namespace GSUBTable {
-	export interface GSUBLookupSingleV1 {
+	export interface LookupSingleV1 {
 		format: 1;
 		coverage?: OpenTypeCoverageTable;
 		deltaGlyphID: number;
 	}
 
-	export interface GSUBLookupSingleV2 {
+	export interface LookupSingleV2 {
 		format: 2;
 		coverage?: OpenTypeCoverageTable;
 		glyphCount: number;
 		substitute: number[];
 	}
 
-	export type GSUBLookupSingle = GSUBLookupSingleV1 | GSUBLookupSingleV2;
+	export type LookupSingle = LookupSingleV1 | LookupSingleV2;
 
-	export interface GSUBLookupMultiple {
+	export interface LookupMultiple {
 		substFormat: number;
 		coverage?: OpenTypeCoverageTable;
 		count: number;
 		sequences: number[][];
 	}
 
-	export interface GSUBLookupAlternate {
+	export interface LookupAlternate {
 		substFormat: number;
 		coverage?: OpenTypeCoverageTable;
 		count: number;
 		alternateSet: number[][];
 	}
 
-	export interface GSUBLookupLigatureSet {
+	export interface LookupLigatureSet {
 		glyph: number;
 		compCount: number;
 		components: number[];
 	}
-	export interface GSUBLookupLigature {
+	export interface LookupLigature {
 		substFormat: number;
 		coverage?: OpenTypeCoverageTable;
 		count: number;
-		ligatureSets: GSUBLookupLigatureSet[];
+		ligatureSets: LookupLigatureSet[];
 	}
 
-	export interface GSUBLookupReverseChaining {
+	export interface LookupReverseChaining {
 		substFormat: number;
 		coverage?: OpenTypeCoverageTable;
 		backtrackCoverage: OpenTypeCoverageTable[];
@@ -68,11 +68,11 @@ export namespace GSUBTable {
 		substitutes: number[];
 	}
 
-	export type GSUBLookupTable =
-		| { lookupType: 1; table: GSUBLookupSingle }
-		| { lookupType: 2; table: GSUBLookupMultiple }
-		| { lookupType: 3; table: GSUBLookupAlternate }
-		| { lookupType: 4; table: GSUBLookupLigature }
+	export type LookupTable =
+		| { lookupType: 1; table: LookupSingle }
+		| { lookupType: 2; table: LookupMultiple }
+		| { lookupType: 3; table: LookupAlternate }
+		| { lookupType: 4; table: LookupLigature }
 		| { lookupType: 5; table: OpenTypeContextTable }
 		| { lookupType: 6; table: OpenTypeChainingContextTable }
 		| {
@@ -80,16 +80,16 @@ export namespace GSUBTable {
 				table: {
 					substFormat: number;
 					lookupType: Exclude<number, 7>;
-					extension: GSUBLookupTable;
+					extension: LookupTable;
 				};
 		  }
-		| { lookupType: 8; table: GSUBLookupReverseChaining };
+		| { lookupType: 8; table: LookupReverseChaining };
 
-	export interface GSUBV1_0 extends OpenTypeLayoutTableBase<GSUBLookupTable> {
+	export interface GSUBV1_0 extends OpenTypeLayoutTableBase<LookupTable> {
 		version: 1.0; // represented by binary uint32 value 65536
 	}
 
-	export interface GSUBV1_1 extends OpenTypeLayoutTableBase<GSUBLookupTable> {
+	export interface GSUBV1_1 extends OpenTypeLayoutTableBase<LookupTable> {
 		version: 1.1; // represented by binary uint32 value 65537
 		featureVariations: OpenTypeFeatureVariationsTable;
 	}
@@ -107,7 +107,7 @@ const ligatureFields = {
 };
 const Ligature = new r.Struct<
 	typeof ligatureFields,
-	GSUBTable.GSUBLookupLigatureSet
+	GSUBTable.LookupLigatureSet
 >(ligatureFields);
 
 const LigatureSet = new r.Array(new r.Pointer(r.uint16, Ligature), r.uint16);
@@ -128,7 +128,7 @@ const gsubLookupSingleFields = {
 const gsubLookupFields = {
 	1: new r.VersionedStruct<
 		typeof gsubLookupSingleFields,
-		GSUBTable.GSUBLookupSingle
+		GSUBTable.LookupSingle
 	>(r.uint16, gsubLookupSingleFields),
 
 	2: {
@@ -185,7 +185,7 @@ const gsubLookupFields = {
 };
 const GSUBLookup = new r.VersionedStruct<
 	typeof gsubLookupFields,
-	GSUBTable.GSUBLookupTable
+	GSUBTable.LookupTable
 >('lookupType', gsubLookupFields);
 
 // Fix circular reference

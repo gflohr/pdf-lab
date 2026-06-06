@@ -4,7 +4,7 @@ export namespace headTable {
 	/**
 	 * Bit flags used in the `head` table macStyle field.
 	 */
-	export interface headMacStyle {
+	export interface MacStyle {
 		readonly bold: boolean;
 		readonly italic: boolean;
 		readonly underline: boolean;
@@ -60,7 +60,7 @@ export namespace headTable {
 		yMax: number;
 
 		/** Macintosh style flags */
-		macStyle: headMacStyle;
+		macStyle: MacStyle;
 
 		/** Smallest readable size in pixels */
 		lowestRecPPEM: number;

@@ -2,7 +2,7 @@ import r from '@pdf-lib/restructure';
 import { getEncoding, LANGUAGES } from '../encodings.js';
 
 export namespace nameTable {
-	export interface nameRecord {
+	export interface NameRecord {
 		platformID: number;
 		encodingID: number;
 		languageID: number;
@@ -11,7 +11,7 @@ export namespace nameTable {
 		string: string;
 	}
 
-	export interface nameLangTagRecord {
+	export interface LangTagRecord {
 		length: number;
 		tag: string;
 	}
@@ -65,7 +65,7 @@ export namespace nameTable {
 		stringOffset: number;
 		records: nameProcessedRecords;
 		langTagCount: number;
-		langTags: nameLangTagRecord[];
+		langTags: LangTagRecord[];
 	}
 
 	export type name = nameV1 | nameV2;
@@ -86,7 +86,7 @@ const nameRecordFields = {
 		{ type: 'parent', relativeTo: 'parent.stringOffset', allowNull: false },
 	),
 };
-const NameRecord = new r.Struct<typeof nameRecordFields, nameTable.nameRecord>(
+const NameRecord = new r.Struct<typeof nameRecordFields, nameTable.NameRecord>(
 	nameRecordFields,
 );
 
@@ -99,7 +99,7 @@ const langTagRecordFields = {
 };
 const LangTagRecord = new r.Struct<
 	typeof langTagRecordFields,
-	nameTable.nameLangTagRecord
+	nameTable.LangTagRecord
 >(langTagRecordFields);
 
 const nameFields = {
@@ -153,7 +153,7 @@ const NAMES = [
 ];
 
 nameStruct.process = function (this: any) {
-	const rawRecords = this.records as nameTable.nameRecord[];
+	const rawRecords = this.records as nameTable.NameRecord[];
 	const processedRecords: nameTable.nameProcessedRecords = {};
 
 	for (const record of rawRecords) {

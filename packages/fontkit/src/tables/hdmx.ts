@@ -1,7 +1,7 @@
 import r from '@pdf-lib/restructure';
 
 export namespace hdmxTable {
-	export interface hdmxDeviceRecord {
+	export interface DeviceRecord {
 		pixelSize: number;
 		maximumWidth: number;
 		widths: number[];
@@ -16,7 +16,7 @@ export namespace hdmxTable {
 		version: number;
 		numRecords: number;
 		sizeDeviceRecord: number;
-		records: hdmxDeviceRecord[];
+		records: DeviceRecord[];
 	}
 }
 
@@ -32,7 +32,7 @@ const deviceRecordFields = {
 };
 const DeviceRecord = new r.Struct<
 	typeof deviceRecordFields,
-	hdmxTable.hdmxDeviceRecord
+	hdmxTable.DeviceRecord
 >(deviceRecordFields);
 
 const hdmxStructFields = {

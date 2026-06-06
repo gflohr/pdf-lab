@@ -3,27 +3,27 @@ import { type AAT, LookupTable, StateTable, UnboundedArray } from './aat.js';
 
 export namespace morxTable {
 	// Format 0: Indic rearrangement subtable.
-	export interface morxSubtableDataV0 {
+	export interface SubtableDataV0 {
 		version: 0;
 		stateTable: AAT.StateHeader;
 	}
 
 	// Format 1: Contextual glyph substitution subtable.
-	export interface morxContextualData {
+	export interface ContextualData {
 		markIndex: number;
 		currentIndex: number;
 	}
 
-	export interface morxSubstitutionTable {
+	export interface SubstitutionTable {
 		items: AAT.LookupTable<number>[];
 	}
 
-	export interface morxSubtableDataV1 {
+	export interface SubtableDataV1 {
 		version: 1;
-		stateTable: AAT.StateHeader<number, morxContextualData>;
+		stateTable: AAT.StateHeader<number, ContextualData>;
 		substitutionTable: typeof SubstitutionTable extends PointerT<infer T>
 			? T
-			: morxSubstitutionTable;
+			: SubstitutionTable;
 	}
 
 	// Format 2: Ligature subtable.
@@ -31,7 +31,7 @@ export namespace morxTable {
 		action: number;
 	}
 
-	export interface morxSubtableDataV2 {
+	export interface SubtableDataV2 {
 		version: 2;
 		stateTable: AAT.StateHeader<number, morxLigatureData>;
 		ligatureActions: number[];
@@ -41,29 +41,29 @@ export namespace morxTable {
 
 	// Format 4: Non-contextual glyph substitution subtable.
 
-	export interface morxSubtableDataV4 {
+	export interface SubtableDataV4 {
 		version: 4;
 		lookupTable: AAT.LookupTable<number>;
 	}
 
 	// Format 5: Glyph insertion subtable.
-	export interface morxInsertionData {
+	export interface InsertionData {
 		currentInsertIndex: number;
 		markedInsertIndex: number;
 	}
 
-	export interface morxSubtableDataV5 {
+	export interface SubtableDataV5 {
 		version: 5;
-		stateTable: AAT.StateHeader<number, morxInsertionData>;
+		stateTable: AAT.StateHeader<number, InsertionData>;
 		insertionActions: number[];
 	}
 
 	export type morxSubtableData =
-		| morxSubtableDataV0
-		| morxSubtableDataV1
-		| morxSubtableDataV2
-		| morxSubtableDataV4
-		| morxSubtableDataV5;
+		| SubtableDataV0
+		| SubtableDataV1
+		| SubtableDataV2
+		| SubtableDataV4
+		| SubtableDataV5;
 
 	export interface morxSubtable {
 		length: number;
@@ -114,7 +114,7 @@ const subtitutionTableFields = {
 };
 const SubstitutionTable = new r.Struct<
 	typeof subtitutionTableFields,
-	morxTable.morxSubstitutionTable
+	morxTable.SubstitutionTable
 >(subtitutionTableFields);
 
 const subtableDataFields = {

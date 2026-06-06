@@ -2,14 +2,14 @@ import r from '@pdf-lib/restructure';
 import { type AAT, LookupTable, StateTable1 } from './aat.js';
 
 export namespace justTable {
-	export interface justClassTable {
+	export interface ClassTable {
 		length: number;
 		coverage: number;
 		subFeatureFlags: number;
 		stateTable: AAT.StateHeader1;
 	}
 
-	export interface justWidthDeltaRecord {
+	export interface WidthDeltaRecord {
 		justClass: number;
 		beforeGrowLimit: number;
 		beforeShrinkLimit: number;
@@ -20,7 +20,8 @@ export namespace justTable {
 	}
 
 	/** Decomposition action. */
-	export interface justActionDataV0 {
+	export interface ActionDataV0 {
+		version: 0;
 		lowerLimit: number;
 		upperLimit: number;
 		order: number;
@@ -28,22 +29,27 @@ export namespace justTable {
 	}
 
 	/** Unconditional add glyph action. */
-	export interface justActionDataV1 {
+	export interface ActionDataV1 {
+		version: 1;
 		addGlyph: number;
 	}
 
 	/** Conditional add glyph action. */
-	export interface justActionDataV2 {
+	export interface ActionDataV2 {
+		version: 2;
 		substThreshold: number;
 		addGlyph: number;
 		substGlyph: number;
 	}
 
 	/** Stretch glyph action (no data, not supported by CoreText). */
-	export type justActionDataV3 = {};
+	export type ActionDataV3 = {
+		version: 3;
+	};
 
 	/** Ductile glyph action (not supported by CoreText). */
-	export interface justActionDataV4 {
+	export interface ActionDataV4 {
+		version: 4;
 		variationAxis: number;
 		minimumLimit: number;
 		noStretchValue: number;
@@ -51,42 +57,43 @@ export namespace justTable {
 	}
 
 	/** Repeated add glyph action. */
-	export interface justActionDataV5 {
+	export interface ActionDataV5 {
+		version: 5;
 		flags: number;
 		glyph: number;
 	}
 
-	export type justActionData =
-		| justActionDataV0
-		| justActionDataV1
-		| justActionDataV2
-		| justActionDataV3
-		| justActionDataV4
-		| justActionDataV5;
+	export type ActionData =
+		| ActionDataV0
+		| ActionDataV1
+		| ActionDataV2
+		| ActionDataV3
+		| ActionDataV4
+		| ActionDataV5;
 
 	export interface justAction {
 		actionClass: number;
 		actionType: number;
 		actionLength: number;
-		actionData: justActionData;
+		actionData: ActionData;
 	}
 
-	export interface justPostCompensationTable {
+	export interface PostCompensationTable {
 		lookupTable: Record<number, justAction[]>;
 	}
 
-	export interface justificationTable {
-		classTable: justClassTable;
+	export interface JustificationTable {
+		classTable: ClassTable;
 		wdcOffset: number;
-		postCompensationTable: justPostCompensationTable;
-		widthDeltaClusters: Record<number, justWidthDeltaRecord[]>;
+		postCompensationTable: PostCompensationTable;
+		widthDeltaClusters: Record<number, WidthDeltaRecord[]>;
 	}
 
 	export interface just {
 		version: number;
 		format: number;
-		horizontal?: justificationTable;
-		vertical?: justificationTable;
+		horizontal?: JustificationTable;
+		vertical?: JustificationTable;
 	}
 }
 
@@ -98,7 +105,7 @@ const classTableFields = {
 };
 const ClassTable = new r.Struct<
 	typeof classTableFields,
-	justTable.justClassTable
+	justTable.ClassTable
 >(classTableFields);
 
 const widthDeltaRecordFields = {
@@ -112,7 +119,7 @@ const widthDeltaRecordFields = {
 };
 const WidthDeltaRecord = new r.Struct<
 	typeof widthDeltaRecordFields,
-	justTable.justWidthDeltaRecord
+	justTable.WidthDeltaRecord
 >(widthDeltaRecordFields);
 const WidthDeltaCluster = new r.Array(WidthDeltaRecord, r.uint32);
 
@@ -144,7 +151,7 @@ const actionDataFields = {
 
 const ActionData = new r.VersionedStruct<
 	typeof actionDataFields,
-	justTable.justActionData
+	justTable.ActionData
 >('actionType', actionDataFields);
 
 const actionFields = {
@@ -172,7 +179,7 @@ const postCompensationTableFields = {
 };
 const PostCompensationTable = new r.Struct<
 	typeof postCompensationTableFields,
-	justTable.justPostCompensationTable
+	justTable.PostCompensationTable
 >(postCompensationTableFields);
 
 const justificationTableFields = {
@@ -190,7 +197,7 @@ const justificationTableFields = {
 };
 const JustificationTable = new r.Struct<
 	typeof justificationTableFields,
-	justTable.justificationTable
+	justTable.JustificationTable
 >(justificationTableFields);
 
 const justFields = {

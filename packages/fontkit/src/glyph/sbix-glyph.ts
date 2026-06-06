@@ -1,5 +1,5 @@
 import r from '@pdf-lib/restructure';
-import type { SFNTTable } from '../tables/index.js';
+import type { sbixTable } from '../tables/sbix.js';
 import type { FontkitRenderingContext } from './glyph.js';
 import TTFGlyph from './ttf-glyph.js';
 
@@ -29,7 +29,7 @@ export default class SBIXGlyph extends TTFGlyph {
 	getImageForSize(size: number): SBIXImageType | null {
 		// FIXME! This looks suspicious! If no table with ppem >= size is
 		// found, table is the last table. Is that correct?
-		let table: SFNTTable.sbixImageTable;
+		let table: sbixTable.ImageTable;
 		for (let i = 0; i < this._font.sbix!.imageTables.length; i++) {
 			table = this._font.sbix!.imageTables[i];
 			if (table.ppem >= size) {

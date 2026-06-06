@@ -1,13 +1,13 @@
 import r, { type FieldT, type StructT } from '@pdf-lib/restructure';
-import type { SFNTTable } from './index.js';
 import Tables from './index.js';
+import type { VORGTable } from './VORG.js';
 
 type InferredTableMap = {
 	[K in keyof typeof Tables]: ReturnType<(typeof Tables)[K]['decode']>;
 };
 
 export type FilteredTableMap = InferredTableMap & {
-	VORG: SFNTTable.VORG;
+	VORG: VORGTable.VORG;
 } & Record<string, unknown>;
 
 export type SFNTTableMap = Record<string, unknown> & Partial<FilteredTableMap>;

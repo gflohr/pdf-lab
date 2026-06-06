@@ -1,7 +1,7 @@
 import r from '@pdf-lib/restructure';
 
 export namespace VORGTable {
-	export interface VORGVerticalOrigin {
+	export interface VerticalOrigin {
 		glyphIndex: number;
 		vertOriginY: number;
 	}
@@ -11,7 +11,7 @@ export namespace VORGTable {
 		minorVersion: number;
 		defaultVertOriginY: number;
 		numVertOriginYMetrics: number;
-		metrics: VORGVerticalOrigin[];
+		metrics: VerticalOrigin[];
 	}
 }
 
@@ -21,7 +21,7 @@ const verticalOriginFields = {
 };
 const VerticalOriginStruct = new r.Struct<
 	typeof verticalOriginFields,
-	VORGTable.VORGVerticalOrigin
+	VORGTable.VerticalOrigin
 >(verticalOriginFields);
 
 const VORGFields = {

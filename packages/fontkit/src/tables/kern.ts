@@ -4,42 +4,42 @@ import r, {
 } from '@pdf-lib/restructure';
 
 export namespace kernTable {
-	export interface kernPair {
+	export interface Pair {
 		left: number;
 		right: number;
 		value: number;
 	}
 
-	export interface kernClassTable {
+	export interface ClassTable {
 		firstGlyph: number;
 		nGlyphs: number;
 		offset: number[];
 		max: number;
 	}
 
-	export interface kern2Array {
+	export interface Kern2Array {
 		off: number;
 		len: number;
 		values: RestructureLazyArray<number>;
 	}
 
-	export interface kernSubtableV0 {
+	export interface SubtableV0 {
 		version: 0;
 		nPairs: number;
 		searchRange: number;
 		entrySelector: number;
 		rangeShift: number;
-		pairs: kernPair[];
+		pairs: Pair[];
 	}
 
-	export interface kernSubtableV2 {
+	export interface SubtableV2 {
 		version: 2;
 		rowWidth: number;
-		leftTable: kernClassTable;
-		array: kern2Array;
+		leftTable: ClassTable;
+		array: Kern2Array;
 	}
 
-	export interface kernSubtableV3 {
+	export interface SubtableV3 {
 		version: 3;
 		glyphCount: number;
 		kernValueCount: number;
@@ -52,12 +52,12 @@ export namespace kernTable {
 		kernIndex: number[];
 	}
 
-	export type kernSubtable = kernSubtableV0 | kernSubtableV2 | kernSubtableV3;
+	export type Subtable = SubtableV0 | SubtableV2 | SubtableV3;
 
 	/**
 	 * Microsoft uses this format.
 	 */
-	export interface kernTableV0 {
+	export interface TableV0 {
 		version: 0;
 
 		/** Microsoft has an extra sub-table version number. */
@@ -89,13 +89,13 @@ export namespace kernTable {
 			 */
 			override: boolean;
 		};
-		subtable: kernSubtable;
+		subtable: Subtable;
 	}
 
 	/**
 	 * Apple uses this format.
 	 */
-	export interface kernTableV1 {
+	export interface TableV1 {
 		version: 1;
 		length: number;
 		coverage: {
@@ -111,10 +111,10 @@ export namespace kernTable {
 		};
 		format: number;
 		tupleIndex: number;
-		subtable: kernSubtable;
+		subtable: Subtable;
 	}
 
-	export type kernTable = kernTableV0 | kernTableV1;
+	export type Table = TableV0 | TableV1;
 
 	/**
 	 * Microsoft uses this format.
@@ -122,7 +122,7 @@ export namespace kernTable {
 	export interface kernV0 {
 		version: 0;
 		ntables: number[];
-		tables: kernTable[];
+		tables: Table[];
 	}
 
 	/**
@@ -131,7 +131,7 @@ export namespace kernTable {
 	export interface kernV1 {
 		version: 1;
 		ntables: number[];
-		tables: kernTable[];
+		tables: Table[];
 	}
 
 	export type kern = kernV0 | kernV1;
@@ -142,7 +142,7 @@ const kernPairFields = {
 	right: r.uint16,
 	value: r.int16,
 };
-const kernPair = new r.Struct<typeof kernPairFields, kernTable.kernPair>(
+const kernPair = new r.Struct<typeof kernPairFields, kernTable.Pair>(
 	kernPairFields,
 );
 
@@ -185,7 +185,7 @@ const kern2ArrayFields = {
 		(t.parent.rowWidth / 2),
 	values: new r.LazyArray(r.int16, 'len'),
 };
-const Kern2Array = new r.Struct<typeof kern2ArrayFields, kernTable.kern2Array>(
+const Kern2Array = new r.Struct<typeof kern2ArrayFields, kernTable.Kern2Array>(
 	kern2ArrayFields,
 );
 
@@ -222,7 +222,7 @@ const kernSubtableFields = {
 };
 const KernSubtable = new r.VersionedStruct<
 	typeof kernSubtableFields,
-	kernTable.kernSubtable
+	kernTable.Subtable
 >('format', kernSubtableFields);
 
 const kernTableFields = {
@@ -261,7 +261,7 @@ const kernTableFields = {
 };
 const KernTable = new r.VersionedStruct<
 	typeof kernTableFields,
-	kernTable.kernTable
+	kernTable.Table
 >('version', kernTableFields);
 
 const kernFields = {

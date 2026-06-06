@@ -2,7 +2,7 @@ import r from '@pdf-lib/restructure';
 import { type AAT, LookupTable } from './aat.js';
 
 export namespace opbdTable {
-	export interface opbdOpticalBounds {
+	export interface OpticalBounds {
 		left: number;
 		top: number;
 		right: number;
@@ -12,7 +12,7 @@ export namespace opbdTable {
 	export interface opbd {
 		version: number;
 		format: number;
-		lookupTable: AAT.LookupTable<opbdOpticalBounds>;
+		lookupTable: AAT.LookupTable<OpticalBounds>;
 	}
 }
 
@@ -24,7 +24,7 @@ const opticalBoundsStructFields = {
 };
 const OpticalBounds = new r.Struct<
 	typeof opticalBoundsStructFields,
-	opbdTable.opbdOpticalBounds
+	opbdTable.OpticalBounds
 >(opticalBoundsStructFields);
 
 const opticalBoundsFields = {

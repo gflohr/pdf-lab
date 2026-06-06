@@ -47,7 +47,7 @@ export namespace HVARTable {
 	/**
 	 * Represents a single parsed entry within a delta set index map.
 	 */
-	export interface HVARMapDataEntry {
+	export interface MapDataEntry {
 		/** The raw multi-size value containing packed index bits. */
 		entry: number;
 
@@ -68,26 +68,26 @@ export namespace HVARTable {
 	 * Represents a compiled Map table correlating glyph IDs to variation
 	 * indexes.
 	 */
-	export interface HVARDeltaSetIndexMap {
+	export interface DeltaSetIndexMap {
 		/** Flag formatting mask dictating outer/inner index bit boundaries. */
 		entryFormat: number;
 		/** Total number of mapping index elements stored. */
 		mapCount: number;
 		/** Array containing individual variation indexing pairs. */
-		mapData: HVARMapDataEntry[];
+		mapData: MapDataEntry[];
 	}
 
 	/**
 	 * Represents a compiled Map table correlating glyph IDs to variation
 	 * indexes.
 	 */
-	export interface HVARDeltaSetIndexMap {
+	export interface DeltaSetIndexMap {
 		/** Flag formatting mask dictating outer/inner index bit boundaries. */
 		entryFormat: number;
 		/** Total number of mapping index elements stored. */
 		mapCount: number;
 		/** Array containing individual variation indexing pairs. */
-		mapData: HVARMapDataEntry[];
+		mapData: MapDataEntry[];
 	}
 
 	/**
@@ -113,19 +113,19 @@ export namespace HVARTable {
 		 * Optional mapping data resolving variable adjustments for advance
 		 * widths.
 		 */
-		advanceWidthMapping: HVARDeltaSetIndexMap | null;
+		advanceWidthMapping: DeltaSetIndexMap | null;
 
 		/**
 		 * Optional mapping data resolving variable adjustments for Left Side
 		 * Bearings.
 		 */
-		LSBMapping: HVARDeltaSetIndexMap | null;
+		LSBMapping: DeltaSetIndexMap | null;
 
 		/**
 		 * Optional mapping data resolving variable adjustments for Right Side
 		 * Bearings.
 		 */
-		RSBMapping: HVARDeltaSetIndexMap | null;
+		RSBMapping: DeltaSetIndexMap | null;
 	}
 }
 
@@ -151,7 +151,7 @@ const mapDataEntryFields = {
 };
 const MapDataEntry = new r.Struct<
 	typeof mapDataEntryFields,
-	HVARTable.HVARMapDataEntry
+	HVARTable.MapDataEntry
 >(mapDataEntryFields);
 
 const deltaSetIndexMapFields = {
@@ -161,7 +161,7 @@ const deltaSetIndexMapFields = {
 };
 const DeltaSetIndexMap = new r.Struct<
 	typeof deltaSetIndexMapFields,
-	HVARTable.HVARDeltaSetIndexMap
+	HVARTable.DeltaSetIndexMap
 >(deltaSetIndexMapFields);
 
 const hvarFields = {

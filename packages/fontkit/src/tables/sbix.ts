@@ -1,11 +1,11 @@
 import r from '@pdf-lib/restructure';
 
 export namespace sbixTable {
-	export interface sbixFlags {
+	export interface Flags {
 		renderOutlines: boolean;
 	}
 
-	export interface sbixImageTable {
+	export interface ImageTable {
 		ppem: number;
 		resolution: number;
 		imageOffsets: number[];
@@ -18,9 +18,9 @@ export namespace sbixTable {
 	 */
 	export interface sbix {
 		version: number;
-		flags: sbixFlags;
+		flags: Flags;
 		numImgTables: number;
-		imageTables: sbixImageTable[];
+		imageTables: ImageTable[];
 	}
 }
 
@@ -34,7 +34,7 @@ const imageTableFields = {
 };
 const ImageTable = new r.Struct<
 	typeof imageTableFields,
-	sbixTable.sbixImageTable
+	sbixTable.ImageTable
 >(imageTableFields);
 
 const sbixFields = {

@@ -3,7 +3,7 @@ import { GPOSLookup } from './GPOS.js';
 import { LookupList, type OpenTypeLookupTable } from './opentype.js';
 
 export namespace JSTFTable {
-	export interface JSTFPriority {
+	export interface Priority {
 		shrinkableEnableGSUB: number[];
 		shrinkableDisableGSUB: number[];
 		shrinkableEnableGPOS: number[];
@@ -16,22 +16,22 @@ export namespace JSTFTable {
 		extensionJstfMax: FieldT<OpenTypeLookupTable<typeof GPOSLookup>[]>;
 	}
 
-	export interface JSTFLangSysRecord {
+	export interface LangSysRecord {
 		tag: string;
-		jstfLangSys: JSTFPriority;
+		jstfLangSys: Priority;
 	}
 
-	export interface JSTFScript {
+	export interface Script {
 		extenderGlyphs: number[] | null; // array of glyphs to extend line length
-		defaultLangSys: JSTFPriority[] | null;
+		defaultLangSys: Priority[] | null;
 		langSysCount: number;
-		langSysRecords: JSTFLangSysRecord[] | null;
+		langSysRecords: LangSysRecord[] | null;
 	}
 
 	export interface JSTF {
 		version: number; // should be 0x00010000
 		scriptCount: number;
-		scriptList: JSTFScript[];
+		scriptList: Script[];
 	}
 }
 
@@ -51,7 +51,7 @@ const jstfPriorityFields = {
 };
 const JstfPriority = new r.Struct<
 	typeof jstfPriorityFields,
-	JSTFTable.JSTFPriority
+	JSTFTable.Priority
 >(jstfPriorityFields);
 
 const JstfLangSys = new r.Array(
@@ -65,7 +65,7 @@ const jstfLangSysRecordFields = {
 };
 const JstfLangSysRecord = new r.Struct<
 	typeof jstfLangSysRecordFields,
-	JSTFTable.JSTFLangSysRecord
+	JSTFTable.LangSysRecord
 >(jstfLangSysRecordFields);
 
 const JstfScript = new r.Struct({
@@ -81,7 +81,7 @@ const jstfScriptRecordFields = {
 };
 const JstfScriptRecord = new r.Struct<
 	typeof jstfScriptRecordFields,
-	JSTFTable.JSTFScript
+	JSTFTable.Script
 >(jstfScriptRecordFields);
 
 const JSTFStructFields = {
