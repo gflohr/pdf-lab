@@ -8,12 +8,12 @@ export namespace fvarTable {
 		maxValue: number;
 		flags: number;
 		nameID: number;
-		name: string;
+		name: Record<string, string>;
 	}
 
 	export interface Instance {
 		nameID: number;
-		name: string;
+		name: Record<string, string>;
 		flags: number;
 		coord: number[];
 		postScriptNameID?: number;

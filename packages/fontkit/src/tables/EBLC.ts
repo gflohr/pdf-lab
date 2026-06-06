@@ -1,5 +1,5 @@
 import r from '@pdf-lib/restructure';
-import { BigMetrics, type EBDTTable } from './EBDT.js';
+import { bigMetrics, EBDTTable } from './EBDT.js';
 
 export namespace EBLCTable {
 	export interface SBitLineMetrics {
@@ -135,7 +135,7 @@ const indexSubtableFields = {
 
 	2: {
 		imageSize: r.uint32,
-		bigMetrics: BigMetrics,
+		bigMetrics,
 	},
 
 	3: {
@@ -152,7 +152,7 @@ const indexSubtableFields = {
 
 	5: {
 		imageSize: r.uint32,
-		bigMetrics: BigMetrics,
+		bigMetrics,
 		numGlyphs: r.uint32,
 		glyphCodeArray: new r.Array(r.uint16, 'numGlyphs'),
 	},
