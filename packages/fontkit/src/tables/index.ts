@@ -6,8 +6,8 @@ import type { AAT } from './aat.js';
 
 // Required Tables
 import cmap from './cmap.js';
-import head from './head.js';
-import hhea from './hhea.js';
+import head, { headTable } from './head.js';
+import hhea, { type hheaTable } from './hhea.js';
 import hmtx, { type hmtxTable } from './hmtx.js';
 import maxp, { type maxpTable } from './maxp.js';
 import name, { type nameTable } from './name.js';
@@ -159,6 +159,11 @@ export namespace SFNTTable {
 	export type GPOSV65536 = GPOSTable.GPOSV65536;
 	export type GPOSV65537 = GPOSTable.GPOSV65537;
 	export type GPOS = GPOSTable.GPOS;
+
+	export type headMacStyle = headTable.headMacStyle;
+	export type head = headTable.head;
+
+	export type hhea = hheaTable.hhea;
 
 	export type hmtx = hmtxTable.hmtx;
 
