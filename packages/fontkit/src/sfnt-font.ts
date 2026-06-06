@@ -29,8 +29,9 @@ import type {
 	SFNTTableMap,
 } from './tables/directory.js';
 import Directory from './tables/directory.js';
-import tables, { type SFNTTable } from './tables/index.js';
+import tables from './tables/index.js';
 import type { TypeFeatures } from './tables/opentype.js';
+import { nameTable } from './tables/name.js';
 
 /**
  * Automatically calculates all available font table properties
@@ -231,7 +232,7 @@ export class SFNTFont<
 	 * @returns the table entry or `null` if not present.
 	 */
 	getName(
-		key: keyof SFNTTable.nameProcessedRecords,
+		key: keyof nameTable.nameProcessedRecords,
 		lang = 'en',
 	): string | null {
 		const record = this.name.records[key];

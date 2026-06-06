@@ -3,8 +3,14 @@ import type BoundingBox from './glyph/bounding-box.js';
 import type Glyph from './glyph/glyph.js';
 import type GlyphRun from './layout/GlyphRun.js';
 import type Subset from './subset/Subset.js';
-import type { SFNTTable } from './tables/index.js';
+import type { HVARTable } from './tables/HVAR.js';
+import type { headTable } from './tables/head.js';
+import type { hheaTable } from './tables/hhea.js';
+import type { hmtxTable } from './tables/hmtx.js';
+import type { OS2Table } from './tables/OS2.js';
 import type { TypeFeatures } from './tables/opentype.js';
+import type { postTable } from './tables/post.js';
+import type { vmtxTable } from './tables/vmtx.js';
 
 export interface VariationAxis {
 	axisTag: string;
@@ -119,7 +125,7 @@ export interface Font {
 	/**
 	 * Horizontal header metrics (hhea table).
 	 */
-	hhea: SFNTTable.hhea;
+	hhea: hheaTable.hhea;
 
 	/**
 	 * Variable font axes (if present in the font).
@@ -156,30 +162,30 @@ export interface Font {
 	/**
 	 * The font's 'OS/2' table.
 	 */
-	'OS/2': SFNTTable.OS2;
+	'OS/2': OS2Table.OS2;
 
 	/**
 	 * The font's `head` table.
 	 */
-	head: SFNTTable.head;
+	head: headTable.head;
 
 	/**
 	 * The font's `hmtx` table.
 	 */
-	hmtx: SFNTTable.hmtx;
+	hmtx: hmtxTable.hmtx;
 
 	/**
 	 * The font's `HVAR` table.
 	 */
-	HVAR: SFNTTable.HVAR;
+	HVAR: HVARTable.HVAR;
 
 	/**
 	 * The font's `post` table.
 	 */
-	post: SFNTTable.post;
+	post: postTable.post;
 
 	/**
 	 * The font's `vmtx` table.
 	 */
-	vmtx: SFNTTable.vmtx;
+	vmtx: vmtxTable.vmtx;
 }

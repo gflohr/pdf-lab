@@ -2,6 +2,8 @@ import r from '@pdf-lib/restructure';
 import { ClassDef, Coverage, Device } from './opentype.js';
 import { ItemVariationStore } from './variations.js';
 
+export namespace GDEFTable {}
+
 const AttachPoint = new r.Array(r.uint16, r.uint16);
 const AttachList = new r.Struct({
 	coverage: new r.Pointer(r.uint16, Coverage),
