@@ -30,8 +30,8 @@ import type {
 } from './tables/directory.js';
 import Directory from './tables/directory.js';
 import tables from './tables/index.js';
+import type { nameTable } from './tables/name.js';
 import type { TypeFeatures } from './tables/opentype.js';
-import { nameTable } from './tables/name.js';
 
 /**
  * Automatically calculates all available font table properties

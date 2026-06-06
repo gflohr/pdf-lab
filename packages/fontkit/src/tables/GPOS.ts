@@ -102,9 +102,7 @@ export class ValueRecord implements FieldT<GPOSTable.DecodedValueRecord> {
 			}
 		}
 
-		return new r.Struct<typeof fields, GPOSTable.DecodedValueRecord>(
-			fields,
-		);
+		return new r.Struct<typeof fields, GPOSTable.DecodedValueRecord>(fields);
 	}
 
 	// biome-ignore lint/suspicious/noExplicitAny: see above!
@@ -193,7 +191,7 @@ export namespace GPOSTable {
 
 	export interface MarkRecord {
 		class: number;
-		markAnchor: typeof Anchor extends PointerT<infer T> ? T :Anchor;
+		markAnchor: typeof Anchor extends PointerT<infer T> ? T : Anchor;
 	}
 
 	export interface LookupSingleV1 {
@@ -395,10 +393,9 @@ const markRecordFields = {
 	class: r.uint16,
 	markAnchor: new r.Pointer(r.uint16, Anchor, { type: 'parent' }),
 };
-const MarkRecord = new r.Struct<
-	typeof markRecordFields,
-	GPOSTable.MarkRecord
->(markRecordFields);
+const MarkRecord = new r.Struct<typeof markRecordFields, GPOSTable.MarkRecord>(
+	markRecordFields,
+);
 
 const MarkArray = new r.Array(MarkRecord, r.uint16);
 
@@ -462,10 +459,10 @@ const gposLookupFieldsV2 = {
 };
 
 const gposLookupFields = {
-	1: new r.VersionedStruct<
-		typeof gposLookupFieldsV1,
-		GPOSTable.LookupSingle
-	>(r.uint16, gposLookupFieldsV1),
+	1: new r.VersionedStruct<typeof gposLookupFieldsV1, GPOSTable.LookupSingle>(
+		r.uint16,
+		gposLookupFieldsV1,
+	),
 
 	2: new r.VersionedStruct<typeof gposLookupFieldsV2, GPOSTable.LookupPair>(
 		r.uint16,

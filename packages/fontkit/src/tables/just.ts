@@ -103,10 +103,9 @@ const classTableFields = {
 	subFeatureFlags: r.uint32,
 	stateTable: StateTable1(),
 };
-const ClassTable = new r.Struct<
-	typeof classTableFields,
-	justTable.ClassTable
->(classTableFields);
+const ClassTable = new r.Struct<typeof classTableFields, justTable.ClassTable>(
+	classTableFields,
+);
 
 const widthDeltaRecordFields = {
 	justClass: r.uint32,
