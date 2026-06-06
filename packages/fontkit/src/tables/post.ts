@@ -5,7 +5,7 @@ export namespace postTable {
 	 * Base common headers present across all variations of the PostScript ('post')
 	 * table.
 	 */
-	interface postBase {
+	interface postHeader {
 		/** Italic angle in counter-clockwise degrees from the vertical. */
 		italicAngle: number;
 		/** Suggested distance of the top of the underline from the baseline. */
@@ -24,28 +24,28 @@ export namespace postTable {
 		maxMemType1: number;
 	}
 
-	export interface postV1 extends postBase {
+	export interface postV1 extends postHeader {
 		version: 1;
 	}
 
-	export interface postV2 extends postBase {
+	export interface postV2 extends postHeader {
 		version: 2;
 		numberOfGlyphs: number;
 		glyphNameIndex: number[];
 		names: string[];
 	}
 
-	export interface postV2_5 extends postBase {
+	export interface postV2_5 extends postHeader {
 		version: 2.5;
 		numberOfGlyphs: number;
 		offsets: number[];
 	}
 
-	export interface postV3 extends postBase {
+	export interface postV3 extends postHeader {
 		version: 3;
 	}
 
-	export interface postV4 extends postBase {
+	export interface postV4 extends postHeader {
 		version: 4;
 		map: number[];
 	}

@@ -1,5 +1,8 @@
 import r from '@pdf-lib/restructure';
 
+export namespace EBDTTable {
+	export type BigMetrics = {};
+}
 export const BigMetrics = new r.Struct({
 	height: r.uint8,
 	width: r.uint8,
