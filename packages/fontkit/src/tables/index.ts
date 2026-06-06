@@ -40,7 +40,7 @@ import BASE from './BASE.js';
 import GDEF from './GDEF.js';
 import GPOS, { type GPOSTable } from './GPOS.js';
 import GSUB from './GSUB.js';
-import JSTF from './JSTF.js';
+import JSTF, { type JSTFTable } from './JSTF.js';
 
 // Other OpenType Tables
 import DSIG from './DSIG.js';
@@ -165,6 +165,11 @@ export namespace SFNTTable {
 	export type HVARMapDataEntry = HVARTable.HVARMapDataEntry;
 	export type HVARDeltaSetIndexMap = HVARTable.HVARDeltaSetIndexMap;
 	export type HVAR = HVARTable.HVAR;
+
+	export type JSTFPriority = JSTFTable.JSTFPriority;
+	export type JSTFLangSysRecord = JSTFTable.JSTFLangSysRecord;
+	export type JSTFScript = JSTFTable.JSTFScript;
+	export type JSTF = JSTFTable.JSTF;
 
 	export type justClassTable = justTable.justClassTable;
 	export type justWidthDeltaRecord = justTable.justWidthDeltaRecord;
