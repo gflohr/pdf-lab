@@ -17,7 +17,7 @@ import post, { type postTable } from './post.js';
 // TrueType Outlines
 import cvt from './cvt.js';
 import fpgm from './fpgm.js';
-import glyf from './glyf.js';
+import glyf, { type glyfTable } from './glyf.js';
 import loca, { type locaTable } from './loca.js';
 import prep, { type prepTable } from './prep.js';
 
@@ -132,6 +132,8 @@ export namespace SFNTTable {
 	export type AATStateHeader = AAT.StateHeader;
 	export type AATStateEntry<T> = AAT.StateEntry<T>;
 	export type AATStateHeader1 = AAT.StateHeader1;
+
+	export type glyf = glyfTable.glyph;
 
 	export type GPOSDecodedValueRecord = GPOSTable.GPOSDecodedValueRecord;
 	export type GPOSPairValueRecord = GPOSTable.GPOSPairValueRecord;
