@@ -220,11 +220,23 @@ nameStruct.preEncode = function (this: any) {
 		] as nameTable.LocalizedStrings;
 		if (!val?.en) continue;
 
+		const indexedNameId = NAMES.indexOf(key);
+		const fallbackNameId = Number(key);
+		const nameID =
+			indexedNameId !== -1
+				? indexedNameId
+				: Number.isInteger(fallbackNameId) &&
+					  fallbackNameId >= 0 &&
+					  fallbackNameId <= 0xffff
+					? fallbackNameId
+					: null;
+		if (nameID == null) continue;
+
 		records.push({
 			platformID: 3,
 			encodingID: 1,
 			languageID: 0x409,
-			nameID: NAMES.indexOf(key),
+			nameID,
 			length: Buffer.byteLength(val.en, 'utf16le'),
 			string: val.en,
 		});
