@@ -157,6 +157,7 @@ export namespace cmapTable {
 	export interface Entry {
 		platformID: number /** Platform identifier. */;
 		encodingID: number /** Platform-specific encoding identifier. */;
+		// FIXME! This is loaded lazily!
 		table: Subtable;
 	}
 
