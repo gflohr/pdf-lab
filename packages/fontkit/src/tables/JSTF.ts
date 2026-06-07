@@ -18,7 +18,7 @@ export namespace JSTFTable {
 
 	export interface LangSysRecord {
 		tag: string;
-		jstfLangSys: Priority;
+		jstfLangSys: Priority[] | null;
 	}
 
 	export interface Script {
@@ -26,6 +26,11 @@ export namespace JSTFTable {
 		defaultLangSys: Priority[] | null;
 		langSysCount: number;
 		langSysRecords: LangSysRecord[] | null;
+	}
+
+	export interface ScriptRecord {
+		tag: string;
+		script: Script;
 	}
 
 	export interface JSTF {
@@ -84,7 +89,7 @@ const jstfScriptRecordFields = {
 };
 const jstfScriptRecord = new r.Struct<
 	typeof jstfScriptRecordFields,
-	JSTFTable.Script
+	JSTFTable.ScriptRecord
 >(jstfScriptRecordFields);
 
 const jstfStructFields = {
