@@ -4,10 +4,10 @@ import { type OpenType, openTypeLookupList } from './opentype.js';
 
 export namespace JSTFTable {
 	export interface Priority {
-		shrinkableEnableGSUB: number[];
-		shrinkableDisableGSUB: number[];
-		shrinkableEnableGPOS: number[];
-		shrinkableDisableGPOS: number[];
+		shrinkageEnableGSUB: number[];
+		shrinkageDisableGSUB: number[];
+		shrinkageEnableGPOS: number[];
+		shrinkageDisableGPOS: number[];
 		shrinkageJstfMax: FieldT<OpenType.LookupTable<typeof GPOSLookup>[]>;
 		extensionEnableGSUB: number[];
 		extensionDisableGSUB: number[];
