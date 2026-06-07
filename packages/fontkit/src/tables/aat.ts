@@ -138,7 +138,7 @@ class UnboundedArrayAccessor<TField extends FieldT<any>> {
 	}
 }
 
-export class UnboundedArray<
+export class AATUnboundedArray<
 	TField extends FieldT<any>,
 > extends r.Array<TField> {
 	private arrayType: TField;
@@ -158,7 +158,7 @@ export class UnboundedArray<
 /**
  * Builds an AAT lookup-table parser for the provided value field type.
  */
-export const LookupTable = <TField extends FieldT<any> = typeof r.uint16>(
+export const aatLookupTable = <TField extends FieldT<any> = typeof r.uint16>(
 	ValueType: TField = r.uint16 as unknown as TField,
 ) => {
 	// Helper class that makes internal structures invisible to pointers
@@ -237,7 +237,7 @@ export const LookupTable = <TField extends FieldT<any> = typeof r.uint16>(
 
 	const lookupTableFields = {
 		0: {
-			values: new UnboundedArray(ValueType), // length == number of glyphs maybe?
+			values: new AATUnboundedArray(ValueType), // length == number of glyphs maybe?
 		},
 		2: {
 			binarySearchHeader: BinarySearchHeader,
@@ -270,7 +270,7 @@ export const LookupTable = <TField extends FieldT<any> = typeof r.uint16>(
 	>(r.uint16, lookupTableFields);
 };
 
-export function StateTable<
+export function aatStateTable<
 	TLookupField extends FieldT<any> = typeof r.uint16,
 	TEntryData extends Record<string, any> = Record<string, never>,
 >(
@@ -286,15 +286,15 @@ export function StateTable<
 	);
 
 	const Entry = new r.Struct<typeof entry>(entry);
-	const StateArray = new UnboundedArray(
+	const StateArray = new AATUnboundedArray(
 		new r.Array(r.uint16, (t) => t.nClasses),
 	);
 
 	const stateHeaderFields = {
 		nClasses: r.uint32,
-		classTable: new r.Pointer(r.uint32, LookupTable(lookupType)),
+		classTable: new r.Pointer(r.uint32, aatLookupTable(lookupType)),
 		stateArray: new r.Pointer(r.uint32, StateArray),
-		entryTable: new r.Pointer(r.uint32, new UnboundedArray(Entry)),
+		entryTable: new r.Pointer(r.uint32, new AATUnboundedArray(Entry)),
 	};
 	const StateHeader = new r.Struct<typeof stateHeaderFields, AAT.StateHeader>(
 		stateHeaderFields,
@@ -304,7 +304,7 @@ export function StateTable<
 }
 
 // This is the old version of the StateTable structure.
-export function StateTable1<
+export function aatStateTable1<
 	TEntryData extends Record<string, any> = Record<string, never>,
 >(entryData: TEntryData = {} as TEntryData) {
 	const classLookupTableFields = {
@@ -334,7 +334,7 @@ export function StateTable1<
 	);
 
 	const Entry = new r.Struct<typeof entry, AAT.StateEntry1<TEntryData>>(entry);
-	const StateArray = new UnboundedArray(
+	const StateArray = new AATUnboundedArray(
 		new r.Array(r.uint8, (t) => t.nClasses),
 	);
 
@@ -342,7 +342,7 @@ export function StateTable1<
 		nClasses: r.uint16,
 		classTable: new r.Pointer(r.uint16, ClassLookupTable),
 		stateArray: new r.Pointer(r.uint16, StateArray),
-		entryTable: new r.Pointer(r.uint16, new UnboundedArray(Entry)),
+		entryTable: new r.Pointer(r.uint16, new AATUnboundedArray(Entry)),
 	};
 
 	const StateHeader1 = new r.Struct<

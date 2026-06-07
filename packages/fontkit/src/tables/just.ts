@@ -1,5 +1,5 @@
 import r from '@pdf-lib/restructure';
-import { type AAT, LookupTable, StateTable1 } from './aat.js';
+import { type AAT, aatLookupTable, aatStateTable1 } from './aat.js';
 
 export namespace justTable {
 	export interface ClassTable {
@@ -101,7 +101,7 @@ const classTableFields = {
 	length: r.uint16,
 	coverage: r.uint16,
 	subFeatureFlags: r.uint32,
-	stateTable: StateTable1(),
+	stateTable: aatStateTable1(),
 };
 const ClassTable = new r.Struct<typeof classTableFields, justTable.ClassTable>(
 	classTableFields,
@@ -174,7 +174,7 @@ const Action = new r.Struct<typeof actionFields, justTable.justAction>(
 const PostcompensationAction = new r.Array(Action, r.uint32);
 
 const postCompensationTableFields = {
-	lookupTable: LookupTable(new r.Pointer(r.uint16, PostcompensationAction)),
+	lookupTable: aatLookupTable(new r.Pointer(r.uint16, PostcompensationAction)),
 };
 const PostCompensationTable = new r.Struct<
 	typeof postCompensationTableFields,
@@ -187,7 +187,7 @@ const justificationTableFields = {
 	postCompensationTable: new r.Pointer(r.uint16, PostCompensationTable, {
 		type: 'parent',
 	}),
-	widthDeltaClusters: LookupTable(
+	widthDeltaClusters: aatLookupTable(
 		new r.Pointer(r.uint16, WidthDeltaCluster, {
 			type: 'parent',
 			relativeTo: 'wdcOffset',

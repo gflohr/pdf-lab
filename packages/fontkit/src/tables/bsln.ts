@@ -1,6 +1,6 @@
 import r from '@pdf-lib/restructure';
 import AATLookupTable from '../aat/AATLookupTable.js';
-import { type AAT, LookupTable } from './aat.js';
+import { type AAT, aatLookupTable } from './aat.js';
 
 export namespace bslnTable {
 	/** Distance-based, no mapping. */
@@ -54,7 +54,7 @@ const bslnSubtableFields = {
 	1: {
 		// Distance-based, with mapping
 		deltas: new r.Array(r.int16, 32),
-		mappingData: LookupTable(r.uint16),
+		mappingData: aatLookupTable(r.uint16),
 	},
 
 	2: {
@@ -67,7 +67,7 @@ const bslnSubtableFields = {
 		// Control point-based, with mapping
 		standardGlyph: r.uint16,
 		controlPoints: new r.Array(r.uint16, 32),
-		mappingData: LookupTable(r.uint16),
+		mappingData: aatLookupTable(r.uint16),
 	},
 };
 const bslnSubtable = new r.VersionedStruct<

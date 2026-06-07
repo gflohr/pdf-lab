@@ -1,5 +1,5 @@
 import r, { type PointerT } from '@pdf-lib/restructure';
-import { type AAT, LookupTable, StateTable, UnboundedArray } from './aat.js';
+import { type AAT, aatLookupTable, aatStateTable, AATUnboundedArray } from './aat.js';
 
 export namespace morxTable {
 	// Format 0: Indic rearrangement subtable.
@@ -110,7 +110,7 @@ const InsertionData = {
 };
 
 const subtitutionTableFields = {
-	items: new UnboundedArray(new r.Pointer(r.uint32, LookupTable())),
+	items: new AATUnboundedArray(new r.Pointer(r.uint32, aatLookupTable())),
 };
 const SubstitutionTable = new r.Struct<
 	typeof subtitutionTableFields,
@@ -120,32 +120,32 @@ const SubstitutionTable = new r.Struct<
 const subtableDataFields = {
 	0: {
 		// Indic Rearrangement Subtable
-		stateTable: StateTable(),
+		stateTable: aatStateTable(),
 	},
 
 	1: {
 		// Contextual Glyph Substitution Subtable
-		stateTable: StateTable(ContextualData),
+		stateTable: aatStateTable(ContextualData),
 		substitutionTable: new r.Pointer(r.uint32, SubstitutionTable),
 	},
 
 	2: {
 		// Ligature subtable
-		stateTable: StateTable(LigatureData),
-		ligatureActions: new r.Pointer(r.uint32, new UnboundedArray(r.uint32)),
-		components: new r.Pointer(r.uint32, new UnboundedArray(r.uint16)),
-		ligatureList: new r.Pointer(r.uint32, new UnboundedArray(r.uint16)),
+		stateTable: aatStateTable(LigatureData),
+		ligatureActions: new r.Pointer(r.uint32, new AATUnboundedArray(r.uint32)),
+		components: new r.Pointer(r.uint32, new AATUnboundedArray(r.uint16)),
+		ligatureList: new r.Pointer(r.uint32, new AATUnboundedArray(r.uint16)),
 	},
 
 	4: {
 		// Non-contextual Glyph Substitution Subtable
-		lookupTable: LookupTable(),
+		lookupTable: aatLookupTable(),
 	},
 
 	5: {
 		// Glyph Insertion Subtable
-		stateTable: StateTable(InsertionData),
-		insertionActions: new r.Pointer(r.uint32, new UnboundedArray(r.uint16)),
+		stateTable: aatStateTable(InsertionData),
+		insertionActions: new r.Pointer(r.uint32, new AATUnboundedArray(r.uint16)),
 	},
 };
 const SubtableData = new r.VersionedStruct<
