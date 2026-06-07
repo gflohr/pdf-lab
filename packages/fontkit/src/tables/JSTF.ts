@@ -1,6 +1,6 @@
 import r, { type FieldT } from '@pdf-lib/restructure';
 import { GPOSLookup } from './GPOS.js';
-import { openTypeLookupList, type OpenTypeLookupTable } from './opentype.js';
+import { type OpenType, openTypeLookupList } from './opentype.js';
 
 export namespace JSTFTable {
 	export interface Priority {
@@ -8,12 +8,12 @@ export namespace JSTFTable {
 		shrinkableDisableGSUB: number[];
 		shrinkableEnableGPOS: number[];
 		shrinkableDisableGPOS: number[];
-		shrinkageJstfMax: FieldT<OpenTypeLookupTable<typeof GPOSLookup>[]>;
+		shrinkageJstfMax: FieldT<OpenType.LookupTable<typeof GPOSLookup>[]>;
 		extensionEnableGSUB: number[];
 		extensionDisableGSUB: number[];
 		extensionEnableGPOS: number[];
 		extensionDisableGPOS: number[];
-		extensionJstfMax: FieldT<OpenTypeLookupTable<typeof GPOSLookup>[]>;
+		extensionJstfMax: FieldT<OpenType.LookupTable<typeof GPOSLookup>[]>;
 	}
 
 	export interface LangSysRecord {

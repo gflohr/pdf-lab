@@ -8,7 +8,7 @@ import type { headTable } from './tables/head.js';
 import type { hheaTable } from './tables/hhea.js';
 import type { hmtxTable } from './tables/hmtx.js';
 import type { OS2Table } from './tables/OS2.js';
-import type { TypeFeatures } from './tables/opentype.js';
+import type { OpenType } from './tables/opentype.js';
 import type { postTable } from './tables/post.js';
 import type { vmtxTable } from './tables/vmtx.js';
 
@@ -64,7 +64,7 @@ export interface Font {
 	// Other properties
 	numGlyphs: number /** Number of glyphs in the font */;
 	characterSet: number[] /** Array of all of the unicode code points supported by the font */;
-	availableFeatures: (keyof TypeFeatures)[] /** OpenType feature tags (or mapped AAT tags) supported by the font */;
+	availableFeatures: (keyof OpenType.TypeFeatures)[] /** OpenType feature tags (or mapped AAT tags) supported by the font */;
 
 	// Character to Glyph Mapping Methods
 
@@ -102,7 +102,7 @@ export interface Font {
 	 */
 	layout(
 		text: string,
-		features?: TypeFeatures | (keyof TypeFeatures)[],
+		features?: OpenType.TypeFeatures | (keyof OpenType.TypeFeatures)[],
 		script?: string | null,
 		language?: string | null,
 		direction?: string | null,

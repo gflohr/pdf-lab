@@ -1,6 +1,6 @@
 import r from '@pdf-lib/restructure';
-import { type OpenTypeDevice, openTypeDevice } from './opentype.js';
-import { type ItemVariationStore, itemVariationStore } from './variations.js';
+import { type OpenType, openTypeDevice } from './opentype.js';
+import { type OpenTypeVariation, itemVariationStore } from './variations.js';
 
 export namespace BASETable {
 	/** Design units only. */
@@ -32,7 +32,7 @@ export namespace BASETable {
 		coordinate: number;
 
 		/** Device table for X or Y value. */
-		deviceTable: OpenTypeDevice;
+		deviceTable: OpenType.Device;
 	}
 
 	export type Coord = CoordV1 | CoordV2 | CoordV3;
@@ -106,7 +106,7 @@ export namespace BASETable {
 
 	export interface BASEV1_1 extends BASEHeader {
 		version: 1.1;
-		itemVariationStore: ItemVariationStore;
+		itemVariationStore: OpenTypeVariation.ItemVariationStore;
 	}
 
 	export type BASE = BASEV1_0 | BASEV1_1;

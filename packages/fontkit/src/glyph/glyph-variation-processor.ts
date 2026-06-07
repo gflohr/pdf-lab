@@ -1,8 +1,5 @@
 import type { SFNTFont } from '../sfnt-font.js';
-import type {
-	ItemVariationStore,
-	OpenTypeItemVariationData,
-} from '../tables/variations.js';
+import type { OpenTypeVariation } from '../tables/variations.js';
 import type { Point } from './ttf-glyph.js';
 
 const TUPLES_SHARE_POINT_NUMBERS = 0x8000;
@@ -36,7 +33,7 @@ interface MetricVariationTable {
 	advanceWidthMapping?: AdvanceWidthMappingTable | null;
 
 	/** The core shared Item Variation Store layout engine configuration pointer. */
-	itemVariationStore: ItemVariationStore;
+	itemVariationStore: OpenTypeVariation.ItemVariationStore;
 }
 
 /**
@@ -54,7 +51,7 @@ interface MetricVariationTable {
 export default class GlyphVariationProcessor {
 	private font: SFNTFont;
 	public _normalizedCoords: number[];
-	private blendVectors = new Map<OpenTypeItemVariationData, number[]>();
+	private blendVectors = new Map<OpenTypeVariation.ItemVariationData, number[]>();
 
 	constructor(font: SFNTFont, coords: number[]) {
 		this.font = font;
@@ -531,7 +528,7 @@ export default class GlyphVariationProcessor {
 	// See pseudo code from `Font Variations Overview'
 	// in the OpenType specification.
 	public getDelta(
-		itemStore: ItemVariationStore,
+		itemStore: OpenTypeVariation.ItemVariationStore,
 		outerIndex: number,
 		innerIndex: number,
 	): number {
@@ -560,7 +557,7 @@ export default class GlyphVariationProcessor {
 	}
 
 	public getBlendVector(
-		itemStore: ItemVariationStore,
+		itemStore: OpenTypeVariation.ItemVariationStore,
 		outerIndex: number,
 	): number[] | undefined {
 		if (!itemStore.variationRegionList?.variationRegions) {

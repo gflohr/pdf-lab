@@ -4,7 +4,7 @@ import r, {
 	type Length,
 } from '@pdf-lib/restructure';
 import { resolveLength } from '@pdf-lib/restructure/src/utils.js';
-import { type ItemVariationStore, itemVariationStore } from './variations.js';
+import { type OpenTypeVariation, itemVariationStore } from './variations.js';
 
 // TODO: add this to restructure
 class VariableSizeNumber implements FieldT<number> {
@@ -104,7 +104,7 @@ export namespace HVARTable {
 		 * Pointer to the underlying item variation storage tracking region
 		 * deltas.
 		 */
-		itemVariationStore: ItemVariationStore;
+		itemVariationStore: OpenTypeVariation.ItemVariationStore;
 		/**
 		 * Optional mapping data resolving variable adjustments for advance
 		 * widths.

@@ -31,7 +31,7 @@ import type {
 import Directory from './tables/directory.js';
 import tables from './tables/index.js';
 import type { nameTable } from './tables/name.js';
-import type { TypeFeatures } from './tables/opentype.js';
+import type { OpenType } from './tables/opentype.js';
 
 /**
  * Automatically calculates all available font table properties
@@ -521,7 +521,7 @@ export class SFNTFont<
 	 */
 	layout(
 		str: string,
-		userFeatures?: TypeFeatures | (keyof TypeFeatures)[],
+		userFeatures?: OpenType.TypeFeatures | (keyof OpenType.TypeFeatures)[],
 		script?: string | null,
 		language?: string | null,
 		direction?: string | null,
@@ -560,7 +560,7 @@ export class SFNTFont<
 	 *
 	 * @returns the supported features
 	 */
-	get availableFeatures(): (keyof TypeFeatures)[] {
+	get availableFeatures(): (keyof OpenType.TypeFeatures)[] {
 		return this._layoutEngine.getAvailableFeatures();
 	}
 
@@ -581,7 +581,7 @@ export class SFNTFont<
 	getAvailableFeatures(
 		script: string,
 		language?: string,
-	): (keyof TypeFeatures)[] {
+	): (keyof OpenType.TypeFeatures)[] {
 		return this._layoutEngine.getAvailableFeatures(script, language);
 	}
 

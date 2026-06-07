@@ -1,74 +1,76 @@
 import r from '@pdf-lib/restructure';
-import { type OpenTypeFeature, openTypeFeature } from './opentype.js';
+import { type OpenType, openTypeFeature } from './opentype.js';
 
-export interface OpenTypeRegionAxisCoordinates {
-	startCoord: number;
-	peakCoord: number;
-	endCoord: number;
-}
+export namespace OpenTypeVariation {
+	export interface RegionAxisCoordinates {
+		startCoord: number;
+		peakCoord: number;
+		endCoord: number;
+	}
 
-export interface OpenTypeVariationRegionList {
-	axisCount: number;
-	regionCount: number;
-	variationRegions: OpenTypeRegionAxisCoordinates[][];
-}
+	export interface VariationRegionList {
+		axisCount: number;
+		regionCount: number;
+		variationRegions: RegionAxisCoordinates[][];
+	}
 
-export interface OpenTypeDeltaSet {
-	shortDeltas: number[];
-	regionDeltas: number[];
-	deltas: number[];
-}
+	export interface DeltaSet {
+		shortDeltas: number[];
+		regionDeltas: number[];
+		deltas: number[];
+	}
 
-export interface OpenTypeItemVariationData {
-	itemCount: number;
-	shortDeltaCount: number;
-	regionIndexCount: number;
-	regionIndexes: number[];
-	deltaSets: OpenTypeDeltaSet[];
-}
+	export interface ItemVariationData {
+		itemCount: number;
+		shortDeltaCount: number;
+		regionIndexCount: number;
+		regionIndexes: number[];
+		deltaSets: DeltaSet[];
+	}
 
-export interface ItemVariationStore {
-	format: number;
-	variationRegionList: OpenTypeVariationRegionList | null;
-	variationDataCount: number;
-	itemVariationData: (OpenTypeItemVariationData | null)[];
-}
+	export interface ItemVariationStore {
+		format: number;
+		variationRegionList: VariationRegionList | null;
+		variationDataCount: number;
+		itemVariationData: (ItemVariationData | null)[];
+	}
 
-export interface OpenTypeConditionV1 {
-	version: 1;
-	axisIndex: number;
-	filterRangeMinValue: number;
-	filterRangeMaxValue: number;
-}
+	export interface ConditionV1 {
+		version: 1;
+		axisIndex: number;
+		filterRangeMinValue: number;
+		filterRangeMaxValue: number;
+	}
 
-export type OpenTypeCondition = OpenTypeConditionV1;
+	export type Condition = ConditionV1;
 
-export interface OpenTypeConditionSet {
-	conditionCount: number;
-	conditionTable: (OpenTypeCondition | null)[];
-}
+	export interface ConditionSet {
+		conditionCount: number;
+		conditionTable: (Condition | null)[];
+	}
 
-export interface OpenTypeFeatureTableSubstitutionRecord {
-	featureIndex: number;
-	alternateFeatureTable: OpenTypeFeature;
-}
+	export interface FeatureTableSubstitutionRecord {
+		featureIndex: number;
+		alternateFeatureTable: OpenType.Feature;
+	}
 
-export interface OpenTypeFeatureTableSubstitution {
-	version: number;
-	substitutionCount: number;
-	substitutions: OpenTypeFeatureTableSubstitutionRecord[];
-}
+	export interface FeatureTableSubstitution {
+		version: number;
+		substitutionCount: number;
+		substitutions: FeatureTableSubstitutionRecord[];
+	}
 
-export interface OpenTypeFeatureVariationRecord {
-	conditionSet: OpenTypeConditionSet | null;
-	featureTableSubstitution: OpenTypeFeatureTableSubstitution | null;
-}
+	export interface FeatureVariationRecord {
+		conditionSet: ConditionSet | null;
+		featureTableSubstitution: FeatureTableSubstitution | null;
+	}
 
-export interface OpenTypeFeatureVariations {
-	majorVersion: number;
-	minorVersion: number;
-	featureVariationRecordCount: number;
-	featureVariationRecords: OpenTypeFeatureVariationRecord[];
+	export interface FeatureVariations {
+		majorVersion: number;
+		minorVersion: number;
+		featureVariationRecordCount: number;
+		featureVariationRecords: FeatureVariationRecord[];
+	}
 }
 
 const f2DOT14 = new r.Fixed(16, 'BE', 14);
@@ -80,7 +82,7 @@ const regionAxisCoordinatesFields = {
 };
 const regionAxisCoordinates = new r.Struct<
 	typeof regionAxisCoordinatesFields,
-	OpenTypeRegionAxisCoordinates
+	OpenTypeVariation.RegionAxisCoordinates
 >(regionAxisCoordinatesFields);
 
 const variationRegionListFields = {
@@ -93,7 +95,7 @@ const variationRegionListFields = {
 };
 const variationRegionList = new r.Struct<
 	typeof variationRegionListFields,
-	OpenTypeVariationRegionList
+	OpenTypeVariation.VariationRegionList
 >(variationRegionListFields);
 
 interface DeltaSetParentContext {
@@ -120,7 +122,7 @@ const deltaSetFields = {
 	deltas: (t: DeltaSetContext): number[] =>
 		t.shortDeltas.concat(t.regionDeltas),
 };
-const deltaSet = new r.Struct<typeof deltaSetFields, OpenTypeDeltaSet>(
+const deltaSet = new r.Struct<typeof deltaSetFields, OpenTypeVariation.DeltaSet>(
 	deltaSetFields,
 );
 
@@ -133,7 +135,7 @@ const itemVariationDataFields = {
 };
 const itemVariationData = new r.Struct<
 	typeof itemVariationDataFields,
-	OpenTypeItemVariationData
+	OpenTypeVariation.ItemVariationData
 >(itemVariationDataFields);
 
 const variationStoreFields = {
@@ -148,7 +150,7 @@ const variationStoreFields = {
 
 export const itemVariationStore = new r.Struct<
 	typeof variationStoreFields,
-	ItemVariationStore
+	OpenTypeVariation.ItemVariationStore
 >(variationStoreFields);
 
 const conditionTableFields = {
@@ -160,7 +162,7 @@ const conditionTableFields = {
 };
 const conditionTable = new r.VersionedStruct<
 	typeof conditionTableFields,
-	OpenTypeCondition
+	OpenTypeVariation.Condition
 >(r.uint16, conditionTableFields);
 
 const conditionSetFields = {
@@ -172,7 +174,7 @@ const conditionSetFields = {
 };
 const conditionSet = new r.Struct<
 	typeof conditionSetFields,
-	OpenTypeConditionSet
+	OpenTypeVariation.ConditionSet
 >(conditionSetFields);
 
 const featureTableSubstitutionRecordFields = {
@@ -183,7 +185,7 @@ const featureTableSubstitutionRecordFields = {
 };
 const featureTableSubstitutionRecord = new r.Struct<
 	typeof featureTableSubstitutionRecordFields,
-	OpenTypeFeatureTableSubstitutionRecord
+	OpenTypeVariation.FeatureTableSubstitutionRecord
 >(featureTableSubstitutionRecordFields);
 
 const featureTableSubstitutionFields = {
@@ -196,7 +198,7 @@ const featureTableSubstitutionFields = {
 };
 const featureTableSubstitution = new r.Struct<
 	typeof featureTableSubstitutionFields,
-	OpenTypeFeatureTableSubstitution
+	OpenTypeVariation.FeatureTableSubstitution
 >(featureTableSubstitutionFields);
 
 const featureVariationRecordFields = {
@@ -207,7 +209,7 @@ const featureVariationRecordFields = {
 };
 const featureVariationRecord = new r.Struct<
 	typeof featureVariationRecordFields,
-	OpenTypeFeatureVariationRecord
+	OpenTypeVariation.FeatureVariationRecord
 >(featureVariationRecordFields);
 
 const featureVariationsFields = {
@@ -222,5 +224,5 @@ const featureVariationsFields = {
 
 export const featureVariations = new r.Struct<
 	typeof featureVariationsFields,
-	OpenTypeFeatureVariations
+	OpenTypeVariation.FeatureVariations
 >(featureVariationsFields);

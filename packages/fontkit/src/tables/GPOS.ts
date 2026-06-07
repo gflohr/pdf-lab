@@ -6,14 +6,7 @@ import r, {
 	type StructT,
 } from '@pdf-lib/restructure';
 import {
-	type OpenTypeChainingContext,
-	type OpenTypeClassDef,
-	type OpenTypeContext,
-	type OpenTypeCoverage,
-	type OpenTypeDevice,
-	type OpenTypeFeatureRecord,
-	type OpenTypeLookupTable,
-	type OpenTypeScriptRecord,
+	type OpenType,
 	openTypeChainingContext,
 	openTypeClassDef,
 	openTypeContext,
@@ -24,8 +17,8 @@ import {
 	openTypeScriptList,
 } from './opentype.js';
 import {
+	type OpenTypeVariation,
 	featureVariations,
-	type OpenTypeFeatureVariations,
 } from './variations.js';
 
 const ValueFormat = new r.Bitfield(r.uint16, [
@@ -134,16 +127,16 @@ export namespace GPOSTable {
 		// Pointers wrap the underlying Device structure.
 		xPlaDevice?: typeof types.xPlaDevice extends PointerT<infer T>
 			? T
-			: OpenTypeDevice;
+			: OpenType.Device;
 		yPlaDevice?: typeof types.yPlaDevice extends PointerT<infer T>
 			? T
-			: OpenTypeDevice;
+			: OpenType.Device;
 		xAdvDevice?: typeof types.xAdvDevice extends PointerT<infer T>
 			? T
-			: OpenTypeDevice;
+			: OpenType.Device;
 		yAdvDevice?: typeof types.yAdvDevice extends PointerT<infer T>
 			? T
-			: OpenTypeDevice;
+			: OpenType.Device;
 	}
 
 	export interface PairValueRecord {
@@ -177,8 +170,8 @@ export namespace GPOSTable {
 		version: 3;
 		xCoordinate: number;
 		yCoordinate: number;
-		xDeviceTable: OpenTypeDevice;
-		yDeviceTable: OpenTypeDevice;
+		xDeviceTable: OpenType.Device;
+		yDeviceTable: OpenType.Device;
 	}
 
 	export type Anchor = AnchorV1 | AnchorV2 | AnchorV3;
@@ -198,14 +191,14 @@ export namespace GPOSTable {
 		version: 1;
 
 		// Single positioning value
-		coverage: OpenTypeCoverage | null;
+		coverage: OpenType.Coverage | null;
 		valueFormat: typeof ValueFormat;
 		value: ValueRecord;
 	}
 
 	export interface LookupSingleV2 {
 		version: 2;
-		coverage: OpenTypeCoverage | null;
+		coverage: OpenType.Coverage | null;
 		valueFormat: typeof ValueFormat;
 		valueCount: number;
 		values: RestructureLazyArray<ValueRecord>;
@@ -220,7 +213,7 @@ export namespace GPOSTable {
 		version: 1;
 
 		// Adjustments for glyph pairs
-		coverage: OpenTypeCoverage | null;
+		coverage: OpenType.Coverage | null;
 		valueFormat1: typeof ValueFormat;
 		valueFormat2: typeof ValueFormat;
 		pairSetCount: number;
@@ -230,11 +223,11 @@ export namespace GPOSTable {
 	export interface LookupPairV2 {
 		version: 2;
 
-		coverage: OpenTypeCoverage | null;
+		coverage: OpenType.Coverage | null;
 		valueFormat1: typeof ValueFormat;
 		valueFormat2: typeof ValueFormat;
-		classDef1: OpenTypeClassDef | null;
-		classDef2: OpenTypeClassDef | null;
+		classDef1: OpenType.ClassDef | null;
+		classDef2: OpenType.ClassDef | null;
 		class1Count: number;
 		class2Count: number;
 		classRecords: RestructureLazyArray<Class2Record>;
@@ -248,7 +241,7 @@ export namespace GPOSTable {
 	export interface LookupCursive {
 		lookupType: 3;
 		format: number;
-		coverage: OpenTypeCoverage | null;
+		coverage: OpenType.Coverage | null;
 		entryExitCount: number;
 		entryExitRecords: EntryExitRecord[];
 	}
@@ -257,8 +250,8 @@ export namespace GPOSTable {
 	export interface LookupMarkToBase {
 		lookupType: 4;
 		format: number;
-		markCoverage: OpenTypeCoverage | null;
-		baseCoverage: OpenTypeCoverage | null;
+		markCoverage: OpenType.Coverage | null;
+		baseCoverage: OpenType.Coverage | null;
 		classCount: number;
 		markArray: MarkRecord | null;
 		// FIXME! This is maybe wrong!
@@ -269,8 +262,8 @@ export namespace GPOSTable {
 	export interface LookupMarkToLigature {
 		lookupType: 5;
 		format: number;
-		markCoverage: OpenTypeCoverage | null;
-		ligatureCoverage: OpenTypeCoverage | null;
+		markCoverage: OpenType.Coverage | null;
+		ligatureCoverage: OpenType.Coverage | null;
 		classCount: number;
 		markArray: MarkRecord[] | null;
 		// FIXME! This has to checked later!
@@ -281,17 +274,17 @@ export namespace GPOSTable {
 	export interface LookupMarkToMark {
 		lookupType: 6;
 		format: number;
-		mark1Coverage: OpenTypeCoverage | null;
-		mark2Coverage: OpenTypeCoverage | null;
+		mark1Coverage: OpenType.Coverage | null;
+		mark2Coverage: OpenType.Coverage | null;
 		classCount: number;
 		mark1Array: MarkRecord[] | null;
 		// FIXME! Check later.
 		mark2Array: unknown;
 	}
 
-	export type LookupContext = OpenTypeContext & { lookupType: 7 };
+	export type LookupContext = OpenType.Context & { lookupType: 7 };
 
-	export type LookupChainingContext = OpenTypeChainingContext & {
+	export type LookupChainingContext = OpenType.ChainingContext & {
 		lookupType: 8;
 	};
 
@@ -315,9 +308,9 @@ export namespace GPOSTable {
 		| LookupExtension;
 
 	interface GPOSBase {
-		scriptList: OpenTypeScriptRecord[];
-		featureList: OpenTypeFeatureRecord;
-		lookupList: FieldT<OpenTypeLookupTable<LookupTable>[]> | null;
+		scriptList: OpenType.ScriptRecord[];
+		featureList: OpenType.FeatureRecord;
+		lookupList: FieldT<OpenType.LookupTable<LookupTable>[]> | null;
 	}
 
 	export interface GPOSV1_0 extends GPOSBase {
@@ -326,7 +319,7 @@ export namespace GPOSTable {
 
 	export interface GPOSV1_1 extends GPOSBase {
 		version: 1.1;
-		featureVariations: OpenTypeFeatureVariations | null;
+		featureVariations: OpenTypeVariation.FeatureVariations | null;
 	}
 
 	export type GPOS = GPOSV1_0 | GPOSV1_1;
