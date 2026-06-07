@@ -61,16 +61,6 @@ interface DirectoryContext extends Omit<SFNTDirectory, 'tables'> {
 /* Binary Layout Definitions                                                  */
 /* ========================================================================== */
 
-const TableEntryStruct = new r.Struct<
-	typeof tableEntryFields,
-	SFNTTableEntryBinary
->({
-	tag: new r.String(4),
-	checkSum: r.uint32,
-	offset: new r.Pointer(r.uint32, 'void', { type: 'global' }),
-	length: r.uint32,
-});
-
 const tableEntryFields = {
 	tag: new r.String(4),
 	checkSum: r.uint32,
@@ -78,16 +68,21 @@ const tableEntryFields = {
 	length: r.uint32,
 };
 
+const tableEntryStruct = new r.Struct<
+	typeof tableEntryFields,
+	SFNTTableEntryBinary
+>(tableEntryFields);
+
 const directoryFields = {
 	tag: new r.String(4),
 	numTables: r.uint16,
 	searchRange: r.uint16,
 	entrySelector: r.uint16,
 	rangeShift: r.uint16,
-	tables: new r.Array(TableEntryStruct, 'numTables'),
+	tables: new r.Array(tableEntryStruct, 'numTables'),
 };
 
-const Directory = new r.Struct<typeof directoryFields, SFNTDirectory>(
+const directory = new r.Struct<typeof directoryFields, SFNTDirectory>(
 	directoryFields,
 );
 
@@ -95,7 +90,7 @@ const Directory = new r.Struct<typeof directoryFields, SFNTDirectory>(
 /* Restructure Lifecycle Hooks                                                */
 /* ========================================================================== */
 
-Directory.process = function (this: DirectoryContext): void {
+directory.process = function (this: DirectoryContext): void {
 	const mappedTables: Record<string, SFNTDirectoryEntry> = {};
 
 	for (const table of this.tables) {
@@ -106,7 +101,7 @@ Directory.process = function (this: DirectoryContext): void {
 	this.tables = mappedTables as any;
 };
 
-Directory.preEncode = function (this: DirectoryContext): void {
+directory.preEncode = function (this: DirectoryContext): void {
 	const encodedTableEntries: SFNTTableEntryBinary[] = [];
 	const sourceTables = this.tables as unknown as Record<
 		string,
@@ -144,4 +139,4 @@ Directory.preEncode = function (this: DirectoryContext): void {
 	this.rangeShift = this.numTables * 16 - this.searchRange;
 };
 
-export default Directory;
+export default directory;
