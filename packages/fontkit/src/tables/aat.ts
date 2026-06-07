@@ -285,7 +285,7 @@ export function aatStateTable<
 		entryData,
 	);
 
-	const Entry = new r.Struct<typeof entry>(entry);
+	const Entry = new r.Struct<typeof entry, any>(entry);
 	const StateArray = new AATUnboundedArray(
 		new r.Array(r.uint16, (t) => t.nClasses),
 	);

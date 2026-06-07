@@ -323,7 +323,7 @@ declare module '@pdf-lib/restructure' {
 			length?: Length,
 			lengthType?: 'count' | 'bytes',
 		) => LazyArrayT<TField, TExplicitOut>;
-		Struct: new <TFields = any, TExplicitOut = any>(
+		Struct: new <TFields, TExplicitOut>(
 			fields: TFields,
 		) => StructT<TFields, TExplicitOut>;
 		VersionedStruct: new <TVersions = any, TExplicitOut = any>(
