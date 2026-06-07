@@ -585,7 +585,7 @@ export default class GlyphVariationProcessor {
 			const regionIndex = varData.regionIndexes[regionIdx];
 			const axes = itemStore.variationRegionList?.variationRegions[regionIndex];
 			if (!axes) {
-				blendVector[regionIndex] = 0;
+				blendVector[regionIdx] = 0;
 				continue;
 			}
 
