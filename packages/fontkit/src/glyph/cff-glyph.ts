@@ -63,7 +63,8 @@ export default class CFFGlyph extends Glyph {
 
 		function checkWidth() {
 			if (width == null) {
-				width = stack.shift()! + privateDict!.nominalWidthX!;
+				width = stack.shift()! + (privateDict?.nominalWidthX ?? 0);
+
 			}
 		}
 
