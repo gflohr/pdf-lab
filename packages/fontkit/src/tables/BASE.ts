@@ -1,8 +1,8 @@
 import r from '@pdf-lib/restructure';
 import { Device, type OpenTypeDeviceTable } from './opentype.js';
 import {
-	ItemVariationStore,
-	type ItemVariationStoreTable,
+	type ItemVariationStore,
+	itemVariationStore,
 } from './variations.js';
 
 export namespace BASETable {
@@ -109,7 +109,7 @@ export namespace BASETable {
 
 	export interface BASEV1_1 extends BASEHeader {
 		version: 1.1;
-		itemVariationStore: ItemVariationStoreTable;
+		itemVariationStore: ItemVariationStore;
 	}
 
 	export type BASE = BASEV1_0 | BASEV1_1;
@@ -215,7 +215,7 @@ const baseStructFields = {
 
 	65536: {},
 	65537: {
-		itemVariationStore: new r.Pointer(r.uint32, ItemVariationStore),
+		itemVariationStore: new r.Pointer(r.uint32, itemVariationStore),
 	},
 };
 export default new r.VersionedStruct<typeof baseStructFields, BASETable.BASE>(

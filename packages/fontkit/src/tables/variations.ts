@@ -27,7 +27,7 @@ export interface OpenTypeItemVariationData {
 	deltaSets: OpenTypeDeltaSet[];
 }
 
-export interface ItemVariationStoreTable {
+export interface ItemVariationStore {
 	format: number;
 	variationRegionList: OpenTypeVariationRegionList | null;
 	variationDataCount: number;
@@ -146,11 +146,9 @@ const variationStoreFields = {
 	),
 };
 
-// FIXME! Rename the variable to itemVariationStore, and the type to
-// ItemVariationStore!
-export const ItemVariationStore = new r.Struct<
+export const itemVariationStore = new r.Struct<
 	typeof variationStoreFields,
-	ItemVariationStoreTable
+	ItemVariationStore
 >(variationStoreFields);
 
 const conditionTableFields = {

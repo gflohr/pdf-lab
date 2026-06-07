@@ -7,7 +7,7 @@ import type {
 } from '@pdf-lib/restructure';
 import r from '@pdf-lib/restructure';
 import { resolveLength } from '@pdf-lib/restructure/src/utils.js';
-import { ItemVariationStore } from '../tables/variations.js';
+import { itemVariationStore } from '../tables/variations.js';
 import {
 	ExpertCharset,
 	ExpertSubsetCharset,
@@ -284,7 +284,7 @@ const CFFTopDict = new CFFDict([
 
 const VariationStore = new r.Struct({
 	length: r.uint16,
-	itemVariationStore: ItemVariationStore,
+	itemVariationStore: itemVariationStore,
 });
 
 const CFF2TopDict = new CFFDict([

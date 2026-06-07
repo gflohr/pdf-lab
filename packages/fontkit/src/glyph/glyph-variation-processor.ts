@@ -1,6 +1,6 @@
 import type { SFNTFont } from '../sfnt-font.js';
 import type {
-	ItemVariationStoreTable,
+	ItemVariationStore,
 	OpenTypeItemVariationData,
 } from '../tables/variations.js';
 import type { Point } from './ttf-glyph.js';
@@ -36,7 +36,7 @@ interface MetricVariationTable {
 	advanceWidthMapping?: AdvanceWidthMappingTable | null;
 
 	/** The core shared Item Variation Store layout engine configuration pointer. */
-	itemVariationStore: ItemVariationStoreTable;
+	itemVariationStore: ItemVariationStore;
 }
 
 /**
@@ -531,7 +531,7 @@ export default class GlyphVariationProcessor {
 	// See pseudo code from `Font Variations Overview'
 	// in the OpenType specification.
 	public getDelta(
-		itemStore: ItemVariationStoreTable,
+		itemStore: ItemVariationStore,
 		outerIndex: number,
 		innerIndex: number,
 	): number {
@@ -560,7 +560,7 @@ export default class GlyphVariationProcessor {
 	}
 
 	public getBlendVector(
-		itemStore: ItemVariationStoreTable,
+		itemStore: ItemVariationStore,
 		outerIndex: number,
 	): number[] | undefined {
 		if (!itemStore.variationRegionList?.variationRegions) {

@@ -1,6 +1,6 @@
 import r from '@pdf-lib/restructure';
 import { ClassDef, Coverage, Device } from './opentype.js';
-import { ItemVariationStore } from './variations.js';
+import { itemVariationStore } from './variations.js';
 
 export namespace GDEFTable {}
 
@@ -57,6 +57,6 @@ export default new r.VersionedStruct(r.uint32, {
 	},
 	65539: {
 		markGlyphSetsDef: new r.Pointer(r.uint16, MarkGlyphSetsDef),
-		itemVariationStore: new r.Pointer(r.uint32, ItemVariationStore),
+		itemVariationStore: new r.Pointer(r.uint32, itemVariationStore),
 	},
 });

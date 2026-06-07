@@ -5,8 +5,8 @@ import r, {
 } from '@pdf-lib/restructure';
 import { resolveLength } from '@pdf-lib/restructure/src/utils.js';
 import {
-	ItemVariationStore,
-	type ItemVariationStoreTable,
+	itemVariationStore,
+	type ItemVariationStore,
 } from './variations.js';
 
 // TODO: add this to restructure
@@ -107,8 +107,7 @@ export namespace HVARTable {
 		 * Pointer to the underlying item variation storage tracking region
 		 * deltas.
 		 */
-		itemVariationStore: ItemVariationStoreTable;
-
+		itemVariationStore: ItemVariationStore;
 		/**
 		 * Optional mapping data resolving variable adjustments for advance
 		 * widths.
@@ -167,7 +166,7 @@ const DeltaSetIndexMap = new r.Struct<
 const hvarFields = {
 	majorVersion: r.uint16,
 	minorVersion: r.uint16,
-	itemVariationStore: new r.Pointer(r.uint32, ItemVariationStore),
+	itemVariationStore: new r.Pointer(r.uint32, itemVariationStore),
 	advanceWidthMapping: new r.Pointer(r.uint32, DeltaSetIndexMap),
 	LSBMapping: new r.Pointer(r.uint32, DeltaSetIndexMap),
 	RSBMapping: new r.Pointer(r.uint32, DeltaSetIndexMap),
