@@ -1,15 +1,15 @@
 import r from '@pdf-lib/restructure';
 import {
-	chainingContext,
-	Context,
-	Coverage,
-	FeatureList,
-	LookupList,
 	type OpenTypeChainingContext,
-	type OpenTypeContextTable,
-	type OpenTypeCoverageTable,
+	type OpenTypeContext,
+	type OpenTypeCoverage,
 	type OpenTypeLayoutTableBase,
-	ScriptList,
+	openTypeChainingContext,
+	openTypeContext,
+	openTypeCoverage,
+	openTypeFeatureList,
+	openTypeLookupList,
+	openTypeScriptList,
 } from './opentype.js';
 import {
 	featureVariations,
@@ -19,13 +19,13 @@ import {
 export namespace GSUBTable {
 	export interface LookupSingleV1 {
 		format: 1;
-		coverage?: OpenTypeCoverageTable;
+		coverage?: OpenTypeCoverage;
 		deltaGlyphID: number;
 	}
 
 	export interface LookupSingleV2 {
 		format: 2;
-		coverage?: OpenTypeCoverageTable;
+		coverage?: OpenTypeCoverage;
 		glyphCount: number;
 		substitute: number[];
 	}
@@ -34,14 +34,14 @@ export namespace GSUBTable {
 
 	export interface LookupMultiple {
 		substFormat: number;
-		coverage?: OpenTypeCoverageTable;
+		coverage?: OpenTypeCoverage;
 		count: number;
 		sequences: number[][];
 	}
 
 	export interface LookupAlternate {
 		substFormat: number;
-		coverage?: OpenTypeCoverageTable;
+		coverage?: OpenTypeCoverage;
 		count: number;
 		alternateSet: number[][];
 	}
@@ -53,17 +53,17 @@ export namespace GSUBTable {
 	}
 	export interface LookupLigature {
 		substFormat: number;
-		coverage?: OpenTypeCoverageTable;
+		coverage?: OpenTypeCoverage;
 		count: number;
 		ligatureSets: LookupLigatureSet[];
 	}
 
 	export interface LookupReverseChaining {
 		substFormat: number;
-		coverage?: OpenTypeCoverageTable;
-		backtrackCoverage: OpenTypeCoverageTable[];
+		coverage?: OpenTypeCoverage;
+		backtrackCoverage: OpenTypeCoverage[];
 		lookaheadGlyphCount: number;
-		lookaheadCoverage: OpenTypeCoverageTable[];
+		lookaheadCoverage: OpenTypeCoverage[];
 		glyphCount: number;
 		substitutes: number[];
 	}
@@ -73,7 +73,7 @@ export namespace GSUBTable {
 		| { lookupType: 2; table: LookupMultiple }
 		| { lookupType: 3; table: LookupAlternate }
 		| { lookupType: 4; table: LookupLigature }
-		| { lookupType: 5; table: OpenTypeContextTable }
+		| { lookupType: 5; table: OpenTypeContext }
 		| { lookupType: 6; table: OpenTypeChainingContext }
 		| {
 				lookupType: 7;
@@ -116,11 +116,11 @@ const selfPointer = new r.Pointer(r.uint32, null);
 
 const gsubLookupSingleFields = {
 	1: {
-		coverage: new r.Pointer(r.uint16, Coverage),
+		coverage: new r.Pointer(r.uint16, openTypeCoverage),
 		deltaGlyphID: r.int16,
 	},
 	2: {
-		coverage: new r.Pointer(r.uint16, Coverage),
+		coverage: new r.Pointer(r.uint16, openTypeCoverage),
 		glyphCount: r.uint16,
 		substitute: new r.LazyArray(r.uint16, 'glyphCount'),
 	},
@@ -133,14 +133,14 @@ const gsubLookupFields = {
 
 	2: {
 		substFormat: r.uint16,
-		coverage: new r.Pointer(r.uint16, Coverage),
+		coverage: new r.Pointer(r.uint16, openTypeCoverage),
 		count: r.uint16,
 		sequences: new r.LazyArray(new r.Pointer(r.uint16, Sequence), 'count'),
 	},
 
 	3: {
 		substFormat: r.uint16,
-		coverage: new r.Pointer(r.uint16, Coverage),
+		coverage: new r.Pointer(r.uint16, openTypeCoverage),
 		count: r.uint16,
 		alternateSet: new r.LazyArray(
 			new r.Pointer(r.uint16, AlternateSet),
@@ -150,7 +150,7 @@ const gsubLookupFields = {
 
 	4: {
 		substFormat: r.uint16,
-		coverage: new r.Pointer(r.uint16, Coverage),
+		coverage: new r.Pointer(r.uint16, openTypeCoverage),
 		count: r.uint16,
 		ligatureSets: new r.LazyArray(
 			new r.Pointer(r.uint16, LigatureSet),
@@ -158,8 +158,8 @@ const gsubLookupFields = {
 		),
 	},
 
-	5: Context,
-	6: chainingContext,
+	5: openTypeContext,
+	6: openTypeChainingContext,
 
 	7: {
 		substFormat: r.uint16,
@@ -169,14 +169,14 @@ const gsubLookupFields = {
 
 	8: {
 		substFormat: r.uint16,
-		coverage: new r.Pointer(r.uint16, Coverage),
+		coverage: new r.Pointer(r.uint16, openTypeCoverage),
 		backtrackCoverage: new r.Array(
-			new r.Pointer(r.uint16, Coverage),
+			new r.Pointer(r.uint16, openTypeCoverage),
 			'backtrackGlyphCount',
 		),
 		lookaheadGlyphCount: r.uint16,
 		lookaheadCoverage: new r.Array(
-			new r.Pointer(r.uint16, Coverage),
+			new r.Pointer(r.uint16, openTypeCoverage),
 			'lookaheadGlyphCount',
 		),
 		glyphCount: r.uint16,
@@ -193,9 +193,9 @@ selfPointer.type = GSUBLookup;
 
 const fields = {
 	header: {
-		scriptList: new r.Pointer(r.uint16, ScriptList),
-		featureList: new r.Pointer(r.uint16, FeatureList),
-		lookupList: new r.Pointer(r.uint16, LookupList(GSUBLookup)),
+		scriptList: new r.Pointer(r.uint16, openTypeScriptList),
+		featureList: new r.Pointer(r.uint16, openTypeFeatureList),
+		lookupList: new r.Pointer(r.uint16, openTypeLookupList(GSUBLookup)),
 	},
 
 	65536: {},

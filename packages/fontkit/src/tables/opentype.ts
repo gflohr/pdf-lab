@@ -250,7 +250,7 @@ export interface TypeFeatures extends OpenTypeFeatures, AATFeatures {
  * Baseline master layout properties shared across all OpenType Layout Engines
  * (GSUB and GPOS).
  */
-export interface OpenTypeLangSysTable {
+export interface OpenTypeLangSys {
 	reqFeatureIndex: number;
 	featureCount: number;
 	featureIndexes: number[];
@@ -258,21 +258,21 @@ export interface OpenTypeLangSysTable {
 
 export interface OpenTypeLangSysRecord {
 	tag: string;
-	langSys: OpenTypeLangSysTable;
+	langSys: OpenTypeLangSys;
 }
 
-export interface OpenTypeScriptTable {
-	defaultLangSys: OpenTypeLangSysTable | null;
+export interface OpenTypeScript {
+	defaultLangSys: OpenTypeLangSys | null;
 	count: number;
 	langSysRecords: OpenTypeLangSysRecord[];
 }
 
 export interface OpenTypeScriptRecord {
 	tag: string;
-	script: OpenTypeScriptTable;
+	script: OpenTypeScript;
 }
 
-export interface OpenTypeFeatureTable {
+export interface OpenTypeFeature {
 	featureParams: number;
 	lookupCount: number;
 	lookupListIndexes: number[];
@@ -280,7 +280,7 @@ export interface OpenTypeFeatureTable {
 
 export interface OpenTypeFeatureRecord {
 	tag: string;
-	feature: OpenTypeFeatureTable;
+	feature: OpenTypeFeature;
 }
 
 export interface OpenTypeLookupFlags {
@@ -294,11 +294,11 @@ export interface OpenTypeLookupFlags {
 	};
 }
 
-export interface OpenTypeLookupTable<TSubTable> {
+export interface OpenTypeLookupTable<TSubtable> {
 	lookupType: number;
 	flags: OpenTypeLookupFlags;
 	subTableCount: number;
-	subTables: TSubTable[];
+	subTables: TSubtable[];
 	markFilteringSet?: number | null;
 }
 
@@ -329,7 +329,7 @@ export interface OpenTypeCoverageV2 {
 	rangeRecords: OpenTypeRangeRecord[];
 }
 
-export type OpenTypeCoverageTable = OpenTypeCoverageV1 | OpenTypeCoverageV2;
+export type OpenTypeCoverage = OpenTypeCoverageV1 | OpenTypeCoverageV2;
 
 export interface OpenTypeClassRangeRecord {
 	start: number;
@@ -350,12 +350,12 @@ export interface OpenTypeClassDefV2 {
 	classRangeRecord: OpenTypeClassRangeRecord[];
 }
 
-export type OpenTypeClassDefTable = OpenTypeClassDefV1 | OpenTypeClassDefV2;
+export type OpenTypeClassDef = OpenTypeClassDefV1 | OpenTypeClassDefV2;
 
 /**
  * Represents typographic device scaling metrics or OpenType Variation Index offsets.
  */
-export interface OpenTypeDeviceTable {
+export interface OpenTypeDevice {
 	/** startSize for standard hinting tables, or outerIndex for Variation Stores. */
 	a: number;
 	/** endSize for standard hinting tables, or innerIndex for Variation Stores. */
@@ -384,15 +384,15 @@ export interface OpenTypeContextClassRule {
 
 export interface OpenTypeContextV1 {
 	version: 1;
-	coverage: OpenTypeCoverageTable;
+	coverage: OpenTypeCoverage;
 	ruleSetCount: number;
 	ruleSets: OpenTypeContextRule[][];
 }
 
 export interface OpenTypeContextV2 {
 	version: 2;
-	coverage: OpenTypeCoverageTable;
-	classDef: OpenTypeClassDefTable;
+	coverage: OpenTypeCoverage;
+	classDef: OpenTypeClassDef;
 	classSetCnt: number;
 	classSet: OpenTypeContextClassRule[][];
 }
@@ -401,11 +401,11 @@ export interface OpenTypeContextV3 {
 	version: 3;
 	glyphCount: number;
 	lookupCount: number;
-	coverages: OpenTypeCoverageTable[];
+	coverages: OpenTypeCoverage[];
 	lookupRecords: OpenTypeLookupRecord[];
 }
 
-export type OpenTypeContextTable =
+export type OpenTypeContext =
 	| OpenTypeContextV1
 	| OpenTypeContextV2
 	| OpenTypeContextV3;
@@ -423,17 +423,17 @@ export interface OpenTypeChainRule {
 
 export interface OpenTypeChainingContextV1 {
 	version: 1;
-	coverage: OpenTypeCoverageTable;
+	coverage: OpenTypeCoverage;
 	chainCount: number;
 	chainRuleSets: OpenTypeChainRule[][];
 }
 
 export interface OpenTypeChainingContextV2 {
 	version: 2;
-	coverage: OpenTypeCoverageTable;
-	backtrackClassDef: OpenTypeClassDefTable;
-	inputClassDef: OpenTypeClassDefTable;
-	lookaheadClassDef: OpenTypeClassDefTable;
+	coverage: OpenTypeCoverage;
+	backtrackClassDef: OpenTypeClassDef;
+	inputClassDef: OpenTypeClassDef;
+	lookaheadClassDef: OpenTypeClassDef;
 	chainCount: number;
 	chainClassSet: OpenTypeChainRule[][];
 }
@@ -441,11 +441,11 @@ export interface OpenTypeChainingContextV2 {
 export interface OpenTypeChainingContextV3 {
 	version: 3;
 	backtrackGlyphCount: number;
-	backtrackCoverage: OpenTypeCoverageTable[];
+	backtrackCoverage: OpenTypeCoverage[];
 	inputGlyphCount: number;
-	inputCoverage: OpenTypeCoverageTable[];
+	inputCoverage: OpenTypeCoverage[];
 	lookaheadGlyphCount: number;
-	lookaheadCoverage: OpenTypeCoverageTable[];
+	lookaheadCoverage: OpenTypeCoverage[];
 	lookupCount: number;
 	lookupRecords: OpenTypeLookupRecord[];
 }
@@ -461,59 +461,57 @@ const langSysTableFields = {
 	featureCount: r.uint16,
 	featureIndexes: new r.Array(r.uint16, 'featureCount'),
 };
-const LangSysTable = new r.Struct<
-	typeof langSysTableFields,
-	OpenTypeLangSysTable
->(langSysTableFields);
+const langSysTable = new r.Struct<typeof langSysTableFields, OpenTypeLangSys>(
+	langSysTableFields,
+);
 
 const langSysRecordFields = {
 	tag: new r.String(4),
-	langSys: new r.Pointer(r.uint16, LangSysTable, { type: 'parent' }),
+	langSys: new r.Pointer(r.uint16, langSysTable, { type: 'parent' }),
 };
-const LangSysRecord = new r.Struct<
+const langSysRecord = new r.Struct<
 	typeof langSysRecordFields,
 	OpenTypeLangSysRecord
 >(langSysRecordFields);
 
 const scriptFields = {
-	defaultLangSys: new r.Pointer(r.uint16, LangSysTable),
+	defaultLangSys: new r.Pointer(r.uint16, langSysTable),
 	count: r.uint16,
-	langSysRecords: new r.Array(LangSysRecord, 'count'),
+	langSysRecords: new r.Array(langSysRecord, 'count'),
 };
-const Script = new r.Struct<typeof scriptFields, OpenTypeScriptTable>(
-	scriptFields,
-);
+const script = new r.Struct<typeof scriptFields, OpenTypeScript>(scriptFields);
 
 const scriptRecordFields = {
 	tag: new r.String(4),
-	script: new r.Pointer(r.uint16, Script, { type: 'parent' }),
+	script: new r.Pointer(r.uint16, script, { type: 'parent' }),
 };
-const ScriptRecord = new r.Struct<
+const scriptRecord = new r.Struct<
 	typeof scriptRecordFields,
 	OpenTypeScriptRecord
 >(scriptRecordFields);
 
-export const ScriptList = new r.Array(ScriptRecord, r.uint16);
+export const openTypeScriptList = new r.Array(scriptRecord, r.uint16);
 
 const featureFields = {
 	featureParams: r.uint16,
 	lookupCount: r.uint16,
 	lookupListIndexes: new r.Array(r.uint16, 'lookupCount'),
 };
-export const Feature = new r.Struct<typeof featureFields, OpenTypeFeatureTable>(
-	featureFields,
-);
+export const openTypeFeature = new r.Struct<
+	typeof featureFields,
+	OpenTypeFeature
+>(featureFields);
 
 const featureRecordFields = {
 	tag: new r.String(4),
-	feature: new r.Pointer(r.uint16, Feature, { type: 'parent' }),
+	feature: new r.Pointer(r.uint16, openTypeFeature, { type: 'parent' }),
 };
-const FeatureRecord = new r.Struct<
+const featureRecord = new r.Struct<
 	typeof featureRecordFields,
 	OpenTypeFeatureRecord
 >(featureRecordFields);
 
-export const FeatureList = new r.Array(FeatureRecord, r.uint16);
+export const openTypeFeatureList = new r.Array(featureRecord, r.uint16);
 
 const lookupFlagsFields = {
 	markAttachmentType: r.uint8,
@@ -525,16 +523,16 @@ const lookupFlagsFields = {
 		'useMarkFilteringSet',
 	]),
 };
-const LookupFlags = new r.Struct<typeof lookupFlagsFields, OpenTypeLookupFlags>(
+const lookupFlags = new r.Struct<typeof lookupFlagsFields, OpenTypeLookupFlags>(
 	lookupFlagsFields,
 );
 
-export function LookupList<T>(
+export function openTypeLookupList<T>(
 	SubTable: FieldT<T>,
 ): FieldT<OpenTypeLookupTable<T>[]> {
 	const lookupFields = {
 		lookupType: r.uint16,
-		flags: LookupFlags,
+		flags: lookupFlags,
 		subTableCount: r.uint16,
 		subTables: new r.Array(new r.Pointer(r.uint16, SubTable), 'subTableCount'),
 		markFilteringSet: new r.Optional(
@@ -558,7 +556,7 @@ const rangeRecordFields = {
 	end: r.uint16,
 	startCoverageIndex: r.uint16,
 };
-const RangeRecord = new r.Struct<typeof rangeRecordFields, OpenTypeRangeRecord>(
+const rangeRecord = new r.Struct<typeof rangeRecordFields, OpenTypeRangeRecord>(
 	rangeRecordFields,
 );
 
@@ -569,12 +567,12 @@ const coverageFields = {
 	},
 	2: {
 		rangeCount: r.uint16,
-		rangeRecords: new r.Array(RangeRecord, 'rangeCount'),
+		rangeRecords: new r.Array(rangeRecord, 'rangeCount'),
 	},
 };
-export const Coverage = new r.VersionedStruct<
+export const openTypeCoverage = new r.VersionedStruct<
 	typeof coverageFields,
-	OpenTypeCoverageTable
+	OpenTypeCoverage
 >(r.uint16, coverageFields);
 
 const classRangeRecordFields = {
@@ -582,7 +580,7 @@ const classRangeRecordFields = {
 	end: r.uint16,
 	class: r.uint16,
 };
-const ClassRangeRecord = new r.Struct<
+const classRangeRecord = new r.Struct<
 	typeof classRangeRecordFields,
 	OpenTypeClassRangeRecord
 >(classRangeRecordFields);
@@ -595,12 +593,12 @@ const classDefFields = {
 	},
 	2: {
 		classRangeCount: r.uint16,
-		classRangeRecord: new r.Array(ClassRangeRecord, 'classRangeCount'),
+		classRangeRecord: new r.Array(classRangeRecord, 'classRangeCount'),
 	},
 };
-export const ClassDef = new r.VersionedStruct<
+export const openTypeClassDef = new r.VersionedStruct<
 	typeof classDefFields,
-	OpenTypeClassDefTable
+	OpenTypeClassDef
 >(r.uint16, classDefFields);
 
 const deviceFields = {
@@ -608,7 +606,7 @@ const deviceFields = {
 	b: r.uint16,
 	deltaFormat: r.uint16,
 };
-export const Device = new r.Struct<typeof deviceFields, OpenTypeDeviceTable>(
+export const openTypeDevice = new r.Struct<typeof deviceFields, OpenTypeDevice>(
 	deviceFields,
 );
 
@@ -616,7 +614,7 @@ const lookupRecordFields = {
 	sequenceIndex: r.uint16,
 	lookupListIndex: r.uint16,
 };
-const LookupRecord = new r.Struct<
+const lookupRecord = new r.Struct<
 	typeof lookupRecordFields,
 	OpenTypeLookupRecord
 >(lookupRecordFields);
@@ -625,11 +623,11 @@ const ruleFields = {
 	glyphCount: r.uint16,
 	lookupCount: r.uint16,
 	input: new r.Array(r.uint16, (t: { glyphCount: number }) => t.glyphCount - 1),
-	lookupRecords: new r.Array(LookupRecord, 'lookupCount'),
+	lookupRecords: new r.Array(lookupRecord, 'lookupCount'),
 };
-const Rule = new r.Struct<typeof ruleFields, OpenTypeContextRule>(ruleFields);
+const rule = new r.Struct<typeof ruleFields, OpenTypeContextRule>(ruleFields);
 
-const RuleSet = new r.Array(new r.Pointer(r.uint16, Rule), r.uint16);
+const ruleSet = new r.Array(new r.Pointer(r.uint16, rule), r.uint16);
 
 const classRuleFields = {
 	glyphCount: r.uint16,
@@ -638,37 +636,40 @@ const classRuleFields = {
 		r.uint16,
 		(t: { glyphCount: number }) => t.glyphCount - 1,
 	),
-	lookupRecords: new r.Array(LookupRecord, 'lookupCount'),
+	lookupRecords: new r.Array(lookupRecord, 'lookupCount'),
 };
-const ClassRule = new r.Struct<
+const classRule = new r.Struct<
 	typeof classRuleFields,
 	OpenTypeContextClassRule
 >(classRuleFields);
 
-const ClassSet = new r.Array(new r.Pointer(r.uint16, ClassRule), r.uint16);
+const classSet = new r.Array(new r.Pointer(r.uint16, classRule), r.uint16);
 
 const contextFields = {
 	1: {
-		coverage: new r.Pointer(r.uint16, Coverage),
+		coverage: new r.Pointer(r.uint16, openTypeCoverage),
 		ruleSetCount: r.uint16,
-		ruleSets: new r.Array(new r.Pointer(r.uint16, RuleSet), 'ruleSetCount'),
+		ruleSets: new r.Array(new r.Pointer(r.uint16, ruleSet), 'ruleSetCount'),
 	},
 	2: {
-		coverage: new r.Pointer(r.uint16, Coverage),
-		classDef: new r.Pointer(r.uint16, ClassDef),
+		coverage: new r.Pointer(r.uint16, openTypeCoverage),
+		classDef: new r.Pointer(r.uint16, openTypeClassDef),
 		classSetCnt: r.uint16,
-		classSet: new r.Array(new r.Pointer(r.uint16, ClassSet), 'classSetCnt'),
+		classSet: new r.Array(new r.Pointer(r.uint16, classSet), 'classSetCnt'),
 	},
 	3: {
 		glyphCount: r.uint16,
 		lookupCount: r.uint16,
-		coverages: new r.Array(new r.Pointer(r.uint16, Coverage), 'glyphCount'),
-		lookupRecords: new r.Array(LookupRecord, 'lookupCount'),
+		coverages: new r.Array(
+			new r.Pointer(r.uint16, openTypeCoverage),
+			'glyphCount',
+		),
+		lookupRecords: new r.Array(lookupRecord, 'lookupCount'),
 	},
 };
-export const Context = new r.VersionedStruct<
+export const openTypeContext = new r.VersionedStruct<
 	typeof contextFields,
-	OpenTypeContextTable
+	OpenTypeContext
 >(r.uint16, contextFields);
 
 const chainRuleFields = {
@@ -682,55 +683,55 @@ const chainRuleFields = {
 	lookaheadGlyphCount: r.uint16,
 	lookahead: new r.Array(r.uint16, 'lookaheadGlyphCount'),
 	lookupCount: r.uint16,
-	lookupRecords: new r.Array(LookupRecord, 'lookupCount'),
+	lookupRecords: new r.Array(lookupRecord, 'lookupCount'),
 };
-const ChainRule = new r.Struct<typeof chainRuleFields, OpenTypeChainRule>(
+const chainRule = new r.Struct<typeof chainRuleFields, OpenTypeChainRule>(
 	chainRuleFields,
 );
 
-const ChainRuleSet = new r.Array(new r.Pointer(r.uint16, ChainRule), r.uint16);
+const chainRuleSet = new r.Array(new r.Pointer(r.uint16, chainRule), r.uint16);
 
 const chainingContextFields = {
 	1: {
-		coverage: new r.Pointer(r.uint16, Coverage),
+		coverage: new r.Pointer(r.uint16, openTypeCoverage),
 		chainCount: r.uint16,
 		chainRuleSets: new r.Array(
-			new r.Pointer(r.uint16, ChainRuleSet),
+			new r.Pointer(r.uint16, chainRuleSet),
 			'chainCount',
 		),
 	},
 	2: {
-		coverage: new r.Pointer(r.uint16, Coverage),
-		backtrackClassDef: new r.Pointer(r.uint16, ClassDef),
-		inputClassDef: new r.Pointer(r.uint16, ClassDef),
-		lookaheadClassDef: new r.Pointer(r.uint16, ClassDef),
+		coverage: new r.Pointer(r.uint16, openTypeCoverage),
+		backtrackClassDef: new r.Pointer(r.uint16, openTypeClassDef),
+		inputClassDef: new r.Pointer(r.uint16, openTypeClassDef),
+		lookaheadClassDef: new r.Pointer(r.uint16, openTypeClassDef),
 		chainCount: r.uint16,
 		chainClassSet: new r.Array(
-			new r.Pointer(r.uint16, ChainRuleSet),
+			new r.Pointer(r.uint16, chainRuleSet),
 			'chainCount',
 		),
 	},
 	3: {
 		backtrackGlyphCount: r.uint16,
 		backtrackCoverage: new r.Array(
-			new r.Pointer(r.uint16, Coverage),
+			new r.Pointer(r.uint16, openTypeCoverage),
 			'backtrackGlyphCount',
 		),
 		inputGlyphCount: r.uint16,
 		inputCoverage: new r.Array(
-			new r.Pointer(r.uint16, Coverage),
+			new r.Pointer(r.uint16, openTypeCoverage),
 			'inputGlyphCount',
 		),
 		lookaheadGlyphCount: r.uint16,
 		lookaheadCoverage: new r.Array(
-			new r.Pointer(r.uint16, Coverage),
+			new r.Pointer(r.uint16, openTypeCoverage),
 			'lookaheadGlyphCount',
 		),
 		lookupCount: r.uint16,
-		lookupRecords: new r.Array(LookupRecord, 'lookupCount'),
+		lookupRecords: new r.Array(lookupRecord, 'lookupCount'),
 	},
 };
-export const chainingContext = new r.VersionedStruct<
+export const openTypeChainingContext = new r.VersionedStruct<
 	typeof chainingContextFields,
 	OpenTypeChainingContext
 >(r.uint16, chainingContextFields);

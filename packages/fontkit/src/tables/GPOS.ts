@@ -6,22 +6,22 @@ import r, {
 	type StructT,
 } from '@pdf-lib/restructure';
 import {
-	chainingContext,
-	ClassDef,
-	Context,
-	Coverage,
-	Device,
-	FeatureList,
-	LookupList,
 	type OpenTypeChainingContext,
-	type OpenTypeClassDefTable,
-	type OpenTypeContextTable,
-	type OpenTypeCoverageTable,
-	type OpenTypeDeviceTable,
+	type OpenTypeClassDef,
+	type OpenTypeContext,
+	type OpenTypeCoverage,
+	type OpenTypeDevice,
 	type OpenTypeFeatureRecord,
 	type OpenTypeLookupTable,
 	type OpenTypeScriptRecord,
-	ScriptList,
+	openTypeChainingContext,
+	openTypeClassDef,
+	openTypeContext,
+	openTypeCoverage,
+	openTypeDevice,
+	openTypeFeatureList,
+	openTypeLookupList,
+	openTypeScriptList,
 } from './opentype.js';
 import {
 	featureVariations,
@@ -44,19 +44,19 @@ const types = {
 	yPlacement: r.int16,
 	xAdvance: r.int16,
 	yAdvance: r.int16,
-	xPlaDevice: new r.Pointer(r.uint16, Device, {
+	xPlaDevice: new r.Pointer(r.uint16, openTypeDevice, {
 		type: 'global',
 		relativeTo: 'rel',
 	}),
-	yPlaDevice: new r.Pointer(r.uint16, Device, {
+	yPlaDevice: new r.Pointer(r.uint16, openTypeDevice, {
 		type: 'global',
 		relativeTo: 'rel',
 	}),
-	xAdvDevice: new r.Pointer(r.uint16, Device, {
+	xAdvDevice: new r.Pointer(r.uint16, openTypeDevice, {
 		type: 'global',
 		relativeTo: 'rel',
 	}),
-	yAdvDevice: new r.Pointer(r.uint16, Device, {
+	yAdvDevice: new r.Pointer(r.uint16, openTypeDevice, {
 		type: 'global',
 		relativeTo: 'rel',
 	}),
@@ -134,16 +134,16 @@ export namespace GPOSTable {
 		// Pointers wrap the underlying Device structure.
 		xPlaDevice?: typeof types.xPlaDevice extends PointerT<infer T>
 			? T
-			: OpenTypeDeviceTable;
+			: OpenTypeDevice;
 		yPlaDevice?: typeof types.yPlaDevice extends PointerT<infer T>
 			? T
-			: OpenTypeDeviceTable;
+			: OpenTypeDevice;
 		xAdvDevice?: typeof types.xAdvDevice extends PointerT<infer T>
 			? T
-			: OpenTypeDeviceTable;
+			: OpenTypeDevice;
 		yAdvDevice?: typeof types.yAdvDevice extends PointerT<infer T>
 			? T
-			: OpenTypeDeviceTable;
+			: OpenTypeDevice;
 	}
 
 	export interface PairValueRecord {
@@ -177,8 +177,8 @@ export namespace GPOSTable {
 		version: 3;
 		xCoordinate: number;
 		yCoordinate: number;
-		xDeviceTable: OpenTypeDeviceTable;
-		yDeviceTable: OpenTypeDeviceTable;
+		xDeviceTable: OpenTypeDevice;
+		yDeviceTable: OpenTypeDevice;
 	}
 
 	export type Anchor = AnchorV1 | AnchorV2 | AnchorV3;
@@ -198,14 +198,14 @@ export namespace GPOSTable {
 		version: 1;
 
 		// Single positioning value
-		coverage: OpenTypeCoverageTable | null;
+		coverage: OpenTypeCoverage | null;
 		valueFormat: typeof ValueFormat;
 		value: ValueRecord;
 	}
 
 	export interface LookupSingleV2 {
 		version: 2;
-		coverage: OpenTypeCoverageTable | null;
+		coverage: OpenTypeCoverage | null;
 		valueFormat: typeof ValueFormat;
 		valueCount: number;
 		values: RestructureLazyArray<ValueRecord>;
@@ -220,7 +220,7 @@ export namespace GPOSTable {
 		version: 1;
 
 		// Adjustments for glyph pairs
-		coverage: OpenTypeCoverageTable | null;
+		coverage: OpenTypeCoverage | null;
 		valueFormat1: typeof ValueFormat;
 		valueFormat2: typeof ValueFormat;
 		pairSetCount: number;
@@ -230,11 +230,11 @@ export namespace GPOSTable {
 	export interface LookupPairV2 {
 		version: 2;
 
-		coverage: OpenTypeCoverageTable | null;
+		coverage: OpenTypeCoverage | null;
 		valueFormat1: typeof ValueFormat;
 		valueFormat2: typeof ValueFormat;
-		classDef1: OpenTypeClassDefTable | null;
-		classDef2: OpenTypeClassDefTable | null;
+		classDef1: OpenTypeClassDef | null;
+		classDef2: OpenTypeClassDef | null;
 		class1Count: number;
 		class2Count: number;
 		classRecords: RestructureLazyArray<Class2Record>;
@@ -248,7 +248,7 @@ export namespace GPOSTable {
 	export interface LookupCursive {
 		lookupType: 3;
 		format: number;
-		coverage: OpenTypeCoverageTable | null;
+		coverage: OpenTypeCoverage | null;
 		entryExitCount: number;
 		entryExitRecords: EntryExitRecord[];
 	}
@@ -257,8 +257,8 @@ export namespace GPOSTable {
 	export interface LookupMarkToBase {
 		lookupType: 4;
 		format: number;
-		markCoverage: OpenTypeCoverageTable | null;
-		baseCoverage: OpenTypeCoverageTable | null;
+		markCoverage: OpenTypeCoverage | null;
+		baseCoverage: OpenTypeCoverage | null;
 		classCount: number;
 		markArray: MarkRecord | null;
 		// FIXME! This is maybe wrong!
@@ -269,8 +269,8 @@ export namespace GPOSTable {
 	export interface LookupMarkToLigature {
 		lookupType: 5;
 		format: number;
-		markCoverage: OpenTypeCoverageTable | null;
-		ligatureCoverage: OpenTypeCoverageTable | null;
+		markCoverage: OpenTypeCoverage | null;
+		ligatureCoverage: OpenTypeCoverage | null;
 		classCount: number;
 		markArray: MarkRecord[] | null;
 		// FIXME! This has to checked later!
@@ -281,15 +281,15 @@ export namespace GPOSTable {
 	export interface LookupMarkToMark {
 		lookupType: 6;
 		format: number;
-		mark1Coverage: OpenTypeCoverageTable | null;
-		mark2Coverage: OpenTypeCoverageTable | null;
+		mark1Coverage: OpenTypeCoverage | null;
+		mark2Coverage: OpenTypeCoverage | null;
 		classCount: number;
 		mark1Array: MarkRecord[] | null;
 		// FIXME! Check later.
 		mark2Array: unknown;
 	}
 
-	export type LookupContext = OpenTypeContextTable & { lookupType: 7 };
+	export type LookupContext = OpenTypeContext & { lookupType: 7 };
 
 	export type LookupChainingContext = OpenTypeChainingContext & {
 		lookupType: 8;
@@ -371,8 +371,8 @@ const anchorFields = {
 		// Design units plus Device tables
 		xCoordinate: r.int16,
 		yCoordinate: r.int16,
-		xDeviceTable: new r.Pointer(r.uint16, Device),
-		yDeviceTable: new r.Pointer(r.uint16, Device),
+		xDeviceTable: new r.Pointer(r.uint16, openTypeDevice),
+		yDeviceTable: new r.Pointer(r.uint16, openTypeDevice),
 	},
 };
 const Anchor = new r.VersionedStruct<typeof anchorFields, GPOSTable.Anchor>(
@@ -420,12 +420,12 @@ const gposLookupFieldsV1 = {
 	// Single Adjustment
 	1: {
 		// Single positioning value
-		coverage: new r.Pointer(r.uint16, Coverage),
+		coverage: new r.Pointer(r.uint16, openTypeCoverage),
 		valueFormat: ValueFormat,
 		value: new ValueRecord(),
 	},
 	2: {
-		coverage: new r.Pointer(r.uint16, Coverage),
+		coverage: new r.Pointer(r.uint16, openTypeCoverage),
 		valueFormat: ValueFormat,
 		valueCount: r.uint16,
 		values: new r.LazyArray(new ValueRecord(), 'valueCount'),
@@ -435,7 +435,7 @@ const gposLookupFieldsV2 = {
 	// Pair Adjustment Positioning
 	1: {
 		// Adjustments for glyph pairs
-		coverage: new r.Pointer(r.uint16, Coverage),
+		coverage: new r.Pointer(r.uint16, openTypeCoverage),
 		valueFormat1: ValueFormat,
 		valueFormat2: ValueFormat,
 		pairSetCount: r.uint16,
@@ -444,11 +444,11 @@ const gposLookupFieldsV2 = {
 
 	2: {
 		// Class pair adjustment
-		coverage: new r.Pointer(r.uint16, Coverage),
+		coverage: new r.Pointer(r.uint16, openTypeCoverage),
 		valueFormat1: ValueFormat,
 		valueFormat2: ValueFormat,
-		classDef1: new r.Pointer(r.uint16, ClassDef),
-		classDef2: new r.Pointer(r.uint16, ClassDef),
+		classDef1: new r.Pointer(r.uint16, openTypeClassDef),
+		classDef2: new r.Pointer(r.uint16, openTypeClassDef),
 		class1Count: r.uint16,
 		class2Count: r.uint16,
 		classRecords: new r.LazyArray(
@@ -472,7 +472,7 @@ const gposLookupFields = {
 	3: {
 		// Cursive Attachment Positioning.
 		format: r.uint16,
-		coverage: new r.Pointer(r.uint16, Coverage),
+		coverage: new r.Pointer(r.uint16, openTypeCoverage),
 		entryExitCount: r.uint16,
 		entryExitRecords: new r.Array(EntryExitRecord, 'entryExitCount'),
 	},
@@ -480,8 +480,8 @@ const gposLookupFields = {
 	4: {
 		// MarkToBase Attachment Positioning.
 		format: r.uint16,
-		markCoverage: new r.Pointer(r.uint16, Coverage),
-		baseCoverage: new r.Pointer(r.uint16, Coverage),
+		markCoverage: new r.Pointer(r.uint16, openTypeCoverage),
+		baseCoverage: new r.Pointer(r.uint16, openTypeCoverage),
 		classCount: r.uint16,
 		markArray: new r.Pointer(r.uint16, MarkArray),
 		baseArray: new r.Pointer(r.uint16, BaseArray),
@@ -490,8 +490,8 @@ const gposLookupFields = {
 	5: {
 		// MarkToLigature Attachment Positioning
 		format: r.uint16,
-		markCoverage: new r.Pointer(r.uint16, Coverage),
-		ligatureCoverage: new r.Pointer(r.uint16, Coverage),
+		markCoverage: new r.Pointer(r.uint16, openTypeCoverage),
+		ligatureCoverage: new r.Pointer(r.uint16, openTypeCoverage),
 		classCount: r.uint16,
 		markArray: new r.Pointer(r.uint16, MarkArray),
 		ligatureArray: new r.Pointer(r.uint16, LigatureArray),
@@ -500,15 +500,15 @@ const gposLookupFields = {
 	6: {
 		// MarkToMark Attachment Positioning
 		format: r.uint16,
-		mark1Coverage: new r.Pointer(r.uint16, Coverage),
-		mark2Coverage: new r.Pointer(r.uint16, Coverage),
+		mark1Coverage: new r.Pointer(r.uint16, openTypeCoverage),
+		mark2Coverage: new r.Pointer(r.uint16, openTypeCoverage),
 		classCount: r.uint16,
 		mark1Array: new r.Pointer(r.uint16, MarkArray),
 		mark2Array: new r.Pointer(r.uint16, BaseArray),
 	},
 
-	7: Context, // Contextual positioning
-	8: chainingContext, // Chaining contextual positioning
+	7: openTypeContext, // Contextual positioning
+	8: openTypeChainingContext, // Chaining contextual positioning
 
 	9: {
 		// Extension Positioning
@@ -527,9 +527,9 @@ selfPointer.type = GPOSLookup;
 
 const gposStructFields = {
 	header: {
-		scriptList: new r.Pointer(r.uint16, ScriptList),
-		featureList: new r.Pointer(r.uint16, FeatureList),
-		lookupList: new r.Pointer(r.uint16, LookupList(GPOSLookup)),
+		scriptList: new r.Pointer(r.uint16, openTypeScriptList),
+		featureList: new r.Pointer(r.uint16, openTypeFeatureList),
+		lookupList: new r.Pointer(r.uint16, openTypeLookupList(GPOSLookup)),
 	},
 
 	65536: {},

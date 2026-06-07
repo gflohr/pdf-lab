@@ -1,5 +1,5 @@
 import r from '@pdf-lib/restructure';
-import { Feature, type OpenTypeFeatureTable } from './opentype.js';
+import { type OpenTypeFeature, openTypeFeature } from './opentype.js';
 
 export interface OpenTypeRegionAxisCoordinates {
 	startCoord: number;
@@ -50,7 +50,7 @@ export interface OpenTypeConditionSet {
 
 export interface OpenTypeFeatureTableSubstitutionRecord {
 	featureIndex: number;
-	alternateFeatureTable: OpenTypeFeatureTable;
+	alternateFeatureTable: OpenTypeFeature;
 }
 
 export interface OpenTypeFeatureTableSubstitution {
@@ -177,7 +177,9 @@ const conditionSet = new r.Struct<
 
 const featureTableSubstitutionRecordFields = {
 	featureIndex: r.uint16,
-	alternateFeatureTable: new r.Pointer(r.uint32, Feature, { type: 'parent' }),
+	alternateFeatureTable: new r.Pointer(r.uint32, openTypeFeature, {
+		type: 'parent',
+	}),
 };
 const featureTableSubstitutionRecord = new r.Struct<
 	typeof featureTableSubstitutionRecordFields,

@@ -1,6 +1,6 @@
 import r, { type FieldT } from '@pdf-lib/restructure';
 import { GPOSLookup } from './GPOS.js';
-import { LookupList, type OpenTypeLookupTable } from './opentype.js';
+import { openTypeLookupList, type OpenTypeLookupTable } from './opentype.js';
 
 export namespace JSTFTable {
 	export interface Priority {
@@ -42,12 +42,12 @@ const jstfPriorityFields = {
 	shrinkageDisableGSUB: new r.Pointer(r.uint16, JstfGSUBModList),
 	shrinkageEnableGPOS: new r.Pointer(r.uint16, JstfGSUBModList),
 	shrinkageDisableGPOS: new r.Pointer(r.uint16, JstfGSUBModList),
-	shrinkageJstfMax: new r.Pointer(r.uint16, LookupList(GPOSLookup)),
+	shrinkageJstfMax: new r.Pointer(r.uint16, openTypeLookupList(GPOSLookup)),
 	extensionEnableGSUB: new r.Pointer(r.uint16, JstfGSUBModList),
 	extensionDisableGSUB: new r.Pointer(r.uint16, JstfGSUBModList),
 	extensionEnableGPOS: new r.Pointer(r.uint16, JstfGSUBModList),
 	extensionDisableGPOS: new r.Pointer(r.uint16, JstfGSUBModList),
-	extensionJstfMax: new r.Pointer(r.uint16, LookupList(GPOSLookup)),
+	extensionJstfMax: new r.Pointer(r.uint16, openTypeLookupList(GPOSLookup)),
 };
 const JstfPriority = new r.Struct<
 	typeof jstfPriorityFields,

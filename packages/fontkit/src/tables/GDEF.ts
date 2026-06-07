@@ -1,12 +1,16 @@
 import r from '@pdf-lib/restructure';
-import { ClassDef, Coverage, Device } from './opentype.js';
+import {
+	openTypeClassDef,
+	openTypeCoverage,
+	openTypeDevice,
+} from './opentype.js';
 import { itemVariationStore } from './variations.js';
 
 export namespace GDEFTable {}
 
 const AttachPoint = new r.Array(r.uint16, r.uint16);
 const AttachList = new r.Struct({
-	coverage: new r.Pointer(r.uint16, Coverage),
+	coverage: new r.Pointer(r.uint16, openTypeCoverage),
 	glyphCount: r.uint16,
 	attachPoints: new r.Array(new r.Pointer(r.uint16, AttachPoint), 'glyphCount'),
 });
@@ -25,14 +29,14 @@ const CaretValue = new r.VersionedStruct(r.uint16, {
 	3: {
 		// Design units plus Device table
 		coordinate: r.int16,
-		deviceTable: new r.Pointer(r.uint16, Device),
+		deviceTable: new r.Pointer(r.uint16, openTypeDevice),
 	},
 });
 
 const LigGlyph = new r.Array(new r.Pointer(r.uint16, CaretValue), r.uint16);
 
 const LigCaretList = new r.Struct({
-	coverage: new r.Pointer(r.uint16, Coverage),
+	coverage: new r.Pointer(r.uint16, openTypeCoverage),
 	ligGlyphCount: r.uint16,
 	ligGlyphs: new r.Array(new r.Pointer(r.uint16, LigGlyph), 'ligGlyphCount'),
 });
@@ -40,15 +44,18 @@ const LigCaretList = new r.Struct({
 const MarkGlyphSetsDef = new r.Struct({
 	markSetTableFormat: r.uint16,
 	markSetCount: r.uint16,
-	coverage: new r.Array(new r.Pointer(r.uint32, Coverage), 'markSetCount'),
+	coverage: new r.Array(
+		new r.Pointer(r.uint32, openTypeCoverage),
+		'markSetCount',
+	),
 });
 
 export default new r.VersionedStruct(r.uint32, {
 	header: {
-		glyphClassDef: new r.Pointer(r.uint16, ClassDef),
+		glyphClassDef: new r.Pointer(r.uint16, openTypeClassDef),
 		attachList: new r.Pointer(r.uint16, AttachList),
 		ligCaretList: new r.Pointer(r.uint16, LigCaretList),
-		markAttachClassDef: new r.Pointer(r.uint16, ClassDef),
+		markAttachClassDef: new r.Pointer(r.uint16, openTypeClassDef),
 	},
 
 	65536: {},

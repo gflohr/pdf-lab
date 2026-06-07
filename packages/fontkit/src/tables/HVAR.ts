@@ -4,10 +4,7 @@ import r, {
 	type Length,
 } from '@pdf-lib/restructure';
 import { resolveLength } from '@pdf-lib/restructure/src/utils.js';
-import {
-	itemVariationStore,
-	type ItemVariationStore,
-} from './variations.js';
+import { type ItemVariationStore, itemVariationStore } from './variations.js';
 
 // TODO: add this to restructure
 class VariableSizeNumber implements FieldT<number> {

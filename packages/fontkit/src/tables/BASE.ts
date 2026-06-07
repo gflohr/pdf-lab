@@ -1,9 +1,6 @@
 import r from '@pdf-lib/restructure';
-import { Device, type OpenTypeDeviceTable } from './opentype.js';
-import {
-	type ItemVariationStore,
-	itemVariationStore,
-} from './variations.js';
+import { type OpenTypeDevice, openTypeDevice } from './opentype.js';
+import { type ItemVariationStore, itemVariationStore } from './variations.js';
 
 export namespace BASETable {
 	/** Design units only. */
@@ -35,7 +32,7 @@ export namespace BASETable {
 		coordinate: number;
 
 		/** Device table for X or Y value. */
-		deviceTable: OpenTypeDeviceTable;
+		deviceTable: OpenTypeDevice;
 	}
 
 	export type Coord = CoordV1 | CoordV2 | CoordV3;
@@ -131,7 +128,7 @@ const baseCoordFields = {
 	3: {
 		// Design units plus Device table
 		coordinate: r.int16, // X or Y value, in design units
-		deviceTable: new r.Pointer(r.uint16, Device), // Device table for X or Y value
+		deviceTable: new r.Pointer(r.uint16, openTypeDevice), // Device table for X or Y value
 	},
 };
 const baseCoord = new r.VersionedStruct<
