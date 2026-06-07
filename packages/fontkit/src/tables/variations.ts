@@ -145,6 +145,9 @@ const variationStoreFields = {
 		'variationDataCount',
 	),
 };
+
+// FIXME! Rename the variable to itemVariationStore, and the type to
+// ItemVariationStore!
 export const ItemVariationStore = new r.Struct<
 	typeof variationStoreFields,
 	ItemVariationStoreTable

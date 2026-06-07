@@ -1,4 +1,4 @@
-import type { BaseGlyphRecordType } from '../tables/COLR.js';
+import type { COLRTable } from '../tables/COLR.js';
 import BoundingBox from './bounding-box.js';
 import Glyph, { type FontkitRenderingContext } from './glyph.js';
 
@@ -44,7 +44,7 @@ export default class COLRGlyph extends Glyph {
 		let low = 0;
 		let high = colr.baseGlyphRecord.length - 1;
 
-		let baseLayer: BaseGlyphRecordType | undefined;
+		let baseLayer: COLRTable.BaseGlyphRecord | undefined;
 
 		while (low <= high) {
 			const mid = (low + high) >> 1;
