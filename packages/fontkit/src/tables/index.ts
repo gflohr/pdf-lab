@@ -68,7 +68,7 @@ export type FontTable = Record<
 	 * used for decoding and encoding the table data is highly dynamic. Using
 	 * stricter typings is currently considered not being worth the effort.
 	 */
-	StructT<any, any> | VersionedStructT<any> | ArrayT<any> | typeof CFFFont
+	StructT<any, any> | VersionedStructT<any, any> | ArrayT<any> | typeof CFFFont
 >;
 
 const tables = {

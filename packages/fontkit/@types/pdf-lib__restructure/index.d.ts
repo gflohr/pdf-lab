@@ -182,7 +182,7 @@ declare module '@pdf-lib/restructure' {
 		[K in keyof TVersions & string]: { version: K } & InferStruct<TVersions[K]>;
 	}[keyof TVersions & string];
 
-	export class VersionedStructT<TVersions = any, TExplicitOut = any>
+	export class VersionedStructT<TVersions, TExplicitOut>
 		implements FieldT<TExplicitOut>
 	{
 		/** Holds the structural signature of the compiled output type safely */
