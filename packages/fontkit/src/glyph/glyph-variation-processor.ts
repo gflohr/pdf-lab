@@ -45,7 +45,7 @@ interface MetricVariationTable {
  * Apple's documentation for these tables is not great, so thanks to the
  * Freetype project for figuring much of this out.
  *
- * FIXME! This class cache blend vecotrs and calculates normalised coordinates
+ * FIXME! This class cache blend vectors and calculates normalised coordinates
  * and remembers them. That can easily be integrated into the SFNTFont class.
  */
 export default class GlyphVariationProcessor {

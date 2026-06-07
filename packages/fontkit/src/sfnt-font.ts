@@ -245,7 +245,7 @@ export class SFNTFont<
 
 	/**
 	 * The font's full name, e.g. "Helvetica Bold".
-	 * @returns the full noame or `null` if not present.
+	 * @returns the full name or `null` if not present.
 	 */
 	get fullName(): string | null {
 		return this.getName('fullName');
@@ -253,7 +253,7 @@ export class SFNTFont<
 
 	/**
 	 * The font's family name, e.g. "Helvetica".
-	 * @returns the family name of `null` if not present.
+	 * @returns the family name or `null` if not present.
 	 */
 	get familyName(): string | null {
 		return this.getName('fontFamily');
@@ -269,7 +269,7 @@ export class SFNTFont<
 
 	/**
 	 * The font's copyright information.
-	 * @@returns the copright information or `null` if not present.
+	 * @returns the copright information or `null` if not present.
 	 */
 	get copyright(): string | null {
 		return this.getName('copyright');

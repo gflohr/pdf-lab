@@ -156,7 +156,7 @@ type CFFCustomCharsetData =
 	| CFFCustomCharsetDataV1
 	| CFFCustomCharsetDataV2;
 
-// Subtracting 1 from the length rops the .notdef glyph from the total length
+// Subtracting 1 from the length drops the .notdef glyph from the total length
 // count constraint.
 const cffCustomCharsetFields = {
 	0: {

@@ -10,7 +10,6 @@ to make font processing available to the JavaScript/TypeScript eco system.
 	- [Relationship to Upstream](#relationship-to-upstream)
 	- [Naming](#naming)
 	- [Security](#security)
-	- [Security](#security-1)
 	- [Original README for `@pdf-lib/fontkit`](#original-readme-for-pdf-libfontkit)
 		- [`fontkit`](#fontkit)
 			- [Features](#features)
@@ -134,15 +133,13 @@ lack of a better alternative, the naming is kept as-is for now.
 
 ## Security
 
-## Security
-
 There is a very high likelihood that corrupt or malicious font data will lead
 to unpredictable behavior when processed by `fontkit`. While pull requests
 that mitigate or eliminate these risks are highly welcome, you should not
 expect `fontkit` to become entirely risk-free in the near future.
 
 Unpredictable behavior includes unhandled exceptions, memory exhaustion (OOM) 
-rashes, infinite loops that block the Node.js event loop, or maximum call stack
+crashes, infinite loops that block the Node.js event loop, or maximum call stack
 size errors.
 
 If your application processes user-uploaded or untrusted font files, **do not
