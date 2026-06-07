@@ -29,13 +29,15 @@ export default class SBIXGlyph extends TTFGlyph {
 	getImageForSize(size: number): SBIXImageType | null {
 		// FIXME! This looks suspicious! If no table with ppem >= size is
 		// found, table is the last table. Is that correct?
-		let table: sbixTable.ImageTable;
+		let table: sbixTable.ImageTable | undefined;
 		for (let i = 0; i < this._font.sbix!.imageTables.length; i++) {
 			table = this._font.sbix!.imageTables[i];
 			if (table.ppem >= size) {
 				break;
 			}
 		}
+
+		if (!table) return null;
 
 		const offsets = table!.imageOffsets;
 		const start = offsets[this.id];
