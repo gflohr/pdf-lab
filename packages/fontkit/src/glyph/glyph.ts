@@ -13,7 +13,7 @@ import StandardNames from './standard-names.js';
  * This is a low-level structural representation used directly when parsing
  * 1D dimension arrays from `hmtx` (Horizontal Metrics) or `vmtx` (Vertical Metrics) tables.
  */
-export type GlyphAxisMetrics = {
+export interface GlyphAxisMetrics {
 	/**
 	 * The total distance the pen position must move after rendering this glyph.
 	 * Maps to `advanceWidth` in horizontal layout, or `advanceHeight` in vertical layout.
@@ -36,7 +36,7 @@ export type GlyphAxisMetrics = {
  * systems, making it the primary interface for high-level rendering engines, text-shaping
  * loops, and bounding-box calculators.
  */
-export type GlyphLayoutMetrics = {
+export interface GlyphLayoutMetrics {
 	/**
 	 * The horizontal advance width of the glyph, indicating how much to shift the
 	 * X-cursor after rendering. Sourced from the `hmtx` table.
