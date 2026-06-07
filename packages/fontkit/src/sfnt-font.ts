@@ -599,7 +599,7 @@ export class SFNTFont<
 			}
 		}
 
-		return this.glyphs[glyph] || null;
+		return this.glyphs[glyph] ?? null;
 	}
 
 	/**
@@ -631,7 +631,7 @@ export class SFNTFont<
 			}
 		}
 
-		return this.glyphs[glyph] || null;
+		return this.glyphs[glyph] ?? null;
 	}
 
 	/**
