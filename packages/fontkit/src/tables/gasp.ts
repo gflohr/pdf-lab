@@ -5,12 +5,12 @@ export namespace gaspTable {
 		/** Upper limit of range, in ppem. */
 		rangeMaxPPEM: number;
 		/** Flags describing raterizer behaviour. */
-		ragenGaspBehavior: {
+		rangeGaspBehavior: {
 			grayscale: boolean;
 			gridfit: boolean;
-			symmetricSmooting: boolean;
+			symmetricSmoothing: boolean;
 			/** Only in version 1, for ClearType. */
-			symmetricGridFit: boolean;
+			symmetricGridfit: boolean;
 		};
 	}
 
