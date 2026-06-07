@@ -126,7 +126,7 @@ Directory.preEncode = function (this: DirectoryContext): void {
 					Tables[tag] as FieldT<unknown>,
 					entry,
 				) as unknown as number,
-				length: (Tables[tag] as StructT<any>).size(entry),
+				length: (Tables[tag] as StructT<any, any>).size(entry),
 			});
 		}
 	}

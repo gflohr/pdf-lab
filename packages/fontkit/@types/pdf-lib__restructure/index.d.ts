@@ -151,7 +151,7 @@ declare module '@pdf-lib/restructure' {
 	type InferStruct<TFields extends StructFields> = {
 		[K in keyof TFields]: InferField<TFields[K]>;
 	};
-	export class StructT<TFields = any, TExplicitOut = any>
+	export class StructT<TFields, TExplicitOut>
 		implements FieldT<TExplicitOut>
 	{
 		readonly __type?: TExplicitOut;
