@@ -16,7 +16,7 @@ export namespace fvarTable {
 		name: Record<string, string>;
 		flags: number;
 		coord: number[];
-		postScriptNameID?: number;
+		postscriptNameID?: number;
 	}
 
 	export interface fvar {
