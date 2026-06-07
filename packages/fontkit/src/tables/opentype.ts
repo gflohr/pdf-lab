@@ -527,6 +527,7 @@ const lookupFlags = new r.Struct<
 	OpenType.LookupFlags
 >(lookupFlagsFields);
 
+// `@NO_SIDE_EFFECTS`
 export function openTypeLookupList<T>(
 	SubTable: FieldT<T>,
 ): FieldT<OpenType.LookupTable<T>[]> {
