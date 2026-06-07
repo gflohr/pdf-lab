@@ -12,8 +12,8 @@ import {
 	ScriptList,
 } from './opentype.js';
 import {
-	FeatureVariations,
-	type OpenTypeFeatureVariationsTable,
+	featureVariations,
+	type OpenTypeFeatureVariations,
 } from './variations.js';
 
 export namespace GSUBTable {
@@ -91,7 +91,7 @@ export namespace GSUBTable {
 
 	export interface GSUBV1_1 extends OpenTypeLayoutTableBase<LookupTable> {
 		version: 1.1; // represented by binary uint32 value 65537
-		featureVariations: OpenTypeFeatureVariationsTable;
+		featureVariations: OpenTypeFeatureVariations;
 	}
 
 	export type GSUB = GSUBV1_0 | GSUBV1_1;
@@ -200,7 +200,7 @@ const fields = {
 
 	65536: {},
 	65537: {
-		featureVariations: new r.Pointer(r.uint32, FeatureVariations),
+		featureVariations: new r.Pointer(r.uint32, featureVariations),
 	},
 };
 

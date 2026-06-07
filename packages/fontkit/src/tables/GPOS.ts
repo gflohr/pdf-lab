@@ -24,8 +24,8 @@ import {
 	ScriptList,
 } from './opentype.js';
 import {
-	FeatureVariations,
-	type OpenTypeFeatureVariationsTable,
+	featureVariations,
+	type OpenTypeFeatureVariations,
 } from './variations.js';
 
 const ValueFormat = new r.Bitfield(r.uint16, [
@@ -326,7 +326,7 @@ export namespace GPOSTable {
 
 	export interface GPOSV1_1 extends GPOSBase {
 		version: 1.1;
-		featureVariations: OpenTypeFeatureVariationsTable | null;
+		featureVariations: OpenTypeFeatureVariations | null;
 	}
 
 	export type GPOS = GPOSV1_0 | GPOSV1_1;
@@ -534,7 +534,7 @@ const gposStructFields = {
 
 	65536: {},
 	65537: {
-		featureVariations: new r.Pointer(r.uint32, FeatureVariations),
+		featureVariations: new r.Pointer(r.uint32, featureVariations),
 	},
 };
 const GPOSStruct = new r.VersionedStruct<typeof gposStructFields>(
