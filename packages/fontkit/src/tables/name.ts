@@ -226,8 +226,8 @@ nameStruct.preEncode = function (this: any) {
 			indexedNameId !== -1
 				? indexedNameId
 				: Number.isInteger(fallbackNameId) &&
-					  fallbackNameId >= 0 &&
-					  fallbackNameId <= 0xffff
+						fallbackNameId >= 0 &&
+						fallbackNameId <= 0xffff
 					? fallbackNameId
 					: null;
 		if (nameID == null) continue;

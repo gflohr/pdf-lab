@@ -1,23 +1,27 @@
 import r, { type DecodeStream } from '@pdf-lib/restructure';
 import { TrueTypeFont } from './true-type-font.js';
 
-export interface TrueTypeCollectionTableV65536 {
-	numFonts: number;
-	offsets: number[];
+export namespace TTCTable {
+	export interface HeaderV1 {
+		version: 0x00010000; // Version 1.0
+		numFonts: number;
+		offsets: number[];
+	}
+
+	export interface HeaderV2 {
+		version: 0x00020000; // Version 2.0
+		numFonts: number;
+		offsets: number[];
+		dsigTag: number;
+		dsigLength: number;
+		dsigOffset: number;
+	}
+
+	export type Header = HeaderV1 | HeaderV2;
 }
 
-export interface TrueTypeCollectionTableV131072
-	extends TrueTypeCollectionTableV65536 {
-	dsigTag: number;
-	dsigLength: number;
-	dsigOffset: number;
-}
-
-export type TrueTypeCollectionTable =
-	| TrueTypeCollectionTableV65536
-	| TrueTypeCollectionTableV65536;
-
-const fields = {
+const ttcHeaderFields = {
+	// Hex literals align perfectly with Fixed 16.16 versions
 	65536: {
 		numFonts: r.uint32,
 		offsets: new r.Array(r.uint32, 'numFonts'),
@@ -31,14 +35,15 @@ const fields = {
 	},
 };
 
-const TTCHeader = new r.VersionedStruct<typeof fields, TrueTypeCollectionTable>(
-	r.uint32,
-	fields,
-);
+// Use r.uint32 as the fixed version discriminator block
+const TTCHeader = new r.VersionedStruct<
+	typeof ttcHeaderFields,
+	TTCTable.Header
+>(r.uint32, ttcHeaderFields);
 
 export default class TrueTypeCollection {
 	private stream: DecodeStream;
-	private header: TrueTypeCollectionTable;
+	private header: TTCTable.Header;
 
 	static probe(buffer: Buffer) {
 		return buffer.toString('ascii', 0, 4) === 'ttcf';
@@ -62,7 +67,6 @@ export default class TrueTypeCollection {
 				return font;
 			}
 		}
-
 		return null;
 	}
 
@@ -73,7 +77,6 @@ export default class TrueTypeCollection {
 			stream.pos = offset;
 			fonts.push(new TrueTypeFont(stream));
 		}
-
 		return fonts;
 	}
 }
