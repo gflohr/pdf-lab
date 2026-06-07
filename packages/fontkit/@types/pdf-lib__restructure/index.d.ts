@@ -326,7 +326,7 @@ declare module '@pdf-lib/restructure' {
 		Struct: new <TFields, TExplicitOut>(
 			fields: TFields,
 		) => StructT<TFields, TExplicitOut>;
-		VersionedStruct: new <TVersions = any, TExplicitOut = any>(
+		VersionedStruct: new <TVersions, TExplicitOut>(
 			versionField: string | FieldT<number>,
 			versions: TVersions,
 		) => VersionedStructT<TVersions, TExplicitOut>;

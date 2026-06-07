@@ -204,7 +204,7 @@ export class SFNTFont<
 			);
 			this.stream.pos = pos;
 
-			return result;
+			return result as ReturnType<(typeof tables)[K]['decode']>;
 		}
 
 		this.stream.pos = pos;
