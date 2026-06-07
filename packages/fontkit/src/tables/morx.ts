@@ -1,5 +1,10 @@
 import r, { type PointerT } from '@pdf-lib/restructure';
-import { type AAT, aatLookupTable, aatStateTable, AATUnboundedArray } from './aat.js';
+import {
+	type AAT,
+	AATUnboundedArray,
+	aatLookupTable,
+	aatStateTable,
+} from './aat.js';
 
 export namespace morxTable {
 	// Format 0: Indic rearrangement subtable.

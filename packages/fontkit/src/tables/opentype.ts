@@ -406,10 +406,7 @@ export namespace OpenType {
 		lookupRecords: LookupRecord[];
 	}
 
-	export type Context =
-		| ContextV1
-		| ContextV2
-		| ContextV3;
+	export type Context = ContextV1 | ContextV2 | ContextV3;
 
 	export interface ChainRule {
 		backtrackGlyphCount: number;
@@ -525,9 +522,10 @@ const lookupFlagsFields = {
 		'useMarkFilteringSet',
 	]),
 };
-const lookupFlags = new r.Struct<typeof lookupFlagsFields, OpenType.LookupFlags>(
-	lookupFlagsFields,
-);
+const lookupFlags = new r.Struct<
+	typeof lookupFlagsFields,
+	OpenType.LookupFlags
+>(lookupFlagsFields);
 
 export function openTypeLookupList<T>(
 	SubTable: FieldT<T>,
@@ -558,9 +556,10 @@ const rangeRecordFields = {
 	end: r.uint16,
 	startCoverageIndex: r.uint16,
 };
-const rangeRecord = new r.Struct<typeof rangeRecordFields, OpenType.RangeRecord>(
-	rangeRecordFields,
-);
+const rangeRecord = new r.Struct<
+	typeof rangeRecordFields,
+	OpenType.RangeRecord
+>(rangeRecordFields);
 
 const coverageFields = {
 	1: {
@@ -608,9 +607,10 @@ const deviceFields = {
 	b: r.uint16,
 	deltaFormat: r.uint16,
 };
-export const openTypeDevice = new r.Struct<typeof deviceFields, OpenType.Device>(
-	deviceFields,
-);
+export const openTypeDevice = new r.Struct<
+	typeof deviceFields,
+	OpenType.Device
+>(deviceFields);
 
 const lookupRecordFields = {
 	sequenceIndex: r.uint16,

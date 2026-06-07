@@ -51,7 +51,10 @@ interface MetricVariationTable {
 export default class GlyphVariationProcessor {
 	private font: SFNTFont;
 	public _normalizedCoords: number[];
-	private blendVectors = new Map<OpenTypeVariation.ItemVariationData, number[]>();
+	private blendVectors = new Map<
+		OpenTypeVariation.ItemVariationData,
+		number[]
+	>();
 
 	constructor(font: SFNTFont, coords: number[]) {
 		this.font = font;

@@ -16,10 +16,7 @@ import {
 	openTypeLookupList,
 	openTypeScriptList,
 } from './opentype.js';
-import {
-	type OpenTypeVariation,
-	featureVariations,
-} from './variations.js';
+import { featureVariations, type OpenTypeVariation } from './variations.js';
 
 const ValueFormat = new r.Bitfield(r.uint16, [
 	'xPlacement',
@@ -528,10 +525,10 @@ const gposStructFields = {
 		featureVariations: new r.Pointer(r.uint32, featureVariations),
 	},
 };
-const GPOSStruct = new r.VersionedStruct<typeof gposStructFields, GPOSTable.GPOS>(
-	r.uint32,
-	gposStructFields,
-);
+const GPOSStruct = new r.VersionedStruct<
+	typeof gposStructFields,
+	GPOSTable.GPOS
+>(r.uint32, gposStructFields);
 export default GPOSStruct;
 
 export { GPOSLookup };

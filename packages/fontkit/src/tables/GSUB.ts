@@ -8,10 +8,7 @@ import {
 	openTypeLookupList,
 	openTypeScriptList,
 } from './opentype.js';
-import {
-	featureVariations,
-	type OpenTypeVariation,
-} from './variations.js';
+import { featureVariations, type OpenTypeVariation } from './variations.js';
 
 export namespace GSUBTable {
 	export interface LookupSingleV1 {

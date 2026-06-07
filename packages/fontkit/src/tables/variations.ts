@@ -122,9 +122,10 @@ const deltaSetFields = {
 	deltas: (t: DeltaSetContext): number[] =>
 		t.shortDeltas.concat(t.regionDeltas),
 };
-const deltaSet = new r.Struct<typeof deltaSetFields, OpenTypeVariation.DeltaSet>(
-	deltaSetFields,
-);
+const deltaSet = new r.Struct<
+	typeof deltaSetFields,
+	OpenTypeVariation.DeltaSet
+>(deltaSetFields);
 
 const itemVariationDataFields = {
 	itemCount: r.uint16,
