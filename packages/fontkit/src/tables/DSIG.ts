@@ -23,7 +23,7 @@ export namespace DSIGTable {
 		usFlag: number;
 
 		signatures: Signature[];
-		signatureBlocks: Signature[];
+		signatureBlocks: SignatureBlock[];
 	}
 }
 
