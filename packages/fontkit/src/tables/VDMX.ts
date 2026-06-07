@@ -39,15 +39,17 @@ const ratioFields = {
 	xRatio: r.uint8,
 	yStartRatio: r.uint8,
 	yEndRatio: r.uint8,
-}
+};
 const ratio = new r.Struct<typeof ratioFields, VDMXTable.Ratio>(ratioFields);
 
 const vTableFields = {
 	yPelHeight: r.uint16,
 	yMax: r.int16,
 	yMin: r.int16,
-}
-const vTable = new r.Struct<typeof vTableFields, VDMXTable.VTable>(vTableFields);
+};
+const vTable = new r.Struct<typeof vTableFields, VDMXTable.VTable>(
+	vTableFields,
+);
 
 const vdmxGroupFields = {
 	recs: r.uint16, // Number of height records in this group
@@ -55,7 +57,9 @@ const vdmxGroupFields = {
 	endsz: r.uint8, // Ending yPelHeight
 	entries: new r.Array(vTable, 'recs'), // The VDMX records
 };
-const vdmxGroup = new r.Struct<typeof vdmxGroupFields, VDMXTable.Group>(vdmxGroupFields);
+const vdmxGroup = new r.Struct<typeof vdmxGroupFields, VDMXTable.Group>(
+	vdmxGroupFields,
+);
 
 const vdmxStructFields = {
 	version: r.uint16, // Version number (0 or 1)
@@ -66,4 +70,6 @@ const vdmxStructFields = {
 	groups: new r.Array(vdmxGroup, 'numRecs'), // The actual VDMX groupings
 };
 
-export default new r.Struct<typeof vdmxStructFields, VDMXTable.VDMX>(vdmxStructFields);
+export default new r.Struct<typeof vdmxStructFields, VDMXTable.VDMX>(
+	vdmxStructFields,
+);

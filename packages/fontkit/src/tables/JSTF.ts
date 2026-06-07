@@ -73,8 +73,10 @@ const jstfScriptFields = {
 	defaultLangSys: new r.Pointer(r.uint16, jstfLangSys),
 	langSysCount: r.uint16,
 	langSysRecords: new r.Array(jstfLangSysRecord, 'langSysCount'),
-}
-const jstfScript = new r.Struct<typeof jstfScriptFields, JSTFTable.Script>(jstfScriptFields);
+};
+const jstfScript = new r.Struct<typeof jstfScriptFields, JSTFTable.Script>(
+	jstfScriptFields,
+);
 
 const jstfScriptRecordFields = {
 	tag: new r.String(4),

@@ -102,17 +102,6 @@ const colrStructFields = {
 	numLayerRecords: r.uint16,
 };
 
-export default new r.Struct<typeof colrStructFields, COLRTable.COLR>({
-	version: r.uint16,
-	numBaseGlyphRecords: r.uint16,
-	baseGlyphRecord: new r.Pointer(
-		r.uint32,
-		new r.Array(baseGlyphRecord, 'numBaseGlyphRecords'),
-	),
-	layerRecords: new r.Pointer(
-		r.uint32,
-		new r.Array(layerRecord, 'numLayerRecords'),
-		{ lazy: true },
-	),
-	numLayerRecords: r.uint16,
-});
+export default new r.Struct<typeof colrStructFields, COLRTable.COLR>(
+	colrStructFields,
+);

@@ -189,7 +189,9 @@ const morxChainFields = {
 	features: new r.Array(FeatureEntry, 'nFeatureEntries'),
 	subtables: new r.Array(Subtable, 'nSubtables'),
 };
-const MorxChain = new r.Struct<typeof morxChainFields, morxTable.Chain>(morxChainFields);
+const MorxChain = new r.Struct<typeof morxChainFields, morxTable.Chain>(
+	morxChainFields,
+);
 
 const morxFields = {
 	version: r.uint16,

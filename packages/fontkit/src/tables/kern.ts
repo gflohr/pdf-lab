@@ -157,7 +157,9 @@ const classTableFields = {
 	max: (t: ClassTableContext) =>
 		t.offsets.length && Math.max.apply(Math, t.offsets),
 };
-const classTable = new r.Struct<typeof classTableFields, kernTable.ClassTable>(classTableFields);
+const classTable = new r.Struct<typeof classTableFields, kernTable.ClassTable>(
+	classTableFields,
+);
 interface LeftTableConfig {
 	max: number;
 }

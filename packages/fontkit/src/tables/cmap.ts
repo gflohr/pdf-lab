@@ -324,7 +324,9 @@ const cmapEntryFields = {
 	encodingID: r.uint16, // Platform-specific encoding identifier
 	table: new r.Pointer(r.uint32, cmapSubtable, { type: 'parent', lazy: true }),
 };
-const cmapEntry = new r.Struct<typeof cmapEntryFields, cmapTable.Entry>(cmapEntryFields);
+const cmapEntry = new r.Struct<typeof cmapEntryFields, cmapTable.Entry>(
+	cmapEntryFields,
+);
 
 // Character to glyph mapping.
 const cmapStructFields = {

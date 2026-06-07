@@ -3,8 +3,8 @@ import type { MetricsTable } from './metrics.js';
 
 export namespace hmtxTable {
 	export interface Entry {
-		advance: number,
-		bearing: number,
+		advance: number;
+		bearing: number;
 	}
 
 	export interface hmtx extends MetricsTable {}
@@ -13,8 +13,10 @@ export namespace hmtxTable {
 const hmtxEntryFields = {
 	advance: r.uint16,
 	bearing: r.int16,
-}
-const hmtxEntry = new r.Struct<typeof hmtxEntryFields, hmtxTable.Entry>(hmtxEntryFields);
+};
+const hmtxEntry = new r.Struct<typeof hmtxEntryFields, hmtxTable.Entry>(
+	hmtxEntryFields,
+);
 
 const hmtxStructFields = {
 	metrics: new r.LazyArray(hmtxEntry, (t) => t.parent.hhea.numberOfMetrics),
@@ -24,4 +26,6 @@ const hmtxStructFields = {
 	),
 };
 
-export default new r.Struct<typeof hmtxStructFields, hmtxTable.hmtx>(hmtxStructFields);
+export default new r.Struct<typeof hmtxStructFields, hmtxTable.hmtx>(
+	hmtxStructFields,
+);

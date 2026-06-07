@@ -27,7 +27,7 @@ export interface GlyphAxisMetrics {
 	 * Measured in font design units.
 	 */
 	bearing: number;
-};
+}
 
 /**
  * Represents the comprehensive, multi-axis bounding metrics for a specific glyph.
@@ -60,7 +60,7 @@ export interface GlyphLayoutMetrics {
 	 * Also known as Top Side Bearing (TSB).
 	 */
 	topBearing: number;
-};
+}
 
 /**
  * The minimum vector context shape fontkit expects for rendering.

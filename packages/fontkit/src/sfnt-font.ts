@@ -231,10 +231,7 @@ export class SFNTFont<
 	 * `lang` is a BCP-47 language code.
 	 * @returns the table entry or `null` if not present.
 	 */
-	getName(
-		key: keyof nameTable.ProcessedRecords,
-		lang = 'en',
-	): string | null {
+	getName(key: keyof nameTable.ProcessedRecords, lang = 'en'): string | null {
 		const record = this.name.records[key];
 		if (record) {
 			return (record as Record<string, string>)[lang];
