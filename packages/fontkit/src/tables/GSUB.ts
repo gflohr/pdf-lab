@@ -1,11 +1,11 @@
 import r from '@pdf-lib/restructure';
 import {
-	ChainingContext,
+	chainingContext,
 	Context,
 	Coverage,
 	FeatureList,
 	LookupList,
-	type OpenTypeChainingContextTable,
+	type OpenTypeChainingContext,
 	type OpenTypeContextTable,
 	type OpenTypeCoverageTable,
 	type OpenTypeLayoutTableBase,
@@ -74,7 +74,7 @@ export namespace GSUBTable {
 		| { lookupType: 3; table: LookupAlternate }
 		| { lookupType: 4; table: LookupLigature }
 		| { lookupType: 5; table: OpenTypeContextTable }
-		| { lookupType: 6; table: OpenTypeChainingContextTable }
+		| { lookupType: 6; table: OpenTypeChainingContext }
 		| {
 				lookupType: 7;
 				table: {
@@ -159,7 +159,7 @@ const gsubLookupFields = {
 	},
 
 	5: Context,
-	6: ChainingContext,
+	6: chainingContext,
 
 	7: {
 		substFormat: r.uint16,

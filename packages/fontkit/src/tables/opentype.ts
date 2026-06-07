@@ -450,7 +450,7 @@ export interface OpenTypeChainingContextV3 {
 	lookupRecords: OpenTypeLookupRecord[];
 }
 
-export type OpenTypeChainingContextTable =
+export type OpenTypeChainingContext =
 	| OpenTypeChainingContextV1
 	| OpenTypeChainingContextV2
 	| OpenTypeChainingContextV3;
@@ -730,7 +730,7 @@ const chainingContextFields = {
 		lookupRecords: new r.Array(LookupRecord, 'lookupCount'),
 	},
 };
-export const ChainingContext = new r.VersionedStruct<
+export const chainingContext = new r.VersionedStruct<
 	typeof chainingContextFields,
-	OpenTypeChainingContextTable
+	OpenTypeChainingContext
 >(r.uint16, chainingContextFields);

@@ -6,14 +6,14 @@ import r, {
 	type StructT,
 } from '@pdf-lib/restructure';
 import {
-	ChainingContext,
+	chainingContext,
 	ClassDef,
 	Context,
 	Coverage,
 	Device,
 	FeatureList,
 	LookupList,
-	type OpenTypeChainingContextTable,
+	type OpenTypeChainingContext,
 	type OpenTypeClassDefTable,
 	type OpenTypeContextTable,
 	type OpenTypeCoverageTable,
@@ -291,7 +291,7 @@ export namespace GPOSTable {
 
 	export type LookupContext = OpenTypeContextTable & { lookupType: 7 };
 
-	export type LookupChainingContext = OpenTypeChainingContextTable & {
+	export type LookupChainingContext = OpenTypeChainingContext & {
 		lookupType: 8;
 	};
 
@@ -508,7 +508,7 @@ const gposLookupFields = {
 	},
 
 	7: Context, // Contextual positioning
-	8: ChainingContext, // Chaining contextual positioning
+	8: chainingContext, // Chaining contextual positioning
 
 	9: {
 		// Extension Positioning
