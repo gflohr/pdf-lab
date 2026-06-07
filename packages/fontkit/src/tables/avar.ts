@@ -1,20 +1,20 @@
 import r from '@pdf-lib/restructure';
 
 export namespace avarTable {
-	export interface avarCorrespondence {
+	export interface Correspondence {
 		fromCoord: number;
 		toCoord: number;
 	}
 
-	export interface avarSegment {
+	export interface Segment {
 		pairCount: number;
-		correspondence: avarCorrespondence[];
+		correspondence: Correspondence[];
 	}
 
 	export interface avar {
 		version: number;
 		axisCount: number;
-		segment: avarSegment[];
+		segment: Segment[];
 	}
 }
 
@@ -26,14 +26,14 @@ const correspondenceFields = {
 };
 const Correspondence = new r.Struct<
 	typeof correspondenceFields,
-	avarTable.avarCorrespondence
+	avarTable.Correspondence
 >(correspondenceFields);
 
 const segmentFields = {
 	pairCount: r.uint16,
 	correspondence: new r.Array(Correspondence, 'pairCount'),
 };
-const Segment = new r.Struct<typeof segmentFields, avarTable.avarSegment>(
+const Segment = new r.Struct<typeof segmentFields, avarTable.Segment>(
 	segmentFields,
 );
 

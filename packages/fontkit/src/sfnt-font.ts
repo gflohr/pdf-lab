@@ -232,7 +232,7 @@ export class SFNTFont<
 	 * @returns the table entry or `null` if not present.
 	 */
 	getName(
-		key: keyof nameTable.nameProcessedRecords,
+		key: keyof nameTable.ProcessedRecords,
 		lang = 'en',
 	): string | null {
 		const record = this.name.records[key];

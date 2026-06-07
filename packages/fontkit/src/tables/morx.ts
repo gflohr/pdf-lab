@@ -32,13 +32,13 @@ export namespace morxTable {
 	}
 
 	// Format 2: Ligature subtable.
-	export interface morxLigatureData {
+	export interface LigatureData {
 		action: number;
 	}
 
 	export interface SubtableDataV2 {
 		version: 2;
-		stateTable: AAT.StateHeader<number, morxLigatureData>;
+		stateTable: AAT.StateHeader<number, LigatureData>;
 		ligatureActions: number[];
 		components: number[];
 		ligatureList: number[];
@@ -63,40 +63,40 @@ export namespace morxTable {
 		insertionActions: number[];
 	}
 
-	export type morxSubtableData =
+	export type SubtableData =
 		| SubtableDataV0
 		| SubtableDataV1
 		| SubtableDataV2
 		| SubtableDataV4
 		| SubtableDataV5;
 
-	export interface morxSubtable {
+	export interface Subtable {
 		length: number;
 		coverage: number;
 		type: number;
 		subFeatureFlags: number;
-		table: morxSubtable;
+		table: Subtable;
 	}
-	export interface morxFeatureEntry {
+	export interface FeatureEntry {
 		featureType: number;
 		featureSetting: number;
 		enableFlags: number;
 		disableFlags: number;
 	}
 
-	export interface morxChain {
+	export interface Chain {
 		defaultFlags: number;
 		chainLength: number;
 		nFeatureEntries: number;
 		nSubtables: number;
-		features: morxFeatureEntry[];
-		subtables: morxSubtable[];
+		features: FeatureEntry[];
+		subtables: Subtable[];
 	}
 
 	export interface morx {
 		version: number;
 		nChains: number;
-		chains: morxChain[];
+		chains: Chain[];
 	}
 }
 
@@ -155,7 +155,7 @@ const subtableDataFields = {
 };
 const SubtableData = new r.VersionedStruct<
 	typeof subtableDataFields,
-	morxTable.morxSubtableData
+	morxTable.SubtableData
 >('type', subtableDataFields);
 
 const subtableFields = {
@@ -166,7 +166,7 @@ const subtableFields = {
 	table: SubtableData,
 	padding: new r.Reserved(r.uint8, (t) => t.length - t._currentOffset),
 };
-const Subtable = new r.Struct<typeof subtableFields, morxTable.morxSubtable>(
+const Subtable = new r.Struct<typeof subtableFields, morxTable.Subtable>(
 	subtableFields,
 );
 
@@ -178,7 +178,7 @@ const featureEntryFields = {
 };
 const FeatureEntry = new r.Struct<
 	typeof featureEntryFields,
-	morxTable.morxFeatureEntry
+	morxTable.FeatureEntry
 >(featureEntryFields);
 
 const morxChainFields = {
@@ -189,7 +189,7 @@ const morxChainFields = {
 	features: new r.Array(FeatureEntry, 'nFeatureEntries'),
 	subtables: new r.Array(Subtable, 'nSubtables'),
 };
-const MorxChain = new r.Struct(morxChainFields);
+const MorxChain = new r.Struct<typeof morxChainFields, morxTable.Chain>(morxChainFields);
 
 const morxFields = {
 	version: r.uint16,

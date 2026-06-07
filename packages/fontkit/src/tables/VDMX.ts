@@ -8,7 +8,7 @@ export namespace VDMXTable {
 		yEndRatio: number /** The ending y-Ratio value. */;
 	}
 
-	export interface vTable {
+	export interface VTable {
 		yPelHeight: number /** The yPelHeight to which values apply. */;
 		yMax: number /** The maximum value (in pels) for this yPelHeight. */;
 		yMin: number /** The minimum value (in pels) for this yPelHeight. */;
@@ -18,7 +18,7 @@ export namespace VDMXTable {
 		recs: number /** The number of height records in this group. */;
 		startsz: number /** The starting yPelHeight. */;
 		endsz: number /** The ending yPelHeight. */;
-		entries: vTable[] /** The VDMX records. */;
+		entries: VTable[] /** The VDMX records. */;
 	}
 
 	/** VDMX tables contain ascender/descender overrides for certain (usually
@@ -34,33 +34,36 @@ export namespace VDMXTable {
 	}
 }
 
-const Ratio = new r.Struct({
+const ratioFields = {
 	bCharSet: r.uint8,
 	xRatio: r.uint8,
 	yStartRatio: r.uint8,
 	yEndRatio: r.uint8,
-});
+}
+const ratio = new r.Struct<typeof ratioFields, VDMXTable.Ratio>(ratioFields);
 
-const vTable = new r.Struct({
+const vTableFields = {
 	yPelHeight: r.uint16,
 	yMax: r.int16,
 	yMin: r.int16,
-});
+}
+const vTable = new r.Struct<typeof vTableFields, VDMXTable.VTable>(vTableFields);
 
-const VdmxGroup = new r.Struct({
+const vdmxGroupFields = {
 	recs: r.uint16, // Number of height records in this group
 	startsz: r.uint8, // Starting yPelHeight
 	endsz: r.uint8, // Ending yPelHeight
 	entries: new r.Array(vTable, 'recs'), // The VDMX records
-});
+};
+const vdmxGroup = new r.Struct<typeof vdmxGroupFields, VDMXTable.Group>(vdmxGroupFields);
 
-const VDMXFields = {
+const vdmxStructFields = {
 	version: r.uint16, // Version number (0 or 1)
 	numRecs: r.uint16, // Number of VDMX groups present
 	numRatios: r.uint16, // Number of aspect ratio groupings
-	ratioRanges: new r.Array(Ratio, 'numRatios'), // Ratio ranges
+	ratioRanges: new r.Array(ratio, 'numRatios'), // Ratio ranges
 	offsets: new r.Array(r.uint16, 'numRatios'), // Offset to the VDMX group for this ratio range
-	groups: new r.Array(VdmxGroup, 'numRecs'), // The actual VDMX groupings
+	groups: new r.Array(vdmxGroup, 'numRecs'), // The actual VDMX groupings
 };
 
-export default new r.Struct<typeof VDMXFields, VDMXTable.VDMX>(VDMXFields);
+export default new r.Struct<typeof vdmxStructFields, VDMXTable.VDMX>(vdmxStructFields);

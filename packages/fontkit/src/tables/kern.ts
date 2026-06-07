@@ -157,7 +157,7 @@ const classTableFields = {
 	max: (t: ClassTableContext) =>
 		t.offsets.length && Math.max.apply(Math, t.offsets),
 };
-const ClassTable = new r.Struct(classTableFields);
+const classTable = new r.Struct<typeof classTableFields, kernTable.ClassTable>(classTableFields);
 interface LeftTableConfig {
 	max: number;
 }
@@ -185,7 +185,7 @@ const kern2ArrayFields = {
 		(t.parent.rowWidth / 2),
 	values: new r.LazyArray(r.int16, 'len'),
 };
-const Kern2Array = new r.Struct<typeof kern2ArrayFields, kernTable.Kern2Array>(
+const kern2Array = new r.Struct<typeof kern2ArrayFields, kernTable.Kern2Array>(
 	kern2ArrayFields,
 );
 
@@ -200,9 +200,9 @@ const kernSubtableFields = {
 
 	2: {
 		rowWidth: r.uint16,
-		leftTable: new r.Pointer(r.uint16, ClassTable, { type: 'parent' }),
-		rightTable: new r.Pointer(r.uint16, ClassTable, { type: 'parent' }),
-		array: new r.Pointer(r.uint16, Kern2Array, { type: 'parent' }),
+		leftTable: new r.Pointer(r.uint16, classTable, { type: 'parent' }),
+		rightTable: new r.Pointer(r.uint16, classTable, { type: 'parent' }),
+		array: new r.Pointer(r.uint16, kern2Array, { type: 'parent' }),
 	},
 
 	3: {

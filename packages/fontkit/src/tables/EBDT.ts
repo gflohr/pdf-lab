@@ -20,7 +20,7 @@ export namespace EBDTTable {
 		advance: number;
 	}
 
-	export interface EBDTComponent {
+	export interface Component {
 		glyph: number;
 		xOffset: number;
 		yOffset: number;
@@ -62,14 +62,14 @@ export namespace EBDTTable {
 		version: 8;
 		metrics: SmallMetrics;
 		numComponents: number;
-		components: EBDTComponent[];
+		components: Component[];
 	}
 
 	export interface GlyphV9 {
 		version: 9;
 		metrics: BigMetrics;
 		numComponents: number;
-		components: EBDTComponent[];
+		components: Component[];
 	}
 
 	export interface GlyphV17 {
@@ -139,7 +139,7 @@ const ebdtComponentFields = {
 };
 const ebdtComponent = new r.Struct<
 	typeof ebdtComponentFields,
-	EBDTTable.EBDTComponent
+	EBDTTable.Component
 >(ebdtComponentFields);
 
 export class ByteAligned {}

@@ -35,60 +35,61 @@ export namespace JSTFTable {
 	}
 }
 
-const JstfGSUBModList = new r.Array(r.uint16, r.uint16);
+const jstfGSUBModList = new r.Array(r.uint16, r.uint16);
 
 const jstfPriorityFields = {
-	shrinkageEnableGSUB: new r.Pointer(r.uint16, JstfGSUBModList),
-	shrinkageDisableGSUB: new r.Pointer(r.uint16, JstfGSUBModList),
-	shrinkageEnableGPOS: new r.Pointer(r.uint16, JstfGSUBModList),
-	shrinkageDisableGPOS: new r.Pointer(r.uint16, JstfGSUBModList),
+	shrinkageEnableGSUB: new r.Pointer(r.uint16, jstfGSUBModList),
+	shrinkageDisableGSUB: new r.Pointer(r.uint16, jstfGSUBModList),
+	shrinkageEnableGPOS: new r.Pointer(r.uint16, jstfGSUBModList),
+	shrinkageDisableGPOS: new r.Pointer(r.uint16, jstfGSUBModList),
 	shrinkageJstfMax: new r.Pointer(r.uint16, openTypeLookupList(GPOSLookup)),
-	extensionEnableGSUB: new r.Pointer(r.uint16, JstfGSUBModList),
-	extensionDisableGSUB: new r.Pointer(r.uint16, JstfGSUBModList),
-	extensionEnableGPOS: new r.Pointer(r.uint16, JstfGSUBModList),
-	extensionDisableGPOS: new r.Pointer(r.uint16, JstfGSUBModList),
+	extensionEnableGSUB: new r.Pointer(r.uint16, jstfGSUBModList),
+	extensionDisableGSUB: new r.Pointer(r.uint16, jstfGSUBModList),
+	extensionEnableGPOS: new r.Pointer(r.uint16, jstfGSUBModList),
+	extensionDisableGPOS: new r.Pointer(r.uint16, jstfGSUBModList),
 	extensionJstfMax: new r.Pointer(r.uint16, openTypeLookupList(GPOSLookup)),
 };
-const JstfPriority = new r.Struct<
+const jstfPriority = new r.Struct<
 	typeof jstfPriorityFields,
 	JSTFTable.Priority
 >(jstfPriorityFields);
 
-const JstfLangSys = new r.Array(
-	new r.Pointer(r.uint16, JstfPriority),
+const jstfLangSys = new r.Array(
+	new r.Pointer(r.uint16, jstfPriority),
 	r.uint16,
 );
 
 const jstfLangSysRecordFields = {
 	tag: new r.String(4),
-	jstfLangSys: new r.Pointer(r.uint16, JstfLangSys),
+	jstfLangSys: new r.Pointer(r.uint16, jstfLangSys),
 };
-const JstfLangSysRecord = new r.Struct<
+const jstfLangSysRecord = new r.Struct<
 	typeof jstfLangSysRecordFields,
 	JSTFTable.LangSysRecord
 >(jstfLangSysRecordFields);
 
-const JstfScript = new r.Struct({
+const jstfScriptFields = {
 	extenderGlyphs: new r.Pointer(r.uint16, new r.Array(r.uint16, r.uint16)), // array of glyphs to extend line length
-	defaultLangSys: new r.Pointer(r.uint16, JstfLangSys),
+	defaultLangSys: new r.Pointer(r.uint16, jstfLangSys),
 	langSysCount: r.uint16,
-	langSysRecords: new r.Array(JstfLangSysRecord, 'langSysCount'),
-});
+	langSysRecords: new r.Array(jstfLangSysRecord, 'langSysCount'),
+}
+const jstfScript = new r.Struct<typeof jstfScriptFields, JSTFTable.Script>(jstfScriptFields);
 
 const jstfScriptRecordFields = {
 	tag: new r.String(4),
-	script: new r.Pointer(r.uint16, JstfScript, { type: 'parent' }),
+	script: new r.Pointer(r.uint16, jstfScript, { type: 'parent' }),
 };
-const JstfScriptRecord = new r.Struct<
+const jstfScriptRecord = new r.Struct<
 	typeof jstfScriptRecordFields,
 	JSTFTable.Script
 >(jstfScriptRecordFields);
 
-const JSTFStructFields = {
+const jstfStructFields = {
 	version: r.uint32, // should be 0x00010000
 	scriptCount: r.uint16,
-	scriptList: new r.Array(JstfScriptRecord, 'scriptCount'),
+	scriptList: new r.Array(jstfScriptRecord, 'scriptCount'),
 };
-export default new r.Struct<typeof JSTFStructFields, JSTFTable.JSTF>(
-	JSTFStructFields,
+export default new r.Struct<typeof jstfStructFields, JSTFTable.JSTF>(
+	jstfStructFields,
 );
