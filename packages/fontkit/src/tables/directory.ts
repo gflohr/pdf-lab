@@ -113,6 +113,9 @@ directory.preEncode = function (this: DirectoryContext): void {
 		const entry = sourceTables[tag];
 
 		if (entry) {
+			const tableDef = Tables[tag];
+			if (!tableDef) continue;
+
 			encodedTableEntries.push({
 				tag,
 				checkSum: 0,
