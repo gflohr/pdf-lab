@@ -15,11 +15,12 @@ export interface CFFIndexRecord {
 }
 
 export type IndexItemValue =
-	| Record<string, any>
+	| Record<string, unknown>
 	| string
 	| Buffer
 	| CFFIndexRecord;
 
+type EncodeItemValue = Uint8Array<ArrayBufferLike> & Record<string, unknown> & string & IndexItemValue
 
 interface CFFNodeContext extends FieldT<unknown> {
 	length: number;
@@ -32,7 +33,7 @@ type CFFNode = CFFNodeContext & CFFTopData;
  * dictionaries, and string tables.
  */
 export default class CFFIndex<
-	TType extends CFFDict | StringT | FieldT<any>,
+	TType extends CFFDict | StringT | FieldT<IndexItemValue>,
 > implements FieldT<IndexItemValue[]>
 {
 	constructor(public type?: TType) {}
@@ -131,7 +132,7 @@ export default class CFFIndex<
 
 	encode(
 		stream: EncodeStream,
-		arr: Buffer[] | CFFDict[],
+		arr: EncodeItemValue[],
 		parent: CFFNode,
 	) {
 		stream.writeUInt16BE(arr.length);
