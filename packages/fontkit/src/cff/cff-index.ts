@@ -135,7 +135,11 @@ export default class CFFIndex<
 		arr: EncodeItemValue[],
 		parent: CFFNode,
 	) {
-		stream.writeUInt16BE(arr.length);
+		if (this.getCFFVersion() >= 2) {
+			stream.writeUInt32BE(arr.length);
+		} else {
+			stream.writeUInt16BE(arr.length);
+		}
 		if (arr.length === 0) {
 			return;
 		}
