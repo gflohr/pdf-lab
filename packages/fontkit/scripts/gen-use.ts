@@ -287,7 +287,7 @@ function getCategory(code: CodepointEntry): string | null {
 const trie = new UnicodeTrieBuilder();
 const symbols: Record<string, number> = {};
 let numSymbols = 0;
-const decompositions: Record<number, unknown> = {};
+const decompositions: Record<number, number[]> = {};
 for (let i = 0; i < codepoints.length; i++) {
 	const codepoint = codepoints[i];
 	if (codepoint) {
@@ -297,7 +297,7 @@ for (let i = 0; i < codepoints.length; i++) {
 				symbols[category] = numSymbols++;
 			}
 
-			trie.set(codepoint.code, symbols[category]);
+			trie.set(codepoint.code, symbols[category]!);
 		}
 		if (
 			codepoint.indicSyllabicCategory === 'Vowel_Dependent' &&
@@ -308,7 +308,7 @@ for (let i = 0; i < codepoints.length; i++) {
 	}
 }
 
-function decompose(code: number) {
+function decompose(code: number): number[] {
 	const decomposition: number[] = [];
 	const codepoint = codepoints[code];
 	for (const c of codepoint!.decomposition) {
