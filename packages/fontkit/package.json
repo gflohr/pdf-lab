@@ -8,8 +8,8 @@
 	"module": "dist/fontkit.es.js",
 	"types": "fontkit.d.ts",
 	"scripts": {
-		"clean": "rimraf --glob dist \"src/**/trie.js\" \"src/**/trieIndic.js\" \"src/**/trieUse.js\" \"src/**/indic.js\" \"src/**/use.js\"",
-		"generate:data": "node src/opentype/shapers/generate-data.js && node src/opentype/shapers/gen-use.js && node src/opentype/shapers/gen-indic.js",
+		"clean": "rimraf --glob dist \"src/**/trie.ts\" \"src/**/trieIndic.ts\" \"src/**/trieUse.ts\" \"src/**/indic.ts\" \"src/**/use.ts\"",
+		"generate:data": "pnpm exec tsx scripts/gen-trie.ts && pnpm exec tsx scripts/gen-use.ts && pnpm exec tsx scripts/gen-indic.ts",
 		"build": "pnpm run clean && pnpm run generate:data && rollup -c",
 		"dev": "rollup -c -w",
 		"check": "biome check",
@@ -36,6 +36,7 @@
 		"@rollup/plugin-terser": "^1.0.0",
 		"@types/deep-equal": "^1.0.4",
 		"@types/node": "^25.9.2",
+		"@types/pako": "^2.0.4",
 		"base64-arraybuffer": "^1.0.2",
 		"buffer": "^6.0.3",
 		"clone": "^2.1.2",
@@ -50,6 +51,7 @@
 		"rollup-plugin-polyfill-node": "^0.13.0",
 		"rollup-plugin-typescript2": "^0.37.0",
 		"tiny-inflate": "^1.0.3",
+		"tsx": "^4.22.4",
 		"typescript": "^6.0.3",
 		"unicode-trie": "^2.0.0",
 		"vitest": "^4.1.8"

@@ -6,9 +6,9 @@ coverage.html
 .nyc_output
 yarn-error.log
 dist/
-/**/trie.js
-/**/trieIndic.js
-/**/trieUse.js
-/**/indic.js
-/**/use.js
+src/**/trie.ts
+src/**/trieIndic.ts
+src/**/trieUse.ts
+src/**/indic.ts
+src/**/use.ts
 stats.html
