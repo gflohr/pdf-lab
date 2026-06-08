@@ -156,7 +156,7 @@ for (const script of unicodeScripts) {
 	}
 }
 
-export function fromUnicode<T extends UnicodeScript>(script: T): typeof UNICODE_SCRIPTS[T] {
+export function fromUnicode<T extends UnicodeScript>(script: T): typeof UNICODE_SCRIPTS[T] | undefined {
 	return UNICODE_SCRIPTS[script];
 }
 
@@ -164,7 +164,7 @@ export function fromOpenType(tag: OpenTypeTag): UnicodeScript | undefined {
 	return OPENTYPE_SCRIPTS[tag] as UnicodeScript;
 }
 
-export function forString(str: string): OpenTypeTag | undefined {
+export function forString(str: string): OpenTypeTag {
 	const len = str.length;
 	let idx = 0;
 	while (idx < len) {
@@ -183,19 +183,19 @@ export function forString(str: string): OpenTypeTag | undefined {
 
 		const script = unicode.getScript(code) as UnicodeScript;
 		if (script !== 'Common' && script !== 'Inherited' && script !== 'Unknown') {
-			return UNICODE_SCRIPTS[script] as OpenTypeTag;
+			return (UNICODE_SCRIPTS[script] ?? UNICODE_SCRIPTS.Unknown) as OpenTypeTag;
 		}
 	}
 
 	return UNICODE_SCRIPTS.Unknown;
 }
 
-export function forCodePoints(codePoints: number[]): OpenTypeTag | undefined {
+export function forCodePoints(codePoints: number[]): OpenTypeTag {
 	for (let i = 0; i < codePoints.length; i++) {
 		const codePoint = codePoints[i];
 		const script = unicode.getScript(codePoint) as UnicodeScript;
 		if (script !== 'Common' && script !== 'Inherited' && script !== 'Unknown') {
-			return UNICODE_SCRIPTS[script] as OpenTypeTag;
+			return (UNICODE_SCRIPTS[script] ?? UNICODE_SCRIPTS.Unknown) as OpenTypeTag;
 		}
 	}
 
