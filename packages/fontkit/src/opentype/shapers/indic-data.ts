@@ -20,7 +20,7 @@ export const CATEGORIES = {
 	Ra: 1 << 16,
 	CM: 1 << 17, // Consonant-Medial.
 	Symbol: 1 << 18, // Avagraha, etc that take marks (SM,A,VD).
-};
+} as const;
 
 // Visual positions in a syllable from left to right.
 export const POSITIONS = {
@@ -47,7 +47,7 @@ export const POSITIONS = {
 	SMVD: 1 << 14,
 
 	End: 1 << 15,
-};
+} as const;
 
 export const CONSONANT_FLAGS =
 	CATEGORIES.C |

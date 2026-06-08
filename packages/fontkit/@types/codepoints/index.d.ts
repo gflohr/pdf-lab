@@ -84,7 +84,7 @@ declare module 'codepoints' {
 	 */
 	export type YesNoMaybe = YesNo | 2;
 
-	interface BaseCodepoint {
+	interface BaseCodepointEntry {
 		/** The code point index. */
 		code: number;
 
@@ -850,12 +850,12 @@ declare module 'codepoints' {
 			| 'Vowel_Independent';
 	}
 
-	export type Codepoint = BaseCodepoint & SynchronizedCombiningClass;
+	export type CodepointEntry = BaseCodepointEntry & SynchronizedCombiningClass;
 
-	const codepoints: Codepoint[];
+	const entries: CodepointEntry[];
 
 	/**
 	 * The array of codepoint objects. The array contains gaps!
 	 */
-	export default codepoints;
+	export default entries;
 }

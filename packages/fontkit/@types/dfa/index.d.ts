@@ -1,5 +1,4 @@
-declare module 'dfa' {
-}
+declare module 'dfa' {}
 
 declare module 'dfa/compile.js' {
 	/**
@@ -10,7 +9,7 @@ declare module 'dfa/compile.js' {
 	 */
 	function compile(
 		machineDefinition: string,
-		symbols: Record<string, number>
+		symbols: Record<string, number>,
 	): Record<string, unknown>;
 
 	const compileModule: {

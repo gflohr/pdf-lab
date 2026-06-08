@@ -1,21 +1,21 @@
 import fs from 'node:fs';
 import * as base64 from 'base64-arraybuffer';
-import codepoints, { type Codepoint } from 'codepoints';
+import codepoints, { type CodepointEntry } from 'codepoints';
 import compileModule from 'dfa/compile.js';
 import pako from 'pako';
 import UnicodeTrieBuilder from 'unicode-trie/builder.js';
 
-import { CATEGORIES, CONSONANT_FLAGS, POSITIONS } from './indic-data.js';
+import { CATEGORIES, POSITIONS } from './indic-data.js';
 
 const compile = compileModule.default;
 
-type indicSyllabicCategories = NonNullable<Codepoint['indicSyllabicCategory']>;
+// Dynamic, elegant types extracted right from your active source interfaces!
 type OpenTypeCategory = keyof typeof CATEGORIES;
-type OverrideIndex = keyof typeof OVERRIDES;
-type IndicPositionalCategories = NonNullable<Codepoint['indicPositionalCategory']>;
-type VisualPosition = keyof typeof POSITIONS;
+type IndicVisualPosition = keyof typeof POSITIONS;
 
-const CATEGORY_MAP: Partial<Record<indicSyllabicCategories, OpenTypeCategory>> = {
+const CATEGORY_MAP: Partial<
+	Record<NonNullable<CodepointEntry['indicSyllabicCategory']>, OpenTypeCategory>
+> = {
 	Avagraha: 'Symbol',
 	Bindu: 'SM',
 	Brahmi_Joining_Number: 'Placeholder',
@@ -52,7 +52,7 @@ const CATEGORY_MAP: Partial<Record<indicSyllabicCategories, OpenTypeCategory>> =
 	Vowel_Independent: 'V',
 };
 
-const OVERRIDES = {
+const OVERRIDES: Record<number, OpenTypeCategory> = {
 	2387: 'SM',
 	2388: 'SM',
 	2674: 'C',
@@ -87,27 +87,30 @@ const OVERRIDES = {
 	9676: 'Dotted_Circle',
 
 	// Ra
-	2352: 'Ra', // Devanagari
-	2480: 'Ra', // Bengali
-	2544: 'Ra', // Bengali
-	2608: 'Ra', // Gurmukhi - No Reph
-	2736: 'Ra', // Gujarati
-	2864: 'Ra', // Oriya
-	2992: 'Ra', // Tamil - No Reph
-	3120: 'Ra', // Telugu - Reph formed only with ZWJ
-	3248: 'Ra', // Kannada
-	3376: 'Ra', // Malayalam - No Reph, Logical Repha
-	3515: 'Ra', // Sinhala - Reph formed only with ZWJ
-	6042: 'Ra', // Khmer - No Reph, Visual Repha
+	2352: 'Ra',
+	2480: 'Ra',
+	2544: 'Ra',
+	2608: 'Ra',
+	2736: 'Ra',
+	2864: 'Ra',
+	2992: 'Ra',
+	3120: 'Ra',
+	3248: 'Ra',
+	3376: 'Ra',
+	3515: 'Ra',
+	6042: 'Ra',
 };
 
-const POSITION_MAP: Partial<Record<IndicPositionalCategories, VisualPosition>> = {
+const POSITION_MAP: Partial<
+	Record<
+		NonNullable<CodepointEntry['indicPositionalCategory']>,
+		IndicVisualPosition
+	>
+> = {
 	Left: 'Pre_C',
 	Top: 'Above_C',
 	Bottom: 'Below_C',
 	Right: 'Post_C',
-
-	// These should resolve to the position of the last part of the split sequence.
 	Bottom_And_Right: 'Post_C',
 	Left_And_Right: 'Post_C',
 	Top_And_Bottom: 'Below_C',
@@ -115,12 +118,14 @@ const POSITION_MAP: Partial<Record<IndicPositionalCategories, VisualPosition>> =
 	Top_And_Left: 'Above_C',
 	Top_And_Left_And_Right: 'Post_C',
 	Top_And_Right: 'Post_C',
-
 	Overstruck: 'After_Main',
 	Visual_Order_Left: 'Pre_M',
 };
 
-function matraPosition(c: Codepoint, pos: VisualPosition): VisualPosition {
+function matraPosition(
+	c: CodepointEntry,
+	pos: IndicVisualPosition,
+): IndicVisualPosition {
 	switch (pos) {
 		case 'Pre_C':
 			return 'Pre_M';
@@ -158,7 +163,7 @@ function matraPosition(c: Codepoint, pos: VisualPosition): VisualPosition {
 				case 'Devanagari':
 					return 'After_Sub';
 				case 'Gurmukhi':
-					return 'After_Post'; // Deviate from spec
+					return 'After_Post';
 				case 'Gujarati':
 					return 'After_Sub';
 				case 'Oriya':
@@ -210,10 +215,20 @@ function matraPosition(c: Codepoint, pos: VisualPosition): VisualPosition {
 	}
 }
 
-function getPosition(codepoint: Codepoint, category: OpenTypeCategory) {
+function getPosition(codepoint: CodepointEntry, category: OpenTypeCategory) {
 	let position = POSITION_MAP[codepoint.indicPositionalCategory!] || 'End';
 
-	if (CATEGORIES[category] & CONSONANT_FLAGS) {
+	// Look at how much cleaner checking bitmasks is with standard numbers now!
+	const categoryValue: number = CATEGORIES[category];
+	const consonantFlags: number =
+		CATEGORIES.C |
+		CATEGORIES.Ra |
+		CATEGORIES.CM |
+		CATEGORIES.V |
+		CATEGORIES.Placeholder |
+		CATEGORIES.Dotted_Circle;
+
+	if (categoryValue & consonantFlags) {
 		position = 'Base_C';
 	} else if (category === 'M') {
 		position = matraPosition(codepoint, position);
@@ -226,7 +241,6 @@ function getPosition(codepoint: Codepoint, category: OpenTypeCategory) {
 		position = 'SMVD';
 	}
 
-	// Oriya Bindu is Before_Sub in the spec.
 	if (codepoint.code === 0x0b01) {
 		position = 'Before_Sub';
 	}
@@ -235,7 +249,7 @@ function getPosition(codepoint: Codepoint, category: OpenTypeCategory) {
 }
 
 const symbols: Partial<Record<OpenTypeCategory, number>> = {};
-for (const c of Object.keys(CATEGORIES) as Array<OpenTypeCategory>) {
+for (const c of Object.keys(CATEGORIES) as OpenTypeCategory[]) {
 	symbols[c] = Math.log2(CATEGORIES[c]);
 }
 
@@ -243,21 +257,20 @@ const trie = new UnicodeTrieBuilder();
 for (let i = 0; i < codepoints.length; i++) {
 	const codepoint = codepoints[i];
 	if (codepoint) {
+		// Cleaned up: No more 'as OverrideIndex' casting noise
 		const category =
-			(OVERRIDES[codepoint.code as OverrideIndex] ||
+			OVERRIDES[codepoint.code] ||
 			CATEGORY_MAP[codepoint.indicSyllabicCategory] ||
-			'X') as OpenTypeCategory;
+			'X';
 		const position = getPosition(codepoint, category);
 
 		trie.set(codepoint.code, (symbols[category]! << 8) | position);
 	}
 }
 
-// Trie is serialized suboptimally as JSON so it can be loaded via require,
-// allowing unicode-properties to work in the browser
 const trieFilePath = `${import.meta.dirname}/trieIndic.ts`;
 const jsonBase64DeflatedTrie = JSON.stringify(
-	base64.encode(pako.deflate(trie.toBuffer()) as unknown as ArrayBuffer),
+	base64.encode(pako.deflate(trie.toBuffer()).buffer),
 );
 fs.writeFileSync(
 	trieFilePath,
@@ -269,13 +282,12 @@ const stateMachine = compile(
 	symbols,
 );
 
-console.dir(symbols);
 const indicFilePath = `${import.meta.dirname}/indic.ts`;
 const stateMachineJsonBytes = new TextEncoder().encode(
 	JSON.stringify(stateMachine),
 );
 const jsonBase64DeflatedIndic = JSON.stringify(
-	base64.encode(pako.deflate(stateMachineJsonBytes) as unknown as ArrayBuffer),
+	base64.encode(pako.deflate(stateMachineJsonBytes).buffer),
 );
 fs.writeFileSync(
 	indicFilePath,
