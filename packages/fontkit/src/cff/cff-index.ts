@@ -7,14 +7,15 @@ import type {
 } from '@pdf-lib/restructure';
 import r from '@pdf-lib/restructure';
 import type CFFDict from './cff-dict.js';
-import type { CFFTopData } from './cff-top.js';
 
-// The context is either the root CFFTopData block, or an object nested
-// underneath it that retains a reference to its structural parent.
-export type CFFIndexContext = (CFFTopData | Record<string, any>) & {
+// FIXME! Change this to the underlying data type of CFFTop, once that is
+// migrated!
+interface CFFIndexContext extends FieldT<unknown> {
+	hdrSize: number;
 	parent?: CFFIndexContext;
-	length?: number;
-};
+	version: number;
+	length: number;
+}
 
 export interface CFFIndexRecord {
 	offset: number;
