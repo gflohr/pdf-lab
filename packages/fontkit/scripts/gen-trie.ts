@@ -4,6 +4,7 @@
 //
 
 import fs from 'node:fs';
+import * as path from 'node:path';
 import * as base64 from 'base64-arraybuffer';
 import codepoints from 'codepoints';
 import pako from 'pako';
@@ -36,8 +37,10 @@ for (let i = 0; i < codepoints.length; i++) {
 }
 
 // Trie is serialized suboptimally as JSON so it can be loaded via require,
-// allowing unicode-properties to work in the browser
-const filePath = `${import.meta.dirname}/trie.ts`;
+// allowing unicode-properties to work in the browser..
+const shaperDirectory = path.resolve(import.meta.dirname, '..', 'src', 'opentype', 'shapers');
+
+const filePath = `${shaperDirectory}/trie.ts`;
 const jsonBase64DeflatedTrie = JSON.stringify(
 	base64.encode(pako.deflate(trie.toBuffer()) as unknown as ArrayBuffer),
 );

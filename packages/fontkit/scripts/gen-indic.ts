@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import * as path from 'node:path';
 import * as base64 from 'base64-arraybuffer';
 import codepoints, { type CodepointEntry } from 'codepoints';
 import compileModule from 'dfa/compile.js';
@@ -268,7 +269,9 @@ for (let i = 0; i < codepoints.length; i++) {
 	}
 }
 
-const trieFilePath = `${import.meta.dirname}/trieIndic.ts`;
+const shaperDirectory = path.resolve(import.meta.dirname, '..', 'src', 'opentype', 'shapers');
+
+const trieFilePath = `${shaperDirectory}/trieIndic.ts`;
 const jsonBase64DeflatedTrie = JSON.stringify(
 	base64.encode(pako.deflate(trie.toBuffer()).buffer),
 );
@@ -282,7 +285,7 @@ const stateMachine = compile(
 	symbols,
 );
 
-const indicFilePath = `${import.meta.dirname}/indic.ts`;
+const indicFilePath = `${shaperDirectory}/indic.ts`;
 const stateMachineJsonBytes = new TextEncoder().encode(
 	JSON.stringify(stateMachine),
 );

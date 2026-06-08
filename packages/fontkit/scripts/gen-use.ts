@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import * as path from 'node:path';
 import * as base64 from 'base64-arraybuffer';
 import codepoints, { type CodepointEntry } from 'codepoints';
 import compileModule from 'dfa/compile.js';
@@ -310,7 +311,7 @@ for (let i = 0; i < codepoints.length; i++) {
 function decompose(code: number) {
 	const decomposition: number[] = [];
 	const codepoint = codepoints[code];
-	for (const c of codepoint.decomposition) {
+	for (const c of codepoint!.decomposition) {
 		let codes = decompose(c);
 		codes = codes.length > 0 ? codes : [c];
 		decomposition.push(...codes);
@@ -319,9 +320,11 @@ function decompose(code: number) {
 	return decomposition;
 }
 
+const shaperDirecotory = path.resolve(import.meta.dirname, '..', 'src', 'opentype', 'shapers');
+
 // Trie is serialized suboptimally as JSON so it can be loaded via require,
 // allowing unicode-properties to work in the browser
-const trieFilePath = `${import.meta.dirname}/trieUse.ts`;
+const trieFilePath = `${shaperDirecotory}/trieUse.ts`;
 const jsonBase64DeflatedTrie = JSON.stringify(
 	base64.encode(pako.deflate(trie.toBuffer()) as unknown as ArrayBuffer),
 );
@@ -342,7 +345,7 @@ const json = Object.assign(
 	stateMachine,
 );
 
-const useFilePath = `${import.meta.dirname}/use.ts`;
+const useFilePath = `${shaperDirecotory}/use.ts`;
 const useJsonBytes = new TextEncoder().encode(JSON.stringify(json));
 const jsonBase64DeflatedUse = JSON.stringify(
 	base64.encode(pako.deflate(useJsonBytes) as unknown as ArrayBuffer),
