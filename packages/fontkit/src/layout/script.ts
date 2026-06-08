@@ -133,17 +133,20 @@ const UNICODE_SCRIPTS = {
 	Unknown: 'zzzz',
 } as const;
 
-type UnicodeScript = keyof typeof UNICODE_SCRIPTS;
+export type UnicodeScript = keyof typeof UNICODE_SCRIPTS;
 
 type OpenTypeTag = {
-	[K in UnicodeScript]: typeof UNICODE_SCRIPTS[K] extends readonly string[]
-		? typeof UNICODE_SCRIPTS[K][number]
-		: typeof UNICODE_SCRIPTS[K];
+	[K in UnicodeScript]: (typeof UNICODE_SCRIPTS)[K] extends readonly string[]
+		? (typeof UNICODE_SCRIPTS)[K][number]
+		: (typeof UNICODE_SCRIPTS)[K];
 }[UnicodeScript];
 
 const unicodeScripts = Object.keys(UNICODE_SCRIPTS) as UnicodeScript[];
 
-const OPENTYPE_SCRIPTS: Record<string, string> = {} as Record<OpenTypeTag, UnicodeScript>;
+const OPENTYPE_SCRIPTS: Record<string, string> = {} as Record<
+	OpenTypeTag,
+	UnicodeScript
+>;
 
 for (const script of unicodeScripts) {
 	const tag = UNICODE_SCRIPTS[script];
@@ -156,7 +159,9 @@ for (const script of unicodeScripts) {
 	}
 }
 
-export function fromUnicode<T extends UnicodeScript>(script: T): typeof UNICODE_SCRIPTS[T] | undefined {
+export function fromUnicode<T extends UnicodeScript>(
+	script: T,
+): (typeof UNICODE_SCRIPTS)[T] | undefined {
 	return UNICODE_SCRIPTS[script];
 }
 
@@ -183,7 +188,8 @@ export function forString(str: string): OpenTypeTag {
 
 		const script = unicode.getScript(code) as UnicodeScript;
 		if (script !== 'Common' && script !== 'Inherited' && script !== 'Unknown') {
-			return (UNICODE_SCRIPTS[script] ?? UNICODE_SCRIPTS.Unknown) as OpenTypeTag;
+			return (UNICODE_SCRIPTS[script] ??
+				UNICODE_SCRIPTS.Unknown) as OpenTypeTag;
 		}
 	}
 
@@ -195,7 +201,8 @@ export function forCodePoints(codePoints: number[]): OpenTypeTag {
 		const codePoint = codePoints[i];
 		const script = unicode.getScript(codePoint) as UnicodeScript;
 		if (script !== 'Common' && script !== 'Inherited' && script !== 'Unknown') {
-			return (UNICODE_SCRIPTS[script] ?? UNICODE_SCRIPTS.Unknown) as OpenTypeTag;
+			return (UNICODE_SCRIPTS[script] ??
+				UNICODE_SCRIPTS.Unknown) as OpenTypeTag;
 		}
 	}
 
@@ -233,7 +240,7 @@ const RTL = {
 	phlp: true, // Psalter Pahlavi
 };
 
-export function direction(script: string): 'rtl' | 'ltr' {
+export function direction(script?: string): 'rtl' | 'ltr' {
 	if (RTL[script as keyof typeof RTL]) {
 		return 'rtl';
 	}

@@ -38,7 +38,13 @@ for (let i = 0; i < codepoints.length; i++) {
 
 // Trie is serialized suboptimally as JSON so it can be loaded via require,
 // allowing unicode-properties to work in the browser..
-const shaperDirectory = path.resolve(import.meta.dirname, '..', 'src', 'opentype', 'shapers');
+const shaperDirectory = path.resolve(
+	import.meta.dirname,
+	'..',
+	'src',
+	'opentype',
+	'shapers',
+);
 
 const filePath = `${shaperDirectory}/trie.ts`;
 const jsonBase64DeflatedTrie = JSON.stringify(

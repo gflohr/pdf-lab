@@ -269,7 +269,13 @@ for (let i = 0; i < codepoints.length; i++) {
 	}
 }
 
-const shaperDirectory = path.resolve(import.meta.dirname, '..', 'src', 'opentype', 'shapers');
+const shaperDirectory = path.resolve(
+	import.meta.dirname,
+	'..',
+	'src',
+	'opentype',
+	'shapers',
+);
 
 const trieFilePath = `${shaperDirectory}/trieIndic.ts`;
 const jsonBase64DeflatedTrie = JSON.stringify(
