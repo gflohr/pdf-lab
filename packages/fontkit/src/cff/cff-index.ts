@@ -20,8 +20,6 @@ export type IndexItemValue =
 	| Buffer
 	| CFFIndexRecord;
 
-type EncodeItemValue = Uint8Array<ArrayBufferLike> & Record<string, unknown> & string & IndexItemValue
-
 interface CFFNodeContext extends FieldT<unknown> {
 	length: number;
 }
@@ -132,7 +130,8 @@ export default class CFFIndex<
 
 	encode(
 		stream: EncodeStream,
-		arr: TType extends FieldT<infer TItem> ? TItem[] : Uint8Array[],
+		// biome-ignore lint/suspicious/noExplicitAny: It can be almost anything.
+		arr: any[],
 		parent: CFFNode,
 	) {
 		if (this.getCFFVersion(parent) >= 2) {
