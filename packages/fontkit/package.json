@@ -9,7 +9,7 @@
 	"types": "fontkit.d.ts",
 	"scripts": {
 		"clean": "rimraf --glob dist \"src/**/trie.js\" \"src/**/trieIndic.js\" \"src/**/trieUse.js\" \"src/**/indic.js\" \"src/**/use.js\"",
-		"generate:data": "node src/opentype/shapers/generate-data.js && node src/opentype/shapers/gen-use.js && node src/opentype/shapers/gen-indic.js",
+		"generate:data": "pnpm exec tsx src/opentype/shapers/gen-trie.ts && node src/opentype/shapers/gen-use.js && node src/opentype/shapers/gen-indic.js",
 		"build": "pnpm run clean && pnpm run generate:data && rollup -c",
 		"dev": "rollup -c -w",
 		"check": "biome check",
@@ -36,6 +36,7 @@
 		"@rollup/plugin-terser": "^1.0.0",
 		"@types/deep-equal": "^1.0.4",
 		"@types/node": "^25.9.2",
+		"@types/pako": "^2.0.4",
 		"base64-arraybuffer": "^1.0.2",
 		"buffer": "^6.0.3",
 		"clone": "^2.1.2",

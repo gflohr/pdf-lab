@@ -10,7 +10,7 @@ import typescript from 'rollup-plugin-typescript2';
 const plugins = [
 	typescript({
 		include: ['*/**/*.{js,ts}'],
-		exclude: ['**/node_modules/**/*'],
+		exclude: ['**/node_modules/**/*', '**/opentype/shapers/gen-*.ts'],
 	}),
 
 	nodeResolve({

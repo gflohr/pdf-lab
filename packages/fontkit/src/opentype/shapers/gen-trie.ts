@@ -39,7 +39,7 @@ for (let i = 0; i < codepoints.length; i++) {
 // allowing unicode-properties to work in the browser
 const filePath = `${import.meta.dirname}/trie.ts`;
 const jsonBase64DeflatedTrie = JSON.stringify(
-	base64.encode(pako.deflate(trie.toBuffer())),
+	base64.encode(pako.deflate(trie.toBuffer()) as unknown as ArrayBuffer),
 );
 fs.writeFileSync(
 	filePath,
