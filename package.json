@@ -60,6 +60,6 @@
 		"tsx": "^4.22.2",
 		"typescript": "^6.0.3",
 		"unicode-name": "^1.1.0",
-		"vitest": "^4.1.6"
+		"vitest": "^4.1.8"
 	}
 }

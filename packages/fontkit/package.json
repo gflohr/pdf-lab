@@ -52,7 +52,7 @@
 		"tiny-inflate": "^1.0.3",
 		"typescript": "^6.0.3",
 		"unicode-trie": "^2.0.0",
-		"vitest": "^4.1.6"
+		"vitest": "^4.1.8"
 	},
 	"repository": {
 		"type": "git",
