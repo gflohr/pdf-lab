@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import * as base64 from 'base64-arraybuffer';
-import codepoints from 'codepoints';
+import codepoints, { type Codepoint } from 'codepoints';
 import compileModule from 'dfa/compile.js';
 import pako from 'pako';
 import UnicodeTrieBuilder from 'unicode-trie/builder.js';
@@ -9,7 +9,13 @@ import { CATEGORIES, CONSONANT_FLAGS, POSITIONS } from './indic-data.js';
 
 const compile = compileModule.default;
 
-const CATEGORY_MAP = {
+type indicSyllabicCategories = NonNullable<Codepoint['indicSyllabicCategory']>;
+type OpenTypeCategory = keyof typeof CATEGORIES;
+type OverrideIndex = keyof typeof OVERRIDES;
+type IndicPositionalCategories = NonNullable<Codepoint['indicPositionalCategory']>;
+type VisualPosition = keyof typeof POSITIONS;
+
+const CATEGORY_MAP: Partial<Record<indicSyllabicCategories, OpenTypeCategory>> = {
 	Avagraha: 'Symbol',
 	Bindu: 'SM',
 	Brahmi_Joining_Number: 'Placeholder',
@@ -95,7 +101,7 @@ const OVERRIDES = {
 	6042: 'Ra', // Khmer - No Reph, Visual Repha
 };
 
-const POSITION_MAP = {
+const POSITION_MAP: Partial<Record<IndicPositionalCategories, VisualPosition>> = {
 	Left: 'Pre_C',
 	Top: 'Above_C',
 	Bottom: 'Below_C',
@@ -114,7 +120,7 @@ const POSITION_MAP = {
 	Visual_Order_Left: 'Pre_M',
 };
 
-function matraPosition(c, pos) {
+function matraPosition(c: Codepoint, pos: VisualPosition): VisualPosition {
 	switch (pos) {
 		case 'Pre_C':
 			return 'Pre_M';
@@ -204,8 +210,8 @@ function matraPosition(c, pos) {
 	}
 }
 
-function getPosition(codepoint, category) {
-	let position = POSITION_MAP[codepoint.indicPositionalCategory] || 'End';
+function getPosition(codepoint: Codepoint, category: OpenTypeCategory) {
+	let position = POSITION_MAP[codepoint.indicPositionalCategory!] || 'End';
 
 	if (CATEGORIES[category] & CONSONANT_FLAGS) {
 		position = 'Base_C';
@@ -228,8 +234,8 @@ function getPosition(codepoint, category) {
 	return Math.log2(POSITIONS[position]);
 }
 
-const symbols = {};
-for (const c in CATEGORIES) {
+const symbols: Partial<Record<OpenTypeCategory, number>> = {};
+for (const c of Object.keys(CATEGORIES) as Array<OpenTypeCategory>) {
 	symbols[c] = Math.log2(CATEGORIES[c]);
 }
 
@@ -238,12 +244,12 @@ for (let i = 0; i < codepoints.length; i++) {
 	const codepoint = codepoints[i];
 	if (codepoint) {
 		const category =
-			OVERRIDES[codepoint.code] ||
+			(OVERRIDES[codepoint.code as OverrideIndex] ||
 			CATEGORY_MAP[codepoint.indicSyllabicCategory] ||
-			'X';
+			'X') as OpenTypeCategory;
 		const position = getPosition(codepoint, category);
 
-		trie.set(codepoint.code, (symbols[category] << 8) | position);
+		trie.set(codepoint.code, (symbols[category]! << 8) | position);
 	}
 }
 
@@ -251,7 +257,7 @@ for (let i = 0; i < codepoints.length; i++) {
 // allowing unicode-properties to work in the browser
 const trieFilePath = `${import.meta.dirname}/trieIndic.ts`;
 const jsonBase64DeflatedTrie = JSON.stringify(
-	base64.encode(pako.deflate(trie.toBuffer())),
+	base64.encode(pako.deflate(trie.toBuffer()) as unknown as ArrayBuffer),
 );
 fs.writeFileSync(
 	trieFilePath,
@@ -263,12 +269,13 @@ const stateMachine = compile(
 	symbols,
 );
 
+console.dir(symbols);
 const indicFilePath = `${import.meta.dirname}/indic.ts`;
 const stateMachineJsonBytes = new TextEncoder().encode(
 	JSON.stringify(stateMachine),
 );
 const jsonBase64DeflatedIndic = JSON.stringify(
-	base64.encode(pako.deflate(stateMachineJsonBytes)),
+	base64.encode(pako.deflate(stateMachineJsonBytes) as unknown as ArrayBuffer),
 );
 fs.writeFileSync(
 	indicFilePath,
