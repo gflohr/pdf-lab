@@ -1,4 +1,3 @@
-/** biome-ignore-all lint/style/useTemplate: fix later, once rollup is updated */
 import fs from 'node:fs';
 import * as base64 from 'base64-arraybuffer';
 import codepoints, { type CodepointEntry } from 'codepoints';
@@ -8,7 +7,7 @@ import UnicodeTrieBuilder from 'unicode-trie/builder.js';
 
 const compile = compileModule.default;
 
-type UsePositionType = 'F' | 'M' | 'CM' | 'V' | 'VM' | 'SM';
+type PositionDependentClass = 'F' | 'M' | 'CM' | 'V' | 'VM' | 'SM';
 
 type IndicPositionalCategory = NonNullable<
 	CodepointEntry['indicPositionalCategory']
@@ -19,16 +18,16 @@ type IndicSyllabicCategory = NonNullable<
 
 type RelaxedIndicPositionalCategory = IndicPositionalCategory | 'Not_Applicable';
 
-interface UsePlacementGroup {
+interface OTFPositioningMap {
 	Abv?: RelaxedIndicPositionalCategory[];
 	Blw?: RelaxedIndicPositionalCategory[];
 	Pre?: RelaxedIndicPositionalCategory[];
 	Pst?: RelaxedIndicPositionalCategory[];
 }
-type UsePositionShape = Record<UsePositionType, UsePlacementGroup>;
+type UsePositionShape = Record<PositionDependentClass, OTFPositioningMap>;
 
 type CategoryType =
-	| UsePositionType
+	| PositionDependentClass
 	| 'B'
 	| 'CGJ'
 	| 'CS'
@@ -52,14 +51,14 @@ type UGCCategory = 'Lo' | 'Sc';
 type UISCValue = NonNullable<CodepointEntry['indicSyllabicCategory']> | 'Other';
 type UGCValue = CodepointEntry['category'] | { not: UGCCategory };
 type UValue = { not: UGCCategory | number[] | number } | number;
-interface CategoryMatcher {
+interface FeatureCriteria {
 	UISC?: UISCValue;
 	UGC?: UGCValue;
 	U?: UValue;
 }
-type CategoryValue = CategoryMatcher | UISCValue | number | 'Other';
+type MatchPattern = FeatureCriteria | UISCValue | number | 'Other';
 
-type CategoryShape = Record<CategoryType, CategoryValue[]>;
+type CategoryShape = Record<CategoryType, MatchPattern[]>;
 
 type UISCOverrideShape = Record<number, IndicSyllabicCategory>;
 type UIPCOverrideShape = Record<
@@ -195,6 +194,7 @@ const UIPC_OVERRIDE = {
 	7417: 'Top',
 } as const satisfies UIPCOverrideShape;
 
+//function check(pattern?: UISCValue | UGCValue | UValue, value?: UISCValue | UGCValue | UValue) {
 function check(pattern?: UISCValue | UGCValue | UValue, value?: UISCValue | UGCValue | UValue) {
 	if (typeof pattern === 'object' && pattern.not) {
 		if (Array.isArray(pattern.not)) {
@@ -207,17 +207,17 @@ function check(pattern?: UISCValue | UGCValue | UValue, value?: UISCValue | UGCV
 	return value === pattern;
 }
 
-function matches(pattern: IndicSyllabicCategory | number | string, code: CategoryMatcher) {
-	let matcher: CategoryMatcher;
+function matches(pattern: MatchPattern, code: FeatureCriteria) {
+	let matcher: FeatureCriteria;
 	if (typeof pattern === 'number') {
 		matcher = { U: pattern };
 	} else if (typeof pattern === 'string') {
-		matcher = { UISC: pattern as RelaxedIndicPositionalCategory };
+		matcher = { UISC: pattern as UISCValue };
 	} else {
 		matcher = pattern;
 	}
 
-	const matcherKeys = Object.keys(matcher) as Array<keyof CategoryMatcher>
+	const matcherKeys = Object.keys(matcher) as Array<keyof FeatureCriteria>
 	for (const key of matcherKeys) {
 		if (!check(matcher[key], code[key])) {
 			return false;
@@ -246,11 +246,11 @@ function getPositionalCategory(
 	USE: CategoryType,
 ): string {
 	const UIPC = getUIPC(code);
-	const pos: UsePlacementGroup | undefined =
-		USE_POSITIONS[USE as UsePositionType];
+	const pos: OTFPositioningMap | undefined =
+		USE_POSITIONS[USE as PositionDependentClass];
 
 	if (pos) {
-		const posKeys = Object.keys(pos) as Array<keyof UsePlacementGroup>;
+		const posKeys = Object.keys(pos) as Array<keyof OTFPositioningMap>;
 
 		for (const key of posKeys) {
 			const groupArray = pos[key];
