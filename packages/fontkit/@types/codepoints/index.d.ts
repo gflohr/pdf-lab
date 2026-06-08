@@ -685,7 +685,7 @@ declare module 'codepoints' {
 		NFKD_QC: YesNo;
 
 		/** The arabic joing type. */
-		joiningType:
+		joiningType?:
 			| 'Dual_Joining'
 			| 'Join_Causing'
 			| 'Left_Joining'
@@ -853,7 +853,7 @@ declare module 'codepoints' {
 
 	export type CodepointEntry = BaseCodepointEntry & SynchronizedCombiningClass;
 
-	const entries: CodepointEntry[];
+	const entries: Array<CodepointEntry | undefined>;
 
 	/**
 	 * The array of codepoint objects. The array contains gaps!
