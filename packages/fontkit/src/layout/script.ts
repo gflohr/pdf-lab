@@ -131,11 +131,20 @@ const UNICODE_SCRIPTS = {
 	Inherited: 'zinh',
 	Common: 'zyyy',
 	Unknown: 'zzzz',
-};
+} as const;
 
 type UnicodeScript = keyof typeof UNICODE_SCRIPTS;
+
+type OpenTypeTag = {
+	[K in UnicodeScript]: typeof UNICODE_SCRIPTS[K] extends readonly string[]
+		? typeof UNICODE_SCRIPTS[K][number]
+		: typeof UNICODE_SCRIPTS[K];
+}[UnicodeScript];
+
 const unicodeScripts = Object.keys(UNICODE_SCRIPTS) as UnicodeScript[];
-const OPENTYPE_SCRIPTS: Record<string, string> = {};
+
+const OPENTYPE_SCRIPTS: Record<string, string> = {} as Record<OpenTypeTag, UnicodeScript>;
+
 for (const script of unicodeScripts) {
 	const tag = UNICODE_SCRIPTS[script];
 	if (Array.isArray(tag)) {
@@ -143,19 +152,19 @@ for (const script of unicodeScripts) {
 			OPENTYPE_SCRIPTS[t] = script;
 		}
 	} else {
-		OPENTYPE_SCRIPTS[tag] = script;
+		OPENTYPE_SCRIPTS[tag as OpenTypeTag] = script;
 	}
 }
 
-export function fromUnicode(script: UnicodeScript): string | string[] | undefined {
+export function fromUnicode<T extends UnicodeScript>(script: T): typeof UNICODE_SCRIPTS[T] {
 	return UNICODE_SCRIPTS[script];
 }
 
-export function fromOpenType(tag: string): string {
-	return OPENTYPE_SCRIPTS[tag];
+export function fromOpenType(tag: OpenTypeTag): UnicodeScript | undefined {
+	return OPENTYPE_SCRIPTS[tag] as UnicodeScript;
 }
 
-export function forString(str: string) {
+export function forString(str: string): OpenTypeTag | undefined {
 	const len = str.length;
 	let idx = 0;
 	while (idx < len) {
@@ -174,19 +183,19 @@ export function forString(str: string) {
 
 		const script = unicode.getScript(code) as UnicodeScript;
 		if (script !== 'Common' && script !== 'Inherited' && script !== 'Unknown') {
-			return UNICODE_SCRIPTS[script];
+			return UNICODE_SCRIPTS[script] as OpenTypeTag;
 		}
 	}
 
 	return UNICODE_SCRIPTS.Unknown;
 }
 
-export function forCodePoints(codePoints: number[]) {
+export function forCodePoints(codePoints: number[]): OpenTypeTag | undefined {
 	for (let i = 0; i < codePoints.length; i++) {
 		const codePoint = codePoints[i];
 		const script = unicode.getScript(codePoint) as UnicodeScript;
 		if (script !== 'Common' && script !== 'Inherited' && script !== 'Unknown') {
-			return UNICODE_SCRIPTS[script];
+			return UNICODE_SCRIPTS[script] as OpenTypeTag;
 		}
 	}
 
