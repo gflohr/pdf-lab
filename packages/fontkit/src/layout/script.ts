@@ -133,8 +133,10 @@ const UNICODE_SCRIPTS = {
 	Unknown: 'zzzz',
 };
 
-const OPENTYPE_SCRIPTS = {};
-for (const script in UNICODE_SCRIPTS) {
+type UnicodeScript = keyof typeof UNICODE_SCRIPTS;
+const unicodeScripts = Object.keys(UNICODE_SCRIPTS) as UnicodeScript[];
+const OPENTYPE_SCRIPTS: Record<string, string> = {};
+for (const script of unicodeScripts) {
 	const tag = UNICODE_SCRIPTS[script];
 	if (Array.isArray(tag)) {
 		for (const t of tag) {
@@ -145,23 +147,23 @@ for (const script in UNICODE_SCRIPTS) {
 	}
 }
 
-export function fromUnicode(script) {
+export function fromUnicode(script: UnicodeScript): string | string[] | undefined {
 	return UNICODE_SCRIPTS[script];
 }
 
-export function fromOpenType(tag) {
+export function fromOpenType(tag: string): string {
 	return OPENTYPE_SCRIPTS[tag];
 }
 
-export function forString(string) {
-	const len = string.length;
+export function forString(str: string) {
+	const len = str.length;
 	let idx = 0;
 	while (idx < len) {
-		let code = string.charCodeAt(idx++);
+		let code = str.charCodeAt(idx++);
 
 		// Check if this is a high surrogate
 		if (0xd800 <= code && code <= 0xdbff && idx < len) {
-			const next = string.charCodeAt(idx);
+			const next = str.charCodeAt(idx);
 
 			// Check if this is a low surrogate
 			if (0xdc00 <= next && next <= 0xdfff) {
@@ -170,7 +172,7 @@ export function forString(string) {
 			}
 		}
 
-		const script = unicode.getScript(code);
+		const script = unicode.getScript(code) as UnicodeScript;
 		if (script !== 'Common' && script !== 'Inherited' && script !== 'Unknown') {
 			return UNICODE_SCRIPTS[script];
 		}
@@ -179,10 +181,10 @@ export function forString(string) {
 	return UNICODE_SCRIPTS.Unknown;
 }
 
-export function forCodePoints(codePoints) {
+export function forCodePoints(codePoints: number[]) {
 	for (let i = 0; i < codePoints.length; i++) {
 		const codePoint = codePoints[i];
-		const script = unicode.getScript(codePoint);
+		const script = unicode.getScript(codePoint) as UnicodeScript;
 		if (script !== 'Common' && script !== 'Inherited' && script !== 'Unknown') {
 			return UNICODE_SCRIPTS[script];
 		}
@@ -222,8 +224,8 @@ const RTL = {
 	phlp: true, // Psalter Pahlavi
 };
 
-export function direction(script) {
-	if (RTL[script]) {
+export function direction(script: string): 'rtl' | 'ltr' {
+	if (RTL[script as keyof typeof RTL]) {
 		return 'rtl';
 	}
 

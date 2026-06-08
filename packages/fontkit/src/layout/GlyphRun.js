@@ -1,5 +1,5 @@
 import BoundingBox from '../glyph/bounding-box.js';
-import * as Script from '../layout/Script.js';
+import * as Script from '../layout/script.js';
 
 /**
  * Represents a run of Glyph and GlyphPosition objects.
