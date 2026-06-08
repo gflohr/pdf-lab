@@ -241,7 +241,7 @@ function decompose(code) {
 
 // Trie is serialized suboptimally as JSON so it can be loaded via require,
 // allowing unicode-properties to work in the browser
-const trieFilePath = `${import.meta.dirname}/trieUse.js`;
+const trieFilePath = `${import.meta.dirname}/trieUse.ts`;
 const jsonBase64DeflatedTrie = JSON.stringify(
 	base64.encode(pako.deflate(trie.toBuffer())),
 );
@@ -262,7 +262,7 @@ const json = Object.assign(
 	stateMachine,
 );
 
-const useFilePath = `${import.meta.dirname}/use.js`;
+const useFilePath = `${import.meta.dirname}/use.ts`;
 const useJsonBytes = new TextEncoder().encode(JSON.stringify(json));
 const jsonBase64DeflatedUse = JSON.stringify(
 	base64.encode(pako.deflate(useJsonBytes)),
