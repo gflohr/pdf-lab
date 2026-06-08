@@ -1,12 +1,71 @@
 /** biome-ignore-all lint/style/useTemplate: fix later, once rollup is updated */
 import fs from 'node:fs';
 import * as base64 from 'base64-arraybuffer';
-import codepoints from 'codepoints';
+import codepoints, { type CodepointEntry } from 'codepoints';
 import compileModule from 'dfa/compile.js';
 import pako from 'pako';
 import UnicodeTrieBuilder from 'unicode-trie/builder.js';
 
 const compile = compileModule.default;
+
+type UsePositionType = 'F' | 'M' | 'CM' | 'V' | 'VM' | 'SM';
+
+type IndicPositionalCategory = NonNullable<
+	CodepointEntry['indicPositionalCategory']
+>;
+type IndicSyllabicCategory = NonNullable<
+	CodepointEntry['indicSyllabicCategory']
+>;
+
+type RelaxedIndicPositionalCategory = IndicPositionalCategory | 'Not_Applicable';
+
+interface UsePlacementGroup {
+	Abv?: RelaxedIndicPositionalCategory[];
+	Blw?: RelaxedIndicPositionalCategory[];
+	Pre?: RelaxedIndicPositionalCategory[];
+	Pst?: RelaxedIndicPositionalCategory[];
+}
+type UsePositionShape = Record<UsePositionType, UsePlacementGroup>;
+
+type CategoryType =
+	| UsePositionType
+	| 'B'
+	| 'CGJ'
+	| 'CS'
+	| 'FM'
+	| 'GB'
+	| 'H'
+	| 'HN'
+	| 'IND'
+	| 'N'
+	| 'R'
+	| 'Rsv'
+	| 'S'
+	| 'SUB'
+	| 'VS'
+	| 'WJ'
+	| 'ZWJ'
+	| 'ZWNJ'
+	| 'O';
+
+type UGCCategory = 'Lo' | 'Sc';
+type UISCValue = NonNullable<CodepointEntry['indicSyllabicCategory']> | 'Other';
+type UGCValue = CodepointEntry['category'] | { not: UGCCategory };
+type UValue = { not: UGCCategory | number[] | number } | number;
+interface CategoryMatcher {
+	UISC?: UISCValue;
+	UGC?: UGCValue;
+	U?: UValue;
+}
+type CategoryValue = CategoryMatcher | UISCValue | number | 'Other';
+
+type CategoryShape = Record<CategoryType, CategoryValue[]>;
+
+type UISCOverrideShape = Record<number, IndicSyllabicCategory>;
+type UIPCOverrideShape = Record<
+	number,
+	RelaxedIndicPositionalCategory
+>;
 
 const CATEGORIES = {
 	B: [
@@ -68,7 +127,7 @@ const CATEGORIES = {
 	ZWJ: ['Joiner'],
 	ZWNJ: ['Non_Joiner'],
 	O: ['Other'],
-};
+} as const satisfies CategoryShape;
 
 const USE_POSITIONS = {
 	F: {
@@ -102,7 +161,7 @@ const USE_POSITIONS = {
 		Abv: ['Top'],
 		Blw: ['Bottom'],
 	},
-};
+} as const satisfies UsePositionShape;
 
 const UISC_OVERRIDE = {
 	6109: 'Vowel_Dependent',
@@ -114,7 +173,7 @@ const UISC_OVERRIDE = {
 	7399: 'Cantillation_Mark',
 	7400: 'Cantillation_Mark',
 	7405: 'Tone_Mark',
-};
+} as const satisfies UISCOverrideShape;
 
 const UIPC_OVERRIDE = {
 	7020: 'Bottom',
@@ -134,12 +193,12 @@ const UIPC_OVERRIDE = {
 	7411: 'Right',
 	7416: 'Top',
 	7417: 'Top',
-};
+} as const satisfies UIPCOverrideShape;
 
-function check(pattern, value) {
+function check(pattern?: UISCValue | UGCValue | UValue, value?: UISCValue | UGCValue | UValue) {
 	if (typeof pattern === 'object' && pattern.not) {
 		if (Array.isArray(pattern.not)) {
-			return pattern.not.indexOf(value) === -1;
+			return pattern.not.indexOf(value as never) === -1;
 		} else {
 			return value !== pattern.not;
 		}
@@ -148,15 +207,19 @@ function check(pattern, value) {
 	return value === pattern;
 }
 
-function matches(pattern, code) {
+function matches(pattern: IndicSyllabicCategory | number | string, code: CategoryMatcher) {
+	let matcher: CategoryMatcher;
 	if (typeof pattern === 'number') {
-		pattern = { U: pattern };
+		matcher = { U: pattern };
 	} else if (typeof pattern === 'string') {
-		pattern = { UISC: pattern };
+		matcher = { UISC: pattern as RelaxedIndicPositionalCategory };
+	} else {
+		matcher = pattern;
 	}
 
-	for (const key in pattern) {
-		if (!check(pattern[key], code[key])) {
+	const matcherKeys = Object.keys(matcher) as Array<keyof CategoryMatcher>
+	for (const key of matcherKeys) {
+		if (!check(matcher[key], code[key])) {
 			return false;
 		}
 	}
@@ -164,20 +227,35 @@ function matches(pattern, code) {
 	return true;
 }
 
-function getUISC(code) {
-	return UISC_OVERRIDE[code.code] || code.indicSyllabicCategory || 'Other';
+function getUISC(code: CodepointEntry): IndicSyllabicCategory | 'Other' {
+	const codepoint = code.code as keyof typeof UISC_OVERRIDE;
+
+	return UISC_OVERRIDE[codepoint] || code.indicSyllabicCategory || 'Other';
 }
 
-function getUIPC(code) {
-	return UIPC_OVERRIDE[code.code] || code.indicPositionalCategory;
+function getUIPC(
+	code: CodepointEntry,
+): RelaxedIndicPositionalCategory {
+	const codepoint = code.code as keyof typeof UIPC_OVERRIDE;
+
+	return UIPC_OVERRIDE[codepoint] || code.indicPositionalCategory;
 }
 
-function getPositionalCategory(code, USE) {
+function getPositionalCategory(
+	code: CodepointEntry,
+	USE: CategoryType,
+): string {
 	const UIPC = getUIPC(code);
-	const pos = USE_POSITIONS[USE];
+	const pos: UsePlacementGroup | undefined =
+		USE_POSITIONS[USE as UsePositionType];
+
 	if (pos) {
-		for (const key in pos) {
-			if (pos[key].indexOf(UIPC) !== -1) {
+		const posKeys = Object.keys(pos) as Array<keyof UsePlacementGroup>;
+
+		for (const key of posKeys) {
+			const groupArray = pos[key];
+
+			if (groupArray && groupArray.indexOf(UIPC) !== -1) {
 				return USE + key;
 			}
 		}
@@ -186,8 +264,9 @@ function getPositionalCategory(code, USE) {
 	return USE;
 }
 
-function getCategory(code) {
-	for (const category in CATEGORIES) {
+function getCategory(code: CodepointEntry): string | null {
+	const categoryKeys = Object.keys(CATEGORIES) as CategoryType[];
+	for (const category of categoryKeys) {
 		for (const pattern of CATEGORIES[category]) {
 			if (
 				matches(pattern, {
@@ -205,19 +284,20 @@ function getCategory(code) {
 }
 
 const trie = new UnicodeTrieBuilder();
-const symbols = {};
+const symbols: Record<string, number> = {};
 let numSymbols = 0;
-const decompositions = {};
+const decompositions: Record<number, unknown> = {};
 for (let i = 0; i < codepoints.length; i++) {
 	const codepoint = codepoints[i];
 	if (codepoint) {
 		const category = getCategory(codepoint);
-		if (!(category in symbols)) {
-			symbols[category] = numSymbols++;
+		if (category) {
+			if (!(category in symbols)) {
+				symbols[category] = numSymbols++;
+			}
+
+			trie.set(codepoint.code, symbols[category]);
 		}
-
-		trie.set(codepoint.code, symbols[category]);
-
 		if (
 			codepoint.indicSyllabicCategory === 'Vowel_Dependent' &&
 			codepoint.decomposition.length > 0
@@ -227,8 +307,8 @@ for (let i = 0; i < codepoints.length; i++) {
 	}
 }
 
-function decompose(code) {
-	const decomposition = [];
+function decompose(code: number) {
+	const decomposition: number[] = [];
 	const codepoint = codepoints[code];
 	for (const c of codepoint.decomposition) {
 		let codes = decompose(c);
@@ -243,7 +323,7 @@ function decompose(code) {
 // allowing unicode-properties to work in the browser
 const trieFilePath = `${import.meta.dirname}/trieUse.ts`;
 const jsonBase64DeflatedTrie = JSON.stringify(
-	base64.encode(pako.deflate(trie.toBuffer())),
+	base64.encode(pako.deflate(trie.toBuffer()) as unknown as ArrayBuffer),
 );
 fs.writeFileSync(
 	trieFilePath,
@@ -265,7 +345,7 @@ const json = Object.assign(
 const useFilePath = `${import.meta.dirname}/use.ts`;
 const useJsonBytes = new TextEncoder().encode(JSON.stringify(json));
 const jsonBase64DeflatedUse = JSON.stringify(
-	base64.encode(pako.deflate(useJsonBytes)),
+	base64.encode(pako.deflate(useJsonBytes) as unknown as ArrayBuffer),
 );
 fs.writeFileSync(
 	useFilePath,

@@ -98,6 +98,7 @@ declare module 'codepoints' {
 		category:
 			| 'Cc'
 			| 'Cf'
+			| 'Cn'
 			| 'Co'
 			| 'Cs'
 			| 'Ll'
