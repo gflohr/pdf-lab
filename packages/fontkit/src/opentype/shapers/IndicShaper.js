@@ -3,7 +3,7 @@ import * as base64 from 'base64-arraybuffer';
 import StateMachine from 'dfa';
 import pako from 'pako';
 import UnicodeTrie from 'unicode-trie';
-import * as Script from '../../layout/Script.js';
+import * as Script from '../../layout/script.js';
 import GlyphInfo from '../GlyphInfo.js';
 import DefaultShaper from './DefaultShaper.js';
 import base64DeflatedIndicMachine from './indic.js';
