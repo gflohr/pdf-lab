@@ -132,10 +132,10 @@ export default class CFFIndex<
 
 	encode(
 		stream: EncodeStream,
-		arr: EncodeItemValue[],
+		arr: TType extends FieldT<infer TItem> ? TItem[] : Uint8Array[],
 		parent: CFFNode,
 	) {
-		if (this.getCFFVersion() >= 2) {
+		if (this.getCFFVersion(parent) >= 2) {
 			stream.writeUInt32BE(arr.length);
 		} else {
 			stream.writeUInt16BE(arr.length);
