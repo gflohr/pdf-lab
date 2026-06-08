@@ -17,7 +17,9 @@ type IndicSyllabicCategory = NonNullable<
 	CodepointEntry['indicSyllabicCategory']
 >;
 
-type RelaxedIndicPositionalCategory = IndicPositionalCategory | 'Not_Applicable';
+type RelaxedIndicPositionalCategory =
+	| IndicPositionalCategory
+	| 'Not_Applicable';
 
 interface OTFPositioningMap {
 	Abv?: RelaxedIndicPositionalCategory[];
@@ -62,10 +64,7 @@ type MatchPattern = FeatureCriteria | UISCValue | number | 'Other';
 type CategoryShape = Record<CategoryType, MatchPattern[]>;
 
 type UISCOverrideShape = Record<number, IndicSyllabicCategory>;
-type UIPCOverrideShape = Record<
-	number,
-	RelaxedIndicPositionalCategory
->;
+type UIPCOverrideShape = Record<number, RelaxedIndicPositionalCategory>;
 
 const CATEGORIES = {
 	B: [
@@ -196,7 +195,10 @@ const UIPC_OVERRIDE = {
 } as const satisfies UIPCOverrideShape;
 
 //function check(pattern?: UISCValue | UGCValue | UValue, value?: UISCValue | UGCValue | UValue) {
-function check(pattern?: UISCValue | UGCValue | UValue, value?: UISCValue | UGCValue | UValue) {
+function check(
+	pattern?: UISCValue | UGCValue | UValue,
+	value?: UISCValue | UGCValue | UValue,
+) {
 	if (typeof pattern === 'object' && pattern.not) {
 		if (Array.isArray(pattern.not)) {
 			return pattern.not.indexOf(value as never) === -1;
@@ -218,7 +220,7 @@ function matches(pattern: MatchPattern, code: FeatureCriteria) {
 		matcher = pattern;
 	}
 
-	const matcherKeys = Object.keys(matcher) as Array<keyof FeatureCriteria>
+	const matcherKeys = Object.keys(matcher) as Array<keyof FeatureCriteria>;
 	for (const key of matcherKeys) {
 		if (!check(matcher[key], code[key])) {
 			return false;
@@ -234,9 +236,7 @@ function getUISC(code: CodepointEntry): IndicSyllabicCategory | 'Other' {
 	return UISC_OVERRIDE[codepoint] || code.indicSyllabicCategory || 'Other';
 }
 
-function getUIPC(
-	code: CodepointEntry,
-): RelaxedIndicPositionalCategory {
+function getUIPC(code: CodepointEntry): RelaxedIndicPositionalCategory {
 	const codepoint = code.code as keyof typeof UIPC_OVERRIDE;
 
 	return UIPC_OVERRIDE[codepoint] || code.indicPositionalCategory;
@@ -320,7 +320,13 @@ function decompose(code: number): number[] {
 	return decomposition;
 }
 
-const shaperDirecotory = path.resolve(import.meta.dirname, '..', 'src', 'opentype', 'shapers');
+const shaperDirecotory = path.resolve(
+	import.meta.dirname,
+	'..',
+	'src',
+	'opentype',
+	'shapers',
+);
 
 // Trie is serialized suboptimally as JSON so it can be loaded via require,
 // allowing unicode-properties to work in the browser
