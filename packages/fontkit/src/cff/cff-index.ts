@@ -7,15 +7,7 @@ import type {
 } from '@pdf-lib/restructure';
 import r from '@pdf-lib/restructure';
 import type CFFDict from './cff-dict.js';
-
-// FIXME! Change this to the underlying data type of CFFTop, once that is
-// migrated!
-interface CFFIndexContext extends FieldT<unknown> {
-	hdrSize: number;
-	parent?: CFFIndexContext;
-	version: number;
-	length: number;
-}
+import type { CFFTopData } from './cff-top.js';
 
 export interface CFFIndexRecord {
 	offset: number;
@@ -28,24 +20,32 @@ export type IndexItemValue =
 	| Buffer
 	| CFFIndexRecord;
 
+
+interface CFFNodeContext extends FieldT<unknown> {
+	length: number;
+}
+
+type CFFNode = CFFNodeContext & CFFTopData;
+
 /**
- * Handles variable-length table lookups across structural subroutines, dictionaries, and string tables.
+ * Handles variable-length table lookups across structural subroutines,
+ * dictionaries, and string tables.
  */
 export default class CFFIndex<
-	TType extends CFFDict | StringT | FieldT<any> = any,
+	TType extends CFFDict | StringT | FieldT<any>,
 > implements FieldT<IndexItemValue[]>
 {
 	constructor(public type?: TType) {}
 
-	private getCFFVersion(ctx?: CFFIndexContext) {
+	private getCFFVersion(ctx?: CFFNode) {
 		while (ctx && !ctx.hdrSize) {
-			ctx = ctx.parent;
+			ctx = ctx.parent as CFFNode;
 		}
 
 		return ctx ? ctx.version : -1;
 	}
 
-	decode(stream: DecodeStream, parent: CFFIndexContext): IndexItemValue[] {
+	decode(stream: DecodeStream, parent: CFFNode): IndexItemValue[] {
 		const version = this.getCFFVersion(parent);
 		const count = version >= 2 ? stream.readUInt32BE() : stream.readUInt16BE();
 
@@ -95,7 +95,7 @@ export default class CFFIndex<
 		return ret;
 	}
 
-	size(arr: Buffer[] | CFFDict[], parent: FieldT<unknown>) {
+	size(arr: Buffer[] | CFFDict[], parent: CFFNode) {
 		let size = 2;
 		if (arr.length === 0) {
 			return size;
@@ -132,7 +132,7 @@ export default class CFFIndex<
 	encode(
 		stream: EncodeStream,
 		arr: Buffer[] | CFFDict[],
-		parent: FieldT<unknown>,
+		parent: CFFNode,
 	) {
 		stream.writeUInt16BE(arr.length);
 		if (arr.length === 0) {

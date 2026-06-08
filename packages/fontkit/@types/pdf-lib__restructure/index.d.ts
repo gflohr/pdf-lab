@@ -55,6 +55,7 @@ declare module '@pdf-lib/restructure' {
 	export interface FieldT<T> {
 		readonly __type?: T;
 		readonly _startOffset?: number;
+		readonly parent?: FieldT<any>;
 
 		size(val?: any | null, ctx?: any): number;
 
@@ -65,6 +66,7 @@ declare module '@pdf-lib/restructure' {
 
 	export class NumberT implements FieldT<number> {
 		readonly __type?: number;
+		readonly parent?: FieldT<any>;
 
 		constructor(type: string, endian?: string);
 
@@ -77,6 +79,7 @@ declare module '@pdf-lib/restructure' {
 
 	export class FixedT implements FieldT<number> {
 		readonly __type?: number;
+		readonly parent?: FieldT<any>;
 
 		constructor(type: number, endian?: string, fracBits?: number);
 
@@ -92,6 +95,7 @@ declare module '@pdf-lib/restructure' {
 
 	export class StringT implements FieldT<string> {
 		readonly __type?: string;
+		readonly parent?: FieldT<any>;
 
 		constructor(length?: Length, encoding?: Encoding);
 
@@ -114,6 +118,7 @@ declare module '@pdf-lib/restructure' {
 		readonly __type?: InferField<TField>[];
 		readonly type: TField;
 		readonly length: number;
+		readonly parent?: FieldT<any>;
 
 		constructor(type: TField, length?: Length, lengthType?: 'count' | 'bytes');
 
@@ -134,6 +139,7 @@ declare module '@pdf-lib/restructure' {
 	> implements FieldT<TExplicitOut>
 	{
 		readonly __type?: TExplicitOut;
+		readonly parent?: FieldT<any>;
 
 		constructor(type: TField, length?: Length, lengthType?: 'count' | 'bytes');
 
@@ -153,6 +159,7 @@ declare module '@pdf-lib/restructure' {
 	};
 	export class StructT<TFields, TExplicitOut> implements FieldT<TExplicitOut> {
 		readonly __type?: TExplicitOut;
+		readonly parent?: FieldT<any>;
 
 		constructor(fields: TFields);
 
@@ -185,6 +192,7 @@ declare module '@pdf-lib/restructure' {
 	{
 		/** Holds the structural signature of the compiled output type safely */
 		readonly __type?: TExplicitOut;
+		readonly parent?: FieldT<any>;
 
 		versions: TVersions;
 
@@ -210,6 +218,7 @@ declare module '@pdf-lib/restructure' {
 		implements FieldT<BitfieldResult<TFlags>>
 	{
 		readonly __type?: BitfieldResult<TFlags>;
+		readonly parent?: FieldT<any>;
 
 		// Enforcing TFlags ensures TypeScript preserves the exact string
 		// literal names from the configuration arrays.
@@ -242,6 +251,7 @@ declare module '@pdf-lib/restructure' {
 	{
 		type?: TField;
 		offsetType: number;
+		readonly parent?: FieldT<any>;
 
 		constructor(
 			offsetType: FieldT<number>,
@@ -261,6 +271,7 @@ declare module '@pdf-lib/restructure' {
 
 	export class VoidPointerT<T = any> {
 		constructor(type: FieldT<T>, value: T);
+		readonly parent?: FieldT<any>;
 
 		type: FieldT<T>;
 		value: T;
@@ -268,6 +279,7 @@ declare module '@pdf-lib/restructure' {
 
 	export class ReservedT implements FieldT<void> {
 		constructor(type: FieldT<any>, count?: number | string | LengthResolver);
+		readonly parent?: FieldT<any>;
 
 		decode(stream: DecodeStream, parent?: any): undefined;
 
@@ -278,6 +290,7 @@ declare module '@pdf-lib/restructure' {
 
 	export class BufferT implements FieldT<Uint8Array> {
 		readonly __type?: Uint8Array;
+		readonly parent?: FieldT<any>;
 
 		constructor(length?: Length);
 
@@ -292,6 +305,7 @@ declare module '@pdf-lib/restructure' {
 
 	export class OptionalT<TField extends FieldT<any>> implements FieldT<any> {
 		readonly __type?: number;
+		readonly parent?: FieldT<any>;
 
 		constructor(type: TField, condition: boolean | ConditionResolver);
 
