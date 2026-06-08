@@ -3,7 +3,7 @@ import OTLayoutEngine from '../opentype/OTLayoutEngine.js';
 import GlyphPosition from './GlyphPosition.js';
 import GlyphRun from './GlyphRun.js';
 import KernProcessor from './KernProcessor.js';
-import * as Script from './Script.js';
+import * as Script from './script.js';
 import UnicodeLayoutEngine from './UnicodeLayoutEngine.js';
 
 export default class LayoutEngine {

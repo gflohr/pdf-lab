@@ -131,37 +131,48 @@ const UNICODE_SCRIPTS = {
 	Inherited: 'zinh',
 	Common: 'zyyy',
 	Unknown: 'zzzz',
-};
+} as const;
 
-const OPENTYPE_SCRIPTS = {};
-for (const script in UNICODE_SCRIPTS) {
+type UnicodeScript = keyof typeof UNICODE_SCRIPTS;
+
+type OpenTypeTag = {
+	[K in UnicodeScript]: typeof UNICODE_SCRIPTS[K] extends readonly string[]
+		? typeof UNICODE_SCRIPTS[K][number]
+		: typeof UNICODE_SCRIPTS[K];
+}[UnicodeScript];
+
+const unicodeScripts = Object.keys(UNICODE_SCRIPTS) as UnicodeScript[];
+
+const OPENTYPE_SCRIPTS: Record<string, string> = {} as Record<OpenTypeTag, UnicodeScript>;
+
+for (const script of unicodeScripts) {
 	const tag = UNICODE_SCRIPTS[script];
 	if (Array.isArray(tag)) {
 		for (const t of tag) {
 			OPENTYPE_SCRIPTS[t] = script;
 		}
 	} else {
-		OPENTYPE_SCRIPTS[tag] = script;
+		OPENTYPE_SCRIPTS[tag as OpenTypeTag] = script;
 	}
 }
 
-export function fromUnicode(script) {
+export function fromUnicode<T extends UnicodeScript>(script: T): typeof UNICODE_SCRIPTS[T] | undefined {
 	return UNICODE_SCRIPTS[script];
 }
 
-export function fromOpenType(tag) {
-	return OPENTYPE_SCRIPTS[tag];
+export function fromOpenType(tag: OpenTypeTag): UnicodeScript | undefined {
+	return OPENTYPE_SCRIPTS[tag] as UnicodeScript;
 }
 
-export function forString(string) {
-	const len = string.length;
+export function forString(str: string): OpenTypeTag {
+	const len = str.length;
 	let idx = 0;
 	while (idx < len) {
-		let code = string.charCodeAt(idx++);
+		let code = str.charCodeAt(idx++);
 
 		// Check if this is a high surrogate
 		if (0xd800 <= code && code <= 0xdbff && idx < len) {
-			const next = string.charCodeAt(idx);
+			const next = str.charCodeAt(idx);
 
 			// Check if this is a low surrogate
 			if (0xdc00 <= next && next <= 0xdfff) {
@@ -170,21 +181,21 @@ export function forString(string) {
 			}
 		}
 
-		const script = unicode.getScript(code);
+		const script = unicode.getScript(code) as UnicodeScript;
 		if (script !== 'Common' && script !== 'Inherited' && script !== 'Unknown') {
-			return UNICODE_SCRIPTS[script];
+			return (UNICODE_SCRIPTS[script] ?? UNICODE_SCRIPTS.Unknown) as OpenTypeTag;
 		}
 	}
 
 	return UNICODE_SCRIPTS.Unknown;
 }
 
-export function forCodePoints(codePoints) {
+export function forCodePoints(codePoints: number[]): OpenTypeTag {
 	for (let i = 0; i < codePoints.length; i++) {
 		const codePoint = codePoints[i];
-		const script = unicode.getScript(codePoint);
+		const script = unicode.getScript(codePoint) as UnicodeScript;
 		if (script !== 'Common' && script !== 'Inherited' && script !== 'Unknown') {
-			return UNICODE_SCRIPTS[script];
+			return (UNICODE_SCRIPTS[script] ?? UNICODE_SCRIPTS.Unknown) as OpenTypeTag;
 		}
 	}
 
@@ -222,8 +233,8 @@ const RTL = {
 	phlp: true, // Psalter Pahlavi
 };
 
-export function direction(script) {
-	if (RTL[script]) {
+export function direction(script: string): 'rtl' | 'ltr' {
+	if (RTL[script as keyof typeof RTL]) {
 		return 'rtl';
 	}
 
