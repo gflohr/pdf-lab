@@ -5,7 +5,7 @@ import compileModule from 'dfa/compile.js';
 import pako from 'pako';
 import UnicodeTrieBuilder from 'unicode-trie/builder.js';
 
-import { CATEGORIES, POSITIONS } from './indic-data.js';
+import { CATEGORIES, POSITIONS } from '../src/opentype/shapers/indic-data.js';
 
 const compile = compileModule.default;
 
