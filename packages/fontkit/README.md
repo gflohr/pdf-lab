@@ -4,8 +4,12 @@ This is `@pdf-lab/fontkit`, or the umpteenth fork of `fontkit`, an effort
 to make font processing available to the JavaScript/TypeScript eco system.
 
 - [`@pdf-lab/fontkit`](#pdf-labfontkit)
+	- [Lineage](#lineage)
 	- [Why Another Fork?](#why-another-fork)
 	- [State and Plans](#state-and-plans)
+	- [Relationship to Upstream](#relationship-to-upstream)
+	- [Naming](#naming)
+	- [Security](#security)
 	- [Original README for `@pdf-lib/fontkit`](#original-readme-for-pdf-libfontkit)
 		- [`fontkit`](#fontkit)
 			- [Features](#features)
@@ -57,33 +61,97 @@ to make font processing available to the JavaScript/TypeScript eco system.
 				- [`subset.encodeStream()`](#subsetencodestream)
 			- [Licence](#licence)
 
+## Lineage
+
+This project derives from a chain of related `fontkit` implementations:
+
+- https://github.com/foliojs/fontkit  
+  The original `fontkit` implementation
+
+- https://github.com/foliojs-fork/fontkit (`@foliojs-fork/fontkit`)  
+  A widely used fork focused on Node.js compatibility and ongoing maintenance
+
+- https://github.com/Hopding/fontkit (`@pdf-lib/fontkit`)  
+  A fork of `foliojs/fontkit` adapted for `pdf-lib`, adding browser/UMD support
+  and packaging changes
+
+- `@pdf-lab/fontkit` (this project)  
+  A continuation of `@pdf-lib/fontkit`, focusing on TypeScript migration,
+  structural cleanup, and browser-first compatibility
+
 ## Why Another Fork?
 
-None of the `fontkit` versions in the wild meet my (yours truly) requirements.
+Existing `fontkit` variants each address different constraints, but none satisfy the full set of requirements for this project.
 
-- https://github.com/foliojs/fontkit, the original `fontkit` version cannot be used in the browser, and is - umh - let's say "semi-maintained".
-- https://github.com/Hopding/fontkit, published to npmjs.com as `@pdf-lib/fontkit`, added UMD builds for the browser to `fontkit` but is unmaintained, suffers from bit-rot, and has long-standing bugs that make it almost unusable.
-- https://github.com/foliojs-fork/fontkit, published to npmjs.com as `@foliojs-fork/fontkit` is maintained, very popular, but cannot be used in the browser.
+- `foliojs/fontkit`  
+  Not designed for browser or bundler-based environments
 
-I, yours truly, needed a version that works in the browser and is actively
-maintained.
+- `@foliojs-fork/fontkit`  
+  Actively maintained and widely used, but primarily Node.js-oriented and not
+  suitable for browser/UMD usage
+
+- `@pdf-lib/fontkit`  
+  Introduced browser/UMD support and packaging adaptations for `pdf-lib`, but
+  is currently unmaintained and affected by accumulated bit rot and unresolved
+  issues
+
+This project continues from `@pdf-lib/fontkit` with a focus on modernizing the
+codebase and improving long-term maintainability. It also aims at fixing all
+bugs that have been fixed in one of the other forks.
 
 ## State and Plans
 
 Done:
 
-* update code base to meet today's coding standards
-* update all dependencies to latest
-* get rid of Babel transformations
+- updated codebase to modern JavaScript practices
+- upgraded dependencies
+- removed Babel-based build transformations
 
 Todo:
 
-* incorporate all known bug fixes from the other `fontkit` forks
-* migrate code base to TypeScript
+- integrate fixes from other `fontkit` forks where applicable
+- complete migration to TypeScript
+- continue improving browser compatibility and build consistency
 
-Please do not expect any new bugs to be fixed here, unless you provide a patch.
-I do not have any expertise in font processing, and will not be able to fix
-such bugs.
+This project is maintained as infrastructure rather than a font engineering
+research project. As such, font-format-specific issues are generally out of
+scope unless the cause is straightforward or already understood. Contributions
+or external guidance are welcome for deeper font-specification work.
+
+## Relationship to Upstream
+
+This project is not intended to replace or supersede the original `fontkit`,
+but to maintain a usable, modernized continuation where upstream maintenance
+and browser support diverged.
+
+## Naming
+
+To avoid confusion with upstream packages, this fork is published under a
+distinct namespace (`@pdf-lab/*`). Unfortunately, this is only a one-character
+difference from the original upstream naming, which was not intentional. For
+lack of a better alternative, the naming is kept as-is for now.
+
+## Security
+
+There is a very high likelihood that corrupt or malicious font data will lead
+to unpredictable behavior when processed by `fontkit`. While pull requests
+that mitigate or eliminate these risks are highly welcome, you should not
+expect `fontkit` to become entirely risk-free in the near future.
+
+Unpredictable behavior includes unhandled exceptions, memory exhaustion (OOM) 
+crashes, infinite loops that block the Node.js event loop, or maximum call stack
+size errors.
+
+If your application processes user-uploaded or untrusted font files, **do not
+expose `fontkit` directly to the front line.** Font parsing should always be
+treated as an untrusted, high-risk operation. 
+
+It is strongly recommended to implement the following defense-in-depth measures:
+
+* **Isolate Processing in Worker Threads:** Never parse fonts on your main server thread. Move `fontkit` execution to a `Worker` thread or an isolated microservice. If a malicious font triggers an infinite loop or an out-of-memory crash, it will only destroy that specific worker, which can be safely restarted by a supervisor process.
+* **Set Strict Timeouts:** Implement a hard execution timeout on the thread or process parsing the font. If parsing takes longer than a few seconds, terminate the worker immediately to prevent resource exhaustion.
+* **Pre-validate with Hardened Tools:** Before passing a font file to JavaScript, run it through a dedicated binary sanitizer. For example, Google's [ots (OpenType Sanitizer)](https://github.com/khaledhosny/ots) is specifically designed to parse font files defensively, strip out malicious data, and output a safe file. If `ots` rejects the file, do not pass it to `fontkit`.
+* **Enforce File Size Constraints:** Check and enforce strict upfront limits on incoming file sizes (e.g., rejecting any font over 20–30MB) before parsing ever begins to mitigate basic memory-stuffing attempts.
 
 ## Original README for `@pdf-lib/fontkit`
 
@@ -213,7 +281,7 @@ Returns a font object for the given buffer. For collection fonts (such as TrueTy
 
 #### Font objects
 
-There are several different types of font objects that are returned by fontkit depending on the font format. They all inherit from the `TTFFont` class and have the same public API, described below.
+There are several different types of font objects that are returned by fontkit depending on the font format. They all inherit from the `TrueTypeFont` class and have the same public API, described below.
 
 ##### Metadata properties
 

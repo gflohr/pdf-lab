@@ -3,10 +3,10 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import r from '@pdf-lib/restructure';
 import { describe, expect, it } from 'vitest';
-import CFFFont from '../src/cff/CFFFont.js';
-import CFFGlyph from '../src/glyph/CFFGlyph.js';
-import type { Font } from '../src/types/font.js';
-import type { Subset, SubsetStream } from '../src/types/subset.js';
+import CFFFont from '../src/cff/cff-font.js';
+import type { Font } from '../src/font.js';
+import CFFGlyph from '../src/glyph/cff-glyph.js';
+import type { Subset, SubsetStream } from '../src/subset/Subset.js';
 import fontkit from './helpers.js';
 
 const datadir = path.resolve(import.meta.dirname, './data');

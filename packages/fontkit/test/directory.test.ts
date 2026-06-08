@@ -1,16 +1,16 @@
 import * as path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import type { SFNTFont } from '../src/types/internal/sfnt-font.js';
 import fontkit from './helpers.js';
 
 const datadir = path.resolve(import.meta.dirname, './data');
 
 describe('metadata', () => {
 	const filename = path.resolve(`${datadir}/OpenSans/OpenSans-Regular.ttf`);
-	const font = fontkit.openSync(filename) as SFNTFont;
+	const font = fontkit.openSync(filename);
 
 	it('decodes SFNT directory values correctly', () => {
-		const dir = font.directory;
+		// biome-ignore lint/complexity/useLiteralKeys: need private access for testing.
+		const dir = font['directory'];
 		expect(dir.numTables).toBe(19);
 		expect(dir.searchRange).toBe(256);
 		expect(dir.entrySelector).toBe(4);
@@ -18,7 +18,8 @@ describe('metadata', () => {
 	});
 
 	it('numTables matches table collection', () => {
-		const dir = font.directory;
+		// biome-ignore lint/complexity/useLiteralKeys: need private access for testing.
+		const dir = font['directory'];
 		expect(Object.keys(dir.tables).length).toBe(dir.numTables);
 	});
 });

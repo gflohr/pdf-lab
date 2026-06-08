@@ -75,13 +75,19 @@ export interface Path {
 	 * Compiles the path to a JavaScript function that can be applied with a
 	 * graphics context in order to render the path.
 	 */
-	// biome-ignore lint/complexity/noBannedTypes: needs investigation
-	toFunction(): Function;
+	toFunction(): (ctx: Path) => void;
 
 	/**
 	 * Converts the path to an SVG path data string.
 	 */
 	toSVG(): string;
+
+	/**
+	 * Applies a mapping function to each point coordinate in the path.
+	 *
+	 * @param fn - A transformation callback yielding a new [x, y] tuple.
+	 */
+	mapPoints(fn: (x: number, y: number) => [number, number]): Path;
 }
 
 /**
@@ -549,7 +555,7 @@ export interface TypeFeatures extends OpenTypeFeatures, AATFeatures {
 
 /**
  * There are several different types of font objects that are returned by
- * fontkit depending on the font format. They all inherit from the TTFFont class
+ * fontkit depending on the font format. They all inherit from the TrueTypeFont class
  * and have the same public API.
  */
 export interface Font {

@@ -1,6 +1,5 @@
 import * as path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import type { SFNTFont } from '../src/types/internal/sfnt-font.js';
 import fontkit from './helpers.js';
 
 const datadir = path.resolve(import.meta.dirname, './data');
@@ -212,17 +211,13 @@ describe('character to glyph mapping', () => {
 
 	describe('glyph id to strings', () => {
 		it('should return strings from cmap that map to a given glyph', () => {
-			const font = fontkit.openSync(
-				`${datadir}/OpenSans/OpenSans-Regular.ttf`,
-			) as SFNTFont;
+			const font = fontkit.openSync(`${datadir}/OpenSans/OpenSans-Regular.ttf`);
 			const strings = font.stringsForGlyph(68);
 			expect(strings).toStrictEqual(['a']);
 		});
 
 		it('should return strings from AAT morx table that map to the given glyph', () => {
-			const font = fontkit.openSync(
-				`${datadir}/Play/Play-Regular.ttf`,
-			) as SFNTFont;
+			const font = fontkit.openSync(`${datadir}/Play/Play-Regular.ttf`);
 			const strings = font.stringsForGlyph(767);
 			expect(strings).toStrictEqual(['ffi']);
 		});

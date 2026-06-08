@@ -1,5 +1,5 @@
-import standardStrings from '../cff/CFFStandardStrings.js';
-import CFFTop from '../cff/CFFTop.js';
+import standardStrings from '../cff/cff-standard-strings.js';
+import CFFTop from '../cff/cff-top.js';
 import Subset from './Subset.js';
 
 export default class CFFSubset extends Subset {
@@ -23,7 +23,7 @@ export default class CFFSubset extends Subset {
 			// FIXME! The getter must have a side-effect.
 			glyph.path; // this causes the glyph to be parsed
 
-			for (const subr in glyph._usedGsubrs) {
+			for (const subr in glyph.usedGsubrs) {
 				gsubrs[subr] = true;
 			}
 		}
@@ -53,7 +53,7 @@ export default class CFFSubset extends Subset {
 			fds: [],
 		};
 
-		const used_fds = {};
+		const fdMap = {};
 		const used_subrs = [];
 		for (const gid of this.glyphs) {
 			const fd = this.cff.fdForGlyph(gid);
@@ -61,20 +61,20 @@ export default class CFFSubset extends Subset {
 				continue;
 			}
 
-			if (!used_fds[fd]) {
+			if (fdMap[fd] == null) {
 				topDict.FDArray.push(Object.assign({}, this.cff.topDict.FDArray[fd]));
 				used_subrs.push({});
+				fdMap[fd] = topDict.FDArray.length - 1;
 			}
 
-			used_fds[fd] = true;
-			topDict.FDSelect.fds.push(topDict.FDArray.length - 1);
+			const subsetFdIndex = fdMap[fd];
+			topDict.FDSelect.fds.push(subsetFdIndex);
 
 			const glyph = this.font.getGlyph(gid);
 
-			// FIXME! The getter must have a side-effect.
 			glyph.path; // this causes the glyph to be parsed
-			for (const subr in glyph._usedSubrs) {
-				used_subrs[used_subrs.length - 1][subr] = true;
+			for (const subr in glyph.usedSubrs) {
+				used_subrs[subsetFdIndex][subr] = true;
 			}
 		}
 
@@ -101,7 +101,7 @@ export default class CFFSubset extends Subset {
 			// FIXME! The getter must have a side-effect.
 			glyph.path; // this causes the glyph to be parsed
 
-			for (const subr in glyph._usedSubrs) {
+			for (const subr in glyph.usedSubrs) {
 				used_subrs[subr] = true;
 			}
 		}

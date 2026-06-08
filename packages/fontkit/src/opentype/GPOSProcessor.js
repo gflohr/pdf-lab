@@ -22,7 +22,7 @@ export default class GPOSProcessor extends OTProcessor {
 		}
 
 		// Adjustments for font variations
-		const variationProcessor = this.font._variationProcessor;
+		const variationProcessor = this.font.variationProcessor;
 		const variationStore = this.font.GDEF?.itemVariationStore;
 
 		if (variationProcessor && variationStore) {
@@ -308,7 +308,7 @@ export default class GPOSProcessor extends OTProcessor {
 	getAnchor(anchor) {
 		let { xCoordinate: x, yCoordinate: y } = anchor;
 
-		const variationProcessor = this.font._variationProcessor;
+		const variationProcessor = this.font.variationProcessor;
 		const variationStore = this.font.GDEF?.itemVariationStore;
 
 		if (variationProcessor && variationStore) {

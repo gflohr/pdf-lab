@@ -206,7 +206,7 @@ export default class LayoutEngine {
 	stringsForGlyph(gid) {
 		const result = new Set();
 
-		const codePoints = this.font._cmapProcessor.codePointsForGlyph(gid);
+		const codePoints = this.font.codePointsForGlyph(gid);
 		for (const codePoint of codePoints) {
 			result.add(String.fromCodePoint(codePoint));
 		}

@@ -12,13 +12,13 @@ export default class TTFSubset extends Subset {
 
 	_addGlyph(gid) {
 		const glyph = this.font.getGlyph(gid);
-		const glyf = glyph._decode();
+		const glyf = glyph.decode();
 
 		// get the offset to the glyph from the loca table
 		const curOffset = this.font.loca.offsets[gid];
 		const nextOffset = this.font.loca.offsets[gid + 1];
 
-		const stream = this.font._getTableStream('glyf');
+		const stream = this.font.getGlyfTableStream();
 		stream.pos += curOffset;
 
 		let buffer = stream.readBuffer(nextOffset - curOffset);
@@ -30,7 +30,7 @@ export default class TTFSubset extends Subset {
 				gid = this.includeGlyph(component.glyphID);
 				buffer.writeUInt16BE(gid, component.pos);
 			}
-		} else if (glyf && this.font._variationProcessor) {
+		} else if (glyf && this.font.variationProcessor) {
 			// If this is a TrueType variation glyph, re-encode the path
 			buffer = this.glyphEncoder.encodeSimple(glyph.path, glyf.instructions);
 		}
@@ -40,7 +40,7 @@ export default class TTFSubset extends Subset {
 
 		this.hmtx.metrics.push({
 			advance: glyph.advanceWidth,
-			bearing: glyph._getMetrics().leftBearing,
+			bearing: glyph.getMetrics().leftBearing,
 		});
 
 		this.offset += buffer.length;

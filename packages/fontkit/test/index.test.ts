@@ -1,6 +1,6 @@
 import * as path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import type { TrueTypeCollection } from '../src/types/internal/true-type-collection.js';
+import type TrueTypeCollection from '../src/true-type-collection.js';
 import fontkit from './helpers.js';
 
 const datadir = path.resolve(import.meta.dirname, './data');
@@ -8,25 +8,25 @@ const datadir = path.resolve(import.meta.dirname, './data');
 describe('fontkit', () => {
 	it('should open a font asynchronously', async () => {
 		const font = await fontkit.open(`${datadir}/OpenSans/OpenSans-Regular.ttf`);
-		expect(font.constructor.name).toBe('TTFFont');
+		expect(font.constructor.name).toBe('TrueTypeFont');
 	});
 
 	it('should open a font synchronously', () => {
 		const font = fontkit.openSync(`${datadir}/OpenSans/OpenSans-Regular.ttf`);
-		expect(font.constructor.name).toBe('TTFFont');
+		expect(font.constructor.name).toBe('TrueTypeFont');
 	});
 
 	describe('formats', () => {
 		it('should open a TrueType font', () => {
 			const font = fontkit.openSync(`${datadir}/OpenSans/OpenSans-Regular.ttf`);
-			expect(font.constructor.name).toBe('TTFFont');
+			expect(font.constructor.name).toBe('TrueTypeFont');
 		});
 
 		it('should open an OpenType font', () => {
 			const font = fontkit.openSync(
 				`${datadir}/SourceSansPro/SourceSansPro-Regular.otf`,
 			);
-			expect(font.constructor.name).toBe('TTFFont');
+			expect(font.constructor.name).toBe('TrueTypeFont');
 		});
 
 		it('should open a font from a TrueType collection', () => {
@@ -39,7 +39,7 @@ describe('fontkit', () => {
 				`${datadir}/NotoSans/NotoSans.ttc`,
 				'NotoSans',
 			);
-			expect(font.constructor.name).toBe('TTFFont');
+			expect(font.constructor.name).toBe('TrueTypeFont');
 		});
 
 		it('should open a DataFork TrueType font', () => {
@@ -52,7 +52,7 @@ describe('fontkit', () => {
 				`${datadir}/NotoSans/NotoSans.dfont`,
 				'NotoSans',
 			);
-			expect(font.constructor.name).toBe('TTFFont');
+			expect(font.constructor.name).toBe('TrueTypeFont');
 		});
 
 		it('should open a WOFF font', () => {
@@ -95,7 +95,7 @@ describe('fontkit', () => {
 		it('should get collection objects for ttc fonts', () => {
 			const collection: TrueTypeCollection = fontkit.openSync(
 				`${datadir}/NotoSans/NotoSans.ttc`,
-			) as TrueTypeCollection;
+			) as unknown as TrueTypeCollection;
 
 			expect(collection.constructor.name).toBe('TrueTypeCollection');
 
@@ -118,7 +118,7 @@ describe('fontkit', () => {
 		it('should get collection objects for dfonts', () => {
 			const collection: TrueTypeCollection = fontkit.openSync(
 				`${datadir}/NotoSans/NotoSans.dfont`,
-			) as TrueTypeCollection;
+			) as unknown as TrueTypeCollection;
 			expect(collection.constructor.name).toBe('DFont');
 
 			const names = collection.fonts.map((f) => f.postscriptName);

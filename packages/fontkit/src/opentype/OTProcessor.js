@@ -18,8 +18,8 @@ export default class OTProcessor {
 		this.lookups = {};
 
 		// Setup variation substitutions
-		this.variationsIndex = font._variationProcessor
-			? this.findVariationsIndex(font._variationProcessor.normalizedCoords)
+		this.variationsIndex = font.variationProcessor
+			? this.findVariationsIndex(font.variationProcessor.normalizedCoords)
 			: -1;
 
 		// initialize to default script + language

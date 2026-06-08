@@ -1,16 +1,12 @@
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import BBox from '../src/glyph/BBox.js';
-import type { SFNTFont } from '../src/types/internal/sfnt-font.js';
+import BoundingBox from '../src/glyph/bounding-box.js';
 import fontkit from './helpers.js';
 
 const datadir = path.resolve(import.meta.dirname, './data');
 
 describe('Font metadata', () => {
-	const font = fontkit.openSync(
-		`${datadir}/NotoSans/NotoSans.ttc`,
-		'NotoSans',
-	) as SFNTFont;
+	const font = fontkit.openSync(`${datadir}/NotoSans/NotoSans.ttc`, 'NotoSans');
 
 	it('has metadata properties', () => {
 		expect(font.fullName).toBe('Noto Sans');
@@ -20,7 +16,7 @@ describe('Font metadata', () => {
 		expect(font.copyright).toBe(
 			'Copyright 2012 Google Inc. All Rights Reserved.',
 		);
-		return expect(font.version).toBe('Version 1.05 uh');
+		expect(font.version).toBe('Version 1.05 uh');
 	});
 
 	it('exposes some metrics', () => {
@@ -34,7 +30,7 @@ describe('Font metadata', () => {
 		expect(font.capHeight).toBe(1462);
 		expect(font.xHeight).toBe(1098);
 		expect(font.numGlyphs).toBe(8708);
-		expect(font.bbox).toStrictEqual(new BBox(-1268, -600, 2952, 2189));
+		expect(font.bbox).toStrictEqual(new BoundingBox(-1268, -600, 2952, 2189));
 	});
 
 	it('exposes tables directly', () => {
