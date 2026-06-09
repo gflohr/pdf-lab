@@ -2,7 +2,7 @@ import unicode from '@pdf-lib/unicode-properties';
 import * as base64 from 'base64-arraybuffer';
 import pako from 'pako';
 import UnicodeTrie from 'unicode-trie';
-import DefaultShaper from './DefaultShaper.js';
+import DefaultShaper from './default-shaper.js';
 
 // Trie is serialized as a Buffer in node, but here
 // we may be running in a browser so we make an Uint8Array.

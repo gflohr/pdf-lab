@@ -1,5 +1,5 @@
 import ArabicShaper from './ArabicShaper.js';
-import DefaultShaper from './DefaultShaper.js';
+import DefaultShaper from './default-shaper.js';
 import HangulShaper from './HangulShaper.js';
 import IndicShaper from './IndicShaper.js';
 import UniversalShaper from './UniversalShaper.js';

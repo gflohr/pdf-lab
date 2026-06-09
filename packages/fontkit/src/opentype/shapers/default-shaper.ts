@@ -1,11 +1,14 @@
 import unicode from '@pdf-lib/unicode-properties';
+import type { BidiDirection, OpenTypeFeatureTag } from '../../layout/glyph-run.js';
+import type GlyphInfo from '../GlyphInfo.js';
+import type ShapingPlan from '../shaping-plan.js';
 
 const VARIATION_FEATURES = ['rvrn'];
 const COMMON_FEATURES = ['ccmp', 'locl', 'rlig', 'mark', 'mkmk'];
 const FRACTIONAL_FEATURES = ['frac', 'numr', 'dnom'];
 const HORIZONTAL_FEATURES = ['calt', 'clig', 'liga', 'rclt', 'curs', 'kern'];
 // const VERTICAL_FEATURES = ['vert'];
-const DIRECTIONAL_FEATURES = {
+const DIRECTIONAL_FEATURES: Record<BidiDirection, string[]> = {
 	ltr: ['ltra', 'ltrm'],
 	rtl: ['rtla', 'rtlm'],
 };
@@ -13,7 +16,11 @@ const DIRECTIONAL_FEATURES = {
 // biome-ignore lint/complexity/noStaticOnlyClass: required for inheritance!
 export default class DefaultShaper {
 	static zeroMarkWidths = 'AFTER_GPOS';
-	static plan(plan, glyphs, features) {
+	static plan(
+		plan: ShapingPlan,
+		glyphs: GlyphInfo[],
+		features: Record<string, boolean>,
+	) {
 		// Plan the features we want to apply
 		// biome-ignore lint/complexity/noThisInStatic: needs rewrite
 		this.planPreprocessing(plan);
@@ -30,23 +37,23 @@ export default class DefaultShaper {
 		this.assignFeatures(plan, glyphs);
 	}
 
-	static planPreprocessing(plan) {
+	static planPreprocessing(plan: ShapingPlan) {
 		plan.add({
 			global: [...VARIATION_FEATURES, ...DIRECTIONAL_FEATURES[plan.direction]],
 			local: FRACTIONAL_FEATURES,
 		});
 	}
 
-	static planFeatures() {
+	static planFeatures(_plan: ShapingPlan) {
 		// Do nothing by default. Let subclasses override this.
 	}
 
-	static planPostprocessing(plan, userFeatures) {
+	static planPostprocessing(plan: ShapingPlan, userFeatures: Record<OpenTypeFeatureTag, boolean>) {
 		plan.add([...COMMON_FEATURES, ...HORIZONTAL_FEATURES]);
 		plan.setFeatureOverrides(userFeatures);
 	}
 
-	static assignFeatures(_plan, glyphs) {
+	static assignFeatures(_plan: ShapingPlan, glyphs: GlyphInfo[]) {
 		// Enable contextual fractions
 		for (let i = 0; i < glyphs.length; i++) {
 			const glyph = glyphs[i];

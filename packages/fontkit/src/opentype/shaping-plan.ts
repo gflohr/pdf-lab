@@ -1,14 +1,22 @@
 import type GlyphPosition from '../layout/glyph-position.js';
+import type { BidiDirection, OpenTypeFeatureTag } from '../layout/glyph-run.js';
 import type { SFNTFont } from '../sfnt-font.js';
 import type GlyphInfo from './GlyphInfo.js';
 import type OTProcessor from './OTProcessor.js';
 
-type FeatureShape = string | string[] | {
-	local?: string[],
-	global?: string[],
-}
+type FeatureShape =
+	| OpenTypeFeatureTag
+	| OpenTypeFeatureTag[]
+	| {
+			local?: OpenTypeFeatureTag[];
+			global?: OpenTypeFeatureTag[];
+	  };
 
-type ShapingFunction = (font: SFNTFont, glyphs: GlyphInfo[], plan: ShapingPlan) => void;
+type ShapingFunction = (
+	font: SFNTFont,
+	glyphs: GlyphInfo[],
+	plan: ShapingPlan,
+) => void;
 type Stage = string[] | ShapingFunction;
 
 /**
@@ -20,19 +28,29 @@ type Stage = string[] | ShapingFunction;
  */
 export default class ShapingPlan {
 	private stages: Stage[];
-	private globalFeatures: any;
-	private allFeatures: any;
-	constructor(private font: SFNTFont, private script: string, private direction: 'ltr' | 'rtl') {
+	private globalFeatures: Record<OpenTypeFeatureTag, boolean>;
+	private allFeatures: Record<OpenTypeFeatureTag, number>;
+	private _direction: BidiDirection;
+	constructor(
+		private font: SFNTFont,
+		private script: string,
+		direction: BidiDirection = 'ltr',
+	) {
 		this.stages = [];
 		this.globalFeatures = Object.create(null);
 		this.allFeatures = Object.create(null);
+		this._direction = direction;
+	}
+
+	public get direction(): BidiDirection {
+		return this._direction;
 	}
 
 	/**
 	 * Adds the given features to the last stage.
 	 * Ignores features that have already been applied.
 	 */
-	private addFeatures(features: string[], global: boolean) {
+	private addFeatures(features: OpenTypeFeatureTag[], global: boolean) {
 		const stageIndex = this.stages.length - 1;
 		const stage = this.stages[stageIndex];
 		for (const feature of features) {
@@ -89,7 +107,9 @@ export default class ShapingPlan {
 				if (features[tag]) {
 					this.add(tag);
 				} else if (this.allFeatures[tag] != null) {
-					const stage: string[] = this.stages[this.allFeatures[tag]] as string[];
+					const stage: string[] = this.stages[
+						this.allFeatures[tag]
+					] as string[];
 					const index = stage.indexOf(tag);
 					if (index !== -1) {
 						stage.splice(index, 1);
@@ -115,7 +135,11 @@ export default class ShapingPlan {
 	/**
 	 * Executes the planned stages using the given OTProcessor
 	 */
-	process(processor: OTProcessor, glyphs: GlyphInfo[], positions: GlyphPosition[]) {
+	process(
+		processor: OTProcessor,
+		glyphs: GlyphInfo[],
+		positions: GlyphPosition[],
+	) {
 		for (const stage of this.stages) {
 			if (typeof stage === 'function') {
 				if (!positions) {
