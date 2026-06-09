@@ -9,6 +9,10 @@ export type BidiDirection = 'ltr' | 'rtl';
 
 // FIXME! This has to go into LayoutEngine!
 // FIXME! Turn it into a string union!
+/**
+ * OpenType feature tags consist of four ASCII characters. In the future,
+ * this will be changed into a union of all known tags as strings.
+ */
 export type OpenTypeFeatureTag = string;
 
 /**
