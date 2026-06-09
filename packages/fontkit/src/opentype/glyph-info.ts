@@ -5,7 +5,9 @@ import { OpenTypeFeatureTag } from '../layout/glyph-run.js';
 
 export default class GlyphInfo {
 	public _font: SFNTFont;
-	private _id: number = 42;
+	// The constructor calls the setter for this member. It is therefore
+	// always initialised.
+	private _id!: number;
 	public features: Record<OpenTypeFeatureTag, boolean>;
 	private ligatureID: string | null;
 	private ligatureComponent: number | null;
@@ -24,6 +26,11 @@ export default class GlyphInfo {
 		// FIXME! Other classes access the _font property!
 		this._font = font;
 		this.codePoints = codePoints;
+
+		// FIXME! The setter for `id` has side-effects. The side-effects
+		// should be moved into a separate, private method that is then called
+		// both by the constructor and the setter. Then we can remove the
+		// bogus initialisation.
 		this.id = id;
 
 		this.features = {};
