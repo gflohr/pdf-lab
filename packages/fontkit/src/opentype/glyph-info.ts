@@ -1,10 +1,36 @@
 import unicode from '@pdf-lib/unicode-properties';
+import type { SFNTFont } from '../sfnt-font.js';
 import OTProcessor from './OTProcessor.js';
+import { OpenTypeFeatureTag } from '../layout/glyph-run.js';
 
 export default class GlyphInfo {
-	constructor(font, id, codePoints = [], features) {
+	public _font: SFNTFont;
+	// The constructor calls the setter for this member. It is therefore
+	// always initialised.
+	private _id!: number;
+	public features: Record<OpenTypeFeatureTag, boolean>;
+	private ligatureID: string | null;
+	private ligatureComponent: number | null;
+	private isLigated: boolean;
+	private cursiveAttachment: GlyphInfo | null;
+	private markAttachment: GlyphInfo | null;
+	private shaperInfo: Record<string, unknown> | null;
+	private substituted: boolean;
+	private isMultiplied: boolean;
+	private isBase?: boolean;
+	private isLigature?: boolean; // FIXME! Is this meant to be the same as isLigated?
+	private isMark?: boolean;
+	private markAttachmentType?: number;
+
+	constructor(font: SFNTFont, id: number, public codePoints: number[] = [], features: OpenTypeFeatureTag[] | Record<OpenTypeFeatureTag, boolean>) {
+		// FIXME! Other classes access the _font property!
 		this._font = font;
 		this.codePoints = codePoints;
+
+		// FIXME! The setter for `id` has side-effects. The side-effects
+		// should be moved into a separate, private method that is then called
+		// both by the constructor and the setter. Then we can remove the
+		// bogus initialisation.
 		this.id = id;
 
 		this.features = {};
@@ -23,15 +49,15 @@ export default class GlyphInfo {
 		this.cursiveAttachment = null;
 		this.markAttachment = null;
 		this.shaperInfo = null;
-		this.substituted = false;
 		this.isMultiplied = false;
+		this.substituted = false;
 	}
 
-	get id() {
+	get id(): number {
 		return this._id;
 	}
 
-	set id(id) {
+	set id(id: number) {
 		this._id = id;
 		this.substituted = true;
 
@@ -54,7 +80,7 @@ export default class GlyphInfo {
 		}
 	}
 
-	copy() {
+	copy(): GlyphInfo {
 		return new GlyphInfo(
 			this._font,
 			this.id,

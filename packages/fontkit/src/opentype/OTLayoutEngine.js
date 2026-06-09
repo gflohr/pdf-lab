@@ -1,8 +1,8 @@
-import GlyphInfo from './GlyphInfo.js';
 import GPOSProcessor from './GPOSProcessor.js';
 import GSUBProcessor from './GSUBProcessor.js';
-import ShapingPlan from './ShapingPlan.js';
+import GlyphInfo from './glyph-info.js';
 import * as Shapers from './shapers/index.js';
+import ShapingPlan from './shaping-plan.js';
 
 export default class OTLayoutEngine {
 	constructor(font) {

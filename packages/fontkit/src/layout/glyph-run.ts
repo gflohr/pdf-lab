@@ -4,6 +4,17 @@ import type { UnicodeScript } from '../layout/script.js';
 import * as Script from '../layout/script.js';
 import type GlyphPosition from './glyph-position.js';
 
+/** The shaping direction, either left-to-right, or right-to-left. */
+export type BidiDirection = 'ltr' | 'rtl';
+
+// FIXME! This has to go into LayoutEngine!
+// FIXME! Turn it into a string union!
+/**
+ * OpenType feature tags consist of four ASCII characters. In the future,
+ * this will be changed into a union of all known tags as strings.
+ */
+export type OpenTypeFeatureTag = string;
+
 /**
  * Represents a run of Glyph and GlyphPosition objects.
  * Returned by the font layout method.
