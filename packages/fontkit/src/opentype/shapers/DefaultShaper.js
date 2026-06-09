@@ -10,7 +10,7 @@ const DIRECTIONAL_FEATURES = {
 	rtl: ['rtla', 'rtlm'],
 };
 
-// biome-ignore lint/complexity/noStaticOnlyClass: needs testing.
+// biome-ignore lint/complexity/noStaticOnlyClass: required for inheritance!
 export default class DefaultShaper {
 	static zeroMarkWidths = 'AFTER_GPOS';
 	static plan(plan, glyphs, features) {

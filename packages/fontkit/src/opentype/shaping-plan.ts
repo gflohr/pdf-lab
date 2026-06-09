@@ -1,3 +1,16 @@
+import type GlyphPosition from '../layout/glyph-position.js';
+import type { SFNTFont } from '../sfnt-font.js';
+import type GlyphInfo from './GlyphInfo.js';
+import type OTProcessor from './OTProcessor.js';
+
+type FeatureShape = string | string[] | {
+	local?: string[],
+	global?: string[],
+}
+
+type ShapingFunction = (font: SFNTFont, glyphs: GlyphInfo[], plan: ShapingPlan) => void;
+type Stage = string[] | ShapingFunction;
+
 /**
  * ShapingPlans are used by the OpenType shapers to store which
  * features should by applied, and in what order to apply them.
@@ -6,10 +19,10 @@
  * specific glyphs.
  */
 export default class ShapingPlan {
-	constructor(font, script, direction) {
-		this.font = font;
-		this.script = script;
-		this.direction = direction;
+	private stages: Stage[];
+	private globalFeatures: any;
+	private allFeatures: any;
+	constructor(private font: SFNTFont, private script: string, private direction: 'ltr' | 'rtl') {
 		this.stages = [];
 		this.globalFeatures = Object.create(null);
 		this.allFeatures = Object.create(null);
@@ -19,12 +32,12 @@ export default class ShapingPlan {
 	 * Adds the given features to the last stage.
 	 * Ignores features that have already been applied.
 	 */
-	_addFeatures(features, global) {
+	private addFeatures(features: string[], global: boolean) {
 		const stageIndex = this.stages.length - 1;
 		const stage = this.stages[stageIndex];
 		for (const feature of features) {
 			if (this.allFeatures[feature] == null) {
-				stage.push(feature);
+				(stage as string[]).push(feature);
 				this.allFeatures[feature] = stageIndex;
 
 				if (global) {
@@ -37,7 +50,7 @@ export default class ShapingPlan {
 	/**
 	 * Add features to the last stage
 	 */
-	add(arg, global = true) {
+	add(arg: FeatureShape, global = true) {
 		if (this.stages.length === 0) {
 			this.stages.push([]);
 		}
@@ -47,10 +60,10 @@ export default class ShapingPlan {
 		}
 
 		if (Array.isArray(arg)) {
-			this._addFeatures(arg, global);
+			this.addFeatures(arg, global);
 		} else if (arg != null && typeof arg === 'object') {
-			this._addFeatures(arg.global || [], true);
-			this._addFeatures(arg.local || [], false);
+			this.addFeatures(arg.global || [], true);
+			this.addFeatures(arg.local || [], false);
 		} else {
 			throw new Error('Unsupported argument to ShapingPlan#add');
 		}
@@ -59,7 +72,7 @@ export default class ShapingPlan {
 	/**
 	 * Add a new stage
 	 */
-	addStage(arg, global) {
+	addStage(arg: string | ShapingFunction, global: boolean) {
 		if (typeof arg === 'function') {
 			this.stages.push(arg, []);
 		} else {
@@ -68,7 +81,7 @@ export default class ShapingPlan {
 		}
 	}
 
-	setFeatureOverrides(features) {
+	setFeatureOverrides(features: string[] | Record<string, boolean>) {
 		if (Array.isArray(features)) {
 			this.add(features);
 		} else if (features != null && typeof features === 'object') {
@@ -76,7 +89,7 @@ export default class ShapingPlan {
 				if (features[tag]) {
 					this.add(tag);
 				} else if (this.allFeatures[tag] != null) {
-					const stage = this.stages[this.allFeatures[tag]];
+					const stage: string[] = this.stages[this.allFeatures[tag]] as string[];
 					const index = stage.indexOf(tag);
 					if (index !== -1) {
 						stage.splice(index, 1);
@@ -91,10 +104,10 @@ export default class ShapingPlan {
 	/**
 	 * Assigns the global features to the given glyphs
 	 */
-	assignGlobalFeatures(glyphs) {
+	assignGlobalFeatures(glyphs: GlyphInfo[]) {
 		for (const glyph of glyphs) {
 			for (const feature of Object.keys(this.globalFeatures)) {
-				glyph.features[feature] = true;
+				(glyph.features as Record<string, boolean>)[feature] = true;
 			}
 		}
 	}
@@ -102,7 +115,7 @@ export default class ShapingPlan {
 	/**
 	 * Executes the planned stages using the given OTProcessor
 	 */
-	process(processor, glyphs, positions) {
+	process(processor: OTProcessor, glyphs: GlyphInfo[], positions: GlyphPosition[]) {
 		for (const stage of this.stages) {
 			if (typeof stage === 'function') {
 				if (!positions) {
