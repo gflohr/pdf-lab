@@ -4,7 +4,7 @@ import StateMachine from 'dfa';
 import pako from 'pako';
 import UnicodeTrie from 'unicode-trie';
 import * as Script from '../../layout/script.js';
-import GlyphInfo from '../GlyphInfo.js';
+import GlyphInfo from '../glyph-info.js';
 import DefaultShaper from './default-shaper.js';
 import base64DeflatedIndicMachine from './indic.js';
 import {

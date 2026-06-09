@@ -1,6 +1,6 @@
 import unicode from '@pdf-lib/unicode-properties';
 import type { BidiDirection, OpenTypeFeatureTag } from '../../layout/glyph-run.js';
-import type GlyphInfo from '../GlyphInfo.js';
+import type GlyphInfo from '../glyph-info.js';
 import type ShapingPlan from '../shaping-plan.js';
 
 const VARIATION_FEATURES = ['rvrn'];
@@ -53,7 +53,7 @@ export default class DefaultShaper {
 		plan.setFeatureOverrides(userFeatures);
 	}
 
-	static assignFeatures(_plan: ShapingPlan, glyphs: GlyphInfo[]) {
+	private static assignFeatures(_plan: ShapingPlan, glyphs: GlyphInfo[]) {
 		// Enable contextual fractions
 		for (let i = 0; i < glyphs.length; i++) {
 			const glyph = glyphs[i];

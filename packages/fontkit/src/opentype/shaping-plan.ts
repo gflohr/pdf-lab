@@ -1,7 +1,7 @@
 import type GlyphPosition from '../layout/glyph-position.js';
 import type { BidiDirection, OpenTypeFeatureTag } from '../layout/glyph-run.js';
 import type { SFNTFont } from '../sfnt-font.js';
-import type GlyphInfo from './GlyphInfo.js';
+import type GlyphInfo from './glyph-info.js';
 import type OTProcessor from './OTProcessor.js';
 
 type FeatureShape =

@@ -1,4 +1,4 @@
-import GlyphInfo from './GlyphInfo.js';
+import GlyphInfo from './glyph-info.js';
 import OTProcessor from './OTProcessor.js';
 
 /**
