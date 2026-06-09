@@ -90,12 +90,14 @@ export default class ShapingPlan {
 	/**
 	 * Add a new stage
 	 */
-	addStage(arg: string | ShapingFunction, global: boolean) {
+	addStage(arg: string | ShapingFunction, global?: boolean) {
+		const isGlobal = global !== undefined ? global : true;
+
 		if (typeof arg === 'function') {
 			this.stages.push(arg, []);
 		} else {
 			this.stages.push([]);
-			this.add(arg, global);
+			this.add(arg, isGlobal);
 		}
 	}
 

@@ -1,7 +1,7 @@
 import unicode from '@pdf-lib/unicode-properties';
+import type { OpenTypeFeatureTag } from '../layout/glyph-run.js';
 import type { SFNTFont } from '../sfnt-font.js';
 import OTProcessor from './OTProcessor.js';
-import { OpenTypeFeatureTag } from '../layout/glyph-run.js';
 
 export default class GlyphInfo {
 	public _font: SFNTFont;
@@ -22,7 +22,12 @@ export default class GlyphInfo {
 	private isMark?: boolean;
 	private markAttachmentType?: number;
 
-	constructor(font: SFNTFont, id: number, public codePoints: number[] = [], features: OpenTypeFeatureTag[] | Record<OpenTypeFeatureTag, boolean>) {
+	constructor(
+		font: SFNTFont,
+		id: number,
+		public codePoints: number[] = [],
+		features: OpenTypeFeatureTag[] | Record<OpenTypeFeatureTag, boolean>,
+	) {
 		// FIXME! Other classes access the _font property!
 		this._font = font;
 		this.codePoints = codePoints;

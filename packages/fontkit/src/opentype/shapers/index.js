@@ -1,4 +1,4 @@
-import ArabicShaper from './ArabicShaper.js';
+import ArabicShaper from './arabic-shaper.js';
 import DefaultShaper from './default-shaper.js';
 import HangulShaper from './HangulShaper.js';
 import IndicShaper from './IndicShaper.js';

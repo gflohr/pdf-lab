@@ -1,14 +1,30 @@
 import unicode from '@pdf-lib/unicode-properties';
-import type { BidiDirection, OpenTypeFeatureTag } from '../../layout/glyph-run.js';
+import type {
+	BidiDirection,
+	OpenTypeFeatureTag,
+} from '../../layout/glyph-run.js';
 import type GlyphInfo from '../glyph-info.js';
 import type ShapingPlan from '../shaping-plan.js';
 
-const VARIATION_FEATURES = ['rvrn'];
-const COMMON_FEATURES = ['ccmp', 'locl', 'rlig', 'mark', 'mkmk'];
-const FRACTIONAL_FEATURES = ['frac', 'numr', 'dnom'];
-const HORIZONTAL_FEATURES = ['calt', 'clig', 'liga', 'rclt', 'curs', 'kern'];
+const VARIATION_FEATURES: OpenTypeFeatureTag[] = ['rvrn'];
+const COMMON_FEATURES: OpenTypeFeatureTag[] = [
+	'ccmp',
+	'locl',
+	'rlig',
+	'mark',
+	'mkmk',
+];
+const FRACTIONAL_FEATURES: OpenTypeFeatureTag[] = ['frac', 'numr', 'dnom'];
+const HORIZONTAL_FEATURES: OpenTypeFeatureTag[] = [
+	'calt',
+	'clig',
+	'liga',
+	'rclt',
+	'curs',
+	'kern',
+];
 // const VERTICAL_FEATURES = ['vert'];
-const DIRECTIONAL_FEATURES: Record<BidiDirection, string[]> = {
+const DIRECTIONAL_FEATURES: Record<BidiDirection, OpenTypeFeatureTag[]> = {
 	ltr: ['ltra', 'ltrm'],
 	rtl: ['rtla', 'rtlm'],
 };
@@ -48,12 +64,15 @@ export default class DefaultShaper {
 		// Do nothing by default. Let subclasses override this.
 	}
 
-	static planPostprocessing(plan: ShapingPlan, userFeatures: Record<OpenTypeFeatureTag, boolean>) {
+	static planPostprocessing(
+		plan: ShapingPlan,
+		userFeatures: Record<OpenTypeFeatureTag, boolean>,
+	) {
 		plan.add([...COMMON_FEATURES, ...HORIZONTAL_FEATURES]);
 		plan.setFeatureOverrides(userFeatures);
 	}
 
-	private static assignFeatures(_plan: ShapingPlan, glyphs: GlyphInfo[]) {
+	protected static assignFeatures(_plan: ShapingPlan, glyphs: GlyphInfo[]) {
 		// Enable contextual fractions
 		for (let i = 0; i < glyphs.length; i++) {
 			const glyph = glyphs[i];
