@@ -1,6 +1,6 @@
 import ArabicShaper from './arabic-shaper.js';
 import DefaultShaper from './default-shaper.js';
-import HangulShaper from './HangulShaper.js';
+import HangulShaper from './hangul-shaper.js';
 import IndicShaper from './IndicShaper.js';
 import UniversalShaper from './UniversalShaper.js';
 

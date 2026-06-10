@@ -32,7 +32,7 @@ export default class ShapingPlan {
 	private allFeatures: Record<OpenTypeFeatureTag, number>;
 	private _direction: BidiDirection;
 	constructor(
-		private font: SFNTFont,
+		public font: SFNTFont,
 		private script: string,
 		direction: BidiDirection = 'ltr',
 	) {
