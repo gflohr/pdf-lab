@@ -16,7 +16,7 @@ import {
 	JOINER_FLAGS,
 	POSITIONS,
 } from './indic-data.js';
-import base64DeflatedTrie from './trieIndic.js';
+import base64DeflatedTrie from './trie-indic.js';
 import base64DeflatedUseData from './use.js';
 
 // Trie is serialized as a Buffer in node, but here

@@ -4,7 +4,7 @@ import pako from 'pako';
 import UnicodeTrie from 'unicode-trie';
 import GlyphInfo from '../glyph-info.js';
 import DefaultShaper from './default-shaper.js';
-import base64DeflatedTrie from './trieUse.js';
+import base64DeflatedTrie from './trie-use.js';
 import base64DeflatedUseData from './use.js';
 
 // Trie is serialized as a Buffer in node, but here
