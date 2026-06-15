@@ -1,8 +1,10 @@
 import type GlyphPosition from '../layout/glyph-position.js';
 import type { BidiDirection, OpenTypeFeatureTag } from '../layout/glyph-run.js';
+import type { OpenTypeTag, UnicodeScript } from '../layout/script.js';
 import type { SFNTFont } from '../sfnt-font.js';
 import type GlyphInfo from './glyph-info.js';
 import type OTProcessor from './OTProcessor.js';
+import { IndicConfig } from './shapers/indic-data.js';
 
 type FeatureShape =
 	| OpenTypeFeatureTag
@@ -31,9 +33,13 @@ export default class ShapingPlan {
 	private globalFeatures: Record<OpenTypeFeatureTag, boolean>;
 	private allFeatures: Record<OpenTypeFeatureTag, number>;
 	private _direction: BidiDirection;
+	public unicodeScript?: UnicodeScript;
+	public indicConfig?: IndicConfig;
+	public isOldSpec?: boolean;
+
 	constructor(
 		public font: SFNTFont,
-		private script: string,
+		public readonly script: OpenTypeTag,
 		direction: BidiDirection = 'ltr',
 	) {
 		this.stages = [];
@@ -90,7 +96,7 @@ export default class ShapingPlan {
 	/**
 	 * Add a new stage
 	 */
-	addStage(arg: string | ShapingFunction, global?: boolean) {
+	addStage(arg: FeatureShape | ShapingFunction, global?: boolean) {
 		const isGlobal = global !== undefined ? global : true;
 
 		if (typeof arg === 'function') {

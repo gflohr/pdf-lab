@@ -1,6 +1,6 @@
 import type { SFNTFont } from '../../sfnt-font.js';
 import GlyphInfo from '../glyph-info.js';
-import ShapingPlan from '../shaping-plan.js';
+import type ShapingPlan from '../shaping-plan.js';
 import DefaultShaper from './default-shaper.js';
 
 /**
@@ -162,7 +162,6 @@ type StateTable = [
 	StateTableItem,
 ];
 
-
 // Build a state machine that accepts valid syllables, and applies actions along the way.
 // The logic this is implementing is documented at the top of the file.
 const STATE_TABLE: StateTable = [
@@ -212,7 +211,11 @@ const STATE_TABLE: StateTable = [
 	],
 ];
 
-function getGlyph(font: SFNTFont, code: number, features: Record<string, boolean>): GlyphInfo {
+function getGlyph(
+	font: SFNTFont,
+	code: number,
+	features: Record<string, boolean>,
+): GlyphInfo {
 	return new GlyphInfo(font, font.glyphForCodePoint(code).id, [code], features);
 }
 
@@ -342,7 +345,11 @@ function getLength(code: number): number {
 	}
 }
 
-function reorderToneMark(glyphs: GlyphInfo[], i: number, font: SFNTFont): GlyphInfo[] | undefined {
+function reorderToneMark(
+	glyphs: GlyphInfo[],
+	i: number,
+	font: SFNTFont,
+): GlyphInfo[] | undefined {
 	const glyph = glyphs[i];
 	const code = glyphs[i].codePoints[0];
 

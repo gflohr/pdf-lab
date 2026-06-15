@@ -2,6 +2,7 @@ import unicode from '@pdf-lib/unicode-properties';
 import type { OpenTypeFeatureTag } from '../layout/glyph-run.js';
 import type { SFNTFont } from '../sfnt-font.js';
 import OTProcessor from './OTProcessor.js';
+import type { IndicInfo } from './shapers/indic-shaper.js';
 
 export default class GlyphInfo {
 	public _font: SFNTFont;
@@ -11,12 +12,12 @@ export default class GlyphInfo {
 	public features: Record<OpenTypeFeatureTag, boolean>;
 	private ligatureID: string | null;
 	private ligatureComponent: number | null;
-	private isLigated: boolean;
+	public readonly isLigated: boolean;
 	private cursiveAttachment: GlyphInfo | null;
 	private markAttachment: GlyphInfo | null;
-	private shaperInfo: Record<string, unknown> | null;
-	private substituted: boolean;
-	private isMultiplied: boolean;
+	public shaperInfo: IndicInfo | null;
+	public substituted: boolean;
+	public readonly isMultiplied: boolean;
 	private isBase?: boolean;
 	private isLigature?: boolean; // FIXME! Is this meant to be the same as isLigated?
 	private isMark?: boolean;
@@ -26,7 +27,7 @@ export default class GlyphInfo {
 		font: SFNTFont,
 		id: number,
 		public codePoints: number[] = [],
-		features: OpenTypeFeatureTag[] | Record<OpenTypeFeatureTag, boolean>,
+		features?: OpenTypeFeatureTag[] | Record<OpenTypeFeatureTag, boolean>,
 	) {
 		// FIXME! Other classes access the _font property!
 		this._font = font;

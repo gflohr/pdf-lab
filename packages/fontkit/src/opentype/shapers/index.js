@@ -1,7 +1,7 @@
 import ArabicShaper from './arabic-shaper.js';
 import DefaultShaper from './default-shaper.js';
 import HangulShaper from './hangul-shaper.js';
-import IndicShaper from './IndicShaper.js';
+import IndicShaper from './indic-shaper.js';
 import UniversalShaper from './UniversalShaper.js';
 
 const SHAPERS = {
