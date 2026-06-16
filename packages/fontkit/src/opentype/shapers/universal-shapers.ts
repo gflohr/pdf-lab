@@ -45,23 +45,23 @@ type UniversalGlyphInfo = GlyphInfo<USEInfo> & {
  */
 export default class UniversalShaper extends DefaultShaper {
 	static zeroMarkWidths = 'BEFORE_GPOS';
-	static planFeatures<USEInfo>(plan: ShapingPlan<USEInfo>) {
-		plan.addStage(setupSyllables as unknown as ShapingFunction<USEInfo>);
+	static planFeatures<T>(plan: ShapingPlan<T>) {
+		plan.addStage(setupSyllables as unknown as ShapingFunction<T>);
 
 		// Default glyph pre-processing group
 		plan.addStage(['locl', 'ccmp', 'nukt', 'akhn']);
 
 		// Reordering group
-		plan.addStage(clearSubstitutionFlags as ShapingFunction<USEInfo>);
+		plan.addStage(clearSubstitutionFlags as ShapingFunction<T>);
 		plan.addStage(['rphf'], false);
-		plan.addStage(recordRphf as ShapingFunction<USEInfo>);
-		plan.addStage(clearSubstitutionFlags as ShapingFunction<USEInfo>);
+		plan.addStage(recordRphf as ShapingFunction<T>);
+		plan.addStage(clearSubstitutionFlags as ShapingFunction<T>);
 		plan.addStage(['pref']);
-		plan.addStage(recordPref as ShapingFunction<USEInfo>);
+		plan.addStage(recordPref as ShapingFunction<T>);
 
 		// Orthographic unit shaping group
 		plan.addStage(['rkrf', 'abvf', 'blwf', 'half', 'pstf', 'vatu', 'cjct']);
-		plan.addStage(reorder as ShapingFunction<USEInfo>);
+		plan.addStage(reorder as ShapingFunction<T>);
 
 		// Topographical features
 		// Scripts that need this are handled by the Arabic shaper, not implemented here for now.
