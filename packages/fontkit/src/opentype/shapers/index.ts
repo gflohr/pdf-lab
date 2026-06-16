@@ -86,6 +86,12 @@ const SHAPERS: Record<string, typeof DefaultShaper> = {
 	DFLT: DefaultShaper, // Default
 };
 
+/**
+ * Given a Unicode script or list of script, select an appropriate shaper.
+ *
+ * @param script One or more scripts
+ * @returns the appropriate shaper
+ */
 export function choose(script: string | string[]): typeof DefaultShaper {
 	if (!Array.isArray(script)) {
 		script = [script];
