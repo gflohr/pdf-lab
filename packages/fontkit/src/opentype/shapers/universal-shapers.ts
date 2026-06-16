@@ -21,7 +21,18 @@ const useData: StateMachine.DFA = JSON.parse(
 );
 const trieData = pako.inflate(base64.decode(base64DeflatedTrie));
 
-const { categories, decompositions } = useData;
+const { categories: rawCategories, decompositions: rawDecompositions } = useData;
+// Guard against invalid data.
+if (!rawCategories) {
+	throw new Error('Invalid USE data: missing categories');
+}
+if (!rawDecompositions) {
+	throw new Error('Invalid USE data: missing decompositions');
+}
+
+// Now make TypeScript happy, too:
+const categories = rawCategories;
+const decompositions = rawDecompositions;
 
 const trie = new UnicodeTrie(trieData);
 const stateMachine = new StateMachine(useData);
@@ -79,8 +90,8 @@ export default class UniversalShaper extends DefaultShaper {
 		// TODO: do this in a more general unicode normalizer
 		for (let i = glyphs.length - 1; i >= 0; i--) {
 			const codepoint = glyphs[i].codePoints[0];
-			if (decompositions![codepoint]) {
-				const decomposed = decompositions![codepoint].map((c: number) => {
+			if (decompositions[codepoint]) {
+				const decomposed = decompositions[codepoint].map((c: number) => {
 					const g = plan.font.glyphForCodePoint(c);
 					return new GlyphInfo<USEInfo>(
 						plan.font,
@@ -110,7 +121,7 @@ function setupSyllables(_font: SFNTFont, glyphs: UniversalGlyphInfo[]) {
 		// Create shaper info
 		for (let i = start; i <= end; i++) {
 			glyphs[i].shaperInfo = new USEInfo(
-				categories![useCategory(glyphs[i])],
+				categories[useCategory(glyphs[i])],
 				tags[0],
 				syllable,
 			);
