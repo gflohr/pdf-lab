@@ -4,7 +4,7 @@ import HangulShaper from './hangul-shaper.js';
 import IndicShaper from './indic-shaper.js';
 import UniversalShaper from './universal-shapers.js';
 
-const SHAPERS: Record<string, DefaultShaper> = {
+const SHAPERS: Record<string, typeof DefaultShaper> = {
 	arab: ArabicShaper, // Arabic
 	mong: ArabicShaper, // Mongolian
 	syrc: ArabicShaper, // Syriac
@@ -86,7 +86,7 @@ const SHAPERS: Record<string, DefaultShaper> = {
 	DFLT: DefaultShaper, // Default
 };
 
-export function choose(script: string | string[]): DefaultShaper {
+export function choose(script: string | string[]): typeof DefaultShaper {
 	if (!Array.isArray(script)) {
 		script = [script];
 	}
