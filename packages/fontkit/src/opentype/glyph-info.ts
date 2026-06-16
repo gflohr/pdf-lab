@@ -3,8 +3,11 @@ import type { OpenTypeFeatureTag } from '../layout/glyph-run.js';
 import type { SFNTFont } from '../sfnt-font.js';
 import OTProcessor from './OTProcessor.js';
 import type { IndicInfo } from './shapers/indic-shaper.js';
+import type { USEInfo } from './shapers/universal-shapers.js';
 
-export default class GlyphInfo {
+export type ShaperInfo = IndicInfo | USEInfo;
+
+export default class GlyphInfo<ShaperInfoT = null> {
 	public _font: SFNTFont;
 	// The constructor calls the setter for this member. It is therefore
 	// always initialised.
@@ -13,9 +16,9 @@ export default class GlyphInfo {
 	private ligatureID: string | null;
 	private ligatureComponent: number | null;
 	public readonly isLigated: boolean;
-	private cursiveAttachment: GlyphInfo | null;
-	private markAttachment: GlyphInfo | null;
-	public shaperInfo: IndicInfo | null;
+	private cursiveAttachment: GlyphInfo<ShaperInfoT> | null;
+	private markAttachment: GlyphInfo<ShaperInfoT> | null;
+	public shaperInfo: ShaperInfoT | null;
 	public substituted: boolean;
 	public readonly isMultiplied: boolean;
 	private isBase?: boolean;
@@ -86,7 +89,7 @@ export default class GlyphInfo {
 		}
 	}
 
-	copy(): GlyphInfo {
+	copy(): GlyphInfo<ShaperInfoT> {
 		return new GlyphInfo(
 			this._font,
 			this.id,

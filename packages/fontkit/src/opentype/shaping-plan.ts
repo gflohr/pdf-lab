@@ -4,7 +4,7 @@ import type { OpenTypeTag, UnicodeScript } from '../layout/script.js';
 import type { SFNTFont } from '../sfnt-font.js';
 import type GlyphInfo from './glyph-info.js';
 import type OTProcessor from './OTProcessor.js';
-import { IndicConfig } from './shapers/indic-data.js';
+import type { IndicConfig } from './shapers/indic-data.js';
 
 type FeatureShape =
 	| OpenTypeFeatureTag
@@ -14,12 +14,12 @@ type FeatureShape =
 			global?: OpenTypeFeatureTag[];
 	  };
 
-type ShapingFunction = (
+export type ShapingFunction<T = null> = (
 	font: SFNTFont,
-	glyphs: GlyphInfo[],
-	plan: ShapingPlan,
+	glyphs: GlyphInfo<T>[],
+	plan: ShapingPlan<T>,
 ) => void;
-type Stage = string[] | ShapingFunction;
+type Stage<T> = string[] | ShapingFunction<T>;
 
 /**
  * ShapingPlans are used by the OpenType shapers to store which
@@ -28,8 +28,8 @@ type Stage = string[] | ShapingFunction;
  * can be applied globally to all glyphs, or locally to only
  * specific glyphs.
  */
-export default class ShapingPlan {
-	private stages: Stage[];
+export default class ShapingPlan<T = null> {
+	private stages: Stage<T>[];
 	private globalFeatures: Record<OpenTypeFeatureTag, boolean>;
 	private allFeatures: Record<OpenTypeFeatureTag, number>;
 	private _direction: BidiDirection;
@@ -96,7 +96,7 @@ export default class ShapingPlan {
 	/**
 	 * Add a new stage
 	 */
-	addStage(arg: FeatureShape | ShapingFunction, global?: boolean) {
+	addStage(arg: FeatureShape | ShapingFunction<T>, global?: boolean) {
 		const isGlobal = global !== undefined ? global : true;
 
 		if (typeof arg === 'function') {
@@ -145,7 +145,7 @@ export default class ShapingPlan {
 	 */
 	process(
 		processor: OTProcessor,
-		glyphs: GlyphInfo[],
+		glyphs: GlyphInfo<T>[],
 		positions: GlyphPosition[],
 	) {
 		for (const stage of this.stages) {

@@ -3,9 +3,12 @@ import * as base64 from 'base64-arraybuffer';
 import StateMachine from 'dfa';
 import pako from 'pako';
 import UnicodeTrie from 'unicode-trie';
+import type { OpenTypeFeatureTag } from '../../layout/glyph-run.js';
 import * as Script from '../../layout/script.js';
+import type { SFNTFont } from '../../sfnt-font.js';
 import GlyphInfo from '../glyph-info.js';
 import type ShapingPlan from '../shaping-plan.js';
+import type { ShapingFunction } from '../shaping-plan.js';
 import DefaultShaper from './default-shaper.js';
 import base64DeflatedIndicMachine from './indic.js';
 import {
@@ -15,14 +18,19 @@ import {
 	INDIC_CONFIGS,
 	INDIC_DECOMPOSITIONS,
 	JOINER_FLAGS,
-	type OpenTypeCategoryID,
-	type OpenTypeSyllablePosition,
 	POSITIONS,
 } from './indic-data.js';
 import base64DeflatedTrie from './trie-indic.js';
 import base64DeflatedUseData from './use.js';
-import { SFNTFont } from '../../sfnt-font.js';
-import { OpenTypeFeatureTag } from '../../layout/glyph-run.js';
+
+export class IndicInfo {
+	constructor(
+		public readonly category: number,
+		public position: number,
+		public readonly syllableType: string,
+		public readonly syllable: number,
+	) {}
+}
 
 // Trie is serialized as a Buffer in node, but here
 // we may be running in a browser so we make an Uint8Array
@@ -46,8 +54,10 @@ const { decompositions } = useData;
 const trie = new UnicodeTrie(trieData);
 const stateMachine = new StateMachine(indicMachine);
 
-// FIXME! We have zillions of non-null assertions for the `shaperInfo`
-// property of a GlyphInfo!
+type IndicGlyphInfo = GlyphInfo<IndicInfo> & {
+	shaperInfo: IndicInfo;
+};
+
 // FIXME! Fix the explicit any occurrencies!
 
 /**
@@ -56,12 +66,12 @@ const stateMachine = new StateMachine(indicMachine);
  */
 export default class IndicShaper extends DefaultShaper {
 	static zeroMarkWidths = 'NONE';
-	static planFeatures(plan: ShapingPlan) {
-		plan.addStage(setupSyllables);
+	static planFeatures<IndicInfo>(plan: ShapingPlan<IndicInfo>) {
+		plan.addStage(setupSyllables as ShapingFunction<IndicInfo>);
 
 		plan.addStage(['locl', 'ccmp']);
 
-		plan.addStage(initialReordering);
+		plan.addStage(initialReordering as unknown as ShapingFunction<IndicInfo>);
 
 		plan.addStage('nukt');
 		plan.addStage('akhn');
@@ -76,7 +86,7 @@ export default class IndicShaper extends DefaultShaper {
 		plan.addStage('cjct');
 		plan.addStage('cfar', false);
 
-		plan.addStage(finalReordering);
+		plan.addStage(finalReordering as unknown as ShapingFunction<IndicInfo>);
 
 		plan.addStage({
 			local: ['init'],
@@ -105,7 +115,10 @@ export default class IndicShaper extends DefaultShaper {
 		// TODO: turn off kern (Khmer) and liga features.
 	}
 
-	static assignFeatures(plan: ShapingPlan, glyphs: GlyphInfo[]) {
+	static assignFeatures(
+		plan: ShapingPlan<IndicInfo>,
+		glyphs: GlyphInfo<IndicInfo>[],
+	) {
 		// Decompose split matras
 		// TODO: do this in a more general unicode normalizer
 		for (let i = glyphs.length - 1; i >= 0; i--) {
@@ -114,7 +127,12 @@ export default class IndicShaper extends DefaultShaper {
 			if (d) {
 				const decomposed = d.map((c) => {
 					const g = plan.font.glyphForCodePoint(c);
-					return new GlyphInfo(plan.font, g.id, [c], glyphs[i].features);
+					return new GlyphInfo<IndicInfo>(
+						plan.font,
+						g.id,
+						[c],
+						glyphs[i].features,
+					);
 				});
 
 				glyphs.splice(i, 1, ...decomposed);
@@ -123,20 +141,15 @@ export default class IndicShaper extends DefaultShaper {
 	}
 }
 
-function indicCategory(glyph: GlyphInfo): number {
+function indicCategory(glyph: IndicGlyphInfo): number {
 	return trie.get(glyph.codePoints[0]) >> 8;
 }
 
-function indicPosition(glyph: GlyphInfo): number {
+function indicPosition(glyph: IndicGlyphInfo): number {
 	return 1 << (trie.get(glyph.codePoints[0]) & 0xff);
 }
 
-export class IndicInfo {
-	constructor(public readonly category: number, public position: number, public readonly syllableType: string, public readonly syllable: number) {
-	}
-}
-
-function setupSyllables(_font: SFNTFont, glyphs: GlyphInfo[]) {
+function setupSyllables(_font: SFNTFont, glyphs: IndicGlyphInfo[]) {
 	let syllable = 0;
 	let last = 0;
 	for (const [start, end, tags] of stateMachine.match(
@@ -182,16 +195,16 @@ function setupSyllables(_font: SFNTFont, glyphs: GlyphInfo[]) {
 	}
 }
 
-function isConsonant(glyph: GlyphInfo) {
-	return glyph.shaperInfo!.category & CONSONANT_FLAGS;
+function isConsonant(glyph: IndicGlyphInfo) {
+	return (glyph.shaperInfo!.category as number) & CONSONANT_FLAGS;
 }
 
-function isJoiner(glyph: GlyphInfo) {
-	return glyph.shaperInfo!.category & JOINER_FLAGS;
+function isJoiner(glyph: IndicGlyphInfo) {
+	return (glyph.shaperInfo!.category as number) & JOINER_FLAGS;
 }
 
-function isHalantOrCoeng(glyph: GlyphInfo) {
-	return glyph.shaperInfo!.category & HALANT_OR_COENG_FLAGS;
+function isHalantOrCoeng(glyph: IndicGlyphInfo) {
+	return (glyph.shaperInfo!.category as number) & HALANT_OR_COENG_FLAGS;
 }
 
 /**
@@ -199,7 +212,10 @@ function isHalantOrCoeng(glyph: GlyphInfo) {
  * them down to a single glyph. NOTE: mutates the passed-in `glyphs` (both
  * each glyph's `features` and the array contents). Callers must pass copies.
  */
-function wouldSubstitute(glyphs: GlyphInfo[], feature: OpenTypeFeatureTag) {
+function wouldSubstitute(
+	glyphs: IndicGlyphInfo[],
+	feature: OpenTypeFeatureTag,
+) {
 	for (const glyph of glyphs) {
 		glyph.features = { [feature]: true };
 	}
@@ -210,7 +226,11 @@ function wouldSubstitute(glyphs: GlyphInfo[], feature: OpenTypeFeatureTag) {
 	return glyphs.length === 1;
 }
 
-function consonantPosition(_font: SFNTFont, consonant: GlyphInfo, virama: GlyphInfo): number {
+function consonantPosition(
+	_font: SFNTFont,
+	consonant: IndicGlyphInfo,
+	virama: IndicGlyphInfo,
+): number {
 	const glyphs = [virama, consonant, virama];
 	if (
 		wouldSubstitute(glyphs.slice(0, 2), 'blwf') ||
@@ -232,7 +252,11 @@ function consonantPosition(_font: SFNTFont, consonant: GlyphInfo, virama: GlyphI
 	return POSITIONS.Base_C;
 }
 
-function initialReordering(font: SFNTFont, glyphs: GlyphInfo[], plan: ShapingPlan) {
+function initialReordering(
+	font: SFNTFont,
+	glyphs: IndicGlyphInfo[],
+	plan: ShapingPlan<IndicInfo>,
+) {
 	const indicConfig = plan.indicConfig!;
 	const features = (font._layoutEngine.engine as any).GSUBProcessor.features;
 
@@ -240,13 +264,13 @@ function initialReordering(font: SFNTFont, glyphs: GlyphInfo[], plan: ShapingPla
 	const virama = font.glyphForCodePoint(indicConfig!.virama).id;
 
 	if (virama) {
-		const info = new GlyphInfo(font, virama, [indicConfig.virama]);
+		const info = new GlyphInfo<IndicInfo>(font, virama, [indicConfig.virama]);
 		for (let i = 0; i < glyphs.length; i++) {
 			if (glyphs[i].shaperInfo!.position === POSITIONS.Base_C) {
 				glyphs[i].shaperInfo!.position = consonantPosition(
 					font,
-					glyphs[i].copy(),
-					info,
+					glyphs[i].copy() as IndicGlyphInfo,
+					info as IndicGlyphInfo,
 				);
 			}
 		}
@@ -267,7 +291,11 @@ function initialReordering(font: SFNTFont, glyphs: GlyphInfo[], plan: ShapingPla
 		}
 
 		if (syllableType === 'broken_cluster' && dottedCircle) {
-			const g = new GlyphInfo(font, dottedCircle, [0x25cc]);
+			const g: IndicGlyphInfo = new GlyphInfo<IndicInfo>(
+				font,
+				dottedCircle,
+				[0x25cc],
+			) as IndicGlyphInfo;
 			g.shaperInfo = new IndicInfo(
 				1 << indicCategory(g),
 				indicPosition(g),
@@ -311,9 +339,9 @@ function initialReordering(font: SFNTFont, glyphs: GlyphInfo[], plan: ShapingPla
 		) {
 			// See if it matches the 'rphf' feature.
 			const g = [
-				glyphs[start].copy(),
-				glyphs[start + 1].copy(),
-				glyphs[start + 2].copy(),
+				glyphs[start].copy() as IndicGlyphInfo,
+				glyphs[start + 1].copy() as IndicGlyphInfo,
+				glyphs[start + 2].copy() as IndicGlyphInfo,
 			];
 			if (
 				wouldSubstitute(g.slice(0, 2), 'rphf') ||
@@ -444,7 +472,7 @@ function initialReordering(font: SFNTFont, glyphs: GlyphInfo[], plan: ShapingPla
 
 		for (let i = start; i < base; i++) {
 			const info = glyphs[i].shaperInfo!;
-			info.position = Math.min(POSITIONS.Pre_C, info.position);
+			info.position = Math.min(POSITIONS.Pre_C, info.position!);
 		}
 
 		if (base < end) {
@@ -518,12 +546,12 @@ function initialReordering(font: SFNTFont, glyphs: GlyphInfo[], plan: ShapingPla
 		for (let i = start; i < end; i++) {
 			const info = glyphs[i].shaperInfo!;
 			if (
-				info.category &
+				(info.category as number) &
 				(JOINER_FLAGS |
 					CATEGORIES.N |
 					CATEGORIES.RS |
 					CATEGORIES.CM |
-					(HALANT_OR_COENG_FLAGS & info.category))
+					(HALANT_OR_COENG_FLAGS & (info.category as number)))
 			) {
 				info.position = lastPos;
 				if (
@@ -545,7 +573,7 @@ function initialReordering(font: SFNTFont, glyphs: GlyphInfo[], plan: ShapingPla
 					}
 				}
 			} else if (info.position !== POSITIONS.SMVD) {
-				lastPos = info.position;
+				lastPos = info.position!;
 			}
 		}
 
@@ -555,7 +583,7 @@ function initialReordering(font: SFNTFont, glyphs: GlyphInfo[], plan: ShapingPla
 		for (let i = base + 1; i < end; i++) {
 			if (isConsonant(glyphs[i])) {
 				for (let j = last + 1; j < i; j++) {
-					if (glyphs[j].shaperInfo!.position < POSITIONS.SMVD) {
+					if (glyphs[j].shaperInfo!.position! < POSITIONS.SMVD) {
 						glyphs[j].shaperInfo!.position = glyphs[i].shaperInfo!.position;
 					}
 				}
@@ -566,7 +594,7 @@ function initialReordering(font: SFNTFont, glyphs: GlyphInfo[], plan: ShapingPla
 		}
 
 		const arr = glyphs.slice(start, end);
-		arr.sort((a, b) => a.shaperInfo!.position - b.shaperInfo!.position);
+		arr.sort((a, b) => a.shaperInfo!.position! - b.shaperInfo!.position!);
 		glyphs.splice(start, arr.length, ...arr);
 
 		// Find base again
@@ -639,7 +667,10 @@ function initialReordering(font: SFNTFont, glyphs: GlyphInfo[], plan: ShapingPla
 		if (features.pref && base + prefLen < end) {
 			// Find a Halant,Ra sequence and mark it for pre-base reordering processing.
 			for (let i = base + 1; i + prefLen - 1 < end; i++) {
-				const g = [glyphs[i].copy(), glyphs[i + 1].copy()];
+				const g = [
+					glyphs[i].copy() as IndicGlyphInfo,
+					glyphs[i + 1].copy() as IndicGlyphInfo,
+				];
 				if (wouldSubstitute(g, 'pref')) {
 					for (let j = 0; j < prefLen; j++) {
 						glyphs[i++].features.pref = true;
@@ -684,7 +715,11 @@ function initialReordering(font: SFNTFont, glyphs: GlyphInfo[], plan: ShapingPla
 	}
 }
 
-function finalReordering(font: SFNTFont, glyphs: GlyphInfo[], plan: ShapingPlan) {
+function finalReordering(
+	font: SFNTFont,
+	glyphs: IndicGlyphInfo[],
+	plan: ShapingPlan<IndicInfo>,
+) {
 	const indicConfig = plan.indicConfig!;
 	const features = (font._layoutEngine.engine as any).GSUBProcessor.features;
 
@@ -705,7 +740,7 @@ function finalReordering(font: SFNTFont, glyphs: GlyphInfo[], plan: ShapingPlan)
 		// Find base again
 		let base = start;
 		for (; base < end; base++) {
-			if (glyphs[base].shaperInfo!.position >= POSITIONS.Base_C) {
+			if (glyphs[base].shaperInfo!.position! >= POSITIONS.Base_C) {
 				if (tryPref && base + 1 < end) {
 					for (let i = base + 1; i < end; i++) {
 						if (glyphs[i].features.pref) {
@@ -759,7 +794,7 @@ function finalReordering(font: SFNTFont, glyphs: GlyphInfo[], plan: ShapingPlan)
 
 				if (
 					start < base &&
-					glyphs[base].shaperInfo!.position > POSITIONS.Base_C
+					glyphs[base].shaperInfo!.position! > POSITIONS.Base_C
 				) {
 					base--;
 				}
@@ -778,7 +813,7 @@ function finalReordering(font: SFNTFont, glyphs: GlyphInfo[], plan: ShapingPlan)
 		if (base < end) {
 			while (
 				start < base &&
-				glyphs[base].shaperInfo!.category &
+				(glyphs[base].shaperInfo!.category as number) &
 					(CATEGORIES.N | HALANT_OR_COENG_FLAGS)
 			) {
 				base--;
@@ -810,7 +845,7 @@ function finalReordering(font: SFNTFont, glyphs: GlyphInfo[], plan: ShapingPlan)
 				while (
 					newPos > start &&
 					!(
-						glyphs[newPos].shaperInfo!.category &
+						(glyphs[newPos].shaperInfo!.category as number) &
 						(CATEGORIES.M | HALANT_OR_COENG_FLAGS)
 					)
 				) {
@@ -920,7 +955,7 @@ function finalReordering(font: SFNTFont, glyphs: GlyphInfo[], plan: ShapingPlan)
 					newRephPos = base;
 					while (
 						newRephPos + 1 < end &&
-						glyphs[newRephPos + 1].shaperInfo!.position <= POSITIONS.After_Main
+						glyphs[newRephPos + 1].shaperInfo!.position! <= POSITIONS.After_Main
 					) {
 						newRephPos++;
 					}
@@ -939,7 +974,7 @@ function finalReordering(font: SFNTFont, glyphs: GlyphInfo[], plan: ShapingPlan)
 					while (
 						newRephPos + 1 < end &&
 						!(
-							glyphs[newRephPos + 1].shaperInfo!.position &
+							glyphs[newRephPos + 1].shaperInfo!.position! &
 							(POSITIONS.Post_C | POSITIONS.After_Post | POSITIONS.SMVD)
 						)
 					) {
@@ -1039,7 +1074,7 @@ function finalReordering(font: SFNTFont, glyphs: GlyphInfo[], plan: ShapingPlan)
 							while (
 								newPos > start &&
 								!(
-									glyphs[newPos - 1].shaperInfo!.category &
+									(glyphs[newPos - 1].shaperInfo!.category as number) &
 									(CATEGORIES.M | HALANT_OR_COENG_FLAGS)
 								)
 							) {
@@ -1099,7 +1134,7 @@ function finalReordering(font: SFNTFont, glyphs: GlyphInfo[], plan: ShapingPlan)
 	}
 }
 
-function nextSyllable(glyphs: GlyphInfo[], start: number) {
+function nextSyllable(glyphs: IndicGlyphInfo[], start: number) {
 	if (start >= glyphs.length) return start;
 	const syllable = glyphs[start].shaperInfo!.syllable;
 	while (

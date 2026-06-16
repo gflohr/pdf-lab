@@ -4,6 +4,7 @@ import type {
 	OpenTypeFeatureTag,
 } from '../../layout/glyph-run.js';
 import type GlyphInfo from '../glyph-info.js';
+import { ShaperInfo } from '../glyph-info.js';
 import type ShapingPlan from '../shaping-plan.js';
 
 const VARIATION_FEATURES: OpenTypeFeatureTag[] = ['rvrn'];
@@ -60,7 +61,7 @@ export default class DefaultShaper {
 		});
 	}
 
-	static planFeatures(_plan: ShapingPlan) {
+	static planFeatures<T>(_plan: ShapingPlan<T>) {
 		// Do nothing by default. Let subclasses override this.
 	}
 
@@ -72,7 +73,17 @@ export default class DefaultShaper {
 		plan.setFeatureOverrides(userFeatures);
 	}
 
-	protected static assignFeatures(_plan: ShapingPlan, glyphs: GlyphInfo[]) {
+	protected static assignFeatures(
+		/* biome-ignore lint/suspicious/noExplicitAny: This base static method
+		 * must use 'any' to act as a wildcard, allowing inheriting shapers
+		 * (like Indic or Arabic) to safely narrow the generic parameters to
+		 * their specific layout structures without violating the Liskov
+		 * Substitution Principle.
+		 */
+		_plan: ShapingPlan<any>,
+		// biome-ignore lint/suspicious/noExplicitAny: See above!
+		glyphs: GlyphInfo<any>[],
+	) {
 		// Enable contextual fractions
 		for (let i = 0; i < glyphs.length; i++) {
 			const glyph = glyphs[i];

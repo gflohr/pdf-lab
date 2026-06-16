@@ -158,7 +158,7 @@ const STATE_TABLE: StateTable = [
  * https://github.com/behdad/harfbuzz/blob/master/src/hb-ot-shape-complex-arabic.cc
  */
 export default class ArabicShaper extends DefaultShaper {
-	static planFeatures(plan: ShapingPlan) {
+	static planFeatures<T>(plan: ShapingPlan<T>) {
 		plan.add(['ccmp', 'locl']);
 		for (let i = 0; i < FEATURES.length; i++) {
 			const feature = FEATURES[i];
@@ -168,7 +168,10 @@ export default class ArabicShaper extends DefaultShaper {
 		plan.addStage('mset');
 	}
 
-	protected static assignFeatures(plan: ShapingPlan, glyphs: GlyphInfo[]) {
+	protected static assignFeatures(
+		plan: ShapingPlan<null>,
+		glyphs: GlyphInfo<null>[],
+	) {
 		DefaultShaper.assignFeatures(plan, glyphs);
 
 		let prev = -1;

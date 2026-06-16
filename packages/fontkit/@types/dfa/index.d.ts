@@ -7,12 +7,14 @@ declare module 'dfa' {
 
 	namespace StateMachine {
 		export interface DFA {
+			categories?: string[];
+			// The string keys are all integers.
+			decompositions?: Record<string, number[]>;
 			stateTable: number[];
 			accepting: boolean[];
 			tags: string[][];
 		}
 	}
-
 
 	export = StateMachine;
 }

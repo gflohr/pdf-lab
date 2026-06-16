@@ -27,11 +27,11 @@ import DefaultShaper from './default-shaper.js';
  */
 export default class HangulShaper extends DefaultShaper {
 	static zeroMarkWidths = 'NONE';
-	static planFeatures(plan: ShapingPlan) {
+	static planFeatures<T>(plan: ShapingPlan<T>) {
 		plan.add(['ljmo', 'vjmo', 'tjmo'], false);
 	}
 
-	static assignFeatures(plan: ShapingPlan, glyphs: GlyphInfo[]) {
+	static assignFeatures(plan: ShapingPlan<null>, glyphs: GlyphInfo<null>[]) {
 		let state = 0;
 		let i = 0;
 		while (i < glyphs.length) {
