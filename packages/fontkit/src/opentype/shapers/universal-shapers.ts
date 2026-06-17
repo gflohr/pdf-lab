@@ -129,7 +129,7 @@ function setupSyllables(_font: SFNTFont, glyphs: UniversalGlyphInfo[]) {
 
 		// Assign rphf feature
 		const limit =
-			glyphs[start].shaperInfo!.category === 'R' ? 1 : Math.min(3, end - start);
+			glyphs[start].shaperInfo.category === 'R' ? 1 : Math.min(3, end - start);
 		for (let i = start; i < start + limit; i++) {
 			glyphs[i].features.rphf = true;
 		}
@@ -146,7 +146,7 @@ function recordRphf(_font: SFNTFont, glyphs: UniversalGlyphInfo[]) {
 	for (const glyph of glyphs) {
 		if (glyph.substituted && glyph.features.rphf) {
 			// Mark a substituted repha.
-			glyph.shaperInfo!.category = 'R';
+			glyph.shaperInfo.category = 'R';
 		}
 	}
 }
@@ -155,7 +155,7 @@ function recordPref(_font: SFNTFont, glyphs: UniversalGlyphInfo[]) {
 	for (const glyph of glyphs) {
 		if (glyph.substituted) {
 			// Mark a substituted pref as VPre, as they behave the same way.
-			glyph.shaperInfo!.category = 'VPre';
+			glyph.shaperInfo.category = 'VPre';
 		}
 	}
 }
@@ -169,7 +169,7 @@ function reorder(font: SFNTFont, glyphs: UniversalGlyphInfo[]) {
 		start = end, end = nextSyllable(glyphs, start)
 	) {
 		let i: number, j: number;
-		let info = glyphs[start].shaperInfo!;
+		let info = glyphs[start].shaperInfo;
 		const type = info.syllableType;
 
 		// Only a few syllable types need reordering.
@@ -187,7 +187,7 @@ function reorder(font: SFNTFont, glyphs: UniversalGlyphInfo[]) {
 			g.shaperInfo = info;
 
 			// Insert after possible Repha.
-			for (i = start; i < end && glyphs[i].shaperInfo!.category === 'R'; i++);
+			for (i = start; i < end && glyphs[i].shaperInfo.category === 'R'; i++);
 			glyphs.splice(++i, 0, g as UniversalGlyphInfo);
 			end++;
 		}
@@ -196,7 +196,7 @@ function reorder(font: SFNTFont, glyphs: UniversalGlyphInfo[]) {
 		if (info.category === 'R' && end - start > 1) {
 			// Got a repha. Reorder it to after first base, before first halant.
 			for (i = start + 1; i < end; i++) {
-				info = glyphs[i].shaperInfo!;
+				info = glyphs[i].shaperInfo;
 				if (isBase(info) || isHalant(glyphs[i])) {
 					// If we hit a halant, move before it; otherwise it's a
 					// base: move to its place, and shift things in between
@@ -218,7 +218,7 @@ function reorder(font: SFNTFont, glyphs: UniversalGlyphInfo[]) {
 
 		// Move things back.
 		for (i = start, j = end; i < end; i++) {
-			info = glyphs[i].shaperInfo!;
+			info = glyphs[i].shaperInfo;
 			if (isBase(info) || isHalant(glyphs[i])) {
 				// If we hit a halant, move after it; otherwise it's a base: move to it's
 				// place, and shift things in between backward.
@@ -235,16 +235,16 @@ function reorder(font: SFNTFont, glyphs: UniversalGlyphInfo[]) {
 
 function nextSyllable(glyphs: UniversalGlyphInfo[], start: number): number {
 	if (start >= glyphs.length) return start;
-	const syllable = glyphs[start].shaperInfo!.syllable;
+	const syllable = glyphs[start].shaperInfo.syllable;
 	while (
 		++start < glyphs.length &&
-		glyphs[start].shaperInfo!.syllable === syllable
+		glyphs[start].shaperInfo.syllable === syllable
 	);
 	return start;
 }
 
 function isHalant(glyph: UniversalGlyphInfo) {
-	return glyph.shaperInfo!.category === 'H' && !glyph.isLigated;
+	return glyph.shaperInfo.category === 'H' && !glyph.isLigated;
 }
 
 function isBase(info: USEInfo) {

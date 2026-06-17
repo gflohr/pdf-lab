@@ -196,15 +196,15 @@ function setupSyllables(_font: SFNTFont, glyphs: IndicGlyphInfo[]) {
 }
 
 function isConsonant(glyph: IndicGlyphInfo) {
-	return (glyph.shaperInfo!.category as number) & CONSONANT_FLAGS;
+	return (glyph.shaperInfo.category as number) & CONSONANT_FLAGS;
 }
 
 function isJoiner(glyph: IndicGlyphInfo) {
-	return (glyph.shaperInfo!.category as number) & JOINER_FLAGS;
+	return (glyph.shaperInfo.category as number) & JOINER_FLAGS;
 }
 
 function isHalantOrCoeng(glyph: IndicGlyphInfo) {
-	return (glyph.shaperInfo!.category as number) & HALANT_OR_COENG_FLAGS;
+	return (glyph.shaperInfo.category as number) & HALANT_OR_COENG_FLAGS;
 }
 
 /**
@@ -266,8 +266,8 @@ function initialReordering(
 	if (virama) {
 		const info = new GlyphInfo<IndicInfo>(font, virama, [indicConfig.virama]);
 		for (let i = 0; i < glyphs.length; i++) {
-			if (glyphs[i].shaperInfo!.position === POSITIONS.Base_C) {
-				glyphs[i].shaperInfo!.position = consonantPosition(
+			if (glyphs[i].shaperInfo.position === POSITIONS.Base_C) {
+				glyphs[i].shaperInfo.position = consonantPosition(
 					font,
 					glyphs[i].copy() as IndicGlyphInfo,
 					info as IndicGlyphInfo,
@@ -299,13 +299,13 @@ function initialReordering(
 			g.shaperInfo = new IndicInfo(
 				1 << indicCategory(g),
 				indicPosition(g),
-				glyphs[start].shaperInfo!.syllableType,
-				glyphs[start].shaperInfo!.syllable,
+				glyphs[start].shaperInfo.syllableType,
+				glyphs[start].shaperInfo.syllable,
 			);
 
 			// Insert after possible Repha.
 			let i = start;
-			while (i < end && glyphs[i].shaperInfo!.category === CATEGORIES.Repha) {
+			while (i < end && glyphs[i].shaperInfo.category === CATEGORIES.Repha) {
 				i++;
 			}
 
@@ -335,7 +335,7 @@ function initialReordering(
 			start + 3 <= end &&
 			((indicConfig.rephMode === 'Implicit' && !isJoiner(glyphs[start + 2])) ||
 				(indicConfig.rephMode === 'Explicit' &&
-					glyphs[start + 2].shaperInfo!.category === CATEGORIES.ZWJ))
+					glyphs[start + 2].shaperInfo.category === CATEGORIES.ZWJ))
 		) {
 			// See if it matches the 'rphf' feature.
 			const g = [
@@ -356,7 +356,7 @@ function initialReordering(
 			}
 		} else if (
 			indicConfig.rephMode === 'Log_Repha' &&
-			glyphs[start].shaperInfo!.category === CATEGORIES.Repha
+			glyphs[start].shaperInfo.category === CATEGORIES.Repha
 		) {
 			limit++;
 			while (limit < end && isJoiner(glyphs[limit])) {
@@ -373,7 +373,7 @@ function initialReordering(
 				let seenBelow = false;
 
 				do {
-					const info = glyphs[--i].shaperInfo!;
+					const info = glyphs[--i].shaperInfo;
 
 					// until a consonant is found
 					if (isConsonant(glyphs[i])) {
@@ -405,7 +405,7 @@ function initialReordering(
 					} else if (
 						start < i &&
 						info.category === CATEGORIES.ZWJ &&
-						glyphs[i - 1].shaperInfo!.category === CATEGORIES.H
+						glyphs[i - 1].shaperInfo.category === CATEGORIES.H
 					) {
 						// A ZWJ after a Halant stops the base search, and requests an explicit
 						// half form.
@@ -425,7 +425,7 @@ function initialReordering(
 				// Mark all subsequent consonants as below.
 				for (let i = base + 1; i < end; i++) {
 					if (isConsonant(glyphs[i])) {
-						glyphs[i].shaperInfo!.position = POSITIONS.Below_C;
+						glyphs[i].shaperInfo.position = POSITIONS.Below_C;
 					}
 				}
 			}
@@ -471,21 +471,21 @@ function initialReordering(
 		// Reorder characters
 
 		for (let i = start; i < base; i++) {
-			const info = glyphs[i].shaperInfo!;
-			info.position = Math.min(POSITIONS.Pre_C, info.position!);
+			const info = glyphs[i].shaperInfo;
+			info.position = Math.min(POSITIONS.Pre_C, info.position);
 		}
 
 		if (base < end) {
-			glyphs[base].shaperInfo!.position = POSITIONS.Base_C;
+			glyphs[base].shaperInfo.position = POSITIONS.Base_C;
 		}
 
 		// Mark final consonants.  A final consonant is one appearing after a matra,
 		// like in Khmer.
 		for (let i = base + 1; i < end; i++) {
-			if (glyphs[i].shaperInfo!.category === CATEGORIES.M) {
+			if (glyphs[i].shaperInfo.category === CATEGORIES.M) {
 				for (let j = i + 1; j < end; j++) {
 					if (isConsonant(glyphs[j])) {
-						glyphs[j].shaperInfo!.position = POSITIONS.Final_C;
+						glyphs[j].shaperInfo.position = POSITIONS.Final_C;
 						break;
 					}
 				}
@@ -495,7 +495,7 @@ function initialReordering(
 
 		// Handle beginning Ra
 		if (hasReph) {
-			glyphs[start].shaperInfo!.position = POSITIONS.Ra_To_Become_Reph;
+			glyphs[start].shaperInfo.position = POSITIONS.Ra_To_Become_Reph;
 		}
 
 		// For old-style Indic script tags, move the first post-base Halant after
@@ -517,19 +517,19 @@ function initialReordering(
 		if (plan.isOldSpec) {
 			const disallowDoubleHalants = plan.unicodeScript !== 'Malayalam';
 			for (let i = base + 1; i < end; i++) {
-				if (glyphs[i].shaperInfo!.category === CATEGORIES.H) {
+				if (glyphs[i].shaperInfo.category === CATEGORIES.H) {
 					let j: number;
 					for (j = end - 1; j > i; j--) {
 						if (
 							isConsonant(glyphs[j]) ||
 							(disallowDoubleHalants &&
-								glyphs[j].shaperInfo!.category === CATEGORIES.H)
+								glyphs[j].shaperInfo.category === CATEGORIES.H)
 						) {
 							break;
 						}
 					}
 
-					if (glyphs[j].shaperInfo!.category !== CATEGORIES.H && j > i) {
+					if (glyphs[j].shaperInfo.category !== CATEGORIES.H && j > i) {
 						// Move Halant to after last consonant.
 						const t = glyphs[i];
 						glyphs.splice(i, 0, ...glyphs.splice(i + 1, j - i));
@@ -544,7 +544,7 @@ function initialReordering(
 		// Attach misc marks to previous char to move with them.
 		let lastPos = POSITIONS.Start;
 		for (let i = start; i < end; i++) {
-			const info = glyphs[i].shaperInfo!;
+			const info = glyphs[i].shaperInfo;
 			if (
 				(info.category as number) &
 				(JOINER_FLAGS |
@@ -566,14 +566,14 @@ function initialReordering(
 					// We do not want to move the virama with the left matra.
 					// TEST: U+0D9A,U+0DDA
 					for (let j = i; j > start; j--) {
-						if (glyphs[j - 1].shaperInfo!.position !== POSITIONS.Pre_M) {
-							info.position = glyphs[j - 1].shaperInfo!.position;
+						if (glyphs[j - 1].shaperInfo.position !== POSITIONS.Pre_M) {
+							info.position = glyphs[j - 1].shaperInfo.position;
 							break;
 						}
 					}
 				}
 			} else if (info.position !== POSITIONS.SMVD) {
-				lastPos = info.position!;
+				lastPos = info.position;
 			}
 		}
 
@@ -583,23 +583,23 @@ function initialReordering(
 		for (let i = base + 1; i < end; i++) {
 			if (isConsonant(glyphs[i])) {
 				for (let j = last + 1; j < i; j++) {
-					if (glyphs[j].shaperInfo!.position! < POSITIONS.SMVD) {
-						glyphs[j].shaperInfo!.position = glyphs[i].shaperInfo!.position;
+					if (glyphs[j].shaperInfo.position < POSITIONS.SMVD) {
+						glyphs[j].shaperInfo.position = glyphs[i].shaperInfo.position;
 					}
 				}
 				last = i;
-			} else if (glyphs[i].shaperInfo!.category === CATEGORIES.M) {
+			} else if (glyphs[i].shaperInfo.category === CATEGORIES.M) {
 				last = i;
 			}
 		}
 
 		const arr = glyphs.slice(start, end);
-		arr.sort((a, b) => a.shaperInfo!.position! - b.shaperInfo!.position!);
+		arr.sort((a, b) => a.shaperInfo.position - b.shaperInfo.position);
 		glyphs.splice(start, arr.length, ...arr);
 
 		// Find base again
 		for (let i = start; i < end; i++) {
-			if (glyphs[i].shaperInfo!.position === POSITIONS.Base_C) {
+			if (glyphs[i].shaperInfo.position === POSITIONS.Base_C) {
 				base = i;
 				break;
 			}
@@ -610,7 +610,7 @@ function initialReordering(
 		// Reph
 		for (
 			let i = start;
-			i < end && glyphs[i].shaperInfo!.position === POSITIONS.Ra_To_Become_Reph;
+			i < end && glyphs[i].shaperInfo.position === POSITIONS.Ra_To_Become_Reph;
 			i++
 		) {
 			glyphs[i].features.rphf = true;
@@ -652,10 +652,10 @@ function initialReordering(
 			// Test case: U+0924,U+094D,U+0930,U+094d,U+200D,U+0915
 			for (let i = start; i + 1 < base; i++) {
 				if (
-					glyphs[i].shaperInfo!.category === CATEGORIES.Ra &&
-					glyphs[i + 1].shaperInfo!.category === CATEGORIES.H &&
+					glyphs[i].shaperInfo.category === CATEGORIES.Ra &&
+					glyphs[i + 1].shaperInfo.category === CATEGORIES.H &&
 					(i + 1 === base ||
-						glyphs[i + 2].shaperInfo!.category === CATEGORIES.ZWJ)
+						glyphs[i + 2].shaperInfo.category === CATEGORIES.ZWJ)
 				) {
 					glyphs[i].features.blwf = true;
 					glyphs[i + 1].features.blwf = true;
@@ -695,7 +695,7 @@ function initialReordering(
 		// Apply ZWJ/ZWNJ effects
 		for (let i = start + 1; i < end; i++) {
 			if (isJoiner(glyphs[i])) {
-				const nonJoiner = glyphs[i].shaperInfo!.category === CATEGORIES.ZWNJ;
+				const nonJoiner = glyphs[i].shaperInfo.category === CATEGORIES.ZWNJ;
 				let j = i;
 
 				do {
@@ -740,7 +740,7 @@ function finalReordering(
 		// Find base again
 		let base = start;
 		for (; base < end; base++) {
-			if (glyphs[base].shaperInfo!.position! >= POSITIONS.Base_C) {
+			if (glyphs[base].shaperInfo.position >= POSITIONS.Base_C) {
 				if (tryPref && base + 1 < end) {
 					for (let i = base + 1; i < end; i++) {
 						if (glyphs[i].features.pref) {
@@ -757,7 +757,7 @@ function finalReordering(
 								while (base < end && isHalantOrCoeng(glyphs[base])) {
 									base++;
 								}
-								glyphs[base].shaperInfo!.position = POSITIONS.Base_C;
+								glyphs[base].shaperInfo.position = POSITIONS.Base_C;
 								tryPref = false;
 							}
 							break;
@@ -784,17 +784,17 @@ function finalReordering(
 						if (
 							i < end &&
 							isConsonant(glyphs[i]) &&
-							glyphs[i].shaperInfo!.position === POSITIONS.Below_C
+							glyphs[i].shaperInfo.position === POSITIONS.Below_C
 						) {
 							base = i;
-							glyphs[base].shaperInfo!.position = POSITIONS.Base_C;
+							glyphs[base].shaperInfo.position = POSITIONS.Base_C;
 						}
 					}
 				}
 
 				if (
 					start < base &&
-					glyphs[base].shaperInfo!.position! > POSITIONS.Base_C
+					glyphs[base].shaperInfo.position > POSITIONS.Base_C
 				) {
 					base--;
 				}
@@ -805,7 +805,7 @@ function finalReordering(
 		if (
 			base === end &&
 			start < base &&
-			glyphs[base - 1].shaperInfo!.category === CATEGORIES.ZWJ
+			glyphs[base - 1].shaperInfo.category === CATEGORIES.ZWJ
 		) {
 			base--;
 		}
@@ -813,7 +813,7 @@ function finalReordering(
 		if (base < end) {
 			while (
 				start < base &&
-				(glyphs[base].shaperInfo!.category as number) &
+				(glyphs[base].shaperInfo.category as number) &
 					(CATEGORIES.N | HALANT_OR_COENG_FLAGS)
 			) {
 				base--;
@@ -845,7 +845,7 @@ function finalReordering(
 				while (
 					newPos > start &&
 					!(
-						(glyphs[newPos].shaperInfo!.category as number) &
+						(glyphs[newPos].shaperInfo.category as number) &
 						(CATEGORIES.M | HALANT_OR_COENG_FLAGS)
 					)
 				) {
@@ -857,7 +857,7 @@ function finalReordering(
 				// not belong to the Matra itself!
 				if (
 					isHalantOrCoeng(glyphs[newPos]) &&
-					glyphs[newPos].shaperInfo!.position !== POSITIONS.Pre_M
+					glyphs[newPos].shaperInfo.position !== POSITIONS.Pre_M
 				) {
 					// If ZWJ or ZWNJ follow this halant, position is moved after it.
 					if (newPos + 1 < end && isJoiner(glyphs[newPos + 1])) {
@@ -870,11 +870,11 @@ function finalReordering(
 
 			if (
 				start < newPos &&
-				glyphs[newPos].shaperInfo!.position !== POSITIONS.Pre_M
+				glyphs[newPos].shaperInfo.position !== POSITIONS.Pre_M
 			) {
 				// Now go see if there's actually any matras...
 				for (let i = newPos; i > start; i--) {
-					if (glyphs[i - 1].shaperInfo!.position === POSITIONS.Pre_M) {
+					if (glyphs[i - 1].shaperInfo.position === POSITIONS.Pre_M) {
 						const oldPos = i - 1;
 						if (oldPos < base && base <= newPos) {
 							// Should not happen.
@@ -913,8 +913,8 @@ function finalReordering(
 		//   to make it work without the reordering.
 		if (
 			start + 1 < end &&
-			glyphs[start].shaperInfo!.position === POSITIONS.Ra_To_Become_Reph &&
-			(glyphs[start].shaperInfo!.category === CATEGORIES.Repha) !==
+			glyphs[start].shaperInfo.position === POSITIONS.Ra_To_Become_Reph &&
+			(glyphs[start].shaperInfo.category === CATEGORIES.Repha) !==
 				(glyphs[start].isLigated && !glyphs[start].isMultiplied)
 		) {
 			let newRephPos: number;
@@ -955,7 +955,7 @@ function finalReordering(
 					newRephPos = base;
 					while (
 						newRephPos + 1 < end &&
-						glyphs[newRephPos + 1].shaperInfo!.position! <= POSITIONS.After_Main
+						glyphs[newRephPos + 1].shaperInfo.position <= POSITIONS.After_Main
 					) {
 						newRephPos++;
 					}
@@ -974,7 +974,7 @@ function finalReordering(
 					while (
 						newRephPos + 1 < end &&
 						!(
-							glyphs[newRephPos + 1].shaperInfo!.position! &
+							glyphs[newRephPos + 1].shaperInfo.position &
 							(POSITIONS.Post_C | POSITIONS.After_Post | POSITIONS.SMVD)
 						)
 					) {
@@ -1013,7 +1013,7 @@ function finalReordering(
 				newRephPos = end - 1;
 				while (
 					newRephPos > start &&
-					glyphs[newRephPos].shaperInfo!.position === POSITIONS.SMVD
+					glyphs[newRephPos].shaperInfo.position === POSITIONS.SMVD
 				) {
 					newRephPos--;
 				}
@@ -1025,7 +1025,7 @@ function finalReordering(
 				// TEST: U+0930,U+094D,U+0915,U+094B,U+094D
 				if (isHalantOrCoeng(glyphs[newRephPos])) {
 					for (let i = base + 1; i < newRephPos; i++) {
-						if (glyphs[i].shaperInfo!.category === CATEGORIES.M) {
+						if (glyphs[i].shaperInfo.category === CATEGORIES.M) {
 							newRephPos--;
 						}
 					}
@@ -1074,7 +1074,7 @@ function finalReordering(
 							while (
 								newPos > start &&
 								!(
-									(glyphs[newPos - 1].shaperInfo!.category as number) &
+									(glyphs[newPos - 1].shaperInfo.category as number) &
 									(CATEGORIES.M | HALANT_OR_COENG_FLAGS)
 								)
 							) {
@@ -1085,11 +1085,11 @@ function finalReordering(
 							// split matra, it should be reordered to *before* the left part of such matra.
 							if (
 								newPos > start &&
-								glyphs[newPos - 1].shaperInfo!.category === CATEGORIES.M
+								glyphs[newPos - 1].shaperInfo.category === CATEGORIES.M
 							) {
 								const oldPos = i;
 								for (let j = base + 1; j < oldPos; j++) {
-									if (glyphs[j].shaperInfo!.category === CATEGORIES.M) {
+									if (glyphs[j].shaperInfo.category === CATEGORIES.M) {
 										newPos--;
 										break;
 									}
@@ -1125,7 +1125,7 @@ function finalReordering(
 
 		// Apply 'init' to the Left Matra if it's a word start.
 		if (
-			glyphs[start].shaperInfo!.position === POSITIONS.Pre_M &&
+			glyphs[start].shaperInfo.position === POSITIONS.Pre_M &&
 			(!start ||
 				!/Cf|Mn/.test(unicode.getCategory(glyphs[start - 1].codePoints[0])))
 		) {
@@ -1136,10 +1136,10 @@ function finalReordering(
 
 function nextSyllable(glyphs: IndicGlyphInfo[], start: number) {
 	if (start >= glyphs.length) return start;
-	const syllable = glyphs[start].shaperInfo!.syllable;
+	const syllable = glyphs[start].shaperInfo.syllable;
 	while (
 		++start < glyphs.length &&
-		glyphs[start].shaperInfo!.syllable === syllable
+		glyphs[start].shaperInfo.syllable === syllable
 	);
 	return start;
 }
