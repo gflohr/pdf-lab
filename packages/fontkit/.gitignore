@@ -7,8 +7,8 @@ coverage.html
 yarn-error.log
 dist/
 src/**/trie.ts
-src/**/trieIndic.ts
-src/**/trieUse.ts
+src/**/trie-indic.ts
+src/**/trie-use.ts
 src/**/indic.ts
 src/**/use.ts
 stats.html

@@ -2,25 +2,52 @@ import * as base64 from 'base64-arraybuffer';
 import StateMachine from 'dfa';
 import pako from 'pako';
 import UnicodeTrie from 'unicode-trie';
+import type { SFNTFont } from '../../sfnt-font.js';
 import GlyphInfo from '../glyph-info.js';
+import type ShapingPlan from '../shaping-plan.js';
+import type { ShapingFunction } from '../shaping-plan.js';
 import DefaultShaper from './default-shaper.js';
-import base64DeflatedTrie from './trieUse.js';
+import base64DeflatedTrie from './trie-use.js';
 import base64DeflatedUseData from './use.js';
 
 // Trie is serialized as a Buffer in node, but here
 // we may be running in a browser so we make an Uint8Array
-const useData = JSON.parse(
+
+const useData: StateMachine.DFA = JSON.parse(
 	String.fromCharCode.apply(
 		String,
-		pako.inflate(base64.decode(base64DeflatedUseData)),
+		Array.from(pako.inflate(base64.decode(base64DeflatedUseData))),
 	),
 );
 const trieData = pako.inflate(base64.decode(base64DeflatedTrie));
 
-const { categories, decompositions } = useData;
+const { categories: rawCategories, decompositions: rawDecompositions } = useData;
+// Guard against invalid data.
+if (!rawCategories) {
+	throw new Error('Invalid USE data: missing categories');
+}
+if (!rawDecompositions) {
+	throw new Error('Invalid USE data: missing decompositions');
+}
+
+// Now make TypeScript happy, too:
+const categories = rawCategories;
+const decompositions = rawDecompositions;
 
 const trie = new UnicodeTrie(trieData);
 const stateMachine = new StateMachine(useData);
+
+export class USEInfo {
+	constructor(
+		public category: string,
+		public syllableType: string,
+		public syllable: number,
+	) {}
+}
+
+type UniversalGlyphInfo = GlyphInfo<USEInfo> & {
+	shaperInfo: USEInfo;
+};
 
 /**
  * This shaper is an implementation of the Universal Shaping Engine, which
@@ -29,23 +56,23 @@ const stateMachine = new StateMachine(useData);
  */
 export default class UniversalShaper extends DefaultShaper {
 	static zeroMarkWidths = 'BEFORE_GPOS';
-	static planFeatures(plan) {
-		plan.addStage(setupSyllables);
+	static planFeatures<T>(plan: ShapingPlan<T>) {
+		plan.addStage(setupSyllables as unknown as ShapingFunction<T>);
 
 		// Default glyph pre-processing group
 		plan.addStage(['locl', 'ccmp', 'nukt', 'akhn']);
 
 		// Reordering group
-		plan.addStage(clearSubstitutionFlags);
+		plan.addStage(clearSubstitutionFlags as ShapingFunction<T>);
 		plan.addStage(['rphf'], false);
-		plan.addStage(recordRphf);
-		plan.addStage(clearSubstitutionFlags);
+		plan.addStage(recordRphf as ShapingFunction<T>);
+		plan.addStage(clearSubstitutionFlags as ShapingFunction<T>);
 		plan.addStage(['pref']);
-		plan.addStage(recordPref);
+		plan.addStage(recordPref as ShapingFunction<T>);
 
 		// Orthographic unit shaping group
 		plan.addStage(['rkrf', 'abvf', 'blwf', 'half', 'pstf', 'vatu', 'cjct']);
-		plan.addStage(reorder);
+		plan.addStage(reorder as ShapingFunction<T>);
 
 		// Topographical features
 		// Scripts that need this are handled by the Arabic shaper, not implemented here for now.
@@ -55,15 +82,23 @@ export default class UniversalShaper extends DefaultShaper {
 		plan.addStage(['abvs', 'blws', 'pres', 'psts', 'dist', 'abvm', 'blwm']);
 	}
 
-	static assignFeatures(plan, glyphs) {
+	static assignFeatures(
+		plan: ShapingPlan<USEInfo>,
+		glyphs: GlyphInfo<USEInfo>[],
+	) {
 		// Decompose split vowels
 		// TODO: do this in a more general unicode normalizer
 		for (let i = glyphs.length - 1; i >= 0; i--) {
 			const codepoint = glyphs[i].codePoints[0];
 			if (decompositions[codepoint]) {
-				const decomposed = decompositions[codepoint].map((c) => {
+				const decomposed = decompositions[codepoint].map((c: number) => {
 					const g = plan.font.glyphForCodePoint(c);
-					return new GlyphInfo(plan.font, g.id, [c], glyphs[i].features);
+					return new GlyphInfo<USEInfo>(
+						plan.font,
+						g.id,
+						[c],
+						glyphs[i].features,
+					);
 				});
 
 				glyphs.splice(i, 1, ...decomposed);
@@ -72,19 +107,11 @@ export default class UniversalShaper extends DefaultShaper {
 	}
 }
 
-function useCategory(glyph) {
+function useCategory(glyph: UniversalGlyphInfo): number {
 	return trie.get(glyph.codePoints[0]);
 }
 
-class USEInfo {
-	constructor(category, syllableType, syllable) {
-		this.category = category;
-		this.syllableType = syllableType;
-		this.syllable = syllable;
-	}
-}
-
-function setupSyllables(_font, glyphs) {
+function setupSyllables(_font: SFNTFont, glyphs: UniversalGlyphInfo[]) {
 	let syllable = 0;
 	for (const [start, end, tags] of stateMachine.match(
 		glyphs.map(useCategory),
@@ -109,13 +136,13 @@ function setupSyllables(_font, glyphs) {
 	}
 }
 
-function clearSubstitutionFlags(_font, glyphs) {
+function clearSubstitutionFlags(_font: SFNTFont, glyphs: UniversalGlyphInfo[]) {
 	for (const glyph of glyphs) {
 		glyph.substituted = false;
 	}
 }
 
-function recordRphf(_font, glyphs) {
+function recordRphf(_font: SFNTFont, glyphs: UniversalGlyphInfo[]) {
 	for (const glyph of glyphs) {
 		if (glyph.substituted && glyph.features.rphf) {
 			// Mark a substituted repha.
@@ -124,7 +151,7 @@ function recordRphf(_font, glyphs) {
 	}
 }
 
-function recordPref(_font, glyphs) {
+function recordPref(_font: SFNTFont, glyphs: UniversalGlyphInfo[]) {
 	for (const glyph of glyphs) {
 		if (glyph.substituted) {
 			// Mark a substituted pref as VPre, as they behave the same way.
@@ -133,7 +160,7 @@ function recordPref(_font, glyphs) {
 	}
 }
 
-function reorder(font, glyphs) {
+function reorder(font: SFNTFont, glyphs: UniversalGlyphInfo[]) {
 	const dottedCircle = font.glyphForCodePoint(0x25cc).id;
 
 	for (
@@ -141,7 +168,7 @@ function reorder(font, glyphs) {
 		start < glyphs.length;
 		start = end, end = nextSyllable(glyphs, start)
 	) {
-		let i, j;
+		let i: number, j: number;
 		let info = glyphs[start].shaperInfo;
 		const type = info.syllableType;
 
@@ -156,12 +183,12 @@ function reorder(font, glyphs) {
 
 		// Insert a dotted circle glyph in broken clusters.
 		if (type === 'broken_cluster' && dottedCircle) {
-			const g = new GlyphInfo(font, dottedCircle, [0x25cc]);
+			const g = new GlyphInfo<USEInfo>(font, dottedCircle, [0x25cc]);
 			g.shaperInfo = info;
 
 			// Insert after possible Repha.
 			for (i = start; i < end && glyphs[i].shaperInfo.category === 'R'; i++);
-			glyphs.splice(++i, 0, g);
+			glyphs.splice(++i, 0, g as UniversalGlyphInfo);
 			end++;
 		}
 
@@ -206,7 +233,7 @@ function reorder(font, glyphs) {
 	}
 }
 
-function nextSyllable(glyphs, start) {
+function nextSyllable(glyphs: UniversalGlyphInfo[], start: number): number {
 	if (start >= glyphs.length) return start;
 	const syllable = glyphs[start].shaperInfo.syllable;
 	while (
@@ -216,10 +243,10 @@ function nextSyllable(glyphs, start) {
 	return start;
 }
 
-function isHalant(glyph) {
+function isHalant(glyph: UniversalGlyphInfo) {
 	return glyph.shaperInfo.category === 'H' && !glyph.isLigated;
 }
 
-function isBase(info) {
+function isBase(info: USEInfo) {
 	return info.category === 'B' || info.category === 'GB';
 }

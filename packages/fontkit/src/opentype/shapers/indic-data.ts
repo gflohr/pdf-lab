@@ -22,6 +22,8 @@ export const CATEGORIES = {
 	Symbol: 1 << 18, // Avagraha, etc that take marks (SM,A,VD).
 } as const;
 
+export type OpenTypeCategoryID = keyof typeof CATEGORIES;
+
 // Visual positions in a syllable from left to right.
 export const POSITIONS = {
 	Start: 1 << 0,
@@ -49,6 +51,8 @@ export const POSITIONS = {
 	End: 1 << 15,
 } as const;
 
+export type OpenTypeSyllablePosition = keyof typeof POSITIONS;
+
 export const CONSONANT_FLAGS =
 	CATEGORIES.C |
 	CATEGORIES.Ra |
@@ -59,7 +63,15 @@ export const CONSONANT_FLAGS =
 export const JOINER_FLAGS = CATEGORIES.ZWJ | CATEGORIES.ZWNJ;
 export const HALANT_OR_COENG_FLAGS = CATEGORIES.H | CATEGORIES.Coeng;
 
-export const INDIC_CONFIGS = {
+export interface IndicConfig {
+	hasOldSpec: boolean;
+	virama: number;
+	basePos: 'First' | 'Last' | 'Last_Sinhala';
+	rephPos: number;
+	rephMode: 'Implicit' | 'Explicit' | 'Log_Repha' | 'Vis_Repha';
+	blwfMode: 'Pre_And_Post' | 'Post_Only';
+}
+export const INDIC_CONFIGS: Record<string, IndicConfig> = {
 	Default: {
 		hasOldSpec: false,
 		virama: 0,
@@ -171,7 +183,7 @@ export const INDIC_CONFIGS = {
 };
 
 // Additional decompositions that aren't in Unicode
-export const INDIC_DECOMPOSITIONS = {
+export const INDIC_DECOMPOSITIONS: Record<number, number[]> = {
 	// Khmer
 	6078: [0x17c1, 0x17be],
 	6079: [0x17c1, 0x17bf],

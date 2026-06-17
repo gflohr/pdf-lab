@@ -1,4 +1,6 @@
+import type { SFNTFont } from '../../sfnt-font.js';
 import GlyphInfo from '../glyph-info.js';
+import type ShapingPlan from '../shaping-plan.js';
 import DefaultShaper from './default-shaper.js';
 
 /**
@@ -25,15 +27,15 @@ import DefaultShaper from './default-shaper.js';
  */
 export default class HangulShaper extends DefaultShaper {
 	static zeroMarkWidths = 'NONE';
-	static planFeatures(plan) {
+	static planFeatures<T>(plan: ShapingPlan<T>) {
 		plan.add(['ljmo', 'vjmo', 'tjmo'], false);
 	}
 
-	static assignFeatures(plan, glyphs) {
+	static assignFeatures(plan: ShapingPlan<null>, glyphs: GlyphInfo<null>[]) {
 		let state = 0;
 		let i = 0;
 		while (i < glyphs.length) {
-			let action;
+			let action: StateMachineAction;
 			const glyph = glyphs[i];
 			const code = glyph.codePoints[0];
 			const type = getType(code);
@@ -83,31 +85,33 @@ const V_END = V_BASE + V_COUNT - 1;
 const T_END = T_BASE + T_COUNT - 1;
 const DOTTED_CIRCLE = 0x25cc;
 
-const isL = (code) =>
+const isL = (code: number) =>
 	(0x1100 <= code && code <= 0x115f) || (0xa960 <= code && code <= 0xa97c);
-const isV = (code) =>
+const isV = (code: number) =>
 	(0x1160 <= code && code <= 0x11a7) || (0xd7b0 <= code && code <= 0xd7c6);
-const isT = (code) =>
+const isT = (code: number) =>
 	(0x11a8 <= code && code <= 0x11ff) || (0xd7cb <= code && code <= 0xd7fb);
-const isTone = (code) => 0x302e <= code && code <= 0x302f;
-const isLVT = (code) => HANGUL_BASE <= code && code <= HANGUL_END;
-const isLV = (code) =>
+const isTone = (code: number) => 0x302e <= code && code <= 0x302f;
+const isLVT = (code: number) => HANGUL_BASE <= code && code <= HANGUL_END;
+const isLV = (code: number) =>
 	code - HANGUL_BASE < HANGUL_COUNT && (code - HANGUL_BASE) % T_COUNT === 0;
-const isCombiningL = (code) => L_BASE <= code && code <= L_END;
-const isCombiningV = (code) => V_BASE <= code && code <= V_END;
-const isCombiningT = (code) => T_BASE + 1 <= code && code <= T_END;
+const isCombiningL = (code: number) => L_BASE <= code && code <= L_END;
+const isCombiningV = (code: number) => V_BASE <= code && code <= V_END;
+const isCombiningT = (code: number) => T_BASE + 1 <= code && code <= T_END;
+
+type CharacterCategory = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
 // Character categories
-const X = 0; // Other character
-const L = 1; // Leading consonant
-const V = 2; // Medial vowel
-const T = 3; // Trailing consonant
-const LV = 4; // Composed <LV> syllable
-const LVT = 5; // Composed <LVT> syllable
-const M = 6; // Tone mark
+const X: CharacterCategory = 0; // Other character
+const L: CharacterCategory = 1; // Leading consonant
+const V: CharacterCategory = 2; // Medial vowel
+const T: CharacterCategory = 3; // Trailing consonant
+const LV: CharacterCategory = 4; // Composed <LV> syllable
+const LVT: CharacterCategory = 5; // Composed <LVT> syllable
+const M: CharacterCategory = 6; // Tone mark
 
 // This function classifies a character using the above categories.
-function getType(code) {
+function getType(code: number): CharacterCategory {
 	if (isL(code)) {
 		return L;
 	}
@@ -129,16 +133,38 @@ function getType(code) {
 	return X;
 }
 
+type StateMachineAction = 0 | 1 | 2 | 4 | 5;
+
 // State machine actions
-const NO_ACTION = 0;
-const DECOMPOSE = 1;
-const COMPOSE = 2;
-const TONE_MARK = 4;
-const INVALID = 5;
+const NO_ACTION: StateMachineAction = 0;
+const DECOMPOSE: StateMachineAction = 1;
+const COMPOSE: StateMachineAction = 2;
+const TONE_MARK: StateMachineAction = 4;
+const INVALID: StateMachineAction = 5;
+
+type StateTableEntry = [
+	StateMachineAction,
+	number, // Next state.
+];
+type StateTableItem = [
+	StateTableEntry,
+	StateTableEntry,
+	StateTableEntry,
+	StateTableEntry,
+	StateTableEntry,
+	StateTableEntry,
+	StateTableEntry,
+];
+type StateTable = [
+	StateTableItem,
+	StateTableItem,
+	StateTableItem,
+	StateTableItem,
+];
 
 // Build a state machine that accepts valid syllables, and applies actions along the way.
 // The logic this is implementing is documented at the top of the file.
-const STATE_TABLE = [
+const STATE_TABLE: StateTable = [
 	//       X                 L                 V                T                  LV                LVT               M
 	// State 0: start state
 	[
@@ -185,11 +211,15 @@ const STATE_TABLE = [
 	],
 ];
 
-function getGlyph(font, code, features) {
+function getGlyph(
+	font: SFNTFont,
+	code: number,
+	features: Record<string, boolean>,
+): GlyphInfo {
 	return new GlyphInfo(font, font.glyphForCodePoint(code).id, [code], features);
 }
 
-function decompose(glyphs, i, font) {
+function decompose(glyphs: GlyphInfo[], i: number, font: SFNTFont): number {
 	const glyph = glyphs[i];
 	const code = glyph.codePoints[0];
 
@@ -228,7 +258,7 @@ function decompose(glyphs, i, font) {
 	return i + insert.length - 1;
 }
 
-function compose(glyphs, i, font) {
+function compose(glyphs: GlyphInfo[], i: number, font: SFNTFont) {
 	const glyph = glyphs[i];
 	const code = glyphs[i].codePoints[0];
 	const type = getType(code);
@@ -237,7 +267,10 @@ function compose(glyphs, i, font) {
 	const prevType = getType(prev);
 
 	// Figure out what type of syllable we're dealing with
-	let lv, ljmo, vjmo, tjmo;
+	let lv: number | undefined;
+	let ljmo: GlyphInfo | undefined;
+	let vjmo: GlyphInfo | undefined;
+	let tjmo: GlyphInfo | undefined;
 	if (prevType === LV && type === T) {
 		// <LV,T>
 		lv = prev;
@@ -298,7 +331,7 @@ function compose(glyphs, i, font) {
 	return i;
 }
 
-function getLength(code) {
+function getLength(code: number): number {
 	switch (getType(code)) {
 		case LV:
 		case LVT:
@@ -307,10 +340,16 @@ function getLength(code) {
 			return 2;
 		case T:
 			return 3;
+		default:
+			return 0;
 	}
 }
 
-function reorderToneMark(glyphs, i, font) {
+function reorderToneMark(
+	glyphs: GlyphInfo[],
+	i: number,
+	font: SFNTFont,
+): GlyphInfo[] | undefined {
 	const glyph = glyphs[i];
 	const code = glyphs[i].codePoints[0];
 
@@ -326,7 +365,7 @@ function reorderToneMark(glyphs, i, font) {
 	return glyphs.splice(i - len, 0, glyph);
 }
 
-function insertDottedCircle(glyphs, i, font) {
+function insertDottedCircle(glyphs: GlyphInfo[], i: number, font: SFNTFont) {
 	const glyph = glyphs[i];
 	const code = glyphs[i].codePoints[0];
 

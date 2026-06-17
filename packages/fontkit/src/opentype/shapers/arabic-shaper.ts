@@ -1,9 +1,12 @@
 import unicode from '@pdf-lib/unicode-properties';
 import * as base64 from 'base64-arraybuffer';
+import type { CodepointEntry } from 'codepoints';
 import pako from 'pako';
 import UnicodeTrie from 'unicode-trie';
+import type { OpenTypeFeatureTag } from '../../layout/glyph-run.js';
+import type GlyphInfo from '../glyph-info.js';
+import type ShapingPlan from '../shaping-plan.js';
 import DefaultShaper from './default-shaper.js';
-
 // Trie is serialized as a Buffer in node, but here
 // we may be running in a browser so we make an Uint8Array.
 import base64DeflatedTrie from './trie.js';
@@ -13,28 +16,67 @@ const trie = new UnicodeTrie(trieData);
 
 const FEATURES = ['isol', 'fina', 'fin2', 'fin3', 'medi', 'med2', 'init'];
 
-const ShapingClasses = {
-	Non_Joining: 0,
-	Left_Joining: 1,
-	Right_Joining: 2,
-	Dual_Joining: 3,
-	Join_Causing: 3,
-	ALAPH: 4,
-	'DALATH RISH': 5,
-	Transparent: 6,
+enum ShapingStateIndex {
+	Non_Joining = 0,
+	Left_Joining = 1,
+	Right_Joining = 2,
+	Dual_Joining = 3,
+	ALAPH = 4,
+	DALATH_RISH = 5,
+	Transparent = 6,
+}
+
+type ShapingClass =
+	| NonNullable<CodepointEntry['joiningType']>
+	| 'ALAPH'
+	| 'DALATH RISH';
+
+const shapingClasses: Record<ShapingClass, number> = {
+	Non_Joining: ShapingStateIndex.Non_Joining,
+	Left_Joining: ShapingStateIndex.Left_Joining,
+	Right_Joining: ShapingStateIndex.Right_Joining,
+	Dual_Joining: ShapingStateIndex.Dual_Joining,
+	Join_Causing: ShapingStateIndex.Dual_Joining, // maps to the same state
+	ALAPH: ShapingStateIndex.ALAPH,
+	'DALATH RISH': ShapingStateIndex.DALATH_RISH,
+	Transparent: ShapingStateIndex.Transparent,
 };
 
-const ISOL = 'isol';
-const FINA = 'fina';
-const FIN2 = 'fin2';
-const FIN3 = 'fin3';
-const MEDI = 'medi';
-const MED2 = 'med2';
-const INIT = 'init';
-const NONE = null;
+type OpenTypeFeatureTagRelaxed = OpenTypeFeatureTag | null;
+const ISOL: OpenTypeFeatureTagRelaxed = 'isol';
+const FINA: OpenTypeFeatureTagRelaxed = 'fina';
+const FIN2: OpenTypeFeatureTagRelaxed = 'fin2';
+const FIN3: OpenTypeFeatureTagRelaxed = 'fin3';
+const MEDI: OpenTypeFeatureTagRelaxed = 'medi';
+const MED2: OpenTypeFeatureTagRelaxed = 'med2';
+const INIT: OpenTypeFeatureTagRelaxed = 'init';
+const NONE: OpenTypeFeatureTagRelaxed = null;
+
+type StateTableEntry = [
+	OpenTypeFeatureTagRelaxed,
+	OpenTypeFeatureTagRelaxed,
+	number,
+];
+type StateTableItem = [
+	StateTableEntry,
+	StateTableEntry,
+	StateTableEntry,
+	StateTableEntry,
+	StateTableEntry,
+	StateTableEntry,
+];
+type StateTable = [
+	StateTableItem,
+	StateTableItem,
+	StateTableItem,
+	StateTableItem,
+	StateTableItem,
+	StateTableItem,
+	StateTableItem,
+];
 
 // Each entry is [prevAction, curAction, nextState]
-const STATE_TABLE = [
+const STATE_TABLE: StateTable = [
 	//   Non_Joining,        Left_Joining,       Right_Joining,     Dual_Joining,           ALAPH,            DALATH RISH
 	// State 0: prev was U,  not willing to join.
 	[
@@ -116,7 +158,7 @@ const STATE_TABLE = [
  * https://github.com/behdad/harfbuzz/blob/master/src/hb-ot-shape-complex-arabic.cc
  */
 export default class ArabicShaper extends DefaultShaper {
-	static planFeatures(plan) {
+	static planFeatures<T>(plan: ShapingPlan<T>) {
 		plan.add(['ccmp', 'locl']);
 		for (let i = 0; i < FEATURES.length; i++) {
 			const feature = FEATURES[i];
@@ -126,19 +168,23 @@ export default class ArabicShaper extends DefaultShaper {
 		plan.addStage('mset');
 	}
 
-	static assignFeatures(plan, glyphs) {
+	protected static assignFeatures(
+		plan: ShapingPlan<null>,
+		glyphs: GlyphInfo<null>[],
+	) {
 		DefaultShaper.assignFeatures(plan, glyphs);
 
 		let prev = -1;
 		let state = 0;
-		const actions = [];
+		const actions: OpenTypeFeatureTagRelaxed[] = [];
 
 		// Apply the state machine to map glyphs to features
 		for (let i = 0; i < glyphs.length; i++) {
-			let curAction, prevAction;
+			let curAction: OpenTypeFeatureTagRelaxed,
+				prevAction: OpenTypeFeatureTagRelaxed;
 			const glyph = glyphs[i];
 			const type = getShapingClass(glyph.codePoints[0]);
-			if (type === ShapingClasses.Transparent) {
+			if (type === shapingClasses.Transparent) {
 				actions[i] = NONE;
 				continue;
 			}
@@ -164,7 +210,7 @@ export default class ArabicShaper extends DefaultShaper {
 	}
 }
 
-function getShapingClass(codePoint) {
+function getShapingClass(codePoint: number): number {
 	const res = trie.get(codePoint);
 	if (res) {
 		return res - 1;
@@ -172,8 +218,8 @@ function getShapingClass(codePoint) {
 
 	const category = unicode.getCategory(codePoint);
 	if (category === 'Mn' || category === 'Me' || category === 'Cf') {
-		return ShapingClasses.Transparent;
+		return shapingClasses.Transparent;
 	}
 
-	return ShapingClasses.Non_Joining;
+	return shapingClasses.Non_Joining;
 }

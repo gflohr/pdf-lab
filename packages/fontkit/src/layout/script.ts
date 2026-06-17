@@ -135,7 +135,7 @@ const UNICODE_SCRIPTS = {
 
 export type UnicodeScript = keyof typeof UNICODE_SCRIPTS;
 
-type OpenTypeTag = {
+export type OpenTypeTag = {
 	[K in UnicodeScript]: (typeof UNICODE_SCRIPTS)[K] extends readonly string[]
 		? (typeof UNICODE_SCRIPTS)[K][number]
 		: (typeof UNICODE_SCRIPTS)[K];

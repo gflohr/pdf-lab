@@ -1,9 +1,13 @@
 import unicode from '@pdf-lib/unicode-properties';
+import type { OpenTypeFeatureTag } from '../layout/glyph-run.js';
 import type { SFNTFont } from '../sfnt-font.js';
 import OTProcessor from './OTProcessor.js';
-import { OpenTypeFeatureTag } from '../layout/glyph-run.js';
+import type { IndicInfo } from './shapers/indic-shaper.js';
+import type { USEInfo } from './shapers/universal-shapers.js';
 
-export default class GlyphInfo {
+export type ShaperInfo = IndicInfo | USEInfo;
+
+export default class GlyphInfo<ShaperInfoT = null> {
 	public _font: SFNTFont;
 	// The constructor calls the setter for this member. It is therefore
 	// always initialised.
@@ -11,18 +15,23 @@ export default class GlyphInfo {
 	public features: Record<OpenTypeFeatureTag, boolean>;
 	private ligatureID: string | null;
 	private ligatureComponent: number | null;
-	private isLigated: boolean;
-	private cursiveAttachment: GlyphInfo | null;
-	private markAttachment: GlyphInfo | null;
-	private shaperInfo: Record<string, unknown> | null;
-	private substituted: boolean;
-	private isMultiplied: boolean;
+	public readonly isLigated: boolean;
+	private cursiveAttachment: GlyphInfo<ShaperInfoT> | null;
+	private markAttachment: GlyphInfo<ShaperInfoT> | null;
+	public shaperInfo: ShaperInfoT | null;
+	public substituted: boolean;
+	public readonly isMultiplied: boolean;
 	private isBase?: boolean;
 	private isLigature?: boolean; // FIXME! Is this meant to be the same as isLigated?
 	private isMark?: boolean;
 	private markAttachmentType?: number;
 
-	constructor(font: SFNTFont, id: number, public codePoints: number[] = [], features: OpenTypeFeatureTag[] | Record<OpenTypeFeatureTag, boolean>) {
+	constructor(
+		font: SFNTFont,
+		id: number,
+		public codePoints: number[] = [],
+		features?: OpenTypeFeatureTag[] | Record<OpenTypeFeatureTag, boolean>,
+	) {
 		// FIXME! Other classes access the _font property!
 		this._font = font;
 		this.codePoints = codePoints;
@@ -80,7 +89,7 @@ export default class GlyphInfo {
 		}
 	}
 
-	copy(): GlyphInfo {
+	copy(): GlyphInfo<ShaperInfoT> {
 		return new GlyphInfo(
 			this._font,
 			this.id,

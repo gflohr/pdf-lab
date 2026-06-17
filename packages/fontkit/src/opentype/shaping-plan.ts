@@ -1,8 +1,10 @@
 import type GlyphPosition from '../layout/glyph-position.js';
 import type { BidiDirection, OpenTypeFeatureTag } from '../layout/glyph-run.js';
+import type { OpenTypeTag, UnicodeScript } from '../layout/script.js';
 import type { SFNTFont } from '../sfnt-font.js';
 import type GlyphInfo from './glyph-info.js';
 import type OTProcessor from './OTProcessor.js';
+import type { IndicConfig } from './shapers/indic-data.js';
 
 type FeatureShape =
 	| OpenTypeFeatureTag
@@ -12,12 +14,12 @@ type FeatureShape =
 			global?: OpenTypeFeatureTag[];
 	  };
 
-type ShapingFunction = (
+export type ShapingFunction<T = null> = (
 	font: SFNTFont,
-	glyphs: GlyphInfo[],
-	plan: ShapingPlan,
+	glyphs: GlyphInfo<T>[],
+	plan: ShapingPlan<T>,
 ) => void;
-type Stage = string[] | ShapingFunction;
+type Stage<T> = string[] | ShapingFunction<T>;
 
 /**
  * ShapingPlans are used by the OpenType shapers to store which
@@ -26,14 +28,18 @@ type Stage = string[] | ShapingFunction;
  * can be applied globally to all glyphs, or locally to only
  * specific glyphs.
  */
-export default class ShapingPlan {
-	private stages: Stage[];
+export default class ShapingPlan<T = null> {
+	private stages: Stage<T>[];
 	private globalFeatures: Record<OpenTypeFeatureTag, boolean>;
 	private allFeatures: Record<OpenTypeFeatureTag, number>;
 	private _direction: BidiDirection;
+	public unicodeScript?: UnicodeScript;
+	public indicConfig?: IndicConfig;
+	public isOldSpec?: boolean;
+
 	constructor(
-		private font: SFNTFont,
-		private script: string,
+		public font: SFNTFont,
+		public readonly script: OpenTypeTag,
 		direction: BidiDirection = 'ltr',
 	) {
 		this.stages = [];
@@ -90,12 +96,14 @@ export default class ShapingPlan {
 	/**
 	 * Add a new stage
 	 */
-	addStage(arg: string | ShapingFunction, global: boolean) {
+	addStage(arg: FeatureShape | ShapingFunction<T>, global?: boolean) {
+		const isGlobal = global !== undefined ? global : true;
+
 		if (typeof arg === 'function') {
 			this.stages.push(arg, []);
 		} else {
 			this.stages.push([]);
-			this.add(arg, global);
+			this.add(arg, isGlobal);
 		}
 	}
 
@@ -137,7 +145,7 @@ export default class ShapingPlan {
 	 */
 	process(
 		processor: OTProcessor,
-		glyphs: GlyphInfo[],
+		glyphs: GlyphInfo<T>[],
 		positions: GlyphPosition[],
 	) {
 		for (const stage of this.stages) {

@@ -277,7 +277,7 @@ const shaperDirectory = path.resolve(
 	'shapers',
 );
 
-const trieFilePath = `${shaperDirectory}/trieIndic.ts`;
+const trieFilePath = `${shaperDirectory}/trie-indic.ts`;
 const jsonBase64DeflatedTrie = JSON.stringify(
 	base64.encode(pako.deflate(trie.toBuffer()).buffer),
 );

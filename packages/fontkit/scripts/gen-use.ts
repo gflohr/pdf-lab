@@ -330,7 +330,7 @@ const shaperDirecotory = path.resolve(
 
 // Trie is serialized suboptimally as JSON so it can be loaded via require,
 // allowing unicode-properties to work in the browser
-const trieFilePath = `${shaperDirecotory}/trieUse.ts`;
+const trieFilePath = `${shaperDirecotory}/trie-use.ts`;
 const jsonBase64DeflatedTrie = JSON.stringify(
 	base64.encode(pako.deflate(trie.toBuffer()) as unknown as ArrayBuffer),
 );
