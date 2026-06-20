@@ -13,12 +13,15 @@ export interface GlyphIteratorOptions {
 }
 
 export default class GlyphIterator {
-	private options!: GlyphIteratorOptions;
+	public options!: GlyphIteratorOptions;
 	private flags!: GlyphIteratorFlags;
 	private markAttachmentType!: number;
-	private index!: number;
+	public index!: number;
 
-	constructor(private glyphs: GlyphInfo[], options: GlyphIteratorOptions) {
+	constructor(
+		private glyphs: GlyphInfo[],
+		options?: GlyphIteratorOptions,
+	) {
 		this.reset(options);
 	}
 
@@ -33,7 +36,7 @@ export default class GlyphIterator {
 		return this.glyphs[this.index] || null;
 	}
 
-	shouldIgnore(glyph: GlyphInfo) {
+	shouldIgnore<T>(glyph: GlyphInfo<T>) {
 		return (
 			(this.flags.ignoreMarks && glyph.isMark) ||
 			(this.flags.ignoreBaseGlyphs && glyph.isBase) ||

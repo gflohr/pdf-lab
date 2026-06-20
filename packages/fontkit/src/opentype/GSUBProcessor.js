@@ -1,5 +1,5 @@
 import GlyphInfo from './glyph-info.js';
-import OTProcessor from './OTProcessor.js';
+import OTProcessor from './ot-processor.js';
 
 /**
  * Applies OpenType GSUB lookups (substitutions) to a glyph buffer.

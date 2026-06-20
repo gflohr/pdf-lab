@@ -1,4 +1,4 @@
-import OTProcessor from './OTProcessor.js';
+import OTProcessor from './ot-processor.js';
 
 export default class GPOSProcessor extends OTProcessor {
 	applyPositionValue(sequenceIndex, value) {

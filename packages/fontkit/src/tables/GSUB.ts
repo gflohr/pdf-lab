@@ -80,12 +80,12 @@ export namespace GSUBTable {
 		| { lookupType: 8; table: LookupReverseChaining };
 
 	export interface GSUBV1_0 extends OpenType.LayoutTableBase<LookupTable> {
-		version: 1.0; // represented by binary uint32 value 65536
+		version: 65536; // 1.0 as float.
 	}
 
 	export interface GSUBV1_1 extends OpenType.LayoutTableBase<LookupTable> {
-		version: 1.1; // represented by binary uint32 value 65537
-		featureVariations: OpenTypeVariation.FeatureVariations;
+		version: 65537; // 1.1 as float.
+		featureVariations: OpenTypeVariation.FeatureVariations; // FIXME! || null?
 	}
 
 	export type GSUB = GSUBV1_0 | GSUBV1_1;

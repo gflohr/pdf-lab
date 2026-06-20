@@ -3,7 +3,7 @@ import type { BidiDirection, OpenTypeFeatureTag } from '../layout/glyph-run.js';
 import type { OpenTypeTag, UnicodeScript } from '../layout/script.js';
 import type { SFNTFont } from '../sfnt-font.js';
 import type GlyphInfo from './glyph-info.js';
-import type OTProcessor from './OTProcessor.js';
+import type OTProcessor from './ot-processor.js';
 import type { IndicConfig } from './shapers/indic-data.js';
 
 type FeatureShape =
@@ -154,7 +154,7 @@ export default class ShapingPlan<T = null> {
 					stage(this.font, glyphs, this);
 				}
 			} else if (stage.length > 0) {
-				processor.applyFeatures(stage, glyphs, positions);
+				processor.applyFeatures(stage, glyphs as GlyphInfo<null>[], positions);
 			}
 		}
 	}

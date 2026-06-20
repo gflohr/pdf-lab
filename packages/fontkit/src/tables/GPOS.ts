@@ -302,18 +302,12 @@ export namespace GPOSTable {
 		| LookupChainingContext
 		| LookupExtension;
 
-	interface GPOSBase {
-		scriptList: OpenType.ScriptRecord[];
-		featureList: OpenType.FeatureRecord;
-		lookupList: FieldT<OpenType.LookupTable<LookupTable>[]> | null;
+	export interface GPOSV1_0 extends OpenType.LayoutTableBase<LookupTable> {
+		version: 65536;
 	}
 
-	export interface GPOSV1_0 extends GPOSBase {
-		version: 1.0;
-	}
-
-	export interface GPOSV1_1 extends GPOSBase {
-		version: 1.1;
+	export interface GPOSV1_1 extends OpenType.LayoutTableBase<LookupTable> {
+		version: 65537;
 		featureVariations: OpenTypeVariation.FeatureVariations | null;
 	}
 
