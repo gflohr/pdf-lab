@@ -5,7 +5,10 @@
 		"esModuleInterop": true,
 		"types": ["node"],
 		"typeRoots": ["./node_modules/@types", "./@types"],
-		"rootDir": "./src"
+		"rootDir": "./src",
+		"module": "esnext",
+		"moduleResolution": "bundler",
+		"outDir": "dist"
 	},
 	"include": ["src", "@types"]
 }

@@ -1,21 +1,39 @@
+import type GlyphInfo from './glyph-info.js';
+
+export interface GlyphIteratorFlags {
+	ignoreMarks?: boolean;
+	ignoreBaseGlyphs?: boolean;
+	ignoreLigatures?: boolean;
+	useMarkFilteringSet?: boolean;
+}
+
+export interface GlyphIteratorOptions {
+	flags?: GlyphIteratorFlags;
+	markAttachmentType?: number;
+}
+
 export default class GlyphIterator {
-	constructor(glyphs, options) {
-		this.glyphs = glyphs;
+	private options!: GlyphIteratorOptions;
+	private flags!: GlyphIteratorFlags;
+	private markAttachmentType!: number;
+	private index!: number;
+
+	constructor(private glyphs: GlyphInfo[], options: GlyphIteratorOptions) {
 		this.reset(options);
 	}
 
-	reset(options = {}, index = 0) {
+	reset(options: GlyphIteratorOptions = {}, index = 0) {
 		this.options = options;
 		this.flags = options.flags || {};
 		this.markAttachmentType = options.markAttachmentType || 0;
 		this.index = index;
 	}
 
-	get cur() {
+	get cur(): GlyphInfo {
 		return this.glyphs[this.index] || null;
 	}
 
-	shouldIgnore(glyph) {
+	shouldIgnore(glyph: GlyphInfo) {
 		return (
 			(this.flags.ignoreMarks && glyph.isMark) ||
 			(this.flags.ignoreBaseGlyphs && glyph.isBase) ||
@@ -26,7 +44,7 @@ export default class GlyphIterator {
 		);
 	}
 
-	move(dir) {
+	move(dir: 1 | -1) {
 		this.index += dir;
 		while (
 			0 <= this.index &&

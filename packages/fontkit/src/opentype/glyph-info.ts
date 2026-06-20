@@ -21,10 +21,10 @@ export default class GlyphInfo<ShaperInfoT = null> {
 	public shaperInfo: ShaperInfoT | null;
 	public substituted: boolean;
 	public readonly isMultiplied: boolean;
-	private isBase?: boolean;
-	private isLigature?: boolean; // FIXME! Is this meant to be the same as isLigated?
-	private isMark?: boolean;
-	private markAttachmentType?: number;
+	public isBase?: boolean;
+	public isLigature?: boolean; // FIXME! Is this meant to be the same as isLigated?
+	public isMark?: boolean;
+	public markAttachmentType?: number;
 
 	constructor(
 		font: SFNTFont,
