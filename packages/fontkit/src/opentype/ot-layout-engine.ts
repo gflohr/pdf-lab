@@ -15,7 +15,7 @@ export default class OTLayoutEngine<T> {
 	private plan: ShapingPlan<T> | null;
 	// FIXME! Rename that to gsubProcessor!
 	private GSUBProcessor: GSUBProcessor<T> | null;
-	// FIXME! Rename that to gsubProcessor!
+	// FIXME! Rename that to gposProcessor!
 	private GPOSProcessor: GPOSProcessor<T> | null;
 	private fallbackPosition: boolean;
 	private shaper: typeof DefaultShaper | undefined | null;
