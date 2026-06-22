@@ -56,17 +56,17 @@ export namespace GSUBTable {
 		ligatureSets: RestructureLazyArray<LookupLigatureSet[]>;
 	}
 
-	export type LookupContext = OpenType.Context & { lookupType: 6 };
+	export type LookupContext = OpenType.Context & { lookupType: 5 };
+
+	export type LookupChainingContext = OpenType.ChainingContext & {
+		lookupType: 6;
+	};
 
 	export interface LookupExtension {
 		substFormat: number;
 		lookupType: Exclude<number, 7>;
 		extension: LookupTable;
 	}
-
-	export type LookupChainingContext = OpenType.ChainingContext & {
-		lookupType: 8;
-	};
 
 	export interface LookupReverseChaining {
 		substFormat: number;

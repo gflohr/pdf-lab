@@ -221,6 +221,8 @@ export default class GSUBProcessor<T> extends OTProcessor<T> {
 					(table as GSUBTable.LookupExtension).extension,
 				);
 
+			// FIXME! Lookup type 8 is missing here.
+
 			default:
 				throw new Error(`GSUB lookupType ${lookupType} is not supported`);
 		}
