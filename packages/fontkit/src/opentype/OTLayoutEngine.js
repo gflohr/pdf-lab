@@ -1,6 +1,6 @@
-import GPOSProcessor from './GPOSProcessor.js';
 import GSUBProcessor from './GSUBProcessor.js';
 import GlyphInfo from './glyph-info.js';
+import GPOSProcessor from './gpos-processor.js';
 import * as Shapers from './shapers/index.js';
 import ShapingPlan from './shaping-plan.js';
 

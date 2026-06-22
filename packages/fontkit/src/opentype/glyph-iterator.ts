@@ -5,6 +5,7 @@ export interface GlyphIteratorFlags {
 	ignoreBaseGlyphs?: boolean;
 	ignoreLigatures?: boolean;
 	useMarkFilteringSet?: boolean;
+	rightToLeft?: boolean;
 }
 
 export interface GlyphIteratorOptions {
@@ -14,7 +15,7 @@ export interface GlyphIteratorOptions {
 
 export default class GlyphIterator<T> {
 	public options!: GlyphIteratorOptions;
-	private flags!: GlyphIteratorFlags;
+	public flags!: GlyphIteratorFlags;
 	private markAttachmentType!: number;
 	public index!: number;
 

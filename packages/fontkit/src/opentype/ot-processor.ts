@@ -14,7 +14,7 @@ const DEFAULT_SCRIPTS = ['DFLT', 'dflt', 'latn'];
 type MatcherFunction<T> = (s: number | OpenType.Coverage, glyph: GlyphInfo<T>) => boolean;
 
 export default class OTProcessor<T> {
-	private font: SFNTFont;
+	protected font: SFNTFont;
 	private table: GPOSTable.GPOS | GSUBTable.GSUB;
 	private script: OpenType.Script | null;
 	private scriptTag: string | null;
@@ -23,12 +23,12 @@ export default class OTProcessor<T> {
 	private features: Record<string, OpenType.Feature>;
 	private lookups: Record<string, unknown>;
 	private variationsIndex: number;
-	private glyphs: GlyphInfo<T>[];
-	private positions: unknown[]; // FIXME!
+	protected glyphs: GlyphInfo<T>[];
+	protected positions: GlyphPosition[];
 	private ligatureID: number; // FIXME!
 	private currentFeature: string | null;
-	private direction: BidiDirection | undefined;
-	private glyphIterator: GlyphIterator<T> | undefined;
+	protected direction: BidiDirection | undefined;
+	protected glyphIterator: GlyphIterator<T> | undefined;
 
 	constructor(font: SFNTFont, table: GPOSTable.GPOS | GSUBTable.GSUB) {
 		this.font = font;
@@ -276,7 +276,10 @@ export default class OTProcessor<T> {
 		}
 	}
 
-	private applyLookup(_lookupType: number, _table: GPOSTable.LookupTable | GSUBTable.LookupTable): boolean {
+	// FIXME! Instead of receiving the lookupType, the method should receive
+	// the entire LookupTable, so that the type can be inferred in the
+	// subclasses.
+	public applyLookup(_lookupType: number, _table: GPOSTable.LookupTable | GSUBTable.LookupTable): boolean {
 		throw new Error('applyLookup must be implemented by subclasses');
 	}
 
@@ -306,7 +309,7 @@ export default class OTProcessor<T> {
 		return true;
 	}
 
-	private coverageIndex(coverage: OpenType.Coverage, glyph?: number) {
+	protected coverageIndex(coverage: OpenType.Coverage, glyph?: number) {
 		if (glyph == null) {
 			glyph = this.glyphIterator!.cur.id;
 		}
@@ -415,7 +418,7 @@ export default class OTProcessor<T> {
 		);
 	}
 
-	private applyContext(table: OpenType.Context) {
+	protected applyContext(table: OpenType.Context) {
 		let index: number;
 		let set: OpenType.ContextRule[] | OpenType.ContextClassRule[];
 		switch (table.version) {
@@ -464,7 +467,7 @@ export default class OTProcessor<T> {
 		return false;
 	}
 
-	private applyChainingContext(table: OpenType.ChainingContext) {
+	protected applyChainingContext(table: OpenType.ChainingContext) {
 		let index: number;
 		let set: OpenType.ChainRule[];
 		switch (table.version) {

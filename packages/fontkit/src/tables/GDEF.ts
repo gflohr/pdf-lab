@@ -54,16 +54,16 @@ export namespace GDEFTable {
 	}
 
 	export interface GDEFV1_1 extends GDEFHeader {
-		version: 1.1;
+		version: 65536;
 	}
 
 	export interface GDEFV1_3 extends GDEFHeader {
-		version: 1.3;
+		version: 65538;
 		markGlyphSetsDef: MarkGlyphSetsDef;
 	}
 
 	export interface GDEFV1_4 extends GDEFHeader {
-		version: 1.4;
+		version: 65539;
 		markGlyphSetsDef: MarkGlyphSetsDef;
 		itemVariationStore: OpenTypeVariation.ItemVariationStore;
 	}

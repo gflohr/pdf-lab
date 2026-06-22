@@ -13,11 +13,11 @@ export default class GlyphInfo<ShaperInfoT = null> {
 	// always initialised.
 	private _id!: number;
 	public features: Record<OpenTypeFeatureTag, boolean>;
-	private ligatureID: string | null;
-	private ligatureComponent: number | null;
+	public ligatureID: string | null;
+	public ligatureComponent: number | null;
 	public readonly isLigated: boolean;
-	private cursiveAttachment: GlyphInfo<ShaperInfoT> | null;
-	private markAttachment: GlyphInfo<ShaperInfoT> | null;
+	public cursiveAttachment: number | null;
+	public markAttachment: number | null;
 	public shaperInfo: ShaperInfoT | null;
 	public substituted: boolean;
 	public readonly isMultiplied: boolean;
