@@ -146,7 +146,7 @@ const kernPair = new r.Struct<typeof kernPairFields, kernTable.Pair>(
 	kernPairFields,
 );
 
-interface ClassTableContext {
+export type ClassTableContext = {
 	offsets: number[];
 }
 
@@ -174,7 +174,7 @@ interface KernSubTableContext {
 	leftTable: LeftTableConfig;
 }
 
-interface Kern2ArrayContext extends ParsingContext {
+export interface Kern2ArrayContext extends ParsingContext {
 	parent: KernSubTableContext;
 	off: number;
 }

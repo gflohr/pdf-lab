@@ -26,7 +26,8 @@ export namespace featTable {
 		featureNames: FeatureName[];
 	}
 }
-interface FeatureContext {
+
+export type FeatureContext = {
 	nameIndex: number;
 	parent: FeatureContext;
 	name: { records: { fontFeatures: string[] } };

@@ -7,7 +7,7 @@ import { resolveLength } from '@pdf-lib/restructure/src/utils.js';
 import { itemVariationStore, type OpenTypeVariation } from './variations.js';
 
 // TODO: add this to restructure
-class VariableSizeNumber implements FieldT<number> {
+export class VariableSizeNumber implements FieldT<number> {
 	private readonly _size: Length;
 
 	constructor(size: Length) {
@@ -129,7 +129,7 @@ interface MapDataParent {
 	entryFormat: number;
 }
 
-interface MapDataEntryContext {
+export type MapDataEntryContext = {
 	parent: MapDataParent;
 	entry: number;
 }

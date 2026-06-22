@@ -1,6 +1,6 @@
 import type GlyphInfo from './glyph-info.js';
 
-export interface GlyphIteratorFlags {
+export type GlyphIteratorFlags = {
 	ignoreMarks?: boolean;
 	ignoreBaseGlyphs?: boolean;
 	ignoreLigatures?: boolean;
@@ -8,7 +8,7 @@ export interface GlyphIteratorFlags {
 	rightToLeft?: boolean;
 }
 
-export interface GlyphIteratorOptions {
+export type GlyphIteratorOptions = {
 	flags?: GlyphIteratorFlags;
 	markAttachmentType?: number;
 }

@@ -98,12 +98,12 @@ const variationRegionList = new r.Struct<
 	OpenTypeVariation.VariationRegionList
 >(variationRegionListFields);
 
-interface DeltaSetParentContext {
+export interface DeltaSetParentContext {
 	shortDeltaCount: number;
 	regionIndexCount: number;
 }
 
-interface DeltaSetContext {
+export interface DeltaSetContext {
 	parent: DeltaSetParentContext;
 	shortDeltas: number[];
 	regionDeltas: number[];

@@ -8,7 +8,8 @@
 		"rootDir": "./src",
 		"module": "esnext",
 		"moduleResolution": "bundler",
-		"outDir": "dist"
+		"outDir": "dist",
+		"declaration": true
 	},
 	"include": ["src", "@types"]
 }
