@@ -22,7 +22,7 @@
 		"test:cov-changed": "vitest --coverage.enabled --run --changed origin/main --passWithNoTests"
 	},
 	"dependencies": {
-		"pako": "^2.1.0"
+		"pako": "^2.2.0"
 	},
 	"devDependencies": {
 		"@pdf-lib/brotli": "^0.0.0",
