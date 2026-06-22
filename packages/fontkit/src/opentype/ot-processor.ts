@@ -472,6 +472,9 @@ export default class OTProcessor<T> {
 				}
 
 				set = table.classSet[index];
+				if (!set) {
+					return false;
+				}
 				for (const rule of set) {
 					if (this.classSequenceMatches(1, rule.classes, table.classDef)) {
 						return this.applyLookupList(rule.lookupRecords);
