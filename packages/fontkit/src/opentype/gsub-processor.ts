@@ -22,7 +22,7 @@ export default class GSUBProcessor<T> extends OTProcessor<T> {
 					return false;
 				}
 
-				const glyph = this.glyphIterator!.cur;
+				const glyph = this.glyphIterator!.cur!;
 				switch (subtable.version) {
 					case 1:
 						glyph.id = (glyph.id + subtable.deltaGlyphID) & 0xffff;
@@ -42,11 +42,11 @@ export default class GSUBProcessor<T> extends OTProcessor<T> {
 				const index = this.coverageIndex(subtable.coverage!);
 				if (index !== -1) {
 					const sequence = subtable.sequences.get(index);
-					this.glyphIterator!.cur.id = sequence[0];
-					this.glyphIterator!.cur.ligatureComponent = 0;
+					this.glyphIterator!.cur!.id = sequence[0];
+					this.glyphIterator!.cur!.ligatureComponent = 0;
 
-					const features = this.glyphIterator!.cur.features;
-					const curGlyph = this.glyphIterator!.cur;
+					const curGlyph = this.glyphIterator!.cur!;
+					const features = curGlyph.features;
 					const replacement = sequence.slice(1).map((gid, i) => {
 						const glyph = new GlyphInfo<T>(this.font, gid, undefined, features);
 						glyph.shaperInfo = curGlyph.shaperInfo!;
@@ -72,7 +72,7 @@ export default class GSUBProcessor<T> extends OTProcessor<T> {
 				const index = this.coverageIndex(subtable.coverage!);
 				if (index !== -1) {
 					const USER_INDEX = 0; // TODO
-					this.glyphIterator!.cur.id =
+					this.glyphIterator!.cur!.id =
 						subtable.alternateSet.get(index)[USER_INDEX];
 					return true;
 				}
@@ -98,7 +98,7 @@ export default class GSUBProcessor<T> extends OTProcessor<T> {
 						continue;
 					}
 
-					const curGlyph = this.glyphIterator!.cur;
+					const curGlyph = this.glyphIterator!.cur!;
 
 					// Concatenate all of the characters the new ligature will represent
 					const characters = curGlyph.codePoints.slice();

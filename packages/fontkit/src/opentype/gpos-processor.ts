@@ -116,7 +116,7 @@ export default class GPOSProcessor<T> extends OTProcessor<T> {
 
 				if (subtable.version === 2) {
 					const class1 = this.getClassID(
-						this.glyphIterator!.cur.id,
+						this.glyphIterator!.cur!.id,
 						subtable.classDef1!,
 					);
 					const class2 = this.getClassID(nextGlyph.id, subtable.classDef2!);
@@ -173,7 +173,7 @@ export default class GPOSProcessor<T> extends OTProcessor<T> {
 				}
 
 				if (this.glyphIterator!.flags.rightToLeft) {
-					this.glyphIterator!.cur.cursiveAttachment = nextIndex;
+					this.glyphIterator!.cur!.cursiveAttachment = nextIndex;
 					cur.yOffset = entry.y - exit.y;
 				} else {
 					nextGlyph.cursiveAttachment = this.glyphIterator!.index;
@@ -243,7 +243,7 @@ export default class GPOSProcessor<T> extends OTProcessor<T> {
 				}
 
 				const ligAttach = subtable.ligatureArray[ligIndex];
-				const markGlyph = this.glyphIterator!.cur;
+				const markGlyph = this.glyphIterator!.cur!;
 				const ligGlyph = this.glyphs[baseGlyphIndex];
 
 				const compIndex =
@@ -277,7 +277,7 @@ export default class GPOSProcessor<T> extends OTProcessor<T> {
 					return false;
 				}
 
-				const cur = this.glyphIterator!.cur;
+				const cur = this.glyphIterator!.cur!;
 				let good = false;
 
 				if (cur.ligatureID === prev.ligatureID) {
@@ -334,7 +334,7 @@ export default class GPOSProcessor<T> extends OTProcessor<T> {
 
 		markPos.xOffset = baseCoords.x - markCoords.x;
 		markPos.yOffset = baseCoords.y - markCoords.y;
-		this.glyphIterator!.cur.markAttachment = baseGlyphIndex;
+		this.glyphIterator!.cur!.markAttachment = baseGlyphIndex;
 	}
 
 	private getAnchor(anchor: GPOSTable.Anchor) {

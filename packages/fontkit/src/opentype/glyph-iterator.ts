@@ -33,8 +33,8 @@ export default class GlyphIterator<T> {
 		this.index = index;
 	}
 
-	get cur(): GlyphInfo<T> {
-		return this.glyphs[this.index] || null;
+	get cur(): GlyphInfo<T> | null {
+		return this.glyphs[this.index] ?? null;
 	}
 
 	shouldIgnore<T>(glyph: GlyphInfo<T>) {

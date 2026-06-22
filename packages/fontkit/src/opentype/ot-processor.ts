@@ -267,7 +267,7 @@ export default class OTProcessor<T> {
 			this.glyphIterator.reset(lookup.flags);
 
 			while (this.glyphIterator.index < glyphs.length) {
-				if (!(feature in this.glyphIterator.cur.features)) {
+				if (!(feature in this.glyphIterator.cur!.features)) {
 					this.glyphIterator.next();
 					continue;
 				}
@@ -322,7 +322,7 @@ export default class OTProcessor<T> {
 
 	protected coverageIndex(coverage: OpenType.Coverage, glyph?: number) {
 		if (glyph == null) {
-			glyph = this.glyphIterator!.cur.id;
+			glyph = this.glyphIterator!.cur!.id;
 		}
 
 		switch (coverage.version) {
@@ -466,7 +466,7 @@ export default class OTProcessor<T> {
 					return false;
 				}
 
-				index = this.getClassID(this.glyphIterator!.cur.id, table.classDef);
+				index = this.getClassID(this.glyphIterator!.cur!.id, table.classDef);
 				if (index === -1) {
 					return false;
 				}
@@ -523,7 +523,7 @@ export default class OTProcessor<T> {
 				}
 
 				index = this.getClassID(
-					this.glyphIterator!.cur.id,
+					this.glyphIterator!.cur!.id,
 					table.inputClassDef,
 				);
 				const rules = table.chainClassSet[index];
