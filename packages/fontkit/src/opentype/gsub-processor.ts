@@ -1,4 +1,4 @@
-import { GSUBTable } from '../tables/GSUB.js';
+import type { GSUBTable } from '../tables/GSUB.js';
 import GlyphInfo from './glyph-info.js';
 import OTProcessor from './ot-processor.js';
 
@@ -9,7 +9,10 @@ import OTProcessor from './ot-processor.js';
  * extension substitutions (7).
  */
 export default class GSUBProcessor<T> extends OTProcessor<T> {
-	public applyLookup(lookupType: number, table: GSUBTable.LookupTable): boolean {
+	public applyLookup(
+		lookupType: number,
+		table: GSUBTable.LookupTable,
+	): boolean {
 		switch (lookupType) {
 			case 1: {
 				// Single Substitution
@@ -69,7 +72,8 @@ export default class GSUBProcessor<T> extends OTProcessor<T> {
 				const index = this.coverageIndex(subtable.coverage!);
 				if (index !== -1) {
 					const USER_INDEX = 0; // TODO
-					this.glyphIterator!.cur.id = subtable.alternateSet.get(index)[USER_INDEX];
+					this.glyphIterator!.cur.id =
+						subtable.alternateSet.get(index)[USER_INDEX];
 					return true;
 				}
 
@@ -86,7 +90,10 @@ export default class GSUBProcessor<T> extends OTProcessor<T> {
 				}
 
 				for (const ligature of subtable.ligatureSets.get(index)) {
-					const matched = this.sequenceMatchIndices(1, ligature.components) as number[];
+					const matched = this.sequenceMatchIndices(
+						1,
+						ligature.components,
+					) as number[];
 					if (!matched) {
 						continue;
 					}
@@ -204,10 +211,15 @@ export default class GSUBProcessor<T> extends OTProcessor<T> {
 				return this.applyContext(table as GSUBTable.LookupContext);
 
 			case 6: // Chaining Contextual Substitution
-				return this.applyChainingContext(table as GSUBTable.LookupChainingContext);
+				return this.applyChainingContext(
+					table as GSUBTable.LookupChainingContext,
+				);
 
 			case 7: // Extension Substitution
-				return this.applyLookup((table as GSUBTable.LookupExtension).lookupType, (table as GSUBTable.LookupExtension).extension);
+				return this.applyLookup(
+					(table as GSUBTable.LookupExtension).lookupType,
+					(table as GSUBTable.LookupExtension).extension,
+				);
 
 			default:
 				throw new Error(`GSUB lookupType ${lookupType} is not supported`);

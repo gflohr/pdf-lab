@@ -31,7 +31,7 @@ type Stage<T> = string[] | ShapingFunction<T>;
 export default class ShapingPlan<T = null> {
 	private stages: Stage<T>[];
 	private globalFeatures: Record<OpenTypeFeatureTag, boolean>;
-	private allFeatures: Record<OpenTypeFeatureTag, number>;
+	public readonly allFeatures: Record<OpenTypeFeatureTag, number>;
 	private _direction: BidiDirection;
 	public unicodeScript?: UnicodeScript;
 	public indicConfig?: IndicConfig;
@@ -39,7 +39,7 @@ export default class ShapingPlan<T = null> {
 
 	constructor(
 		public font: SFNTFont,
-		public readonly script: OpenTypeTag,
+		public readonly script?: OpenTypeTag,
 		direction: BidiDirection = 'ltr',
 	) {
 		this.stages = [];
@@ -132,7 +132,7 @@ export default class ShapingPlan<T = null> {
 	/**
 	 * Assigns the global features to the given glyphs
 	 */
-	assignGlobalFeatures(glyphs: GlyphInfo[]) {
+	assignGlobalFeatures(glyphs: GlyphInfo<T>[]) {
 		for (const glyph of glyphs) {
 			for (const feature of Object.keys(this.globalFeatures)) {
 				(glyph.features as Record<string, boolean>)[feature] = true;
@@ -146,7 +146,7 @@ export default class ShapingPlan<T = null> {
 	process(
 		processor: OTProcessor<T>,
 		glyphs: GlyphInfo<T>[],
-		positions: GlyphPosition[],
+		positions?: GlyphPosition[],
 	) {
 		for (const stage of this.stages) {
 			if (typeof stage === 'function') {

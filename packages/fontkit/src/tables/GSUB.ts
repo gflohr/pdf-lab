@@ -1,4 +1,4 @@
-import r, { RestructureLazyArray } from '@pdf-lib/restructure';
+import r, { type RestructureLazyArray } from '@pdf-lib/restructure';
 import {
 	type OpenType,
 	openTypeChainingContext,
@@ -24,9 +24,11 @@ export namespace GSUBTable {
 		substitute: RestructureLazyArray<number>;
 	}
 
-	export type LookupSingle = LookupSingleV1 | LookupSingleV2 & {
-		lookupType: 1;
-	};
+	export type LookupSingle =
+		| LookupSingleV1
+		| (LookupSingleV2 & {
+				lookupType: 1;
+		  });
 
 	export interface LookupMultiple {
 		substFormat: number;

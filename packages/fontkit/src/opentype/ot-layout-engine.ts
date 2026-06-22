@@ -1,11 +1,26 @@
+import type GlyphPosition from '../layout/glyph-position.js';
+import type GlyphRun from '../layout/glyph-run.js';
+import type { OpenTypeTag } from '../layout/script.js';
+import type { SFNTFont } from '../sfnt-font.js';
 import GlyphInfo from './glyph-info.js';
 import GPOSProcessor from './gpos-processor.js';
 import GSUBProcessor from './gsub-processor.js';
+import type DefaultShaper from './shapers/default-shaper.js';
 import * as Shapers from './shapers/index.js';
 import ShapingPlan from './shaping-plan.js';
 
-export default class OTLayoutEngine {
-	constructor(font) {
+export default class OTLayoutEngine<T> {
+	private font: SFNTFont;
+	private glyphInfos: GlyphInfo<T>[] | null;
+	private plan: ShapingPlan<T> | null;
+	// FIXME! Rename that to gsubProcessor!
+	private GSUBProcessor: GSUBProcessor<T> | null;
+	// FIXME! Rename that to gsubProcessor!
+	private GPOSProcessor: GPOSProcessor<T> | null;
+	private fallbackPosition: boolean;
+	private shaper: typeof DefaultShaper | undefined | null;
+
+	constructor(font: SFNTFont) {
 		this.font = font;
 		this.glyphInfos = null;
 		this.plan = null;
@@ -22,11 +37,11 @@ export default class OTLayoutEngine {
 		}
 	}
 
-	setup(glyphRun) {
+	setup(glyphRun: GlyphRun) {
 		// Map glyphs to GlyphInfo objects so data can be passed between
 		// GSUB and GPOS without mutating the real (shared) Glyph objects.
 		this.glyphInfos = glyphRun.glyphs.map(
-			(glyph) => new GlyphInfo(this.font, glyph.id, [...glyph.codePoints]),
+			(glyph) => new GlyphInfo<T>(this.font, glyph.id, [...glyph.codePoints]),
 		);
 
 		// Select a script based on what is available in GSUB/GPOS.
@@ -50,8 +65,8 @@ export default class OTLayoutEngine {
 		// Choose a shaper based on the script, and setup a shaping plan.
 		// This determines which features to apply to which glyphs.
 		this.shaper = Shapers.choose(script);
-		this.plan = new ShapingPlan(this.font, script, glyphRun.direction);
-		this.shaper.plan(this.plan, this.glyphInfos, glyphRun.features);
+		this.plan = new ShapingPlan(this.font, script as OpenTypeTag, glyphRun.direction);
+		this.shaper.plan(this.plan!, this.glyphInfos, glyphRun.features);
 
 		// Assign chosen features to output glyph run
 		for (const key in this.plan.allFeatures) {
@@ -59,31 +74,31 @@ export default class OTLayoutEngine {
 		}
 	}
 
-	substitute(glyphRun) {
+	substitute(glyphRun: GlyphRun) {
 		if (this.GSUBProcessor) {
-			this.plan.process(this.GSUBProcessor, this.glyphInfos);
+			this.plan!.process(this.GSUBProcessor, this.glyphInfos!);
 
 			// Map glyph infos back to normal Glyph objects
-			glyphRun.glyphs = this.glyphInfos.map((glyphInfo) =>
+			glyphRun.glyphs = this.glyphInfos!.map((glyphInfo) =>
 				this.font.getGlyph(glyphInfo.id, glyphInfo.codePoints),
 			);
 		}
 	}
 
-	position(glyphRun) {
-		if (this.shaper.zeroMarkWidths === 'BEFORE_GPOS') {
+	position(glyphRun: GlyphRun) {
+		if (this.shaper!.zeroMarkWidths === 'BEFORE_GPOS') {
 			this.zeroMarkAdvances(glyphRun.positions);
 		}
 
 		if (this.GPOSProcessor) {
-			this.plan.process(
+			this.plan!.process(
 				this.GPOSProcessor,
-				this.glyphInfos,
+				this.glyphInfos!,
 				glyphRun.positions,
 			);
 		}
 
-		if (this.shaper.zeroMarkWidths === 'AFTER_GPOS') {
+		if (this.shaper!.zeroMarkWidths === 'AFTER_GPOS') {
 			this.zeroMarkAdvances(glyphRun.positions);
 		}
 
@@ -96,9 +111,9 @@ export default class OTLayoutEngine {
 		return this.GPOSProcessor?.features;
 	}
 
-	zeroMarkAdvances(positions) {
-		for (let i = 0; i < this.glyphInfos.length; i++) {
-			if (this.glyphInfos[i].isMark) {
+	zeroMarkAdvances(positions: GlyphPosition[]) {
+		for (let i = 0; i < this.glyphInfos!.length; i++) {
+			if (this.glyphInfos![i].isMark) {
 				positions[i].xAdvance = 0;
 				positions[i].yAdvance = 0;
 			}
@@ -111,7 +126,7 @@ export default class OTLayoutEngine {
 		this.shaper = null;
 	}
 
-	getAvailableFeatures(script, language) {
+	getAvailableFeatures(script?: string, language?: string) {
 		const features = [];
 
 		if (this.GSUBProcessor) {

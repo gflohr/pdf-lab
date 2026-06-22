@@ -11,7 +11,10 @@ import GlyphIterator from './glyph-iterator.js';
 
 const DEFAULT_SCRIPTS = ['DFLT', 'dflt', 'latn'];
 
-type MatcherFunction<T> = (s: number | OpenType.Coverage, glyph: GlyphInfo<T>) => boolean;
+type MatcherFunction<T> = (
+	s: number | OpenType.Coverage,
+	glyph: GlyphInfo<T>,
+) => boolean;
 
 export default class OTProcessor<T> {
 	protected font: SFNTFont;
@@ -20,11 +23,12 @@ export default class OTProcessor<T> {
 	private scriptTag: string | null;
 	private language: OpenType.LangSys | null;
 	private languageTag: string | null;
-	private features: Record<string, OpenType.Feature>;
+	// FIXME! Define a getter for this!
+	public features: Record<string, OpenType.Feature>;
 	private lookups: Record<string, unknown>;
 	private variationsIndex: number;
 	protected glyphs: GlyphInfo<T>[];
-	protected positions: GlyphPosition[];
+	protected positions?: GlyphPosition[];
 	protected ligatureID: number;
 	private currentFeature: string | null;
 	protected direction: BidiDirection | undefined;
@@ -78,9 +82,9 @@ export default class OTProcessor<T> {
 		return null;
 	}
 
-	private selectScript(
+	public selectScript(
 		script?: string,
-		language?: string,
+		language?: string | null,
 		direction?: BidiDirection,
 	): string | null {
 		let changed = false;
@@ -148,10 +152,12 @@ export default class OTProcessor<T> {
 	private lookupsForFeatures(
 		userFeatures: string[] = [],
 		exclude?: number[],
-	):
-		| OpenType.ProcessorLookupEnvelope<GPOSTable.LookupTable | GSUBTable.LookupTable>[] {
-		const lookups:
-			| OpenType.ProcessorLookupEnvelope<GPOSTable.LookupTable | GSUBTable.LookupTable>[] = [];
+	): OpenType.ProcessorLookupEnvelope<
+		GPOSTable.LookupTable | GSUBTable.LookupTable
+	>[] {
+		const lookups: OpenType.ProcessorLookupEnvelope<
+			GPOSTable.LookupTable | GSUBTable.LookupTable
+		>[] = [];
 		for (const tag of userFeatures) {
 			const feature = this.features[tag];
 			if (!feature) {
@@ -176,7 +182,9 @@ export default class OTProcessor<T> {
 		return lookups;
 	}
 
-	private substituteFeatureForVariations(featureIndex: number): OpenType.Feature | null {
+	private substituteFeatureForVariations(
+		featureIndex: number,
+	): OpenType.Feature | null {
 		if (this.variationsIndex === -1 || this.table.version !== 65537) {
 			return null;
 		}
@@ -237,7 +245,7 @@ export default class OTProcessor<T> {
 	public applyFeatures(
 		userFeatures: string[],
 		glyphs: GlyphInfo<T>[],
-		advances: GlyphPosition[],
+		advances?: GlyphPosition[],
 	) {
 		const lookups = this.lookupsForFeatures(userFeatures);
 		this.applyLookups(lookups, glyphs, advances);
@@ -248,7 +256,7 @@ export default class OTProcessor<T> {
 			GPOSTable.LookupTable | GSUBTable.LookupTable
 		>[],
 		glyphs: GlyphInfo<T>[],
-		positions: GlyphPosition[],
+		positions?: GlyphPosition[],
 	) {
 		this.glyphs = glyphs;
 		this.positions = positions;
@@ -279,7 +287,10 @@ export default class OTProcessor<T> {
 	// FIXME! Instead of receiving the lookupType, the method should receive
 	// the entire LookupTable, so that the type can be inferred in the
 	// subclasses.
-	public applyLookup(_lookupType: number, _table: GPOSTable.LookupTable | GSUBTable.LookupTable): boolean {
+	public applyLookup(
+		_lookupType: number,
+		_table: GPOSTable.LookupTable | GSUBTable.LookupTable,
+	): boolean {
 		throw new Error('applyLookup must be implemented by subclasses');
 	}
 
@@ -331,7 +342,12 @@ export default class OTProcessor<T> {
 		return -1;
 	}
 
-	private match(sequenceIndex: number, sequence: number[] | OpenType.Coverage[], fn: MatcherFunction<T>, matched?: number[]): boolean | number[] {
+	private match(
+		sequenceIndex: number,
+		sequence: number[] | OpenType.Coverage[],
+		fn: MatcherFunction<T>,
+		matched?: number[],
+	): boolean | number[] {
 		const pos = this.glyphIterator!.index;
 		let glyph = this.glyphIterator!.increment(sequenceIndex);
 		let idx = 0;
@@ -377,11 +393,15 @@ export default class OTProcessor<T> {
 		);
 	}
 
-	private coverageSequenceMatches(sequenceIndex: number, sequence: OpenType.Coverage[]) {
+	private coverageSequenceMatches(
+		sequenceIndex: number,
+		sequence: OpenType.Coverage[],
+	) {
 		return this.match(
 			sequenceIndex,
 			sequence,
-			(coverage, glyph) => this.coverageIndex(coverage as OpenType.Coverage, glyph.id) >= 0,
+			(coverage, glyph) =>
+				this.coverageIndex(coverage as OpenType.Coverage, glyph.id) >= 0,
 		);
 	}
 
@@ -410,7 +430,11 @@ export default class OTProcessor<T> {
 		return 0;
 	}
 
-	private classSequenceMatches(sequenceIndex: number, sequence: number[], classDef: OpenType.ClassDef) {
+	private classSequenceMatches(
+		sequenceIndex: number,
+		sequence: number[],
+		classDef: OpenType.ClassDef,
+	) {
 		return this.match(
 			sequenceIndex,
 			sequence,
@@ -495,7 +519,10 @@ export default class OTProcessor<T> {
 					return false;
 				}
 
-				index = this.getClassID(this.glyphIterator!.cur.id, table.inputClassDef);
+				index = this.getClassID(
+					this.glyphIterator!.cur.id,
+					table.inputClassDef,
+				);
 				const rules = table.chainClassSet[index];
 				if (!rules) {
 					return false;

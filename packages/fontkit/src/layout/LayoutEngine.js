@@ -1,5 +1,5 @@
 import AATLayoutEngine from '../aat/AATLayoutEngine.js';
-import OTLayoutEngine from '../opentype/OTLayoutEngine.js';
+import OTLayoutEngine from '../opentype/ot-layout-engine.js';
 import GlyphPosition from './glyph-position.js';
 import GlyphRun from './glyph-run.js';
 import KernProcessor from './KernProcessor.js';

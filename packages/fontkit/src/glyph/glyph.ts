@@ -92,7 +92,7 @@ export interface FontkitRenderingContext {
  */
 export default class Glyph {
 	public readonly id: number;
-	private readonly codePoints: number[];
+	public readonly codePoints: number[];
 	protected readonly _font: SFNTFont;
 	// FIXME! Make these two property private and private getters.
 	public readonly isMark: boolean;

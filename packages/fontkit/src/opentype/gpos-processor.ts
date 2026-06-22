@@ -1,12 +1,15 @@
-import GlyphPosition from '../layout/glyph-position.js';
-import type { GPOSTable, ValueRecord } from '../tables/GPOS.js';
-import GlyphInfo from './glyph-info.js';
+import type GlyphPosition from '../layout/glyph-position.js';
+import type { GPOSTable } from '../tables/GPOS.js';
+import type GlyphInfo from './glyph-info.js';
 import OTProcessor from './ot-processor.js';
 
 export default class GPOSProcessor<T> extends OTProcessor<T> {
-	private applyPositionValue(sequenceIndex: number, value: GPOSTable.DecodedValueRecord) {
+	private applyPositionValue(
+		sequenceIndex: number,
+		value: GPOSTable.DecodedValueRecord,
+	) {
 		const glyphIdx = this.glyphIterator!.peekIndex(sequenceIndex);
-		const position = this.positions[glyphIdx];
+		const position = this.positions![glyphIdx];
 
 		if (value.xAdvance !== undefined && value.xAdvance !== null) {
 			position.xAdvance += value.xAdvance;
@@ -26,7 +29,10 @@ export default class GPOSProcessor<T> extends OTProcessor<T> {
 
 		// Adjustments for font variations
 		const variationProcessor = this.font.variationProcessor;
-		const variationStore = this.font.GDEF?.version === 65539 ? this.font.GDEF?.itemVariationStore : undefined;
+		const variationStore =
+			this.font.GDEF?.version === 65539
+				? this.font.GDEF?.itemVariationStore
+				: undefined;
 
 		if (variationProcessor && variationStore) {
 			if (value.xPlaDevice) {
@@ -63,7 +69,10 @@ export default class GPOSProcessor<T> extends OTProcessor<T> {
 		}
 	}
 
-	public applyLookup(lookupType: number, table: GPOSTable.LookupTable): boolean {
+	public applyLookup(
+		lookupType: number,
+		table: GPOSTable.LookupTable,
+	): boolean {
 		switch (lookupType) {
 			case 1: {
 				const subtable = table as GPOSTable.LookupSingle;
@@ -148,8 +157,8 @@ export default class GPOSProcessor<T> extends OTProcessor<T> {
 
 				const entry = this.getAnchor(nextRecord.entryAnchor);
 				const exit = this.getAnchor(curRecord.exitAnchor);
-				const cur = this.positions[this.glyphIterator!.index];
-				const next = this.positions[nextIndex];
+				const cur = this.positions![this.glyphIterator!.index];
+				const next = this.positions![nextIndex];
 
 				if (this.direction === 'ltr') {
 					cur.xAdvance = exit.x + cur.xOffset;
@@ -300,19 +309,28 @@ export default class GPOSProcessor<T> extends OTProcessor<T> {
 			case 7:
 				return this.applyContext(table as GPOSTable.LookupContext);
 			case 8:
-				return this.applyChainingContext(table as GPOSTable.LookupChainingContext);
+				return this.applyChainingContext(
+					table as GPOSTable.LookupChainingContext,
+				);
 			case 9:
-				return this.applyLookup(table.lookupType, (table as GPOSTable.LookupExtension).extension);
+				return this.applyLookup(
+					table.lookupType,
+					(table as GPOSTable.LookupExtension).extension,
+				);
 
 			default:
 				throw new Error(`Unsupported GPOS table: ${lookupType}`);
 		}
 	}
 
-	private applyAnchor(markRecord: GPOSTable.MarkRecord, baseAnchor: GPOSTable.Anchor, baseGlyphIndex: number) {
+	private applyAnchor(
+		markRecord: GPOSTable.MarkRecord,
+		baseAnchor: GPOSTable.Anchor,
+		baseGlyphIndex: number,
+	) {
 		const baseCoords = this.getAnchor(baseAnchor);
 		const markCoords = this.getAnchor(markRecord.markAnchor);
-		const markPos = this.positions[this.glyphIterator!.index];
+		const markPos = this.positions![this.glyphIterator!.index];
 
 		markPos.xOffset = baseCoords.x - markCoords.x;
 		markPos.yOffset = baseCoords.y - markCoords.y;
@@ -323,7 +341,10 @@ export default class GPOSProcessor<T> extends OTProcessor<T> {
 		let { xCoordinate: x, yCoordinate: y } = anchor;
 
 		const variationProcessor = this.font.variationProcessor;
-		const variationStore = this.font.GDEF?.version === 65539 ? this.font.GDEF?.itemVariationStore : undefined;
+		const variationStore =
+			this.font.GDEF?.version === 65539
+				? this.font.GDEF?.itemVariationStore
+				: undefined;
 
 		if (variationProcessor && variationStore) {
 			if ((anchor as GPOSTable.AnchorV3).xDeviceTable) {
@@ -369,7 +390,7 @@ export default class GPOSProcessor<T> extends OTProcessor<T> {
 			const j = glyph.cursiveAttachment;
 			glyph.cursiveAttachment = null;
 			this.fixCursiveAttachment(j);
-			this.positions[i].yOffset += this.positions[j].yOffset;
+			this.positions![i].yOffset += this.positions![j].yOffset;
 		}
 	}
 
@@ -379,18 +400,18 @@ export default class GPOSProcessor<T> extends OTProcessor<T> {
 			const j = glyph.markAttachment;
 
 			if (j !== null && j !== undefined) {
-				this.positions[i].xOffset += this.positions[j].xOffset;
-				this.positions[i].yOffset += this.positions[j].yOffset;
+				this.positions![i].xOffset += this.positions![j].xOffset;
+				this.positions![i].yOffset += this.positions![j].yOffset;
 
 				if (this.direction === 'ltr') {
 					for (let k = j; k < i; k++) {
-						this.positions[i].xOffset -= this.positions[k].xAdvance;
-						this.positions[i].yOffset -= this.positions[k].yAdvance;
+						this.positions![i].xOffset -= this.positions![k].xAdvance;
+						this.positions![i].yOffset -= this.positions![k].yAdvance;
 					}
 				} else {
 					for (let k = j + 1; k < i + 1; k++) {
-						this.positions[i].xOffset += this.positions[k].xAdvance;
-						this.positions[i].yOffset += this.positions[k].yAdvance;
+						this.positions![i].xOffset += this.positions![k].xAdvance;
+						this.positions![i].yOffset += this.positions![k].yAdvance;
 					}
 				}
 			}
