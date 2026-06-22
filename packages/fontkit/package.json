@@ -10,8 +10,9 @@
 	"scripts": {
 		"clean": "rimraf --glob dist node_modules/.cache \"src/**/trie.ts\" \"src/**/trie-indic.ts\" \"src/**/trie-use.ts\" \"src/**/indic.ts\" \"src/**/use.ts\"",
 		"generate:data": "pnpm exec tsx scripts/gen-trie.ts && pnpm exec tsx scripts/gen-use.ts && pnpm exec tsx scripts/gen-indic.ts",
-		"build": "tsc",
+		"build:tsc": "tsc",
 		"build:rollup": "pnpm run clean && pnpm run generate:data && rollup -c",
+		"build": "pnpm run build:rollup",
 		"dev": "rollup -c -w",
 		"check": "biome check",
 		"check:fix": "biome check --write",
