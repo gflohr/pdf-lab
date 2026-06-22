@@ -275,8 +275,7 @@ export namespace GPOSTable {
 	export interface LookupExtension {
 		// Extension Positioning
 		posFormat: number;
-		lookupType: number; // cannot also be 9
-		// FIXME!
+		lookupType: Exclude<number, 9>;
 		extension: LookupTable;
 	}
 

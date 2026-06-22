@@ -13,14 +13,14 @@ export default class GlyphInfo<ShaperInfoT = null> {
 	// always initialised.
 	private _id!: number;
 	public features: Record<OpenTypeFeatureTag, boolean>;
-	public ligatureID: string | null;
+	public ligatureID: number | null;
 	public ligatureComponent: number | null;
-	public readonly isLigated: boolean;
+	public isLigated: boolean;
 	public cursiveAttachment: number | null;
 	public markAttachment: number | null;
 	public shaperInfo: ShaperInfoT | null;
 	public substituted: boolean;
-	public readonly isMultiplied: boolean;
+	public isMultiplied: boolean;
 	public isBase?: boolean;
 	public isLigature?: boolean; // FIXME! Is this meant to be the same as isLigated?
 	public isMark?: boolean;

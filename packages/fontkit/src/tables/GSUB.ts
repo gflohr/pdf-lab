@@ -1,4 +1,4 @@
-import r from '@pdf-lib/restructure';
+import r, { RestructureLazyArray } from '@pdf-lib/restructure';
 import {
 	type OpenType,
 	openTypeChainingContext,
@@ -12,32 +12,34 @@ import { featureVariations, type OpenTypeVariation } from './variations.js';
 
 export namespace GSUBTable {
 	export interface LookupSingleV1 {
-		format: 1;
+		version: 1;
 		coverage?: OpenType.Coverage;
 		deltaGlyphID: number;
 	}
 
 	export interface LookupSingleV2 {
-		format: 2;
+		version: 2;
 		coverage?: OpenType.Coverage;
 		glyphCount: number;
-		substitute: number[];
+		substitute: RestructureLazyArray<number>;
 	}
 
-	export type LookupSingle = LookupSingleV1 | LookupSingleV2;
+	export type LookupSingle = LookupSingleV1 | LookupSingleV2 & {
+		lookupType: 1;
+	};
 
 	export interface LookupMultiple {
 		substFormat: number;
 		coverage?: OpenType.Coverage;
 		count: number;
-		sequences: number[][];
+		sequences: RestructureLazyArray<number[]>;
 	}
 
 	export interface LookupAlternate {
 		substFormat: number;
 		coverage?: OpenType.Coverage;
 		count: number;
-		alternateSet: number[][];
+		alternateSet: RestructureLazyArray<number[]>;
 	}
 
 	export interface LookupLigatureSet {
@@ -49,8 +51,20 @@ export namespace GSUBTable {
 		substFormat: number;
 		coverage?: OpenType.Coverage;
 		count: number;
-		ligatureSets: LookupLigatureSet[];
+		ligatureSets: RestructureLazyArray<LookupLigatureSet[]>;
 	}
+
+	export type LookupContext = OpenType.Context & { lookupType: 6 };
+
+	export interface LookupExtension {
+		substFormat: number;
+		lookupType: Exclude<number, 7>;
+		extension: LookupTable;
+	}
+
+	export type LookupChainingContext = OpenType.ChainingContext & {
+		lookupType: 8;
+	};
 
 	export interface LookupReverseChaining {
 		substFormat: number;
@@ -63,21 +77,14 @@ export namespace GSUBTable {
 	}
 
 	export type LookupTable =
-		| { lookupType: 1; table: LookupSingle }
-		| { lookupType: 2; table: LookupMultiple }
-		| { lookupType: 3; table: LookupAlternate }
-		| { lookupType: 4; table: LookupLigature }
-		| { lookupType: 5; table: OpenType.Context }
-		| { lookupType: 6; table: OpenType.ChainingContext }
-		| {
-				lookupType: 7;
-				table: {
-					substFormat: number;
-					lookupType: Exclude<number, 7>;
-					extension: LookupTable;
-				};
-		  }
-		| { lookupType: 8; table: LookupReverseChaining };
+		| LookupSingle
+		| LookupMultiple
+		| LookupAlternate
+		| LookupLigature
+		| LookupContext
+		| LookupChainingContext
+		| LookupExtension
+		| LookupReverseChaining;
 
 	export interface GSUBV1_0 extends OpenType.LayoutTableBase<LookupTable> {
 		version: 65536; // 1.0 as float.

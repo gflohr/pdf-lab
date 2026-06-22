@@ -25,7 +25,7 @@ export default class OTProcessor<T> {
 	private variationsIndex: number;
 	protected glyphs: GlyphInfo<T>[];
 	protected positions: GlyphPosition[];
-	private ligatureID: number; // FIXME!
+	protected ligatureID: number;
 	private currentFeature: string | null;
 	protected direction: BidiDirection | undefined;
 	protected glyphIterator: GlyphIterator<T> | undefined;
@@ -361,7 +361,7 @@ export default class OTProcessor<T> {
 		);
 	}
 
-	private sequenceMatchIndices(sequenceIndex: number, sequence: number[]) {
+	protected sequenceMatchIndices(sequenceIndex: number, sequence: number[]) {
 		return this.match(
 			sequenceIndex,
 			sequence,
