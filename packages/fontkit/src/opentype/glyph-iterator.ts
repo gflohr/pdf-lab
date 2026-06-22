@@ -12,14 +12,14 @@ export interface GlyphIteratorOptions {
 	markAttachmentType?: number;
 }
 
-export default class GlyphIterator {
+export default class GlyphIterator<T> {
 	public options!: GlyphIteratorOptions;
 	private flags!: GlyphIteratorFlags;
 	private markAttachmentType!: number;
 	public index!: number;
 
 	constructor(
-		private glyphs: GlyphInfo[],
+		private glyphs: GlyphInfo<T>[],
 		options?: GlyphIteratorOptions,
 	) {
 		this.reset(options);
@@ -32,7 +32,7 @@ export default class GlyphIterator {
 		this.index = index;
 	}
 
-	get cur(): GlyphInfo {
+	get cur(): GlyphInfo<T> {
 		return this.glyphs[this.index] || null;
 	}
 

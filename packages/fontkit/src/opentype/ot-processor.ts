@@ -11,9 +11,9 @@ import GlyphIterator from './glyph-iterator.js';
 
 const DEFAULT_SCRIPTS = ['DFLT', 'dflt', 'latn'];
 
-type MatcherFunction = (s: number | OpenType.Coverage, glyph: GlyphInfo) => boolean;
+type MatcherFunction<T> = (s: number | OpenType.Coverage, glyph: GlyphInfo<T>) => boolean;
 
-export default class OTProcessor {
+export default class OTProcessor<T> {
 	private font: SFNTFont;
 	private table: GPOSTable.GPOS | GSUBTable.GSUB;
 	private script: OpenType.Script | null;
@@ -23,12 +23,12 @@ export default class OTProcessor {
 	private features: Record<string, OpenType.Feature>;
 	private lookups: Record<string, unknown>;
 	private variationsIndex: number;
-	private glyphs: GlyphInfo[];
+	private glyphs: GlyphInfo<T>[];
 	private positions: unknown[]; // FIXME!
 	private ligatureID: number; // FIXME!
 	private currentFeature: string | null;
 	private direction: BidiDirection | undefined;
-	private glyphIterator: GlyphIterator | undefined;
+	private glyphIterator: GlyphIterator<T> | undefined;
 
 	constructor(font: SFNTFont, table: GPOSTable.GPOS | GSUBTable.GSUB) {
 		this.font = font;
@@ -236,7 +236,7 @@ export default class OTProcessor {
 
 	public applyFeatures(
 		userFeatures: string[],
-		glyphs: GlyphInfo[],
+		glyphs: GlyphInfo<T>[],
 		advances: GlyphPosition[],
 	) {
 		const lookups = this.lookupsForFeatures(userFeatures);
@@ -247,7 +247,7 @@ export default class OTProcessor {
 		lookups: OpenType.ProcessorLookupEnvelope<
 			GPOSTable.LookupTable | GSUBTable.LookupTable
 		>[],
-		glyphs: GlyphInfo[],
+		glyphs: GlyphInfo<T>[],
 		positions: GlyphPosition[],
 	) {
 		this.glyphs = glyphs;
@@ -328,7 +328,7 @@ export default class OTProcessor {
 		return -1;
 	}
 
-	private match(sequenceIndex: number, sequence: number[] | OpenType.Coverage[], fn: MatcherFunction, matched?: number[]): boolean | number[] {
+	private match(sequenceIndex: number, sequence: number[] | OpenType.Coverage[], fn: MatcherFunction<T>, matched?: number[]): boolean | number[] {
 		const pos = this.glyphIterator!.index;
 		let glyph = this.glyphIterator!.increment(sequenceIndex);
 		let idx = 0;

@@ -144,7 +144,7 @@ export default class ShapingPlan<T = null> {
 	 * Executes the planned stages using the given OTProcessor
 	 */
 	process(
-		processor: OTProcessor,
+		processor: OTProcessor<T>,
 		glyphs: GlyphInfo<T>[],
 		positions: GlyphPosition[],
 	) {
@@ -154,7 +154,7 @@ export default class ShapingPlan<T = null> {
 					stage(this.font, glyphs, this);
 				}
 			} else if (stage.length > 0) {
-				processor.applyFeatures(stage, glyphs as GlyphInfo<null>[], positions);
+				processor.applyFeatures(stage, glyphs, positions);
 			}
 		}
 	}
