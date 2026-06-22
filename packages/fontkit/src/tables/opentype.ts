@@ -2,7 +2,7 @@ import r, {
 	type FieldT,
 	type RestructureLazyArray,
 } from '@pdf-lib/restructure';
-import type { AATFeatures } from '../aat/AATFeatureMap.js';
+import type { AATFeatures } from '../aat/aat-feature-map.js';
 
 export namespace OpenType {
 	/**

@@ -1,5 +1,5 @@
 import cloneDeep from 'clone';
-import TTFGlyphEncoder from '../glyph/TTFGlyphEncoder.js';
+import TTFGlyphEncoder from '../glyph/ttf-glyph-encoder.js';
 import Directory from '../tables/directory.js';
 import Tables from '../tables/index.js';
 import Subset from './Subset.js';
