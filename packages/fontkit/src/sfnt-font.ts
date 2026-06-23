@@ -19,7 +19,7 @@ import type Glyph from './glyph/glyph.js';
 import GlyphVariationProcessor from './glyph/glyph-variation-processor.js';
 import SBIXGlyph from './glyph/sbix-glyph.js';
 import TTFGlyph from './glyph/ttf-glyph.js';
-import LayoutEngine from './layout/LayoutEngine.js';
+import LayoutEngine from './layout/layout-engine.js';
 import CFFSubset from './subset/CFFSubset.js';
 import type Subset from './subset/Subset.js';
 import TTFSubset from './subset/TTFSubset.js';
@@ -32,6 +32,8 @@ import Directory from './tables/directory.js';
 import tables from './tables/index.js';
 import type { nameTable } from './tables/name.js';
 import type { OpenType } from './tables/opentype.js';
+import { BidiDirection } from './layout/glyph-run.js';
+import * as Script from './layout/script.js';
 
 /**
  * Automatically calculates all available font table properties
@@ -519,13 +521,13 @@ export class SFNTFont<
 	layout(
 		str: string,
 		userFeatures?: OpenType.TypeFeatures | (keyof OpenType.TypeFeatures)[],
-		script?: string | null,
-		language?: string | null,
-		direction?: string | null,
+		script?: string,
+		language?: string,
+		direction?: BidiDirection,
 	) {
 		return this._layoutEngine.layout(
 			str,
-			userFeatures,
+			userFeatures ?? [],
 			script,
 			language,
 			direction,
@@ -576,7 +578,7 @@ export class SFNTFont<
 	 * @returns the supported features
 	 */
 	getAvailableFeatures(
-		script: string,
+		script: Script.UnicodeScript,
 		language?: string,
 	): (keyof OpenType.TypeFeatures)[] {
 		return this._layoutEngine.getAvailableFeatures(script, language);

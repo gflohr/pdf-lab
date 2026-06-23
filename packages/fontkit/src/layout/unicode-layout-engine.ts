@@ -1,4 +1,6 @@
-import unicode, { type UnicodeCombiningClassName } from '@pdf-lib/unicode-properties';
+import unicode, {
+	type UnicodeCombiningClassName,
+} from '@pdf-lib/unicode-properties';
 import type Glyph from '../glyph/glyph';
 import type { SFNTFont } from '../sfnt-font';
 import type GlyphPosition from './glyph-position';
@@ -46,7 +48,12 @@ export default class UnicodeLayoutEngine {
 	/**
 	 * TODO: RTL support!
 	 */
-	private positionCluster(glyphs: Glyph[], positions: GlyphPosition[], clusterStart: number, clusterEnd: number) {
+	private positionCluster(
+		glyphs: Glyph[],
+		positions: GlyphPosition[],
+		clusterStart: number,
+		clusterEnd: number,
+	) {
 		const base = glyphs[clusterStart];
 		const baseBox = base.cbox.copy();
 
@@ -107,9 +114,7 @@ export default class UnicodeLayoutEngine {
 					case 'Below_Right':
 					case 'Attached_Below':
 						// add a small gap between the glyphs if they are not attached
-						if (
-							combiningClass === 'Attached_Below'
-						) {
+						if (combiningClass === 'Attached_Below') {
 							baseBox.minY += yGap;
 						}
 

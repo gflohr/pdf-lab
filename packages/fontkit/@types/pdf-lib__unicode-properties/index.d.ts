@@ -125,7 +125,9 @@ declare module '@pdf-lib/unicode-properties' {
 	 *
 	 * @param codePoint - The numeric Unicode code point.
 	 */
-	export function getCombiningClass(codePoint: number): UnicodeCombiningClassName;
+	export function getCombiningClass(
+		codePoint: number,
+	): UnicodeCombiningClassName;
 
 	/**
 	 * Returns the East Asian width for the given code point.

@@ -25,7 +25,7 @@ export namespace AAT {
 
 	export interface LookupTableV0<T> {
 		version: 0;
-		values: T[];
+		values: UnboundedArrayAccessor<FieldT<T>>;
 	}
 
 	export interface LookupSegmentSingle<T> {
@@ -105,7 +105,7 @@ export namespace AAT {
 	}
 }
 
-class UnboundedArrayAccessor<TField extends FieldT<any>> {
+export class UnboundedArrayAccessor<TField extends FieldT<any>> {
 	private type: TField;
 	private stream: DecodeStream;
 	private parent?: ParsingContext;
@@ -120,7 +120,8 @@ class UnboundedArrayAccessor<TField extends FieldT<any>> {
 		this._items = [];
 	}
 
-	// Changing the return from 'unknown' to 'InferField<TField>' fixes downstream usage
+	// Changing the return from 'unknown' to 'InferField<TField>' fixes
+	// downstream usage.
 	getItem(index: number): InferField<TField> {
 		if (this._items[index] == null) {
 			const pos = this.stream.pos;

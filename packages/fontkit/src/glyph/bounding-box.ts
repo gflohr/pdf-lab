@@ -54,7 +54,6 @@ export default class BoundingBox {
 		return this._maxX;
 	}
 
-
 	public set maxX(x: number) {
 		this._maxX = x;
 	}

@@ -1,4 +1,4 @@
-import AATLookupTable from './AATLookupTable.js';
+import AATLookupTable from './aat-lookup-table.js';
 
 const START_OF_TEXT_STATE = 0;
 

@@ -1,14 +1,20 @@
 import AATLayoutEngine from '../aat/AATLayoutEngine.js';
+import type Glyph from '../glyph/glyph.js';
 import OTLayoutEngine from '../opentype/ot-layout-engine.js';
+import type { SFNTFont } from '../sfnt-font.js';
+import type { OpenType } from '../tables/opentype.js';
 import GlyphPosition from './glyph-position.js';
-import GlyphRun from './glyph-run.js';
+import GlyphRun, { type BidiDirection } from './glyph-run.js';
 import KernProcessor from './kern-processor.js';
 import * as Script from './script.js';
 import UnicodeLayoutEngine from './unicode-layout-engine.js';
 
 export default class LayoutEngine {
-	constructor(font) {
-		this.font = font;
+	private unicodeLayoutEngine: UnicodeLayoutEngine | null;
+	private kernProcessor: KernProcessor | null;
+	private engine?: AATLayoutEngine | OTLayoutEngine<null>;
+
+	constructor(private readonly font: SFNTFont) {
 		this.unicodeLayoutEngine = null;
 		this.kernProcessor = null;
 
@@ -17,40 +23,53 @@ export default class LayoutEngine {
 		if (this.font.morx) {
 			this.engine = new AATLayoutEngine(this.font);
 		} else if (this.font.GSUB || this.font.GPOS) {
-			this.engine = new OTLayoutEngine(this.font);
+			this.engine = new OTLayoutEngine<null>(this.font);
 		}
 	}
 
-	layout(string, features, script, language, direction) {
+	public layout(
+		str: string | Glyph[],
+		featuresOrScript: OpenType.TypeFeatures | (keyof OpenType.TypeFeatures)[] | Script.UnicodeScript,
+		scriptOrLanguage?: string | Script.UnicodeScript,
+		languageOrDirection?: string | BidiDirection,
+		direction?: BidiDirection,
+	): GlyphRun {
 		// Make the features parameter optional
-		if (typeof features === 'string') {
-			direction = language;
-			language = script;
-			script = features;
+		let features: OpenType.TypeFeatures | (keyof OpenType.TypeFeatures)[];
+		let script: Script.UnicodeScript;
+		let language: string | undefined;
+		if (typeof featuresOrScript === 'string') {
+			direction = languageOrDirection as BidiDirection;
+			language = scriptOrLanguage;
+			script = featuresOrScript;
 			features = [];
+		} else {
+			features = featuresOrScript;
+			script = scriptOrLanguage as Script.UnicodeScript;
+			language = languageOrDirection;
 		}
 
 		// Map string to glyphs if needed
-		let glyphs;
-		if (typeof string === 'string') {
+		let glyphs: Glyph[];
+		if (typeof str === 'string') {
 			// Attempt to detect the script from the string if not provided.
 			if (script == null) {
-				script = Script.forString(string);
+				script = Script.forString(str) as Script.UnicodeScript;
 			}
 
-			glyphs = this.font.glyphsForString(string);
+			glyphs = this.font.glyphsForString(str);
 		} else {
 			// Attempt to detect the script from the glyph code points if not provided.
 			if (script == null) {
 				const codePoints = [];
-				for (const glyph of string) {
+				for (const glyph of str) {
 					codePoints.push(...glyph.codePoints);
 				}
 
-				script = Script.forCodePoints(codePoints);
+				script = Script.forCodePoints(codePoints) as Script.UnicodeScript;
 			}
 
-			glyphs = string;
+			glyphs = str;
 		}
 
 		const glyphRun = new GlyphRun(
@@ -68,8 +87,8 @@ export default class LayoutEngine {
 		}
 
 		// Setup the advanced layout engine
-		if (this.engine?.setup) {
-			this.engine.setup(glyphRun);
+		if ((this.engine as OTLayoutEngine<null>)?.setup) {
+			(this.engine as OTLayoutEngine<null>)?.setup(glyphRun);
 		}
 
 		// Substitute and position the glyphs
@@ -79,21 +98,21 @@ export default class LayoutEngine {
 		this.hideDefaultIgnorables(glyphRun.glyphs, glyphRun.positions);
 
 		// Let the layout engine clean up any state it might have
-		if (this.engine?.cleanup) {
-			this.engine.cleanup();
+		if ((this.engine as OTLayoutEngine<null>)?.cleanup) {
+			(this.engine as OTLayoutEngine<null>).cleanup();
 		}
 
 		return glyphRun;
 	}
 
-	substitute(glyphRun) {
+	private substitute(glyphRun: GlyphRun) {
 		// Call the advanced layout engine to make substitutions
 		if (this.engine?.substitute) {
 			this.engine.substitute(glyphRun);
 		}
 	}
 
-	position(glyphRun) {
+	private position(glyphRun: GlyphRun) {
 		// Get initial glyph positions
 		glyphRun.positions = glyphRun.glyphs.map(
 			(glyph) => new GlyphPosition(glyph.advanceWidth),
@@ -101,8 +120,8 @@ export default class LayoutEngine {
 		let positioned = null;
 
 		// Call the advanced layout engine. Returns the features applied.
-		if (this.engine?.position) {
-			positioned = this.engine.position(glyphRun);
+		if ((this.engine as OTLayoutEngine<null>)?.position) {
+			positioned = (this.engine as OTLayoutEngine<null>).position(glyphRun);
 		}
 
 		// if there is no GPOS table, use unicode properties to position marks.
@@ -132,7 +151,7 @@ export default class LayoutEngine {
 		}
 	}
 
-	hideDefaultIgnorables(glyphs, positions) {
+	private hideDefaultIgnorables(glyphs: Glyph[], positions: GlyphPosition[]) {
 		const space = this.font.glyphForCodePoint(0x20);
 		for (let i = 0; i < glyphs.length; i++) {
 			if (this.isDefaultIgnorable(glyphs[i].codePoints[0])) {
@@ -143,7 +162,7 @@ export default class LayoutEngine {
 		}
 	}
 
-	isDefaultIgnorable(ch) {
+	private isDefaultIgnorable(ch: number): boolean {
 		// From DerivedCoreProperties.txt in the Unicode database,
 		// minus U+115F, U+1160, U+3164 and U+FFA0, which is what
 		// Harfbuzz and Uniscribe do.
@@ -189,8 +208,8 @@ export default class LayoutEngine {
 		}
 	}
 
-	getAvailableFeatures(script, language) {
-		const features = [];
+	public getAvailableFeatures(script?: Script.UnicodeScript, language?: string): string[] {
+		const features: string[] = [];
 
 		if (this.engine) {
 			features.push(...this.engine.getAvailableFeatures(script, language));
@@ -203,7 +222,7 @@ export default class LayoutEngine {
 		return features;
 	}
 
-	stringsForGlyph(gid) {
+	public stringsForGlyph(gid: number): string[] {
 		const result = new Set();
 
 		const codePoints = this.font.codePointsForGlyph(gid);

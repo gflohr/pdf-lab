@@ -41,7 +41,9 @@ export default class KernProcessor {
 
 					break;
 				default:
-					throw new Error(`Unsupported kerning table version ${(table as {version: number}).version}`);
+					throw new Error(
+						`Unsupported kerning table version ${(table as { version: number }).version}`,
+					);
 			}
 
 			let val = 0;

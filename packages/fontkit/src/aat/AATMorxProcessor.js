@@ -1,5 +1,5 @@
-import AATLookupTable from './AATLookupTable.js';
 import AATStateMachine from './AATStateMachine.js';
+import AATLookupTable from './aat-lookup-table.js';
 
 // indic replacement flags
 const MARK_FIRST = 0x8000;
