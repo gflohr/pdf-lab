@@ -1,11 +1,17 @@
+import type Glyph from '../glyph/glyph.js';
+import type { SFNTFont } from '../sfnt-font.js';
+import type { kernTable } from '../tables/kern.js';
 import { binarySearch } from '../utils.js';
+import type GlyphPosition from './glyph-position.js';
 
 export default class KernProcessor {
-	constructor(font) {
+	private readonly kern: kernTable.kern;
+
+	constructor(private readonly font: SFNTFont) {
 		this.kern = font.kern;
 	}
 
-	process(glyphs, positions) {
+	public process(glyphs: Glyph[], positions: GlyphPosition[]) {
 		for (let glyphIndex = 0; glyphIndex < glyphs.length - 1; glyphIndex++) {
 			const left = glyphs[glyphIndex].id;
 			const right = glyphs[glyphIndex + 1].id;
@@ -13,7 +19,7 @@ export default class KernProcessor {
 		}
 	}
 
-	getKerning(left, right) {
+	private getKerning(left: number, right: number): number {
 		let res = 0;
 
 		for (const table of this.kern.tables) {
@@ -35,12 +41,12 @@ export default class KernProcessor {
 
 					break;
 				default:
-					throw new Error(`Unsupported kerning table version ${table.version}`);
+					throw new Error(`Unsupported kerning table version ${(table as {version: number}).version}`);
 			}
 
 			let val = 0;
 			const s = table.subtable;
-			switch (table.format) {
+			switch (s.version) {
 				case 0: {
 					const pairIdx = binarySearch(
 						s.pairs,
@@ -99,7 +105,7 @@ export default class KernProcessor {
 
 			// Microsoft supports the override flag, which resets the result
 			// Otherwise, the sum of the results from all subtables is returned
-			if (table.coverage.override) {
+			if (table.version === 0 && table.coverage.override) {
 				res = val;
 			} else {
 				res += val;

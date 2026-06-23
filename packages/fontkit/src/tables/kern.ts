@@ -13,7 +13,7 @@ export namespace kernTable {
 	export interface ClassTable {
 		firstGlyph: number;
 		nGlyphs: number;
-		offset: number[];
+		offsets: number[];
 		max: number;
 	}
 
@@ -36,6 +36,7 @@ export namespace kernTable {
 		version: 2;
 		rowWidth: number;
 		leftTable: ClassTable;
+		rightTable: ClassTable;
 		array: Kern2Array;
 	}
 

@@ -2,7 +2,7 @@ import AATLayoutEngine from '../aat/AATLayoutEngine.js';
 import OTLayoutEngine from '../opentype/ot-layout-engine.js';
 import GlyphPosition from './glyph-position.js';
 import GlyphRun from './glyph-run.js';
-import KernProcessor from './KernProcessor.js';
+import KernProcessor from './kern-processor.js';
 import * as Script from './script.js';
 import UnicodeLayoutEngine from './unicode-layout-engine.js';
 
