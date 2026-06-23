@@ -1,4 +1,4 @@
-import unicode, { UnicodeCombiningClassName } from '@pdf-lib/unicode-properties';
+import unicode, { type UnicodeCombiningClassName } from '@pdf-lib/unicode-properties';
 import type Glyph from '../glyph/glyph';
 import type { SFNTFont } from '../sfnt-font';
 import type GlyphPosition from './glyph-position';
@@ -17,7 +17,7 @@ export default class UnicodeLayoutEngine {
 	/**
 	 * TODO Ligatures are currently not handled.
 	 */
-	positionGlyphs(glyphs: Glyph[], positions: GlyphPosition[]) {
+	public positionGlyphs(glyphs: Glyph[], positions: GlyphPosition[]) {
 		// Find each base + mark cluster, and position the marks relative to
 		// the base.
 		let clusterStart = 0;
@@ -46,7 +46,7 @@ export default class UnicodeLayoutEngine {
 	/**
 	 * TODO: RTL support!
 	 */
-	positionCluster(glyphs: Glyph[], positions: GlyphPosition[], clusterStart: number, clusterEnd: number) {
+	private positionCluster(glyphs: Glyph[], positions: GlyphPosition[], clusterStart: number, clusterEnd: number) {
 		const base = glyphs[clusterStart];
 		const baseBox = base.cbox.copy();
 
@@ -80,7 +80,6 @@ export default class UnicodeLayoutEngine {
 						position.xOffset += baseBox.minX - markBox.width / 2 - markBox.minX;
 						break;
 
-					case 'Attached_Below_Left':
 					case 'Below_Left':
 					case 'Above_Left':
 						// left align
@@ -106,11 +105,9 @@ export default class UnicodeLayoutEngine {
 					case 'Below_Left':
 					case 'Below':
 					case 'Below_Right':
-					case 'Attached_Below_Left':
 					case 'Attached_Below':
 						// add a small gap between the glyphs if they are not attached
 						if (
-							combiningClass === 'Attached_Below_Left' ||
 							combiningClass === 'Attached_Below'
 						) {
 							baseBox.minY += yGap;
@@ -151,7 +148,7 @@ export default class UnicodeLayoutEngine {
 		return;
 	}
 
-	getCombiningClass(codePoint: number): UnicodeCombiningClassName {
+	private getCombiningClass(codePoint: number): UnicodeCombiningClassName {
 		const combiningClass = unicode.getCombiningClass(codePoint);
 
 		// Thai / Lao need some per-character work
