@@ -33,9 +33,9 @@ const DIRECTIONAL_FEATURES: Record<BidiDirection, OpenTypeFeatureTag[]> = {
 // biome-ignore lint/complexity/noStaticOnlyClass: required for inheritance!
 export default class DefaultShaper {
 	static zeroMarkWidths = 'AFTER_GPOS';
-	static plan(
-		plan: ShapingPlan,
-		glyphs: GlyphInfo[],
+	static plan<T>(
+		plan: ShapingPlan<T>,
+		glyphs: GlyphInfo<T>[],
 		features: Record<string, boolean>,
 	) {
 		// Plan the features we want to apply
@@ -54,7 +54,7 @@ export default class DefaultShaper {
 		this.assignFeatures(plan, glyphs);
 	}
 
-	static planPreprocessing(plan: ShapingPlan) {
+	static planPreprocessing<T>(plan: ShapingPlan<T>) {
 		plan.add({
 			global: [...VARIATION_FEATURES, ...DIRECTIONAL_FEATURES[plan.direction]],
 			local: FRACTIONAL_FEATURES,
@@ -65,8 +65,8 @@ export default class DefaultShaper {
 		// Do nothing by default. Let subclasses override this.
 	}
 
-	static planPostprocessing(
-		plan: ShapingPlan,
+	static planPostprocessing<T>(
+		plan: ShapingPlan<T>,
 		userFeatures: Record<OpenTypeFeatureTag, boolean>,
 	) {
 		plan.add([...COMMON_FEATURES, ...HORIZONTAL_FEATURES]);

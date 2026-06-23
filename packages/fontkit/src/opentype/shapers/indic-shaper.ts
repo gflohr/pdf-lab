@@ -105,12 +105,12 @@ export default class IndicShaper extends DefaultShaper {
 		});
 
 		// Setup the indic config for the selected script
-		plan.unicodeScript = Script.fromOpenType(plan.script);
+		plan.unicodeScript = Script.fromOpenType(plan.script!);
 		plan.indicConfig =
 			INDIC_CONFIGS[plan.unicodeScript!] || INDIC_CONFIGS.Default;
 		plan.isOldSpec =
 			plan.indicConfig.hasOldSpec &&
-			plan.script[plan.script.length - 1] !== '2';
+			plan.script![plan.script!.length - 1] !== '2';
 
 		// TODO: turn off kern (Khmer) and liga features.
 	}

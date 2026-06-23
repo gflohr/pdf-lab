@@ -21,7 +21,7 @@ const fields = {
 const GlyphHeader = new r.Struct<typeof fields, GlyphHeaderData>(fields);
 
 // Flags for simple glyphs.
-// FIXME! This repeat the same variables in TTFGlyphEncoder.ts!
+// FIXME! This repeats the same variables in ttf-glyph-encoder.ts!
 const ON_CURVE = 1 << 0;
 const X_SHORT_VECTOR = 1 << 1;
 const Y_SHORT_VECTOR = 1 << 2;

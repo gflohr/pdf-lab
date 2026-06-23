@@ -22,11 +22,9 @@ export type OpenTypeFeatureTag = string;
 export default class GlyphRun {
 	private _positions: GlyphPosition[] | null;
 
-	// FIXME! All these scopes are preliminary. It is possible that other
-	// objects access the properties directly.
-	private features: Record<string, boolean>;
-	private direction: 'ltr' | 'rtl';
-	private language: string | null;
+	public readonly features: Record<string, boolean>;
+	public readonly direction: 'ltr' | 'rtl';
+	public readonly language: string | null;
 
 	/**
 	 * Create a glyph run.
@@ -42,9 +40,9 @@ export default class GlyphRun {
 	 * @param direction
 	 */
 	constructor(
-		private glyphs: Glyph[],
+		public glyphs: Glyph[],
 		features?: string[] | Record<string, boolean>,
-		private script?: UnicodeScript,
+		public readonly script?: UnicodeScript,
 		language?: string,
 		direction?: 'ltr' | 'rtl',
 	) {

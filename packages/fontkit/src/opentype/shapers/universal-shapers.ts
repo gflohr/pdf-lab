@@ -21,7 +21,8 @@ const useData: StateMachine.DFA = JSON.parse(
 );
 const trieData = pako.inflate(base64.decode(base64DeflatedTrie));
 
-const { categories: rawCategories, decompositions: rawDecompositions } = useData;
+const { categories: rawCategories, decompositions: rawDecompositions } =
+	useData;
 // Guard against invalid data.
 if (!rawCategories) {
 	throw new Error('Invalid USE data: missing categories');

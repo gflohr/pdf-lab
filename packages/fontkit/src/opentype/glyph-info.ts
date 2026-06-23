@@ -1,7 +1,7 @@
 import unicode from '@pdf-lib/unicode-properties';
 import type { OpenTypeFeatureTag } from '../layout/glyph-run.js';
 import type { SFNTFont } from '../sfnt-font.js';
-import OTProcessor from './OTProcessor.js';
+import OTProcessor from './ot-processor.js';
 import type { IndicInfo } from './shapers/indic-shaper.js';
 import type { USEInfo } from './shapers/universal-shapers.js';
 
@@ -13,18 +13,18 @@ export default class GlyphInfo<ShaperInfoT = null> {
 	// always initialised.
 	private _id!: number;
 	public features: Record<OpenTypeFeatureTag, boolean>;
-	private ligatureID: string | null;
-	private ligatureComponent: number | null;
-	public readonly isLigated: boolean;
-	private cursiveAttachment: GlyphInfo<ShaperInfoT> | null;
-	private markAttachment: GlyphInfo<ShaperInfoT> | null;
+	public ligatureID: number | null;
+	public ligatureComponent: number | null;
+	public isLigated: boolean;
+	public cursiveAttachment: number | null;
+	public markAttachment: number | null;
 	public shaperInfo: ShaperInfoT | null;
 	public substituted: boolean;
-	public readonly isMultiplied: boolean;
-	private isBase?: boolean;
-	private isLigature?: boolean; // FIXME! Is this meant to be the same as isLigated?
-	private isMark?: boolean;
-	private markAttachmentType?: number;
+	public isMultiplied: boolean;
+	public isBase?: boolean;
+	public isLigature?: boolean; // FIXME! Is this meant to be the same as isLigated?
+	public isMark?: boolean;
+	public markAttachmentType?: number;
 
 	constructor(
 		font: SFNTFont,

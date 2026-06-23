@@ -86,21 +86,25 @@ const SHAPERS: Record<string, typeof DefaultShaper> = {
 	DFLT: DefaultShaper, // Default
 };
 
+export type ShaperType = typeof DefaultShaper;
+
 /**
  * Given a Unicode script or list of script, select an appropriate shaper.
  *
  * @param script One or more scripts
  * @returns the appropriate shaper
  */
-export function choose(script: string | string[]): typeof DefaultShaper {
-	if (!Array.isArray(script)) {
-		script = [script];
-	}
+export function choose(script?: string | string[] | null): ShaperType {
+	if (script) {
+		if (!Array.isArray(script)) {
+			script = [script];
+		}
 
-	for (const s of script) {
-		const shaper = SHAPERS[s];
-		if (shaper) {
-			return shaper;
+		for (const s of script) {
+			const shaper = SHAPERS[s];
+			if (shaper) {
+				return shaper;
+			}
 		}
 	}
 

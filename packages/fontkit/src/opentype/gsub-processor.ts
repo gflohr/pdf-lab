@@ -1,5 +1,6 @@
+import type { GSUBTable } from '../tables/GSUB.js';
 import GlyphInfo from './glyph-info.js';
-import OTProcessor from './OTProcessor.js';
+import OTProcessor from './ot-processor.js';
 
 /**
  * Applies OpenType GSUB lookups (substitutions) to a glyph buffer.
@@ -7,24 +8,28 @@ import OTProcessor from './OTProcessor.js';
  * contextual (6) lookups to OTProcessor, and recursively resolving
  * extension substitutions (7).
  */
-export default class GSUBProcessor extends OTProcessor {
-	applyLookup(lookupType, table) {
+export default class GSUBProcessor<T> extends OTProcessor<T> {
+	public applyLookup(
+		lookupType: number,
+		table: GSUBTable.LookupTable,
+	): boolean {
 		switch (lookupType) {
 			case 1: {
 				// Single Substitution
-				const index = this.coverageIndex(table.coverage);
+				const subtable = table as GSUBTable.LookupSingle;
+				const index = this.coverageIndex(subtable.coverage!);
 				if (index === -1) {
 					return false;
 				}
 
-				const glyph = this.glyphIterator.cur;
-				switch (table.version) {
+				const glyph = this.glyphIterator!.cur!;
+				switch (subtable.version) {
 					case 1:
-						glyph.id = (glyph.id + table.deltaGlyphID) & 0xffff;
+						glyph.id = (glyph.id + subtable.deltaGlyphID) & 0xffff;
 						break;
 
 					case 2:
-						glyph.id = table.substitute.get(index);
+						glyph.id = subtable.substitute.get(index);
 						break;
 				}
 
@@ -32,18 +37,19 @@ export default class GSUBProcessor extends OTProcessor {
 			}
 
 			case 2: {
+				const subtable = table as GSUBTable.LookupMultiple;
 				// Multiple Substitution
-				const index = this.coverageIndex(table.coverage);
+				const index = this.coverageIndex(subtable.coverage!);
 				if (index !== -1) {
-					const sequence = table.sequences.get(index);
-					this.glyphIterator.cur.id = sequence[0];
-					this.glyphIterator.cur.ligatureComponent = 0;
+					const sequence = subtable.sequences.get(index);
+					this.glyphIterator!.cur!.id = sequence[0];
+					this.glyphIterator!.cur!.ligatureComponent = 0;
 
-					const features = this.glyphIterator.cur.features;
-					const curGlyph = this.glyphIterator.cur;
+					const curGlyph = this.glyphIterator!.cur!;
+					const features = curGlyph.features;
 					const replacement = sequence.slice(1).map((gid, i) => {
-						const glyph = new GlyphInfo(this.font, gid, undefined, features);
-						glyph.shaperInfo = curGlyph.shaperInfo;
+						const glyph = new GlyphInfo<T>(this.font, gid, undefined, features);
+						glyph.shaperInfo = curGlyph.shaperInfo!;
 						glyph.isLigated = curGlyph.isLigated;
 						glyph.ligatureComponent = i + 1;
 						glyph.substituted = true;
@@ -51,7 +57,8 @@ export default class GSUBProcessor extends OTProcessor {
 						return glyph;
 					});
 
-					this.glyphs.splice(this.glyphIterator.index + 1, 0, ...replacement);
+					this.glyphs.splice(this.glyphIterator!.index + 1, 0, ...replacement);
+
 					return true;
 				}
 
@@ -60,10 +67,13 @@ export default class GSUBProcessor extends OTProcessor {
 
 			case 3: {
 				// Alternate Substitution
-				const index = this.coverageIndex(table.coverage);
+				const subtable = table as GSUBTable.LookupAlternate;
+
+				const index = this.coverageIndex(subtable.coverage!);
 				if (index !== -1) {
 					const USER_INDEX = 0; // TODO
-					this.glyphIterator.cur.id = table.alternateSet.get(index)[USER_INDEX];
+					this.glyphIterator!.cur!.id =
+						subtable.alternateSet.get(index)[USER_INDEX];
 					return true;
 				}
 
@@ -72,18 +82,23 @@ export default class GSUBProcessor extends OTProcessor {
 
 			case 4: {
 				// Ligature Substitution
-				const index = this.coverageIndex(table.coverage);
+				const subtable = table as GSUBTable.LookupLigature;
+
+				const index = this.coverageIndex(subtable.coverage!);
 				if (index === -1) {
 					return false;
 				}
 
-				for (const ligature of table.ligatureSets.get(index)) {
-					const matched = this.sequenceMatchIndices(1, ligature.components);
+				for (const ligature of subtable.ligatureSets.get(index)) {
+					const matched = this.sequenceMatchIndices(
+						1,
+						ligature.components,
+					) as number[];
 					if (!matched) {
 						continue;
 					}
 
-					const curGlyph = this.glyphIterator.cur;
+					const curGlyph = this.glyphIterator!.cur!;
 
 					// Concatenate all of the characters the new ligature will represent
 					const characters = curGlyph.codePoints.slice();
@@ -92,7 +107,7 @@ export default class GSUBProcessor extends OTProcessor {
 					}
 
 					// Create the replacement ligature glyph
-					const ligatureGlyph = new GlyphInfo(
+					const ligatureGlyph = new GlyphInfo<T>(
 						this.font,
 						ligature.glyph,
 						characters,
@@ -136,7 +151,7 @@ export default class GSUBProcessor extends OTProcessor {
 					let lastLigID = curGlyph.ligatureID;
 					let lastNumComps = curGlyph.codePoints.length;
 					let curComps = lastNumComps;
-					let idx = this.glyphIterator.index + 1;
+					let idx = this.glyphIterator!.index + 1;
 
 					// Set ligatureID and ligatureComponent on glyphs that were skipped in the matched sequence.
 					// This allows GPOS to attach marks to the correct ligature components.
@@ -185,7 +200,7 @@ export default class GSUBProcessor extends OTProcessor {
 						this.glyphs.splice(matched[i], 1);
 					}
 
-					this.glyphs[this.glyphIterator.index] = ligatureGlyph;
+					this.glyphs[this.glyphIterator!.index] = ligatureGlyph;
 					return true;
 				}
 
@@ -193,13 +208,20 @@ export default class GSUBProcessor extends OTProcessor {
 			}
 
 			case 5: // Contextual Substitution
-				return this.applyContext(table);
+				return this.applyContext(table as GSUBTable.LookupContext);
 
 			case 6: // Chaining Contextual Substitution
-				return this.applyChainingContext(table);
+				return this.applyChainingContext(
+					table as GSUBTable.LookupChainingContext,
+				);
 
 			case 7: // Extension Substitution
-				return this.applyLookup(table.lookupType, table.extension);
+				return this.applyLookup(
+					(table as GSUBTable.LookupExtension).lookupType,
+					(table as GSUBTable.LookupExtension).extension,
+				);
+
+			// FIXME! Lookup type 8 is missing here.
 
 			default:
 				throw new Error(`GSUB lookupType ${lookupType} is not supported`);

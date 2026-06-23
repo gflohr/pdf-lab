@@ -1,5 +1,8 @@
-import r, { type FieldT } from '@pdf-lib/restructure';
-import type { AATFeatures } from '../aat/AATFeatureMap.js';
+import r, {
+	type FieldT,
+	type RestructureLazyArray,
+} from '@pdf-lib/restructure';
+import type { AATFeatures } from '../aat/aat-feature-map.js';
 
 export namespace OpenType {
 	/**
@@ -295,6 +298,17 @@ export namespace OpenType {
 		};
 	}
 
+	export interface ProcessorLookupEnvelope<TSubtable = unknown> {
+		/** The 4-character OpenType feature tag(e.g. 'mkmk', 'kern', ...) */
+		feature: string;
+
+		/** The specific index of this lookup inside the lookupList.  */
+		index: number;
+
+		/** The found table.  */
+		lookup: OpenType.LookupTable<TSubtable>;
+	}
+
 	export interface LookupTable<TSubtable> {
 		lookupType: number;
 		flags: LookupFlags;
@@ -309,7 +323,7 @@ export namespace OpenType {
 		/** Pointer to the FeatureList table which maps typographical layout features. */
 		featureList: FeatureRecord[];
 		/** List of lookup execution sequence steps mapping specific structural changes. */
-		lookupList: LookupTable<TLookupTable>[];
+		lookupList: RestructureLazyArray<LookupTable<TLookupTable>>;
 	}
 
 	export interface RangeRecord {
@@ -452,6 +466,10 @@ export namespace OpenType {
 		| ChainingContextV1
 		| ChainingContextV2
 		| ChainingContextV3;
+
+	export interface OpenTypeLayoutTable {
+		version: number;
+	}
 }
 
 const langSysTableFields = {

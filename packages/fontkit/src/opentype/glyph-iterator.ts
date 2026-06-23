@@ -1,21 +1,43 @@
-export default class GlyphIterator {
-	constructor(glyphs, options) {
-		this.glyphs = glyphs;
+import type GlyphInfo from './glyph-info.js';
+
+export type GlyphIteratorFlags = {
+	ignoreMarks?: boolean;
+	ignoreBaseGlyphs?: boolean;
+	ignoreLigatures?: boolean;
+	useMarkFilteringSet?: boolean;
+	rightToLeft?: boolean;
+};
+
+export type GlyphIteratorOptions = {
+	flags?: GlyphIteratorFlags;
+	markAttachmentType?: number;
+};
+
+export default class GlyphIterator<T> {
+	public options!: GlyphIteratorOptions;
+	public flags!: GlyphIteratorFlags;
+	private markAttachmentType!: number;
+	public index!: number;
+
+	constructor(
+		private glyphs: GlyphInfo<T>[],
+		options?: GlyphIteratorOptions,
+	) {
 		this.reset(options);
 	}
 
-	reset(options = {}, index = 0) {
+	reset(options: GlyphIteratorOptions = {}, index = 0) {
 		this.options = options;
 		this.flags = options.flags || {};
 		this.markAttachmentType = options.markAttachmentType || 0;
 		this.index = index;
 	}
 
-	get cur() {
-		return this.glyphs[this.index] || null;
+	get cur(): GlyphInfo<T> | null {
+		return this.glyphs[this.index] ?? null;
 	}
 
-	shouldIgnore(glyph) {
+	shouldIgnore<T>(glyph: GlyphInfo<T>) {
 		return (
 			(this.flags.ignoreMarks && glyph.isMark) ||
 			(this.flags.ignoreBaseGlyphs && glyph.isBase) ||
@@ -26,7 +48,7 @@ export default class GlyphIterator {
 		);
 	}
 
-	move(dir) {
+	move(dir: 1 | -1) {
 		this.index += dir;
 		while (
 			0 <= this.index &&

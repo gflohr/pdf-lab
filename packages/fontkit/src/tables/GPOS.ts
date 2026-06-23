@@ -120,29 +120,21 @@ export namespace GPOSTable {
 		xAdvance?: number;
 		yAdvance?: number;
 		// Pointers wrap the underlying Device structure.
-		xPlaDevice?: typeof types.xPlaDevice extends PointerT<infer T>
-			? T
-			: OpenType.Device;
-		yPlaDevice?: typeof types.yPlaDevice extends PointerT<infer T>
-			? T
-			: OpenType.Device;
-		xAdvDevice?: typeof types.xAdvDevice extends PointerT<infer T>
-			? T
-			: OpenType.Device;
-		yAdvDevice?: typeof types.yAdvDevice extends PointerT<infer T>
-			? T
-			: OpenType.Device;
+		xPlaDevice?: OpenType.Device;
+		yPlaDevice?: OpenType.Device;
+		xAdvDevice?: OpenType.Device;
+		yAdvDevice?: OpenType.Device;
 	}
 
 	export interface PairValueRecord {
 		secondGlyph: number;
-		value1: ValueRecord;
-		value2: ValueRecord;
+		value1: DecodedValueRecord;
+		value2: DecodedValueRecord;
 	}
 
 	export interface Class2Record {
-		value1: ValueRecord;
-		value2: ValueRecord;
+		value1: DecodedValueRecord;
+		value2: DecodedValueRecord;
 	}
 
 	/** Design units only. */
@@ -188,7 +180,7 @@ export namespace GPOSTable {
 		// Single positioning value
 		coverage: OpenType.Coverage | null;
 		valueFormat: typeof ValueFormat;
-		value: ValueRecord;
+		value: DecodedValueRecord;
 	}
 
 	export interface LookupSingleV2 {
@@ -196,7 +188,7 @@ export namespace GPOSTable {
 		coverage: OpenType.Coverage | null;
 		valueFormat: typeof ValueFormat;
 		valueCount: number;
-		values: RestructureLazyArray<ValueRecord>;
+		values: RestructureLazyArray<DecodedValueRecord>;
 	}
 
 	// Single Adjustment
@@ -212,7 +204,7 @@ export namespace GPOSTable {
 		valueFormat1: typeof ValueFormat;
 		valueFormat2: typeof ValueFormat;
 		pairSetCount: number;
-		pairSets: RestructureLazyArray<PairValueRecord>;
+		pairSets: RestructureLazyArray<PairValueRecord[]>;
 	}
 
 	export interface LookupPairV2 {
@@ -225,7 +217,7 @@ export namespace GPOSTable {
 		classDef2: OpenType.ClassDef | null;
 		class1Count: number;
 		class2Count: number;
-		classRecords: RestructureLazyArray<Class2Record>;
+		classRecords: RestructureLazyArray<RestructureLazyArray<Class2Record>>;
 	}
 
 	export type LookupPair = (LookupPairV1 | LookupPairV2) & {
@@ -248,9 +240,8 @@ export namespace GPOSTable {
 		markCoverage: OpenType.Coverage | null;
 		baseCoverage: OpenType.Coverage | null;
 		classCount: number;
-		markArray: MarkRecord | null;
-		// FIXME! This is maybe wrong!
-		baseArray: Anchor[] | null;
+		markArray: MarkRecord[] | null;
+		baseArray: Anchor[][] | null;
 	}
 
 	// MarkToLigature Attachment Positioning
@@ -261,8 +252,7 @@ export namespace GPOSTable {
 		ligatureCoverage: OpenType.Coverage | null;
 		classCount: number;
 		markArray: MarkRecord[] | null;
-		// FIXME! This has to checked later!
-		ligatureArray: unknown;
+		ligatureArray: Anchor[][][];
 	}
 
 	// MarkToMark Attachment Positioning
@@ -273,8 +263,7 @@ export namespace GPOSTable {
 		mark2Coverage: OpenType.Coverage | null;
 		classCount: number;
 		mark1Array: MarkRecord[] | null;
-		// FIXME! Check later.
-		mark2Array: unknown;
+		mark2Array: Anchor[][] | null;
 	}
 
 	export type LookupContext = OpenType.Context & { lookupType: 7 };
@@ -286,8 +275,7 @@ export namespace GPOSTable {
 	export interface LookupExtension {
 		// Extension Positioning
 		posFormat: number;
-		lookupType: number; // cannot also be 9
-		// FIXME!
+		lookupType: Exclude<number, 9>;
 		extension: LookupTable;
 	}
 
@@ -302,18 +290,12 @@ export namespace GPOSTable {
 		| LookupChainingContext
 		| LookupExtension;
 
-	interface GPOSBase {
-		scriptList: OpenType.ScriptRecord[];
-		featureList: OpenType.FeatureRecord;
-		lookupList: FieldT<OpenType.LookupTable<LookupTable>[]> | null;
+	export interface GPOSV1_0 extends OpenType.LayoutTableBase<LookupTable> {
+		version: 65536;
 	}
 
-	export interface GPOSV1_0 extends GPOSBase {
-		version: 1.0;
-	}
-
-	export interface GPOSV1_1 extends GPOSBase {
-		version: 1.1;
+	export interface GPOSV1_1 extends OpenType.LayoutTableBase<LookupTable> {
+		version: 65537;
 		featureVariations: OpenTypeVariation.FeatureVariations | null;
 	}
 

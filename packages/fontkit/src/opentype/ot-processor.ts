@@ -1,10 +1,40 @@
+import type GlyphPosition from '../layout/glyph-position.js';
+import type { BidiDirection } from '../layout/glyph-run.js';
 import * as Script from '../layout/script.js';
-import GlyphIterator from './GlyphIterator.js';
+import type { SFNTFont } from '../sfnt-font.js';
+import type { GPOSTable } from '../tables/GPOS.js';
+import type { GSUBTable } from '../tables/GSUB.js';
+import type { OpenType } from '../tables/opentype.js';
+import type { OpenTypeVariation } from '../tables/variations.js';
+import type GlyphInfo from './glyph-info.js';
+import GlyphIterator from './glyph-iterator.js';
 
 const DEFAULT_SCRIPTS = ['DFLT', 'dflt', 'latn'];
 
-export default class OTProcessor {
-	constructor(font, table) {
+type MatcherFunction<T> = (
+	s: number | OpenType.Coverage,
+	glyph: GlyphInfo<T>,
+) => boolean;
+
+export default class OTProcessor<T> {
+	protected font: SFNTFont;
+	private table: GPOSTable.GPOS | GSUBTable.GSUB;
+	private script: OpenType.Script | null;
+	private scriptTag: string | null;
+	private language: OpenType.LangSys | null;
+	private languageTag: string | null;
+	// FIXME! Define a getter for this!
+	public features: Record<string, OpenType.Feature>;
+	private lookups: Record<string, unknown>;
+	private variationsIndex: number;
+	protected glyphs: GlyphInfo<T>[];
+	protected positions?: GlyphPosition[];
+	protected ligatureID: number;
+	private currentFeature: string | null;
+	protected direction: BidiDirection | undefined;
+	protected glyphIterator: GlyphIterator<T> | undefined;
+
+	constructor(font: SFNTFont, table: GPOSTable.GPOS | GSUBTable.GSUB) {
 		this.font = font;
 		this.table = table;
 
@@ -22,7 +52,7 @@ export default class OTProcessor {
 			? this.findVariationsIndex(font.variationProcessor.normalizedCoords)
 			: -1;
 
-		// initialize to default script + language
+		// Initialize to default script + language.
 		this.selectScript();
 
 		// current context (set by applyFeatures)
@@ -32,7 +62,7 @@ export default class OTProcessor {
 		this.currentFeature = null;
 	}
 
-	findScript(script) {
+	private findScript(script: string | string[]): OpenType.ScriptRecord | null {
 		if (this.table.scriptList == null) {
 			return null;
 		}
@@ -52,11 +82,15 @@ export default class OTProcessor {
 		return null;
 	}
 
-	selectScript(script, language, direction) {
+	public selectScript(
+		script?: string,
+		language?: string | null,
+		direction?: BidiDirection,
+	): string | null {
 		let changed = false;
-		let entry;
+		let entry: OpenType.ScriptRecord | null;
 		if (!this.script || script !== this.scriptTag) {
-			entry = this.findScript(script);
+			entry = script ? this.findScript(script) : null;
 			if (!entry) {
 				entry = this.findScript(DEFAULT_SCRIPTS);
 			}
@@ -115,8 +149,15 @@ export default class OTProcessor {
 		return this.scriptTag;
 	}
 
-	lookupsForFeatures(userFeatures = [], exclude) {
-		const lookups = [];
+	private lookupsForFeatures(
+		userFeatures: string[] = [],
+		exclude?: number[],
+	): OpenType.ProcessorLookupEnvelope<
+		GPOSTable.LookupTable | GSUBTable.LookupTable
+	>[] {
+		const lookups: OpenType.ProcessorLookupEnvelope<
+			GPOSTable.LookupTable | GSUBTable.LookupTable
+		>[] = [];
 		for (const tag of userFeatures) {
 			const feature = this.features[tag];
 			if (!feature) {
@@ -137,18 +178,23 @@ export default class OTProcessor {
 		}
 
 		lookups.sort((a, b) => a.index - b.index);
+
 		return lookups;
 	}
 
-	substituteFeatureForVariations(featureIndex) {
-		if (this.variationsIndex === -1) {
+	private substituteFeatureForVariations(
+		featureIndex: number,
+	): OpenType.Feature | null {
+		if (this.variationsIndex === -1 || this.table.version !== 65537) {
 			return null;
 		}
 
 		const record =
-			this.table.featureVariations.featureVariationRecords[
+			this.table.featureVariations?.featureVariationRecords[
 				this.variationsIndex
 			];
+		if (!record?.featureTableSubstitution) return null;
+
 		const substitutions = record.featureTableSubstitution.substitutions;
 		for (const substitution of substitutions) {
 			if (substitution.featureIndex === featureIndex) {
@@ -159,7 +205,9 @@ export default class OTProcessor {
 		return null;
 	}
 
-	findVariationsIndex(coords) {
+	private findVariationsIndex(coords: number[]): number {
+		if (this.table.version !== 65537) return -1;
+
 		const variations = this.table.featureVariations;
 		if (!variations) {
 			return -1;
@@ -167,7 +215,9 @@ export default class OTProcessor {
 
 		const records = variations.featureVariationRecords;
 		for (let i = 0; i < records.length; i++) {
-			const conditions = records[i].conditionSet.conditionTable;
+			const conditions = records[i].conditionSet?.conditionTable;
+			if (!conditions) continue;
+
 			if (this.variationConditionsMatch(conditions, coords)) {
 				return i;
 			}
@@ -176,8 +226,13 @@ export default class OTProcessor {
 		return -1;
 	}
 
-	variationConditionsMatch(conditions, coords) {
+	private variationConditionsMatch(
+		conditions: (OpenTypeVariation.Condition | null)[],
+		coords: number[],
+	) {
 		return conditions.every((condition) => {
+			if (!condition) return false;
+
 			const coord =
 				condition.axisIndex < coords.length ? coords[condition.axisIndex] : 0;
 			return (
@@ -187,12 +242,22 @@ export default class OTProcessor {
 		});
 	}
 
-	applyFeatures(userFeatures, glyphs, advances) {
+	public applyFeatures(
+		userFeatures: string[],
+		glyphs: GlyphInfo<T>[],
+		advances?: GlyphPosition[],
+	) {
 		const lookups = this.lookupsForFeatures(userFeatures);
 		this.applyLookups(lookups, glyphs, advances);
 	}
 
-	applyLookups(lookups, glyphs, positions) {
+	private applyLookups(
+		lookups: OpenType.ProcessorLookupEnvelope<
+			GPOSTable.LookupTable | GSUBTable.LookupTable
+		>[],
+		glyphs: GlyphInfo<T>[],
+		positions?: GlyphPosition[],
+	) {
 		this.glyphs = glyphs;
 		this.positions = positions;
 		this.glyphIterator = new GlyphIterator(glyphs);
@@ -202,7 +267,7 @@ export default class OTProcessor {
 			this.glyphIterator.reset(lookup.flags);
 
 			while (this.glyphIterator.index < glyphs.length) {
-				if (!(feature in this.glyphIterator.cur.features)) {
+				if (!(feature in this.glyphIterator.cur!.features)) {
 					this.glyphIterator.next();
 					continue;
 				}
@@ -219,22 +284,28 @@ export default class OTProcessor {
 		}
 	}
 
-	applyLookup() {
+	// FIXME! Instead of receiving the lookupType, the method should receive
+	// the entire LookupTable, so that the type can be inferred in the
+	// subclasses.
+	public applyLookup(
+		_lookupType: number,
+		_table: GPOSTable.LookupTable | GSUBTable.LookupTable,
+	): boolean {
 		throw new Error('applyLookup must be implemented by subclasses');
 	}
 
-	applyLookupList(lookupRecords) {
-		const options = this.glyphIterator.options;
-		const glyphIndex = this.glyphIterator.index;
+	private applyLookupList(lookupRecords: OpenType.LookupRecord[]) {
+		const options = this.glyphIterator!.options;
+		const glyphIndex = this.glyphIterator!.index;
 
 		for (const lookupRecord of lookupRecords) {
 			// Reset flags and find glyph index for this lookup record
-			this.glyphIterator.reset(options, glyphIndex);
-			this.glyphIterator.increment(lookupRecord.sequenceIndex);
+			this.glyphIterator!.reset(options, glyphIndex);
+			this.glyphIterator!.increment(lookupRecord.sequenceIndex);
 
 			// Get the lookup and setup flags for subtables
 			const lookup = this.table.lookupList.get(lookupRecord.lookupListIndex);
-			this.glyphIterator.reset(lookup.flags, this.glyphIterator.index);
+			this.glyphIterator!.reset(lookup.flags, this.glyphIterator!.index);
 
 			// Apply lookup subtables until one matches
 			for (const table of lookup.subTables) {
@@ -244,13 +315,14 @@ export default class OTProcessor {
 			}
 		}
 
-		this.glyphIterator.reset(options, glyphIndex);
+		this.glyphIterator!.reset(options, glyphIndex);
+
 		return true;
 	}
 
-	coverageIndex(coverage, glyph) {
+	protected coverageIndex(coverage: OpenType.Coverage, glyph?: number) {
 		if (glyph == null) {
-			glyph = this.glyphIterator.cur.id;
+			glyph = this.glyphIterator!.cur!.id;
 		}
 
 		switch (coverage.version) {
@@ -270,21 +342,26 @@ export default class OTProcessor {
 		return -1;
 	}
 
-	match(sequenceIndex, sequence, fn, matched) {
-		const pos = this.glyphIterator.index;
-		let glyph = this.glyphIterator.increment(sequenceIndex);
+	private match(
+		sequenceIndex: number,
+		sequence: number[] | OpenType.Coverage[],
+		fn: MatcherFunction<T>,
+		matched?: number[],
+	): boolean | number[] {
+		const pos = this.glyphIterator!.index;
+		let glyph = this.glyphIterator!.increment(sequenceIndex);
 		let idx = 0;
 
 		while (idx < sequence.length && glyph && fn(sequence[idx], glyph)) {
 			if (matched) {
-				matched.push(this.glyphIterator.index);
+				matched.push(this.glyphIterator!.index);
 			}
 
 			idx++;
-			glyph = this.glyphIterator.next();
+			glyph = this.glyphIterator!.next()!;
 		}
 
-		this.glyphIterator.index = pos;
+		this.glyphIterator!.index = pos;
 		if (idx < sequence.length) {
 			return false;
 		}
@@ -292,7 +369,7 @@ export default class OTProcessor {
 		return matched || true;
 	}
 
-	sequenceMatches(sequenceIndex, sequence) {
+	private sequenceMatches(sequenceIndex: number, sequence: number[]) {
 		return this.match(
 			sequenceIndex,
 			sequence,
@@ -300,13 +377,13 @@ export default class OTProcessor {
 		);
 	}
 
-	sequenceMatchIndices(sequenceIndex, sequence) {
+	protected sequenceMatchIndices(sequenceIndex: number, sequence: number[]) {
 		return this.match(
 			sequenceIndex,
 			sequence,
 			(component, glyph) => {
-				// If the current feature doesn't apply to this glyph,
-				if (!(this.currentFeature in glyph.features)) {
+				// If the current feature does not apply to this glyph.
+				if (!(this.currentFeature! in glyph.features)) {
 					return false;
 				}
 
@@ -316,15 +393,19 @@ export default class OTProcessor {
 		);
 	}
 
-	coverageSequenceMatches(sequenceIndex, sequence) {
+	private coverageSequenceMatches(
+		sequenceIndex: number,
+		sequence: OpenType.Coverage[],
+	) {
 		return this.match(
 			sequenceIndex,
 			sequence,
-			(coverage, glyph) => this.coverageIndex(coverage, glyph.id) >= 0,
+			(coverage, glyph) =>
+				this.coverageIndex(coverage as OpenType.Coverage, glyph.id) >= 0,
 		);
 	}
 
-	getClassID(glyph, classDef) {
+	public getClassID(glyph: number, classDef: OpenType.ClassDef): number {
 		switch (classDef.version) {
 			case 1: {
 				// Class array
@@ -349,7 +430,11 @@ export default class OTProcessor {
 		return 0;
 	}
 
-	classSequenceMatches(sequenceIndex, sequence, classDef) {
+	private classSequenceMatches(
+		sequenceIndex: number,
+		sequence: number[],
+		classDef: OpenType.ClassDef,
+	) {
 		return this.match(
 			sequenceIndex,
 			sequence,
@@ -357,9 +442,9 @@ export default class OTProcessor {
 		);
 	}
 
-	applyContext(table) {
-		let index;
-		let set;
+	protected applyContext(table: OpenType.Context) {
+		let index: number;
+		let set: OpenType.ContextRule[] | OpenType.ContextClassRule[];
 		switch (table.version) {
 			case 1:
 				index = this.coverageIndex(table.coverage);
@@ -381,12 +466,15 @@ export default class OTProcessor {
 					return false;
 				}
 
-				index = this.getClassID(this.glyphIterator.cur.id, table.classDef);
+				index = this.getClassID(this.glyphIterator!.cur!.id, table.classDef);
 				if (index === -1) {
 					return false;
 				}
 
 				set = table.classSet[index];
+				if (!set) {
+					return false;
+				}
 				for (const rule of set) {
 					if (this.classSequenceMatches(1, rule.classes, table.classDef)) {
 						return this.applyLookupList(rule.lookupRecords);
@@ -406,9 +494,9 @@ export default class OTProcessor {
 		return false;
 	}
 
-	applyChainingContext(table) {
-		let index;
-		let set;
+	protected applyChainingContext(table: OpenType.ChainingContext) {
+		let index: number;
+		let set: OpenType.ChainRule[];
 		switch (table.version) {
 			case 1:
 				index = this.coverageIndex(table.coverage);
@@ -434,7 +522,10 @@ export default class OTProcessor {
 					return false;
 				}
 
-				index = this.getClassID(this.glyphIterator.cur.id, table.inputClassDef);
+				index = this.getClassID(
+					this.glyphIterator!.cur!.id,
+					table.inputClassDef,
+				);
 				const rules = table.chainClassSet[index];
 				if (!rules) {
 					return false;

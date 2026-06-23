@@ -3,7 +3,7 @@ import type { BidiDirection, OpenTypeFeatureTag } from '../layout/glyph-run.js';
 import type { OpenTypeTag, UnicodeScript } from '../layout/script.js';
 import type { SFNTFont } from '../sfnt-font.js';
 import type GlyphInfo from './glyph-info.js';
-import type OTProcessor from './OTProcessor.js';
+import type OTProcessor from './ot-processor.js';
 import type { IndicConfig } from './shapers/indic-data.js';
 
 type FeatureShape =
@@ -31,7 +31,7 @@ type Stage<T> = string[] | ShapingFunction<T>;
 export default class ShapingPlan<T = null> {
 	private stages: Stage<T>[];
 	private globalFeatures: Record<OpenTypeFeatureTag, boolean>;
-	private allFeatures: Record<OpenTypeFeatureTag, number>;
+	public readonly allFeatures: Record<OpenTypeFeatureTag, number>;
 	private _direction: BidiDirection;
 	public unicodeScript?: UnicodeScript;
 	public indicConfig?: IndicConfig;
@@ -39,7 +39,7 @@ export default class ShapingPlan<T = null> {
 
 	constructor(
 		public font: SFNTFont,
-		public readonly script: OpenTypeTag,
+		public readonly script?: OpenTypeTag,
 		direction: BidiDirection = 'ltr',
 	) {
 		this.stages = [];
@@ -132,7 +132,7 @@ export default class ShapingPlan<T = null> {
 	/**
 	 * Assigns the global features to the given glyphs
 	 */
-	assignGlobalFeatures(glyphs: GlyphInfo[]) {
+	assignGlobalFeatures(glyphs: GlyphInfo<T>[]) {
 		for (const glyph of glyphs) {
 			for (const feature of Object.keys(this.globalFeatures)) {
 				(glyph.features as Record<string, boolean>)[feature] = true;
@@ -144,9 +144,9 @@ export default class ShapingPlan<T = null> {
 	 * Executes the planned stages using the given OTProcessor
 	 */
 	process(
-		processor: OTProcessor,
+		processor: OTProcessor<T>,
 		glyphs: GlyphInfo<T>[],
-		positions: GlyphPosition[],
+		positions?: GlyphPosition[],
 	) {
 		for (const stage of this.stages) {
 			if (typeof stage === 'function') {
