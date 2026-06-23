@@ -38,16 +38,33 @@ export default class BoundingBox {
 		return this._minX;
 	}
 
+	public set minX(x: number) {
+		this._minX = x;
+	}
+
 	public get minY(): number {
 		return this._minY;
+	}
+
+	public set minY(y: number) {
+		this._minY = y;
 	}
 
 	public get maxX(): number {
 		return this._maxX;
 	}
 
+
+	public set maxX(x: number) {
+		this._maxX = x;
+	}
+
 	public get maxY(): number {
 		return this._maxY;
+	}
+
+	public set maxY(y: number) {
+		this._maxY = y;
 	}
 
 	/**

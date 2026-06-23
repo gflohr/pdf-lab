@@ -4,7 +4,7 @@ import GlyphPosition from './glyph-position.js';
 import GlyphRun from './glyph-run.js';
 import KernProcessor from './KernProcessor.js';
 import * as Script from './script.js';
-import UnicodeLayoutEngine from './UnicodeLayoutEngine.js';
+import UnicodeLayoutEngine from './unicode-layout-engine.js';
 
 export default class LayoutEngine {
 	constructor(font) {
