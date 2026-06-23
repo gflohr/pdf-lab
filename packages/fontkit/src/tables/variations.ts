@@ -101,13 +101,13 @@ const variationRegionList = new r.Struct<
 export type DeltaSetParentContext = {
 	shortDeltaCount: number;
 	regionIndexCount: number;
-}
+};
 
 export type DeltaSetContext = {
 	parent: DeltaSetParentContext;
 	shortDeltas: number[];
 	regionDeltas: number[];
-}
+};
 
 const deltaSetFields = {
 	shortDeltas: new r.Array(

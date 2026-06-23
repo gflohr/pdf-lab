@@ -65,7 +65,11 @@ export default class OTLayoutEngine<T> {
 		// Choose a shaper based on the script, and setup a shaping plan.
 		// This determines which features to apply to which glyphs.
 		this.shaper = Shapers.choose(script);
-		this.plan = new ShapingPlan(this.font, script as OpenTypeTag, glyphRun.direction);
+		this.plan = new ShapingPlan(
+			this.font,
+			script as OpenTypeTag,
+			glyphRun.direction,
+		);
 		this.shaper.plan(this.plan!, this.glyphInfos, glyphRun.features);
 
 		// Assign chosen features to output glyph run

@@ -6,12 +6,12 @@ export type GlyphIteratorFlags = {
 	ignoreLigatures?: boolean;
 	useMarkFilteringSet?: boolean;
 	rightToLeft?: boolean;
-}
+};
 
 export type GlyphIteratorOptions = {
 	flags?: GlyphIteratorFlags;
 	markAttachmentType?: number;
-}
+};
 
 export default class GlyphIterator<T> {
 	public options!: GlyphIteratorOptions;

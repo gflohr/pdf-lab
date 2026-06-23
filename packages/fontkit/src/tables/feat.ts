@@ -31,7 +31,7 @@ export type FeatureContext = {
 	nameIndex: number;
 	parent: FeatureContext;
 	name: { records: { fontFeatures: string[] } };
-}
+};
 
 const settingFields = {
 	setting: r.uint16,

@@ -148,7 +148,7 @@ const kernPair = new r.Struct<typeof kernPairFields, kernTable.Pair>(
 
 export type ClassTableContext = {
 	offsets: number[];
-}
+};
 
 const classTableFields = {
 	firstGlyph: r.uint16,

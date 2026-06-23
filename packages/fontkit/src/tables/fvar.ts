@@ -36,7 +36,7 @@ export type FvarContext = {
 	nameID: number;
 	parent: FvarContext;
 	name: { records: { fontFeatures: string[] } };
-}
+};
 
 const axisFields = {
 	axisTag: new r.String(4),

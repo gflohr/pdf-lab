@@ -132,7 +132,7 @@ interface MapDataParent {
 export type MapDataEntryContext = {
 	parent: MapDataParent;
 	entry: number;
-}
+};
 
 const mapDataEntryFields = {
 	entry: new VariableSizeNumber(
