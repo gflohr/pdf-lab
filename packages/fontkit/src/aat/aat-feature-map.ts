@@ -1,3 +1,6 @@
+import type { AAT } from '../tables/aat';
+import type { OpenType } from '../tables/opentype';
+
 /**
  * A map of Apple Advanced Typography (AAT) as described by Apple’s TrueType
  * Reference manual:
@@ -405,8 +408,8 @@ const features: Record<string, Record<string, number | boolean>> = {
 const feature = (
 	name: string,
 	selector: string,
-): [number | boolean, number | boolean] => [
-	features[name].code,
+): [number, number | boolean] => [
+	features[name].code as number,
 	features[name][selector],
 ];
 
@@ -539,18 +542,12 @@ for (const ot in OTMapping) {
 	AATMapping[primaryKey][secondaryKey] = ot;
 }
 
-// Maps an array of OpenType features to AAT features
-// in the form of {featureType:{featureSetting:true}}.
-export type OpenTypeFeaturesInput = Record<string, boolean>;
-
-export type AATFeaturesOutput = Record<string, Record<string, boolean>>;
-
 /**
  * Maps an array of OpenType features to AAT features
  * in the form of {featureType:{featureSetting:true}}.
  */
-export function mapOTToAAT(features: OpenTypeFeaturesInput): AATFeaturesOutput {
-	const res: AATFeaturesOutput = {};
+export function mapOTToAAT(features: OpenType.TypeFeatures): AAT.TypeFeatures {
+	const res: AAT.TypeFeatures = {};
 
 	for (const k in features) {
 		const r = OTMapping[k];
@@ -559,7 +556,7 @@ export function mapOTToAAT(features: OpenTypeFeaturesInput): AATFeaturesOutput {
 			const featureSetting = String(r[1]);
 
 			res[featureType] ??= {};
-			res[featureType][featureSetting] = features[k];
+			res[featureType][featureSetting] = features[k]!;
 		}
 	}
 
@@ -571,7 +568,7 @@ export function mapOTToAAT(features: OpenTypeFeaturesInput): AATFeaturesOutput {
  * to their equivalent number codes.
  */
 function mapFeatureStrings(
-	f: [string, number | boolean],
+	f: [number, number] | [string, number] | [string, string],
 ): [number | boolean | string, number | boolean | string] {
 	const [type, setting] = f;
 
@@ -580,7 +577,7 @@ function mapFeatureStrings(
 	// Number.isNaN() only returns true for the number NaN, which can never
 	// occur here. Consequently, instead of assigning the corresponding code,
 	// the raw string was assigned to typeCode.
-	const isTypeStringLabel = Number.isNaN(Number.parseInt(type, 10));
+	const isTypeStringLabel = Number.isNaN(Number.parseInt(type as string, 10));
 	const typeCode = isTypeStringLabel ? (features[type]?.code ?? type) : type;
 
 	const isSettingLabel =
@@ -592,11 +589,7 @@ function mapFeatureStrings(
 	return [typeCode, settingCode];
 }
 
-// Union input type supporting both the Array format and Object dictionary
-// format for mapAATToOT() defined below.
-export type AATFeaturesInput =
-	| [string, number | boolean][]
-	| Record<string, Record<string, boolean>>;
+export type AATFeaturesInput = [number, number][] | AAT.TypeFeatures;
 
 /**
  * Maps AAT features to an array of OpenType features
@@ -605,41 +598,29 @@ export type AATFeaturesInput =
  * featureTypes and featureSettings can be either strings or number codes.
  */
 export function mapAATToOT(features: AATFeaturesInput): string[] {
-	const res: Record<string, boolean> = {};
+	const res: OpenType.TypeFeatures = {};
 
 	if (Array.isArray(features)) {
 		for (let k = 0; k < features.length; k++) {
-			const f = mapFeatureStrings(features[k]);
-
-			// Convert lookup keys safely to strings to index into AATMapping
-			const primaryKey = String(f[0]);
-			const secondaryKey = String(f[1]);
-			const r = AATMapping[primaryKey]?.[secondaryKey];
-
-			if (r) {
+			const [type, setting] = mapFeatureStrings(features[k]) as [
+				string,
+				string,
+			];
+			if (AATMapping[type]?.[setting]) {
+				const r = AATMapping[type][setting];
 				res[r] = true;
 			}
 		}
-	} else if (features && typeof features === 'object') {
+	} else if (typeof features === 'object') {
 		for (const type in features) {
 			const feature = features[type];
-			if (!feature) continue;
-
 			for (const setting in feature) {
-				// Object keys are natively strings at runtime. We parse 'setting' out
-				// to match the expected signature of mapFeatureStrings.
-				const isBooleanSetting = setting === 'true' || setting === 'false';
-				const settingVal = isBooleanSetting
-					? setting === 'true'
-					: Number.parseInt(setting, 10);
-
-				const f = mapFeatureStrings([type, settingVal]);
-
-				const primaryKey = String(f[0]);
-				const secondaryKey = String(f[1]);
-				const r = AATMapping[primaryKey]?.[secondaryKey];
-
-				if (feature[setting] && r) {
+				const [ftype, fsetting] = mapFeatureStrings([type, setting]) as [
+					string,
+					string,
+				];
+				if (feature[setting] && AATMapping[ftype]?.[fsetting]) {
+					const r = AATMapping[ftype][fsetting];
 					res[r] = true;
 				}
 			}

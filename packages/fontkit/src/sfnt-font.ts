@@ -19,7 +19,9 @@ import type Glyph from './glyph/glyph.js';
 import GlyphVariationProcessor from './glyph/glyph-variation-processor.js';
 import SBIXGlyph from './glyph/sbix-glyph.js';
 import TTFGlyph from './glyph/ttf-glyph.js';
+import type { BidiDirection } from './layout/glyph-run.js';
 import LayoutEngine from './layout/layout-engine.js';
+import type * as Script from './layout/script.js';
 import CFFSubset from './subset/CFFSubset.js';
 import type Subset from './subset/Subset.js';
 import TTFSubset from './subset/TTFSubset.js';
@@ -32,8 +34,6 @@ import Directory from './tables/directory.js';
 import tables from './tables/index.js';
 import type { nameTable } from './tables/name.js';
 import type { OpenType } from './tables/opentype.js';
-import { BidiDirection } from './layout/glyph-run.js';
-import * as Script from './layout/script.js';
 
 /**
  * Automatically calculates all available font table properties
@@ -584,7 +584,10 @@ export class SFNTFont<
 		return this._layoutEngine.getAvailableFeatures(script, language);
 	}
 
-	public getBaseGlyph(glyph: number, characters: number[] = []): Glyph | null {
+	public getBaseGlyph(
+		glyph: number,
+		characters: readonly number[] = [],
+	): Glyph | null {
 		if (!this.glyphs[glyph]) {
 			if (this.directory.tables.glyf) {
 				this.glyphs[glyph] = new TTFGlyph(
@@ -613,7 +616,7 @@ export class SFNTFont<
 	 * @param characters an array of code points this glyph represents
 	 * @returns the corresponding glyph
 	 */
-	getGlyph(glyph: number, characters: number[] = []): Glyph {
+	getGlyph(glyph: number, characters: readonly number[] = []): Glyph {
 		if (!this.glyphs[glyph]) {
 			// FIXME! Get rid of the casts!
 			if (this.directory.tables.sbix) {

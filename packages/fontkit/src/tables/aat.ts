@@ -11,6 +11,7 @@ import r, {
 	type FieldT,
 	type InferField,
 	type ParsingContext,
+	type StructT,
 } from '@pdf-lib/restructure';
 
 export namespace AAT {
@@ -87,8 +88,8 @@ export namespace AAT {
 	export interface StateHeader<TLookup = number, TEntry = Record<string, any>> {
 		nClasses: number;
 		classTable: LookupTable<TLookup>;
-		stateArray: number;
-		entryTable: StateEntry<TEntry>[];
+		stateArray: UnboundedArrayAccessor<FieldT<number[]>>;
+		entryTable: UnboundedArrayAccessor<FieldT<StateEntry<TEntry>>>;
 	}
 
 	export type StateEntry1<TEntry> = {
@@ -100,9 +101,18 @@ export namespace AAT {
 	export interface StateHeader1<TEntry = Record<string, any>> {
 		nClasses: number;
 		classTable: Omit<LookupTableV8<number>, 'count'>;
-		stateArray: number[][];
-		entryTable: StateEntry1<TEntry>[];
+		stateArray: UnboundedArrayAccessor<FieldT<number[][]>>;
+		entryTable: UnboundedArrayAccessor<FieldT<StateEntry1<TEntry>[]>>;
 	}
+
+	export type StateTable = StructT<Record<string, unknown>, AAT.StateHeader>;
+
+	export type StateTable1<TEntryData> = StructT<
+		TEntryData,
+		StateHeader1<TEntryData>
+	>;
+
+	export type TypeFeatures = Record<string, Record<string, boolean>>;
 }
 
 export class UnboundedArrayAccessor<TField extends FieldT<any>> {
@@ -297,11 +307,11 @@ export function aatStateTable<
 		stateArray: new r.Pointer(r.uint32, StateArray),
 		entryTable: new r.Pointer(r.uint32, new AATUnboundedArray(Entry)),
 	};
-	const StateHeader = new r.Struct<typeof stateHeaderFields, AAT.StateHeader>(
+	const stateHeader = new r.Struct<typeof stateHeaderFields, AAT.StateHeader>(
 		stateHeaderFields,
 	);
 
-	return StateHeader;
+	return stateHeader;
 }
 
 // This is the old version of the StateTable structure.
@@ -346,10 +356,10 @@ export function aatStateTable1<
 		entryTable: new r.Pointer(r.uint16, new AATUnboundedArray(Entry)),
 	};
 
-	const StateHeader1 = new r.Struct<
+	const stateHeader1 = new r.Struct<
 		typeof stateHeader1Fields,
 		AAT.StateHeader1<TEntryData>
 	>(stateHeader1Fields);
 
-	return StateHeader1;
+	return stateHeader1;
 }

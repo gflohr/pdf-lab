@@ -11,7 +11,7 @@ export default class AATLookupTable<T> {
 	public lookup(glyph: number) {
 		switch (this.table.version) {
 			case 0: // simple array format
-			return this.table.values.getItem(glyph);
+				return this.table.values.getItem(glyph);
 
 			case 2: // segment format
 			case 4: {
@@ -73,7 +73,9 @@ export default class AATLookupTable<T> {
 				return this.table.values[glyph - this.table.firstGlyph];
 
 			default:
-				throw new Error(`Unknown lookup table format: ${(this.table as {version: number}).version}`);
+				throw new Error(
+					`Unknown lookup table format: ${(this.table as { version: number }).version}`,
+				);
 		}
 	}
 

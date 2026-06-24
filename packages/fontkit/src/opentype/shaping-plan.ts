@@ -2,6 +2,7 @@ import type GlyphPosition from '../layout/glyph-position.js';
 import type { BidiDirection, OpenTypeFeatureTag } from '../layout/glyph-run.js';
 import type { OpenTypeTag, UnicodeScript } from '../layout/script.js';
 import type { SFNTFont } from '../sfnt-font.js';
+import { OpenType } from '../tables/opentype.js';
 import type GlyphInfo from './glyph-info.js';
 import type OTProcessor from './ot-processor.js';
 import type { IndicConfig } from './shapers/indic-data.js';
@@ -107,7 +108,7 @@ export default class ShapingPlan<T = null> {
 		}
 	}
 
-	setFeatureOverrides(features: string[] | Record<string, boolean>) {
+	setFeatureOverrides(features: string[] | OpenType.TypeFeatures) {
 		if (Array.isArray(features)) {
 			this.add(features);
 		} else if (features != null && typeof features === 'object') {

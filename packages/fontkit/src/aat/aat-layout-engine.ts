@@ -1,14 +1,19 @@
-import AATMorxProcessor from './AATMorxProcessor.js';
+import type GlyphRun from '../layout/glyph-run.js';
+import type { SFNTFont } from '../sfnt-font.js';
 import * as AATFeatureMap from './aat-feature-map.js';
+import AATMorxProcessor from './aat-morx-processor.js';
 
 export default class AATLayoutEngine {
-	constructor(font) {
+	private readonly morxProcessor: AATMorxProcessor;
+	public fallbackPosition: boolean;
+
+	constructor(private readonly font: SFNTFont) {
 		this.font = font;
 		this.morxProcessor = new AATMorxProcessor(font);
 		this.fallbackPosition = false;
 	}
 
-	substitute(glyphRun) {
+	public substitute(glyphRun: GlyphRun) {
 		// AAT expects the glyphs to be in visual order prior to morx processing,
 		// so reverse the glyphs if the script is right-to-left.
 		if (glyphRun.direction === 'rtl') {
@@ -21,28 +26,33 @@ export default class AATLayoutEngine {
 		);
 	}
 
-	getAvailableFeatures() {
+	public getAvailableFeatures() {
 		return AATFeatureMap.mapAATToOT(this.morxProcessor.getSupportedFeatures());
 	}
 
-	stringsForGlyph(gid) {
+	public stringsForGlyph(gid: number) {
 		const glyphStrings = this.morxProcessor.generateInputs(gid);
-		const result = new Set();
+		const result = new Set<string>();
 
 		for (const glyphs of glyphStrings) {
-			this._addStrings(glyphs, 0, result, '');
+			this.addStrings(glyphs, 0, result, '');
 		}
 
 		return result;
 	}
 
-	_addStrings(glyphs, index, strings, string) {
+	private addStrings(
+		glyphs: number[],
+		index: number,
+		strings: Set<string>,
+		str: string,
+	) {
 		const codePoints = this.font.codePointsForGlyph(glyphs[index]);
 
 		for (const codePoint of codePoints) {
-			const s = string + String.fromCodePoint(codePoint);
+			const s = str + String.fromCodePoint(codePoint);
 			if (index < glyphs.length - 1) {
-				this._addStrings(glyphs, index + 1, strings, s);
+				this.addStrings(glyphs, index + 1, strings, s);
 			} else {
 				strings.add(s);
 			}

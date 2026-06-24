@@ -6,6 +6,7 @@ import type {
 import type GlyphInfo from '../glyph-info.js';
 import { ShaperInfo } from '../glyph-info.js';
 import type ShapingPlan from '../shaping-plan.js';
+import { OpenType } from '../../tables/opentype.js';
 
 const VARIATION_FEATURES: OpenTypeFeatureTag[] = ['rvrn'];
 const COMMON_FEATURES: OpenTypeFeatureTag[] = [
@@ -36,7 +37,7 @@ export default class DefaultShaper {
 	static plan<T>(
 		plan: ShapingPlan<T>,
 		glyphs: GlyphInfo<T>[],
-		features: Record<string, boolean>,
+		features: OpenType.TypeFeatures,
 	) {
 		// Plan the features we want to apply
 		// biome-ignore lint/complexity/noThisInStatic: needs rewrite
@@ -67,7 +68,7 @@ export default class DefaultShaper {
 
 	static planPostprocessing<T>(
 		plan: ShapingPlan<T>,
-		userFeatures: Record<OpenTypeFeatureTag, boolean>,
+		userFeatures:OpenType.TypeFeatures
 	) {
 		plan.add([...COMMON_FEATURES, ...HORIZONTAL_FEATURES]);
 		plan.setFeatureOverrides(userFeatures);

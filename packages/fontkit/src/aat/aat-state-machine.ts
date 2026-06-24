@@ -1,3 +1,6 @@
+import type Glyph from '../glyph/glyph.js';
+import type { AAT } from '../tables/aat.js';
+import type { morxTable } from '../tables/morx.js';
 import AATLookupTable from './aat-lookup-table.js';
 
 const START_OF_TEXT_STATE = 0;
@@ -8,13 +11,24 @@ const DELETED_GLYPH_CLASS = 2;
 
 const DONT_ADVANCE = 0x4000;
 
+type ProcessEntry = (
+	_glyph: Glyph,
+	entry: AAT.StateEntry<Record<string, any>>,
+	index: number,
+) => void;
+type TraverseOpts = {
+	enter: (glyph: number, entry: AAT.StateEntry<Record<string, any>>) => void;
+	exit: (glyph: number, entry: AAT.StateEntry<Record<string, any>>) => void;
+};
 export default class AATStateMachine {
-	constructor(stateTable) {
+	private readonly lookupTable: AATLookupTable<number>;
+
+	constructor(private readonly stateTable: AAT.StateHeader) {
 		this.stateTable = stateTable;
 		this.lookupTable = new AATLookupTable(stateTable.classTable);
 	}
 
-	process(glyphs, reverse, processEntry) {
+	process(glyphs: Glyph[], reverse: boolean, processEntry: ProcessEntry) {
 		let currentState = START_OF_TEXT_STATE; // START_OF_LINE_STATE is used for kashida glyph insertions sometimes I think?
 		let index = reverse ? glyphs.length - 1 : 0;
 		const dir = reverse ? -1 : 1;
@@ -23,8 +37,8 @@ export default class AATStateMachine {
 			(dir === 1 && index <= glyphs.length) ||
 			(dir === -1 && index >= -1)
 		) {
-			let glyph = null;
-			let classCode = OUT_OF_BOUNDS_CLASS;
+			let glyph: Glyph | null = null;
+			let classCode: number | null = OUT_OF_BOUNDS_CLASS;
 			let shouldAdvance = true;
 
 			if (index === glyphs.length || index === -1) {
@@ -45,12 +59,11 @@ export default class AATStateMachine {
 			const row = this.stateTable.stateArray.getItem(currentState);
 			const entryIndex = row[classCode];
 			const entry = this.stateTable.entryTable.getItem(entryIndex);
-
 			if (
 				classCode !== END_OF_TEXT_CLASS &&
 				classCode !== DELETED_GLYPH_CLASS
 			) {
-				processEntry(glyph, entry, index);
+				processEntry(glyph!, entry, index);
 				shouldAdvance = !(entry.flags & DONT_ADVANCE);
 			}
 
@@ -67,7 +80,7 @@ export default class AATStateMachine {
 	 * Performs a depth-first traversal of the glyph strings
 	 * represented by the state machine.
 	 */
-	traverse(opts, state = 0, visited = new Set()) {
+	public traverse(opts: TraverseOpts, state = 0, visited = new Set()) {
 		if (visited.has(state)) {
 			return;
 		}

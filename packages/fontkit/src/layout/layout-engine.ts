@@ -1,4 +1,4 @@
-import AATLayoutEngine from '../aat/AATLayoutEngine.js';
+import AATLayoutEngine from '../aat/aat-layout-engine.js';
 import type Glyph from '../glyph/glyph.js';
 import OTLayoutEngine from '../opentype/ot-layout-engine.js';
 import type { SFNTFont } from '../sfnt-font.js';
@@ -12,7 +12,7 @@ import UnicodeLayoutEngine from './unicode-layout-engine.js';
 export default class LayoutEngine {
 	private unicodeLayoutEngine: UnicodeLayoutEngine | null;
 	private kernProcessor: KernProcessor | null;
-	private engine?: AATLayoutEngine | OTLayoutEngine<null>;
+	public readonly engine?: AATLayoutEngine | OTLayoutEngine<null>;
 
 	constructor(private readonly font: SFNTFont) {
 		this.unicodeLayoutEngine = null;
@@ -29,7 +29,10 @@ export default class LayoutEngine {
 
 	public layout(
 		str: string | Glyph[],
-		featuresOrScript: OpenType.TypeFeatures | (keyof OpenType.TypeFeatures)[] | Script.UnicodeScript,
+		featuresOrScript:
+			| OpenType.TypeFeatures
+			| (keyof OpenType.TypeFeatures)[]
+			| Script.UnicodeScript,
 		scriptOrLanguage?: string | Script.UnicodeScript,
 		languageOrDirection?: string | BidiDirection,
 		direction?: BidiDirection,
@@ -125,7 +128,10 @@ export default class LayoutEngine {
 		}
 
 		// if there is no GPOS table, use unicode properties to position marks.
-		if (!positioned && (!this.engine || this.engine.fallbackPosition)) {
+		if (
+			!positioned &&
+			(!this.engine || (this.engine as AATLayoutEngine).fallbackPosition)
+		) {
 			if (!this.unicodeLayoutEngine) {
 				this.unicodeLayoutEngine = new UnicodeLayoutEngine(this.font);
 			}
@@ -208,7 +214,10 @@ export default class LayoutEngine {
 		}
 	}
 
-	public getAvailableFeatures(script?: Script.UnicodeScript, language?: string): string[] {
+	public getAvailableFeatures(
+		script?: Script.UnicodeScript,
+		language?: string,
+	): string[] {
 		const features: string[] = [];
 
 		if (this.engine) {
@@ -223,15 +232,16 @@ export default class LayoutEngine {
 	}
 
 	public stringsForGlyph(gid: number): string[] {
-		const result = new Set();
+		const result = new Set<string>();
 
 		const codePoints = this.font.codePointsForGlyph(gid);
 		for (const codePoint of codePoints) {
 			result.add(String.fromCodePoint(codePoint));
 		}
 
-		if (this.engine?.stringsForGlyph) {
-			for (const string of this.engine.stringsForGlyph(gid)) {
+		if ((this.engine as AATLayoutEngine)?.stringsForGlyph) {
+			const engine: AATLayoutEngine = this.engine as AATLayoutEngine;
+			for (const string of engine.stringsForGlyph(gid)) {
 				result.add(string);
 			}
 		}
