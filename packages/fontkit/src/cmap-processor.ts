@@ -1,14 +1,21 @@
 import iconv from 'iconv-lite';
 import { getEncoding } from './encodings.js';
+import type { cmapTable } from './tables/cmap.js';
 import { binarySearch, range } from './utils.js';
 
 export default class CmapProcessor {
-	constructor(cmapTable) {
-		this._codePointsForGlyphCache = new Map();
+	private readonly codePointsForGlyphCache: Map<number, number[]>;
+	private readonly encoding: string;
+	private readonly cmap: cmapTable.Subtable;
+	private readonly uvs: cmapTable.SubtableV14 | null;
+	private characterSet?: number[];
+
+	constructor(private readonly table: cmapTable.cmap) {
+		this.codePointsForGlyphCache = new Map();
 
 		// Attempt to find a Unicode cmap first
-		this.encoding = null;
-		this.cmap = this.findSubtable(cmapTable, [
+		let encoding: string;
+		let subtable = this.findSubtable(table, [
 			// 32-bit subtables
 			[3, 10],
 			[0, 6],
@@ -24,34 +31,42 @@ export default class CmapProcessor {
 
 		// If not unicode cmap was found, and iconv-lite is installed,
 		// take the first table with a supported encoding.
-		if (!this.cmap && iconv) {
-			for (const cmap of cmapTable.tables) {
-				const encoding = getEncoding(
+		if (!subtable && iconv) {
+			for (const cmap of table.tables) {
+				if (cmap.table.version === 4 || cmap.table.version === 14) continue;
+
+				const enc = getEncoding(
 					cmap.platformID,
 					cmap.encodingID,
 					cmap.table.language - 1,
 				);
-				if (iconv.encodingExists(encoding)) {
-					this.cmap = cmap.table;
-					this.encoding = encoding;
+				if (!enc) continue;
+
+				if (iconv.encodingExists(enc)) {
+					subtable = cmap.table;
+					encoding = enc;
 					break;
 				}
 			}
 		}
 
-		if (!this.cmap) {
+		if (!subtable) {
 			throw new Error('Could not find a supported cmap table');
 		}
+		this.cmap = subtable;
+		this.encoding = encoding!;
 
-		this.uvs = this.findSubtable(cmapTable, [[0, 5]]);
-		if (this.uvs && this.uvs.version !== 14) {
+		const uvs = this.findSubtable(table, [[0, 5]]);
+		if (uvs && uvs.version === 14) {
+			this.uvs = uvs;
+		} else {
 			this.uvs = null;
 		}
 	}
 
-	findSubtable(cmapTable, pairs) {
+	private findSubtable(table: cmapTable.cmap, pairs: [number, number][]): cmapTable.Subtable | null {
 		for (const [platformID, encodingID] of pairs) {
-			for (const cmap of cmapTable.tables) {
+			for (const cmap of table.tables) {
 				if (cmap.platformID === platformID && cmap.encodingID === encodingID) {
 					return cmap.table;
 				}
@@ -61,7 +76,7 @@ export default class CmapProcessor {
 		return null;
 	}
 
-	lookup(codepoint, variationSelector) {
+	public lookup(codepoint: number, variationSelector?: number) {
 		// If there is no Unicode cmap in this font, we need to re-encode
 		// the codepoint in the encoding that the cmap supports.
 		if (this.encoding) {
@@ -96,7 +111,7 @@ export default class CmapProcessor {
 						min = mid + 1;
 					} else {
 						const rangeOffset = cmap.idRangeOffset.get(mid);
-						let gid;
+						let gid: number;
 
 						if (rangeOffset === 0) {
 							gid = codepoint + cmap.idDelta.get(mid);
@@ -157,7 +172,7 @@ export default class CmapProcessor {
 		}
 	}
 
-	getVariationSelector(codepoint, variationSelector) {
+	private getVariationSelector(codepoint: number, variationSelector: number) {
 		if (!this.uvs) {
 			return 0;
 		}
@@ -186,7 +201,7 @@ export default class CmapProcessor {
 		return 0;
 	}
 
-	_computeCharacterSet() {
+	private computeCharacterSet(): number[] {
 		const cmap = this.cmap;
 		switch (cmap.version) {
 			case 0:
@@ -230,14 +245,14 @@ export default class CmapProcessor {
 	}
 
 	getCharacterSet() {
-		if (typeof this._characterSet === 'undefined') {
-			this._characterSet = this._computeCharacterSet();
+		if (typeof this.characterSet === 'undefined') {
+			this.characterSet = this.computeCharacterSet();
 		}
 
-		return this._characterSet;
+		return this.characterSet;
 	}
 
-	_computeCodePointsForGlyph(gid) {
+	private computeCodePointsForGlyph(gid: number): number[] {
 		const cmap = this.cmap;
 		switch (cmap.version) {
 			case 0: {
@@ -310,14 +325,14 @@ export default class CmapProcessor {
 		}
 	}
 
-	codePointsForGlyph(gid) {
-		if (!this._codePointsForGlyphCache.has(gid)) {
-			this._codePointsForGlyphCache.set(
+	public codePointsForGlyph(gid: number): number[] {
+		if (!this.codePointsForGlyphCache.has(gid)) {
+			this.codePointsForGlyphCache.set(
 				gid,
-				this._computeCodePointsForGlyph(gid),
+				this.computeCodePointsForGlyph(gid),
 			);
 		}
 
-		return this._codePointsForGlyphCache.get(gid);
+		return this.codePointsForGlyphCache.get(gid)!;
 	}
 }

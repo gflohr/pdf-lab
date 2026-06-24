@@ -131,6 +131,7 @@ declare module '@pdf-lib/restructure' {
 
 	export interface RestructureLazyArray<T> extends Array<T> {
 		get(index: number): T;
+		toArray(): T[];
 	}
 
 	export class LazyArrayT<

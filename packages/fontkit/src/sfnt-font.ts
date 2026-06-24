@@ -1,7 +1,7 @@
 import type { DecodeStream, FieldT } from '@pdf-lib/restructure';
 import r from '@pdf-lib/restructure';
 import fontkit from './base.js';
-import CmapProcessor from './CmapProcessor.js';
+import CmapProcessor from './cmap-processor.js';
 import { FatalFontError } from './fatal-font-error.js';
 import type {
 	Font,
