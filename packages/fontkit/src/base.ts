@@ -1,7 +1,7 @@
 import r from '@pdf-lib/restructure';
-import type DFont from './DFont';
-import type { SFNTFont } from './sfnt-font';
-import type TrueTypeCollection from './true-type-collection';
+import type DFont from './d-font.js';
+import type { SFNTFont } from './sfnt-font.js';
+import type TrueTypeCollection from './true-type-collection.js';
 
 export type FontFormatClass = (new (...args: any[]) => SFNTFont | TrueTypeCollection | DFont) & {
 	probe(buffer: Buffer): boolean;

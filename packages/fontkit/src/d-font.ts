@@ -1,0 +1,150 @@
+import r, { type DecodeStream } from '@pdf-lib/restructure';
+import type { SFNTFont } from './sfnt-font.js';
+import { TrueTypeFont } from './true-type-font.js';
+
+const DFontName = new r.String(r.uint8);
+
+type Ref = {
+	id: number;
+	nameOffset: number;
+	name?: string | null;
+	attr: number;
+	dataOffset: number;
+	handle: number;
+}
+
+const refFields = {
+	id: r.uint16,
+	nameOffset: r.int16,
+	attr: r.uint8,
+	dataOffset: r.uint24,
+	handle: r.uint32,
+};
+const ref = new r.Struct<typeof refFields, Ref>(refFields);
+
+type ResourceTypeEntry = {
+	name: string;
+	maxTypeIndex: number;
+	refList: Ref[];
+}
+const resourceTypeEntryFields = {
+	name: new r.String(4),
+	maxTypeIndex: r.uint16,
+	refList: new r.Pointer(
+		r.uint16,
+		new r.Array(ref, (t) => t.maxTypeIndex + 1),
+		{ type: 'parent' },
+	),
+}
+const resourceTypeEntry = new r.Struct<typeof resourceTypeEntryFields, ResourceTypeEntry>(resourceTypeEntryFields);
+
+type ResourceTypeList = {
+	length: number;
+	types: ResourceTypeEntry[];
+}
+
+const resourceTypeListFields = {
+	length: r.uint16,
+	types: new r.Array(resourceTypeEntry, (t) => t.length + 1),
+};
+const resourceTypeList = new r.Struct<typeof resourceTypeListFields, ResourceTypeList>(resourceTypeListFields);
+
+type DFontMap = {
+	typeList: ResourceTypeList;
+	nameListOffset: number;
+}
+
+const dFontMapFields = {
+	reserved: new r.Reserved(r.uint8, 24),
+	typeList: new r.Pointer(r.uint16, resourceTypeList),
+	nameListOffset: new r.Pointer(r.uint16, 'void'),
+};
+const dFontMap = new r.Struct<typeof dFontMapFields, DFontMap>(dFontMapFields);
+
+type DFontHeader = {
+	dataOffset: number;
+	map: DFontMap;
+	dataLength: number;
+	mapLength: number;
+}
+
+const dfontHeaderFields = {
+	dataOffset: r.uint32,
+	map: new r.Pointer(r.uint32, dFontMap),
+	dataLength: r.uint32,
+	mapLength: r.uint32,
+};
+const dFontHeader = new r.Struct<typeof dfontHeaderFields, DFontHeader>(dfontHeaderFields);
+
+export default class DFont {
+	private readonly header: DFontHeader;
+	private readonly sfnt?: ResourceTypeEntry;
+
+	static probe(buffer: Buffer) {
+		const stream = new r.DecodeStream(buffer);
+		let header: DFontHeader;
+
+		try {
+			header = dFontHeader.decode(stream);
+		} catch {
+			return false;
+		}
+
+		for (const type of header.map.typeList.types) {
+			if (type.name === 'sfnt') {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	constructor(private readonly stream: DecodeStream) {
+		this.header = dFontHeader.decode(this.stream);
+
+		for (const type of this.header.map.typeList.types) {
+			for (const ref of type.refList) {
+				if (ref.nameOffset >= 0) {
+					this.stream.pos = ref.nameOffset + this.header.map.nameListOffset;
+					ref.name = DFontName.decode(this.stream);
+				} else {
+					ref.name = null;
+				}
+			}
+
+			if (type.name === 'sfnt') {
+				this.sfnt = type;
+			}
+		}
+	}
+
+	getFont(name: string): SFNTFont | null {
+		if (!this.sfnt) {
+			return null;
+		}
+
+		for (const ref of this.sfnt.refList) {
+			const pos = this.header.dataOffset + ref.dataOffset + 4;
+			const stream = new r.DecodeStream(this.stream.buffer.slice(pos));
+			const font = new TrueTypeFont(stream);
+			if (font.postscriptName === name) {
+				return font;
+			}
+		}
+
+		return null;
+	}
+
+	get fonts(): SFNTFont[] {
+		const fonts = [];
+		if (this.sfnt) {
+			for (const ref of this.sfnt.refList) {
+				const pos = this.header.dataOffset + ref.dataOffset + 4;
+				const stream = new r.DecodeStream(this.stream.buffer.slice(pos));
+				fonts.push(new TrueTypeFont(stream));
+			}
+		}
+
+		return fonts;
+	}
+}
