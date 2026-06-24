@@ -25,6 +25,7 @@ import type * as Script from './layout/script.js';
 import CFFSubset from './subset/CFFSubset.js';
 import type Subset from './subset/Subset.js';
 import TTFSubset from './subset/TTFSubset.js';
+import type { AAT } from './tables/aat.js';
 import type {
 	FilteredTableMap,
 	SFNTDirectoryEntry,
@@ -43,8 +44,12 @@ type RegistryTableProps = {
 	[K in keyof typeof tables]: FilteredTableMap[K];
 };
 
+export type LayoutFeatures = OpenType.Features | AAT.Features;
+
+export type LayoutFeatureTag = OpenType.FeatureTag | AAT.FeatureTag;
+
 /**
- * Temporary ...
+ * FIXME! Remove this!
  */
 export interface FontTableFields extends RegistryTableProps {
 	// A clean programmatic alias for the 'CFF ' PostScript stream.
@@ -520,7 +525,7 @@ export class SFNTFont<
 	 */
 	layout(
 		str: string,
-		userFeatures?: OpenType.TypeFeatures | (keyof OpenType.TypeFeatures)[],
+		userFeatures?: OpenType.Features | OpenType.FeatureTag[],
 		script?: string,
 		language?: string,
 		direction?: BidiDirection,
@@ -559,7 +564,7 @@ export class SFNTFont<
 	 *
 	 * @returns the supported features
 	 */
-	get availableFeatures(): (keyof OpenType.TypeFeatures)[] {
+	get availableFeatures(): (OpenType.FeatureTag)[] {
 		return this._layoutEngine.getAvailableFeatures();
 	}
 
@@ -580,7 +585,7 @@ export class SFNTFont<
 	getAvailableFeatures(
 		script: Script.UnicodeScript,
 		language?: string,
-	): (keyof OpenType.TypeFeatures)[] {
+	): (OpenType.FeatureTag)[] {
 		return this._layoutEngine.getAvailableFeatures(script, language);
 	}
 

@@ -23,8 +23,7 @@ export default class OTProcessor<T> {
 	private scriptTag: string | null;
 	private language: OpenType.LangSys | null;
 	private languageTag: string | null;
-	// FIXME! Define a getter for this!
-	public features: Record<string, OpenType.Feature>;
+	public features: Partial<Record<OpenType.FeatureTag, OpenType.Feature>>;
 	private lookups: Record<string, unknown>;
 	private variationsIndex: number;
 	protected glyphs: GlyphInfo<T>[];
@@ -150,7 +149,7 @@ export default class OTProcessor<T> {
 	}
 
 	private lookupsForFeatures(
-		userFeatures: string[] = [],
+		userFeatures: OpenType.FeatureTag[] = [],
 		exclude?: number[],
 	): OpenType.ProcessorLookupEnvelope<
 		GPOSTable.LookupTable | GSUBTable.LookupTable
@@ -243,7 +242,7 @@ export default class OTProcessor<T> {
 	}
 
 	public applyFeatures(
-		userFeatures: string[],
+		userFeatures: OpenType.FeatureTag[],
 		glyphs: GlyphInfo<T>[],
 		advances?: GlyphPosition[],
 	) {

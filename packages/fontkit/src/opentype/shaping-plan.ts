@@ -1,18 +1,18 @@
 import type GlyphPosition from '../layout/glyph-position.js';
-import type { BidiDirection, OpenTypeFeatureTag } from '../layout/glyph-run.js';
+import type { BidiDirection } from '../layout/glyph-run.js';
 import type { OpenTypeTag, UnicodeScript } from '../layout/script.js';
 import type { SFNTFont } from '../sfnt-font.js';
-import { OpenType } from '../tables/opentype.js';
+import type { OpenType } from '../tables/opentype.js';
 import type GlyphInfo from './glyph-info.js';
 import type OTProcessor from './ot-processor.js';
 import type { IndicConfig } from './shapers/indic-data.js';
 
 type FeatureShape =
-	| OpenTypeFeatureTag
-	| OpenTypeFeatureTag[]
+	| OpenType.FeatureTag
+	| OpenType.FeatureTag[]
 	| {
-			local?: OpenTypeFeatureTag[];
-			global?: OpenTypeFeatureTag[];
+			local?: OpenType.FeatureTag[];
+			global?: OpenType.FeatureTag[];
 	  };
 
 export type ShapingFunction<T = null> = (
@@ -20,7 +20,7 @@ export type ShapingFunction<T = null> = (
 	glyphs: GlyphInfo<T>[],
 	plan: ShapingPlan<T>,
 ) => void;
-type Stage<T> = string[] | ShapingFunction<T>;
+type Stage<T> = OpenType.FeatureTag[] | ShapingFunction<T>;
 
 /**
  * ShapingPlans are used by the OpenType shapers to store which
@@ -31,8 +31,8 @@ type Stage<T> = string[] | ShapingFunction<T>;
  */
 export default class ShapingPlan<T = null> {
 	private stages: Stage<T>[];
-	private globalFeatures: Record<OpenTypeFeatureTag, boolean>;
-	public readonly allFeatures: Record<OpenTypeFeatureTag, number>;
+	private globalFeatures: OpenType.FeatureFlags;
+	public readonly allFeatures: Record<OpenType.FeatureTag, number>;
 	private _direction: BidiDirection;
 	public unicodeScript?: UnicodeScript;
 	public indicConfig?: IndicConfig;
@@ -57,7 +57,7 @@ export default class ShapingPlan<T = null> {
 	 * Adds the given features to the last stage.
 	 * Ignores features that have already been applied.
 	 */
-	private addFeatures(features: OpenTypeFeatureTag[], global: boolean) {
+	private addFeatures(features: OpenType.FeatureTag[], global: boolean) {
 		const stageIndex = this.stages.length - 1;
 		const stage = this.stages[stageIndex];
 		for (const feature of features) {
@@ -108,11 +108,11 @@ export default class ShapingPlan<T = null> {
 		}
 	}
 
-	setFeatureOverrides(features: string[] | OpenType.TypeFeatures) {
+	setFeatureOverrides(features: OpenType.FeatureTag[] | OpenType.FeatureFlags) {
 		if (Array.isArray(features)) {
 			this.add(features);
 		} else if (features != null && typeof features === 'object') {
-			for (const tag of Object.keys(features)) {
+			for (const tag of Object.keys(features) as OpenType.FeatureTag[]) {
 				if (features[tag]) {
 					this.add(tag);
 				} else if (this.allFeatures[tag] != null) {

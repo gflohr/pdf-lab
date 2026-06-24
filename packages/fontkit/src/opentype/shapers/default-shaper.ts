@@ -1,23 +1,19 @@
 import unicode from '@pdf-lib/unicode-properties';
-import type {
-	BidiDirection,
-	OpenTypeFeatureTag,
-} from '../../layout/glyph-run.js';
+import type { BidiDirection } from '../../layout/glyph-run.js';
+import type { OpenType } from '../../tables/opentype.js';
 import type GlyphInfo from '../glyph-info.js';
-import { ShaperInfo } from '../glyph-info.js';
 import type ShapingPlan from '../shaping-plan.js';
-import { OpenType } from '../../tables/opentype.js';
 
-const VARIATION_FEATURES: OpenTypeFeatureTag[] = ['rvrn'];
-const COMMON_FEATURES: OpenTypeFeatureTag[] = [
+const VARIATION_FEATURES: OpenType.FeatureTag[] = ['rvrn'];
+const COMMON_FEATURES: OpenType.FeatureTag[] = [
 	'ccmp',
 	'locl',
 	'rlig',
 	'mark',
 	'mkmk',
 ];
-const FRACTIONAL_FEATURES: OpenTypeFeatureTag[] = ['frac', 'numr', 'dnom'];
-const HORIZONTAL_FEATURES: OpenTypeFeatureTag[] = [
+const FRACTIONAL_FEATURES: OpenType.FeatureTag[] = ['frac', 'numr', 'dnom'];
+const HORIZONTAL_FEATURES: OpenType.FeatureTag[] = [
 	'calt',
 	'clig',
 	'liga',
@@ -26,7 +22,7 @@ const HORIZONTAL_FEATURES: OpenTypeFeatureTag[] = [
 	'kern',
 ];
 // const VERTICAL_FEATURES = ['vert'];
-const DIRECTIONAL_FEATURES: Record<BidiDirection, OpenTypeFeatureTag[]> = {
+const DIRECTIONAL_FEATURES: Record<BidiDirection, OpenType.FeatureTag[]> = {
 	ltr: ['ltra', 'ltrm'],
 	rtl: ['rtla', 'rtlm'],
 };
@@ -37,7 +33,7 @@ export default class DefaultShaper {
 	static plan<T>(
 		plan: ShapingPlan<T>,
 		glyphs: GlyphInfo<T>[],
-		features: OpenType.TypeFeatures,
+		features: OpenType.FeatureFlags,
 	) {
 		// Plan the features we want to apply
 		// biome-ignore lint/complexity/noThisInStatic: needs rewrite
@@ -68,7 +64,7 @@ export default class DefaultShaper {
 
 	static planPostprocessing<T>(
 		plan: ShapingPlan<T>,
-		userFeatures:OpenType.TypeFeatures
+		userFeatures: OpenType.FeatureFlags,
 	) {
 		plan.add([...COMMON_FEATURES, ...HORIZONTAL_FEATURES]);
 		plan.setFeatureOverrides(userFeatures);

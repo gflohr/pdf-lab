@@ -1,64 +1,20 @@
 import type { AAT } from '../tables/aat';
 import type { OpenType } from '../tables/opentype';
 
-/**
- * A map of Apple Advanced Typography (AAT) as described by Apple’s TrueType
- * Reference manual:
- * https://developer.apple.com/fonts/TrueType-Reference-Manual/RM06/Chap6AATIntro.html
- */
-export interface AATFeatures {
-	acnt?: boolean;
-	ankr?: boolean;
-	avar?: boolean;
-	bdat?: boolean;
-	bhed?: boolean;
-	bloc?: boolean;
-	bsln?: boolean;
-	cmap?: boolean;
-	cvar?: boolean;
-	cvt?: boolean;
-	EBSC?: boolean;
-	fdsc?: boolean;
-	feat?: boolean;
-	fmtx?: boolean;
-	fond?: boolean;
-	fpgm?: boolean;
-	fvar?: boolean;
-	gasp?: boolean;
-	gcid?: boolean;
-	glyf?: boolean;
-	gvar?: boolean;
-	hdmx?: boolean;
-	head?: boolean;
-	hhea?: boolean;
-	hmtx?: boolean;
-	just?: boolean;
-	kern?: boolean;
-	kerx?: boolean;
-	lcar?: boolean;
-	loca?: boolean;
-	ltag?: boolean;
-	maxp?: boolean;
-	meta?: boolean;
-	mort?: boolean;
-	morx?: boolean;
-	name?: boolean;
-	opbd?: boolean;
-	'OS/2'?: boolean;
-	post?: boolean;
-	prep?: boolean;
-	prop?: boolean;
-	sbix?: boolean;
-	trak?: boolean;
-	vhea?: boolean;
-	vmtx?: boolean;
-	xref?: boolean;
-	Zapf?: boolean;
+type FeatureDefinition = {
+	/** The official AAT feature type numeric identifier code. */
+	code: number;
+
+	/** Whether enabling a selector automatically turns off all other selectors. */
+	exclusive: boolean;
+
+	/** Map of semantic selector string labels to their native AAT layout integer codes. */
+	[selectorName: string]: number | boolean;
 }
 
 // see https://developer.apple.com/fonts/TrueType-Reference-Manual/RM09/AppendixF.html
 // and /System/Library/Frameworks/CoreText.framework/Versions/A/Headers/SFNTLayoutTypes.h on a Mac
-const features: Record<string, Record<string, number | boolean>> = {
+const features = {
 	allTypographicFeatures: {
 		code: 0,
 		exclusive: false,
@@ -403,17 +359,23 @@ const features: Record<string, Record<string, number | boolean>> = {
 		defaultCJKRoman: 2,
 		fullWidthCJKRoman: 3,
 	},
-};
+} satisfies Record<string, FeatureDefinition>;
+
+type FeatureName = keyof typeof features;
 
 const feature = (
-	name: string,
+	name: FeatureName,
 	selector: string,
-): [number, number | boolean] => [
-	features[name].code as number,
-	features[name][selector],
-];
+): [number, number | boolean] => {
+	const targetFeature = features[name] as FeatureDefinition;
 
-const OTMapping: Record<string, [number | boolean, number | boolean]> = {
+	return [
+		targetFeature.code,
+		targetFeature[selector],
+	]
+};
+
+const OTMapping: Partial<Record<OpenType.FeatureTag, [number | boolean, number | boolean]>> = {
 	rlig: feature('ligatures', 'requiredLigatures'),
 	clig: feature('ligatures', 'contextualLigatures'),
 	dlig: feature('ligatures', 'rareLigatures'),
@@ -525,7 +487,9 @@ const OTMapping: Record<string, [number | boolean, number | boolean]> = {
 
 // Add cv01-cv99 features.
 for (let i = 1; i <= 99; ++i) {
-	OTMapping[`cv${`00${i}`.slice(-2)}`] = [
+	const key = `cv${`00${i}`.slice(-2)}` as OpenType.FeatureTag;
+
+	OTMapping[key] = [
 		features.characterAlternatives.code,
 		i,
 	];
@@ -533,10 +497,10 @@ for (let i = 1; i <= 99; ++i) {
 
 // Create inverse mapping.
 const AATMapping: Record<string, Record<string, string>> = {};
-for (const ot in OTMapping) {
+for (const ot of Object.keys(OTMapping) as OpenType.FeatureTag[]) {
 	const aat = OTMapping[ot];
-	const primaryKey = String(aat[0]);
-	const secondaryKey = String(aat[1]);
+	const primaryKey = String(aat![0]);
+	const secondaryKey = String(aat![1]);
 	AATMapping[primaryKey] ??= {};
 
 	AATMapping[primaryKey][secondaryKey] = ot;
@@ -546,10 +510,10 @@ for (const ot in OTMapping) {
  * Maps an array of OpenType features to AAT features
  * in the form of {featureType:{featureSetting:true}}.
  */
-export function mapOTToAAT(features: OpenType.TypeFeatures): AAT.TypeFeatures {
+export function mapOTToAAT(features: OpenType.Features): AAT.TypeFeatures {
 	const res: AAT.TypeFeatures = {};
 
-	for (const k in features) {
+	for (const k of Object.keys(features) as OpenType.FeatureTag[]) {
 		const r = OTMapping[k];
 		if (r) {
 			const featureType = String(r[0]);
@@ -568,9 +532,11 @@ export function mapOTToAAT(features: OpenType.TypeFeatures): AAT.TypeFeatures {
  * to their equivalent number codes.
  */
 function mapFeatureStrings(
-	f: [number, number] | [string, number] | [string, string],
+	f: [number, number] | [string, string],
 ): [number | boolean | string, number | boolean | string] {
 	const [type, setting] = f;
+
+	const targetFeature = features[type as FeatureName] as FeatureDefinition | undefined;
 
 	// The original version in fontkit had a bug. It checked with
 	// Number.isNaN() to see whether type resp. setting was a number. But
@@ -578,12 +544,12 @@ function mapFeatureStrings(
 	// occur here. Consequently, instead of assigning the corresponding code,
 	// the raw string was assigned to typeCode.
 	const isTypeStringLabel = Number.isNaN(Number.parseInt(type as string, 10));
-	const typeCode = isTypeStringLabel ? (features[type]?.code ?? type) : type;
+	const typeCode = isTypeStringLabel ? (targetFeature?.code ?? type) : type;
 
 	const isSettingLabel =
 		typeof setting === 'boolean' || typeof setting === 'string';
 	const settingCode = isSettingLabel
-		? (features[type]?.[String(setting)] ?? setting)
+		? (targetFeature?.[String(setting)] ?? setting)
 		: setting;
 
 	return [typeCode, settingCode];
@@ -597,8 +563,8 @@ export type AATFeaturesInput = [number, number][] | AAT.TypeFeatures;
  * and objects in the form of {featureType:{featureSetting:true}}
  * featureTypes and featureSettings can be either strings or number codes.
  */
-export function mapAATToOT(features: AATFeaturesInput): string[] {
-	const res: OpenType.TypeFeatures = {};
+export function mapAATToOT(features: AATFeaturesInput): OpenType.FeatureTag[] {
+	const res: OpenType.Features = {};
 
 	if (Array.isArray(features)) {
 		for (let k = 0; k < features.length; k++) {
@@ -607,7 +573,7 @@ export function mapAATToOT(features: AATFeaturesInput): string[] {
 				string,
 			];
 			if (AATMapping[type]?.[setting]) {
-				const r = AATMapping[type][setting];
+				const r = AATMapping[type][setting] as OpenType.FeatureTag;
 				res[r] = true;
 			}
 		}
@@ -620,12 +586,12 @@ export function mapAATToOT(features: AATFeaturesInput): string[] {
 					string,
 				];
 				if (feature[setting] && AATMapping[ftype]?.[fsetting]) {
-					const r = AATMapping[ftype][fsetting];
+					const r = AATMapping[ftype][fsetting] as OpenType.FeatureTag;
 					res[r] = true;
 				}
 			}
 		}
 	}
 
-	return Object.keys(res);
+	return Object.keys(res) as OpenType.FeatureTag[];
 }

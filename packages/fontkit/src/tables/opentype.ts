@@ -2,14 +2,13 @@ import r, {
 	type FieldT,
 	type RestructureLazyArray,
 } from '@pdf-lib/restructure';
-import type { AATFeatures } from '../aat/aat-feature-map.js';
 
 export namespace OpenType {
 	/**
 	 * A map of OpenType features as described in OpenType's spec:
 	 * https://docs.microsoft.com/en-gb/typography/opentype/spec/featurelist.
 	 */
-	export interface Features {
+	export type Features = {
 		aalt?: boolean;
 		abvf?: boolean;
 		abvm?: boolean;
@@ -241,14 +240,9 @@ export namespace OpenType {
 		zero?: boolean;
 	}
 
-	/**
-	 * The features is an object mapping OpenType feature to a boolean
-	 * enabling or disabling each. If this is an AAT font,
-	 * the OpenType feature tags are mapped to AAT features.
-	 */
-	export interface TypeFeatures extends Features, AATFeatures {
-		[key: string]: boolean | undefined;
-	}
+	export type FeatureTag = keyof Features;
+
+	export type FeatureFlags = Partial<Record<FeatureTag, boolean>>;
 
 	/**
 	 * Baseline master layout properties shared across all OpenType Layout Engines
@@ -283,7 +277,7 @@ export namespace OpenType {
 	}
 
 	export interface FeatureRecord {
-		tag: string;
+		tag: FeatureTag;
 		feature: Feature;
 	}
 

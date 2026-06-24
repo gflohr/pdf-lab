@@ -8,14 +8,6 @@ import type GlyphPosition from './glyph-position.js';
 /** The shaping direction, either left-to-right, or right-to-left. */
 export type BidiDirection = 'ltr' | 'rtl';
 
-// FIXME! This has to go into LayoutEngine!
-// FIXME! Turn it into a string union!
-/**
- * OpenType feature tags consist of four ASCII characters. In the future,
- * this will be changed into a union of all known tags as strings.
- */
-export type OpenTypeFeatureTag = string;
-
 /**
  * Represents a run of Glyph and GlyphPosition objects.
  * Returned by the font layout method.
@@ -23,7 +15,7 @@ export type OpenTypeFeatureTag = string;
 export default class GlyphRun {
 	private _positions: GlyphPosition[] | null;
 
-	public readonly features: OpenType.TypeFeatures;
+	public readonly features: OpenType.Features;
 	public readonly direction: BidiDirection;
 	public readonly language: string | null;
 
@@ -42,7 +34,7 @@ export default class GlyphRun {
 	 */
 	constructor(
 		public glyphs: Glyph[],
-		features: (keyof OpenType.TypeFeatures)[] | OpenType.TypeFeatures,
+		features: OpenType.FeatureTag[] | OpenType.Features,
 		public readonly script?: UnicodeScript,
 		language?: string,
 		direction?: 'ltr' | 'rtl',

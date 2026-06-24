@@ -1,5 +1,6 @@
 import type GlyphRun from '../layout/glyph-run.js';
 import type { SFNTFont } from '../sfnt-font.js';
+import type { OpenType } from '../tables/opentype.js';
 import * as AATFeatureMap from './aat-feature-map.js';
 import AATMorxProcessor from './aat-morx-processor.js';
 
@@ -26,7 +27,7 @@ export default class AATLayoutEngine {
 		);
 	}
 
-	public getAvailableFeatures() {
+	public getAvailableFeatures(): OpenType.FeatureTag[] {
 		return AATFeatureMap.mapAATToOT(this.morxProcessor.getSupportedFeatures());
 	}
 

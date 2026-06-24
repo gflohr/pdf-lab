@@ -3,7 +3,6 @@ import * as base64 from 'base64-arraybuffer';
 import StateMachine from 'dfa';
 import pako from 'pako';
 import UnicodeTrie from 'unicode-trie';
-import type { OpenTypeFeatureTag } from '../../layout/glyph-run.js';
 import * as Script from '../../layout/script.js';
 import type { SFNTFont } from '../../sfnt-font.js';
 import GlyphInfo from '../glyph-info.js';
@@ -22,6 +21,7 @@ import {
 } from './indic-data.js';
 import base64DeflatedTrie from './trie-indic.js';
 import base64DeflatedUseData from './use.js';
+import { OpenType } from '../../tables/opentype.js';
 
 export class IndicInfo {
 	constructor(
@@ -214,7 +214,7 @@ function isHalantOrCoeng(glyph: IndicGlyphInfo) {
  */
 function wouldSubstitute(
 	glyphs: IndicGlyphInfo[],
-	feature: OpenTypeFeatureTag,
+	feature: OpenType.FeatureTag,
 ) {
 	for (const glyph of glyphs) {
 		glyph.features = { [feature]: true };

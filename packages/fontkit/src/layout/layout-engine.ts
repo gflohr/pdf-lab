@@ -30,15 +30,15 @@ export default class LayoutEngine {
 	public layout(
 		str: string | Glyph[],
 		featuresOrScript:
-			| OpenType.TypeFeatures
-			| (keyof OpenType.TypeFeatures)[]
+			| OpenType.Features
+			| OpenType.FeatureTag[]
 			| Script.UnicodeScript,
 		scriptOrLanguage?: string | Script.UnicodeScript,
 		languageOrDirection?: string | BidiDirection,
 		direction?: BidiDirection,
 	): GlyphRun {
 		// Make the features parameter optional
-		let features: OpenType.TypeFeatures | (keyof OpenType.TypeFeatures)[];
+		let features: OpenType.Features | OpenType.FeatureTag[];
 		let script: Script.UnicodeScript;
 		let language: string | undefined;
 		if (typeof featuresOrScript === 'string') {
@@ -217,8 +217,8 @@ export default class LayoutEngine {
 	public getAvailableFeatures(
 		script?: Script.UnicodeScript,
 		language?: string,
-	): string[] {
-		const features: string[] = [];
+	): OpenType.FeatureTag[] {
+		const features: OpenType.FeatureTag[] = [];
 
 		if (this.engine) {
 			features.push(...this.engine.getAvailableFeatures(script, language));
