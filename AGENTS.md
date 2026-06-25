@@ -34,25 +34,21 @@ pnpm build                      # Build for publishing (all packages)
 - **`// @__NO_SIDE_EFFECTS__`** before pure factory functions for tree-shaking
 - **Tabs for indentation, spaces for formatting**
 
-### `Type` vs `interface`
+### `type` vs `interface`
 
-* Use `Type` by default for all type definitions.
-* Use `interface` only for object shapes that are intended to be extended or implemented (e.g. class contracts, public APIs).
-* Use `interface` when declaration merging is required.
-* Use `type` for unions, intersections, mapped types, and aliases (including primitives).
-* Avoid mixing `Type` and `interface` arbitrarily; prefer consistency across the codebase.
-* Exception: in `packages/fontkit`, use `interface` for the current public API:
-  * `BoundingBox`
-  * `Path`
-  * `Glyph`
-  * `GlyphPosition`
-  * `GlyphRun`
-  * `SubsetStream`
-  * `Subset`
-  * `OpenTypeFeatures`
-  * `AATFeatures`
-  * `TypeFeatures`
-  * `Font`
+When in doubt, prefer `interface` over `type`. Rationale: Interfaces offer better compiler performance and allow downstream consumers to extend definitions via declaration merging.
+
+Use `type`:
+
+* When an `interface` lacks a required language feature, such as:
+  * Union types or discriminated unions.
+  * Template literal types.
+  * Conditional types using `infer`.
+* When extension via declaration merging must be explicitly prevented.
+* For standalone function types (e.g., callbacks or event handlers). Rationale: Explicit type aliases are cleaner and more readable than anonymous interface signatures.
+* For native arrays or standard utility mappings like `Record<K, T>` or `Partial<T>`. Rationale: Wrapping these constructs in an interface introduces unnecessary boilerplates and syntax friction.
+
+Performance penalties of `type` combinations do not need to be heavily weighed, as compiler performance differences will probably mostly vanish with TypeScript 7.
 
 ## Other Rules
 
