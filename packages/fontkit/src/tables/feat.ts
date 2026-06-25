@@ -27,11 +27,11 @@ export namespace featTable {
 	}
 }
 
-export type FeatureContext = {
+export interface FeatureContext {
 	nameIndex: number;
 	parent: FeatureContext;
 	name: { records: { fontFeatures: string[] } };
-};
+}
 
 const settingFields = {
 	setting: r.uint16,

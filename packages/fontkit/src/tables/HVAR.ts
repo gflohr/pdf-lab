@@ -129,10 +129,10 @@ interface MapDataParent {
 	entryFormat: number;
 }
 
-export type MapDataEntryContext = {
+export interface MapDataEntryContext {
 	parent: MapDataParent;
 	entry: number;
-};
+}
 
 const mapDataEntryFields = {
 	entry: new VariableSizeNumber(

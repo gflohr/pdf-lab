@@ -32,11 +32,11 @@ export namespace fvarTable {
 	}
 }
 
-export type FvarContext = {
+export interface FvarContext {
 	nameID: number;
 	parent: FvarContext;
 	name: { records: { fontFeatures: string[] } };
-};
+}
 
 const axisFields = {
 	axisTag: new r.String(4),
