@@ -1,5 +1,4 @@
 import r from '@pdf-lib/restructure';
-import AATLookupTable from '../aat/AATLookupTable.js';
 import { type AAT, aatLookupTable } from './aat.js';
 
 export namespace bslnTable {

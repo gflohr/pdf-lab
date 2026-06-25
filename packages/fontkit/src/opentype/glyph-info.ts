@@ -1,6 +1,6 @@
 import unicode from '@pdf-lib/unicode-properties';
-import type { OpenTypeFeatureTag } from '../layout/glyph-run.js';
 import type { SFNTFont } from '../sfnt-font.js';
+import type { OpenType } from '../tables/opentype.js';
 import OTProcessor from './ot-processor.js';
 import type { IndicInfo } from './shapers/indic-shaper.js';
 import type { USEInfo } from './shapers/universal-shapers.js';
@@ -12,7 +12,7 @@ export default class GlyphInfo<ShaperInfoT = null> {
 	// The constructor calls the setter for this member. It is therefore
 	// always initialised.
 	private _id!: number;
-	public features: Record<OpenTypeFeatureTag, boolean>;
+	public features: OpenType.FeatureFlags;
 	public ligatureID: number | null;
 	public ligatureComponent: number | null;
 	public isLigated: boolean;
@@ -30,7 +30,7 @@ export default class GlyphInfo<ShaperInfoT = null> {
 		font: SFNTFont,
 		id: number,
 		public codePoints: number[] = [],
-		features?: OpenTypeFeatureTag[] | Record<OpenTypeFeatureTag, boolean>,
+		features?: OpenType.FeatureTag[] | OpenType.Features,
 	) {
 		// FIXME! Other classes access the _font property!
 		this._font = font;

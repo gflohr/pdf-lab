@@ -2,18 +2,11 @@ import BoundingBox from '../glyph/bounding-box.js';
 import type Glyph from '../glyph/glyph.js';
 import type { UnicodeScript } from '../layout/script.js';
 import * as Script from '../layout/script.js';
+import type { OpenType } from '../tables/opentype.js';
 import type GlyphPosition from './glyph-position.js';
 
 /** The shaping direction, either left-to-right, or right-to-left. */
 export type BidiDirection = 'ltr' | 'rtl';
-
-// FIXME! This has to go into LayoutEngine!
-// FIXME! Turn it into a string union!
-/**
- * OpenType feature tags consist of four ASCII characters. In the future,
- * this will be changed into a union of all known tags as strings.
- */
-export type OpenTypeFeatureTag = string;
 
 /**
  * Represents a run of Glyph and GlyphPosition objects.
@@ -22,8 +15,8 @@ export type OpenTypeFeatureTag = string;
 export default class GlyphRun {
 	private _positions: GlyphPosition[] | null;
 
-	public readonly features: Record<string, boolean>;
-	public readonly direction: 'ltr' | 'rtl';
+	public readonly features: OpenType.Features;
+	public readonly direction: BidiDirection;
 	public readonly language: string | null;
 
 	/**
@@ -41,7 +34,7 @@ export default class GlyphRun {
 	 */
 	constructor(
 		public glyphs: Glyph[],
-		features?: string[] | Record<string, boolean>,
+		features: OpenType.FeatureTag[] | OpenType.Features,
 		public readonly script?: UnicodeScript,
 		language?: string,
 		direction?: 'ltr' | 'rtl',

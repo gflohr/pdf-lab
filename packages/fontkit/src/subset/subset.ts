@@ -1,7 +1,12 @@
-import r from '@pdf-lib/restructure';
+import r, { type EncodeStream } from '@pdf-lib/restructure';
+import type Glyph from '../glyph/glyph';
+import type { SFNTFont } from '../sfnt-font';
 
-export default class Subset {
-	constructor(font) {
+export default abstract class Subset {
+	protected readonly glyphs: number[];
+	private readonly mapping: Record<number, number>;
+
+	constructor(protected readonly font: SFNTFont) {
 		this.font = font;
 		this.glyphs = [];
 		this.mapping = {};
@@ -10,7 +15,7 @@ export default class Subset {
 		this.includeGlyph(0);
 	}
 
-	includeGlyph(glyph) {
+	includeGlyph(glyph: number | Glyph): number {
 		if (typeof glyph === 'object') {
 			glyph = glyph.id;
 		}
@@ -23,11 +28,14 @@ export default class Subset {
 		return this.mapping[glyph];
 	}
 
-	encodeStream() {
+	abstract encode(stream: EncodeStream): void;
+
+	encodeStream(): EncodeStream {
 		const s = new r.EncodeStream();
 
 		process.nextTick(() => {
 			this.encode(s);
+
 			return s.end();
 		});
 
