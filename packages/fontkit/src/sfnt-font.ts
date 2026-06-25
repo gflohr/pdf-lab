@@ -83,7 +83,7 @@ export class SFNTFont<
 	private _bbox!: Readonly<BoundingBox>;
 	private _characterSet!: number[];
 	private _cmapProcessor!: CmapProcessor;
-	__layoutEngine!: LayoutEngine;
+	private _layoutEngine!: LayoutEngine;
 	private _variationAxes!: VariationAxes;
 	private _namedVariations!: NamedVariations;
 	private _variationProcessor!: GlyphVariationProcessor | null;
@@ -118,14 +118,14 @@ export class SFNTFont<
 			const entry = this.directory.tables[tag];
 			if (entry && tables[tag as keyof typeof tables] && entry.length > 0) {
 				Object.defineProperty(this, tag, {
-					get: () => this._getTable(entry),
+					get: () => this.getTable(entry),
 				});
 			}
 
 			// Clean fallback mapping: if the tag is 'CFF ', mirror it to 'cff'.
 			if (tag === 'CFF ') {
 				Object.defineProperty(this, 'cff', {
-					get: () => this._getTable(entry),
+					get: () => this.getTable(entry),
 					configurable: true,
 					enumerable: true,
 				});
@@ -133,7 +133,7 @@ export class SFNTFont<
 		}
 	}
 
-	_getTable<K extends keyof SFNTTableMap>(
+	private getTable<K extends keyof SFNTTableMap>(
 		table: SFNTDirectoryEntry,
 	): SFNTTableMap[K] | null {
 		const tag = table.tag as keyof SFNTTableMap;
@@ -488,12 +488,12 @@ export class SFNTFont<
 		return glyphs;
 	}
 
-	get _layoutEngine(): LayoutEngine {
-		if (typeof this.__layoutEngine === 'undefined') {
-			this.__layoutEngine = new LayoutEngine(this);
+	public get layoutEngine(): LayoutEngine {
+		if (typeof this._layoutEngine === 'undefined') {
+			this._layoutEngine = new LayoutEngine(this);
 		}
 
-		return this.__layoutEngine;
+		return this._layoutEngine;
 	}
 
 	/**
@@ -516,7 +516,7 @@ export class SFNTFont<
 		language?: string,
 		direction?: BidiDirection,
 	) {
-		return this._layoutEngine.layout(
+		return this.layoutEngine.layout(
 			str,
 			userFeatures ?? [],
 			script,
@@ -530,7 +530,7 @@ export class SFNTFont<
 	 * @param gid - the glyph id
 	 */
 	stringsForGlyph(gid: number): string[] {
-		return this._layoutEngine.stringsForGlyph(gid);
+		return this.layoutEngine.stringsForGlyph(gid);
 	}
 
 	codePointsForGlyph(gid: number): number[] {
@@ -551,7 +551,7 @@ export class SFNTFont<
 	 * @returns the supported features
 	 */
 	get availableFeatures(): OpenType.FeatureTag[] {
-		return this._layoutEngine.getAvailableFeatures();
+		return this.layoutEngine.getAvailableFeatures();
 	}
 
 	/**
@@ -572,7 +572,7 @@ export class SFNTFont<
 		script: Script.UnicodeScript,
 		language?: string,
 	): OpenType.FeatureTag[] {
-		return this._layoutEngine.getAvailableFeatures(script, language);
+		return this.layoutEngine.getAvailableFeatures(script, language);
 	}
 
 	public getBaseGlyph(
@@ -642,7 +642,7 @@ export class SFNTFont<
 		return new TTFSubset(this);
 	}
 
-	_computeVariationAxes() {
+	private computeVariationAxes() {
 		const res: VariationAxes = {};
 		if (!this.fvar) {
 			return res;
@@ -669,13 +669,13 @@ export class SFNTFont<
 	 */
 	get variationAxes(): VariationAxes {
 		if (typeof this._variationAxes === 'undefined') {
-			this._variationAxes = this._computeVariationAxes();
+			this._variationAxes = this.computeVariationAxes();
 		}
 
 		return this._variationAxes;
 	}
 
-	_computeNamedVariations(): NamedVariations {
+	private computeNamedVariations(): NamedVariations {
 		const res: NamedVariations = {};
 		if (!this.fvar) {
 			return res;
@@ -703,7 +703,7 @@ export class SFNTFont<
 	 */
 	get namedVariations(): NamedVariations {
 		if (typeof this._namedVariations === 'undefined') {
-			this._namedVariations = this._computeNamedVariations();
+			this._namedVariations = this.computeNamedVariations();
 		}
 
 		return this._namedVariations;
