@@ -132,9 +132,7 @@ export default class DFont {
 		}
 
 		for (const ref of this.sfnt.refList) {
-			const pos = this.header.dataOffset + ref.dataOffset + 4;
-			const stream = new r.DecodeStream(this.stream.buffer.slice(pos));
-			const font = new TrueTypeFont(stream);
+			const font = this.decodeFont(ref);
 			if (font.postscriptName === name) {
 				return font;
 			}
@@ -144,15 +142,12 @@ export default class DFont {
 	}
 
 	get fonts(): SFNTFont[] {
-		const fonts = [];
-		if (this.sfnt) {
-			for (const ref of this.sfnt.refList) {
-				const pos = this.header.dataOffset + ref.dataOffset + 4;
-				const stream = new r.DecodeStream(this.stream.buffer.slice(pos));
-				fonts.push(new TrueTypeFont(stream));
-			}
-		}
+		return this.sfnt ? this.sfnt.refList.map((ref) => this.decodeFont(ref)) : [];
+	}
 
-		return fonts;
+	private decodeFont(ref: Ref): TrueTypeFont {
+		const pos = this.header.dataOffset + ref.dataOffset + 4;
+		const stream = new r.DecodeStream(this.stream.buffer.slice(pos));
+		return new TrueTypeFont(stream);
 	}
 }
