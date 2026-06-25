@@ -5,7 +5,7 @@ import { binarySearch, range } from './utils.js';
 
 export default class CmapProcessor {
 	private readonly codePointsForGlyphCache: Map<number, number[]>;
-	private readonly encoding: string;
+	private readonly encoding: string | null = null;
 	private readonly cmap: cmapTable.Subtable;
 	private readonly uvs: cmapTable.SubtableV14 | null;
 	private characterSet?: number[];
