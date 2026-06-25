@@ -16,7 +16,7 @@ type ProcessEntry = (
 	entry: AAT.StateEntry<Record<string, any>>,
 	index: number,
 ) => void;
-type TraverseOpts = {
+interface TraverseOpts {
 	enter: (glyph: number, entry: AAT.StateEntry<Record<string, any>>) => void;
 	exit: (glyph: number, entry: AAT.StateEntry<Record<string, any>>) => void;
 };

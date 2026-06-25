@@ -1,9 +1,7 @@
 import type Glyph from '../glyph/glyph.js';
 import type { SFNTFont } from '../sfnt-font.js';
 import type { AAT } from '../tables/aat.js';
-import feat from '../tables/feat.js';
 import type { morxTable } from '../tables/morx.js';
-import { OpenType } from '../tables/opentype.js';
 import AATLookupTable from './aat-lookup-table.js';
 import AATStateMachine from './aat-state-machine.js';
 
@@ -36,7 +34,7 @@ const MARKED_INSERT_BEFORE = 0x0400;
 const CURRENT_INSERT_COUNT = 0x03e0;
 const MARKED_INSERT_COUNT = 0x001f;
 
-type MorxProcessorSnapshot = {
+interface MorxProcessorSnapshot {
 	glyphs: Glyph[];
 	ligatureStack: number[];
 };
