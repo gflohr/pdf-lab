@@ -9,11 +9,11 @@ import type { TrueTypeFont } from '../true-type-font.js';
 import Subset from './subset.js';
 
 type Glyf = Uint8Array[];
-type Loca = {
+interface Loca {
 	version?: number;
 	offsets: number[];
 };
-type Hmtx = {
+interface Hmtx {
 	metrics: hmtxTable.Entry[];
 	bearings: number[];
 };
