@@ -3,7 +3,9 @@ import type DFont from './d-font.js';
 import type { SFNTFont } from './sfnt-font.js';
 import type TrueTypeCollection from './true-type-collection.js';
 
-export type FontFormatClass = (new (...args: any[]) => SFNTFont | TrueTypeCollection | DFont) & {
+export type FontFormatClass = (new (
+	...args: any[]
+) => SFNTFont | TrueTypeCollection | DFont) & {
 	probe(buffer: Buffer): boolean;
 };
 

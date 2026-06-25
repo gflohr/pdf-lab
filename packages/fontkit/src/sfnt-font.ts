@@ -564,7 +564,7 @@ export class SFNTFont<
 	 *
 	 * @returns the supported features
 	 */
-	get availableFeatures(): (OpenType.FeatureTag)[] {
+	get availableFeatures(): OpenType.FeatureTag[] {
 		return this._layoutEngine.getAvailableFeatures();
 	}
 
@@ -585,7 +585,7 @@ export class SFNTFont<
 	getAvailableFeatures(
 		script: Script.UnicodeScript,
 		language?: string,
-	): (OpenType.FeatureTag)[] {
+	): OpenType.FeatureTag[] {
 		return this._layoutEngine.getAvailableFeatures(script, language);
 	}
 

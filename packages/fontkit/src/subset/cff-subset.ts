@@ -45,7 +45,10 @@ export default class CFFSubset extends Subset {
 		this.gsubrs = this.subsetSubrs(this.cff.globalSubrIndex, gsubrs);
 	}
 
-	private subsetSubrs(subrs: CFFIndexRecord[], used: Record<number, boolean>): Uint8Array[] {
+	private subsetSubrs(
+		subrs: CFFIndexRecord[],
+		used: Record<number, boolean>,
+	): Uint8Array[] {
 		const res: Uint8Array[] = [];
 		for (let i = 0; i < subrs.length; i++) {
 			const subr = subrs[i];
@@ -99,7 +102,7 @@ export default class CFFSubset extends Subset {
 		for (let i = 0; i < fdArray.length; i++) {
 			const dict = fdArray[i] as {
 				FontName: unknown;
-				Private?: Record<string, CFFIndexRecord[] | Uint8Array[]>,
+				Private?: Record<string, CFFIndexRecord[] | Uint8Array[]>;
 			};
 			delete dict.FontName;
 			if (dict.Private?.Subrs) {
@@ -185,7 +188,9 @@ export default class CFFSubset extends Subset {
 			'BaseFontName',
 			'FontName',
 		]) {
-			topDict[key] = this.addString(this.cff.string(topDict[key] as number | null));
+			topDict[key] = this.addString(
+				this.cff.string(topDict[key] as number | null),
+			);
 		}
 
 		topDict.ROS = [this.addString('Adobe'), this.addString('Identity'), 0];
@@ -215,7 +220,9 @@ export default class CFFSubset extends Subset {
 		const glyph = this.font.getGlyph(gid);
 
 		if (!(glyph instanceof CFFGlyph)) {
-			throw new Error('CFF subset cannot contain glyphs that are not CFF glyphs');
+			throw new Error(
+				'CFF subset cannot contain glyphs that are not CFF glyphs',
+			);
 		}
 
 		return glyph;

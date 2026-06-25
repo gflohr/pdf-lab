@@ -1,6 +1,6 @@
 import type GlyphPosition from '../layout/glyph-position.js';
 import type { GPOSTable } from '../tables/GPOS.js';
-import { OpenType } from '../tables/opentype.js';
+import type { OpenType } from '../tables/opentype.js';
 import type GlyphInfo from './glyph-info.js';
 import OTProcessor from './ot-processor.js';
 

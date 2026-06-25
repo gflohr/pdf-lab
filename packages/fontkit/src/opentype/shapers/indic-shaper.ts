@@ -5,6 +5,7 @@ import pako from 'pako';
 import UnicodeTrie from 'unicode-trie';
 import * as Script from '../../layout/script.js';
 import type { SFNTFont } from '../../sfnt-font.js';
+import type { OpenType } from '../../tables/opentype.js';
 import GlyphInfo from '../glyph-info.js';
 import type ShapingPlan from '../shaping-plan.js';
 import type { ShapingFunction } from '../shaping-plan.js';
@@ -21,7 +22,6 @@ import {
 } from './indic-data.js';
 import base64DeflatedTrie from './trie-indic.js';
 import base64DeflatedUseData from './use.js';
-import { OpenType } from '../../tables/opentype.js';
 
 export class IndicInfo {
 	constructor(

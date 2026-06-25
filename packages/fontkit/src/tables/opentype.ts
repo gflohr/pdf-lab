@@ -238,7 +238,7 @@ export namespace OpenType {
 		vrt2?: boolean;
 		vrtr?: boolean;
 		zero?: boolean;
-	}
+	};
 
 	export type FeatureTag = keyof Features;
 

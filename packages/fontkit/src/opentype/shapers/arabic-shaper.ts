@@ -3,18 +3,26 @@ import * as base64 from 'base64-arraybuffer';
 import type { CodepointEntry } from 'codepoints';
 import pako from 'pako';
 import UnicodeTrie from 'unicode-trie';
+import type { OpenType } from '../../tables/opentype.js';
 import type GlyphInfo from '../glyph-info.js';
 import type ShapingPlan from '../shaping-plan.js';
 import DefaultShaper from './default-shaper.js';
 // Trie is serialized as a Buffer in node, but here
 // we may be running in a browser so we make an Uint8Array.
 import base64DeflatedTrie from './trie.js';
-import { OpenType } from '../../tables/opentype.js';
 
 const trieData = pako.inflate(base64.decode(base64DeflatedTrie));
 const trie = new UnicodeTrie(trieData);
 
-const FEATURES: OpenType.FeatureTag[] = ['isol', 'fina', 'fin2', 'fin3', 'medi', 'med2', 'init'];
+const FEATURES: OpenType.FeatureTag[] = [
+	'isol',
+	'fina',
+	'fin2',
+	'fin3',
+	'medi',
+	'med2',
+	'init',
+];
 
 enum ShapingStateIndex {
 	Non_Joining = 0,

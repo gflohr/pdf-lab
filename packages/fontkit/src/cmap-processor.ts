@@ -64,7 +64,10 @@ export default class CmapProcessor {
 		}
 	}
 
-	private findSubtable(table: cmapTable.cmap, pairs: [number, number][]): cmapTable.Subtable | null {
+	private findSubtable(
+		table: cmapTable.cmap,
+		pairs: [number, number][],
+	): cmapTable.Subtable | null {
 		for (const [platformID, encodingID] of pairs) {
 			for (const cmap of table.tables) {
 				if (cmap.platformID === platformID && cmap.encodingID === encodingID) {

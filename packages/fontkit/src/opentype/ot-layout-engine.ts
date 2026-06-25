@@ -74,7 +74,9 @@ export default class OTLayoutEngine<T> {
 		this.shaper.plan(this.plan!, this.glyphInfos, glyphRun.features);
 
 		// Assign chosen features to output glyph run
-		for (const key of Object.keys(this.plan.allFeatures) as OpenType.FeatureTag[]) {
+		for (const key of Object.keys(
+			this.plan.allFeatures,
+		) as OpenType.FeatureTag[]) {
 			glyphRun.features[key] = true;
 		}
 	}
@@ -131,17 +133,24 @@ export default class OTLayoutEngine<T> {
 		this.shaper = null;
 	}
 
-	getAvailableFeatures(script?: string, language?: string): OpenType.FeatureTag[] {
+	getAvailableFeatures(
+		script?: string,
+		language?: string,
+	): OpenType.FeatureTag[] {
 		const features: OpenType.FeatureTag[] = [];
 
 		if (this.GSUBProcessor) {
 			this.GSUBProcessor.selectScript(script, language);
-			features.push(...Object.keys(this.GSUBProcessor.features) as OpenType.FeatureTag[]);
+			features.push(
+				...(Object.keys(this.GSUBProcessor.features) as OpenType.FeatureTag[]),
+			);
 		}
 
 		if (this.GPOSProcessor) {
 			this.GPOSProcessor.selectScript(script, language);
-			features.push(...Object.keys(this.GPOSProcessor.features) as OpenType.FeatureTag[]);
+			features.push(
+				...(Object.keys(this.GPOSProcessor.features) as OpenType.FeatureTag[]),
+			);
 		}
 
 		return features;

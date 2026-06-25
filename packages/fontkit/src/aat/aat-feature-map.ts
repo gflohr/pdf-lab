@@ -10,7 +10,7 @@ type FeatureDefinition = {
 
 	/** Map of semantic selector string labels to their native AAT layout integer codes. */
 	[selectorName: string]: number | boolean;
-}
+};
 
 // see https://developer.apple.com/fonts/TrueType-Reference-Manual/RM09/AppendixF.html
 // and /System/Library/Frameworks/CoreText.framework/Versions/A/Headers/SFNTLayoutTypes.h on a Mac
@@ -369,13 +369,12 @@ const feature = (
 ): [number, number | boolean] => {
 	const targetFeature = features[name] as FeatureDefinition;
 
-	return [
-		targetFeature.code,
-		targetFeature[selector],
-	]
+	return [targetFeature.code, targetFeature[selector]];
 };
 
-const OTMapping: Partial<Record<OpenType.FeatureTag, [number | boolean, number | boolean]>> = {
+const OTMapping: Partial<
+	Record<OpenType.FeatureTag, [number | boolean, number | boolean]>
+> = {
 	rlig: feature('ligatures', 'requiredLigatures'),
 	clig: feature('ligatures', 'contextualLigatures'),
 	dlig: feature('ligatures', 'rareLigatures'),
@@ -489,10 +488,7 @@ const OTMapping: Partial<Record<OpenType.FeatureTag, [number | boolean, number |
 for (let i = 1; i <= 99; ++i) {
 	const key = `cv${`00${i}`.slice(-2)}` as OpenType.FeatureTag;
 
-	OTMapping[key] = [
-		features.characterAlternatives.code,
-		i,
-	];
+	OTMapping[key] = [features.characterAlternatives.code, i];
 }
 
 // Create inverse mapping.
@@ -536,7 +532,9 @@ function mapFeatureStrings(
 ): [number | boolean | string, number | boolean | string] {
 	const [type, setting] = f;
 
-	const targetFeature = features[type as FeatureName] as FeatureDefinition | undefined;
+	const targetFeature = features[type as FeatureName] as
+		| FeatureDefinition
+		| undefined;
 
 	// The original version in fontkit had a bug. It checked with
 	// Number.isNaN() to see whether type resp. setting was a number. But

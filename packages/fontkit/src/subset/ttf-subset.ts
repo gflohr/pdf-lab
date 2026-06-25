@@ -1,22 +1,22 @@
+import type { EncodeStream } from '@pdf-lib/restructure';
+import type Path from '../glyph/path.js';
 import TTFGlyph from '../glyph/ttf-glyph.js';
 import TTFGlyphEncoder from '../glyph/ttf-glyph-encoder.js';
-import Directory, { SFNTDirectoryEntry } from '../tables/directory.js';
+import Directory, { type SFNTDirectoryEntry } from '../tables/directory.js';
+import type { hmtxTable } from '../tables/hmtx.js';
 import Tables from '../tables/index.js';
 import type { TrueTypeFont } from '../true-type-font.js';
 import Subset from './subset.js';
-import { hmtxTable } from '../tables/hmtx.js';
-import Path from '../glyph/path.js';
-import { EncodeStream } from '@pdf-lib/restructure';
 
 type Glyf = Uint8Array[];
 type Loca = {
 	version?: number;
 	offsets: number[];
-}
+};
 type Hmtx = {
 	metrics: hmtxTable.Entry[];
 	bearings: number[];
-}
+};
 
 export default class TTFSubset extends Subset {
 	private readonly glyphEncoder: TTFGlyphEncoder;
@@ -40,7 +40,7 @@ export default class TTFSubset extends Subset {
 
 		const stream = this.font.getGlyfTableStream();
 		if (!stream) {
-			throw new Error('Cannot get \'glyf\' table stream');
+			throw new Error("Cannot get 'glyf' table stream");
 		}
 		stream.pos += curOffset;
 
@@ -49,7 +49,11 @@ export default class TTFSubset extends Subset {
 		// if it is a compound glyph, include its components
 		if (glyf && glyf.numberOfContours < 0) {
 			buffer = new Uint8Array(buffer);
-			const view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+			const view = new DataView(
+				buffer.buffer,
+				buffer.byteOffset,
+				buffer.byteLength,
+			);
 
 			for (const component of glyf.components || []) {
 				gid = this.includeGlyph(component.glyphID);
@@ -57,7 +61,10 @@ export default class TTFSubset extends Subset {
 			}
 		} else if (glyf && this.font.variationProcessor) {
 			// If this is a TrueType variation glyph, re-encode the path
-			buffer = this.glyphEncoder.encodeSimple(glyph.path as Path, glyf.instructions);
+			buffer = this.glyphEncoder.encodeSimple(
+				glyph.path as Path,
+				glyf.instructions,
+			);
 		}
 
 		this.glyf!.push(buffer);
@@ -162,7 +169,9 @@ export default class TTFSubset extends Subset {
 		const glyph = this.font.getGlyph(gid);
 
 		if (!(glyph instanceof TTFGlyph)) {
-			throw new Error('TrueType font subset cannot contain glyphs that are not TrueType glyphs');
+			throw new Error(
+				'TrueType font subset cannot contain glyphs that are not TrueType glyphs',
+			);
 		}
 
 		return glyph;
