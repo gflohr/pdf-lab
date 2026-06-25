@@ -125,7 +125,7 @@ export interface Font {
 	/**
 	 * Horizontal header metrics (hhea table).
 	 */
-	hhea: hheaTable.hhea;
+	//hhea: hheaTable.hhea;
 
 	/**
 	 * Variable font axes (if present in the font).
@@ -157,35 +157,35 @@ export interface Font {
 	/**
 	 * The font's `CFF ` table.
 	 */
-	cff: CFFFont | null;
+	cff?: CFFFont | null;
 
 	/**
 	 * The font's 'OS/2' table.
 	 */
-	'OS/2': OS2Table.OS2;
+	//'OS/2': OS2Table.OS2;
 
 	/**
 	 * The font's `head` table.
 	 */
-	head: headTable.head;
+	//head: headTable.head;
 
 	/**
 	 * The font's `hmtx` table.
 	 */
-	hmtx: hmtxTable.hmtx;
+	//hmtx: hmtxTable.hmtx;
 
 	/**
 	 * The font's `HVAR` table.
 	 */
-	HVAR: HVARTable.HVAR;
+	//HVAR: HVARTable.HVAR;
 
 	/**
 	 * The font's `post` table.
 	 */
-	post: postTable.post;
+	//post: postTable.post;
 
 	/**
 	 * The font's `vmtx` table.
 	 */
-	vmtx: vmtxTable.vmtx;
+	//vmtx: vmtxTable.vmtx;
 }

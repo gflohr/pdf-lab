@@ -27,7 +27,6 @@ import type Subset from './subset/subset.js';
 import TTFSubset from './subset/ttf-subset.js';
 import type { AAT } from './tables/aat.js';
 import type {
-	FilteredTableMap,
 	SFNTDirectoryEntry,
 	SFNTTableMap,
 } from './tables/directory.js';
@@ -36,26 +35,9 @@ import tables from './tables/index.js';
 import type { nameTable } from './tables/name.js';
 import type { OpenType } from './tables/opentype.js';
 
-/**
- * Automatically calculates all available font table properties
- * directly from the registry keys.
- */
-type RegistryTableProps = {
-	[K in keyof typeof tables]: FilteredTableMap[K];
-};
-
 export type LayoutFeatures = OpenType.Features | AAT.Features;
 
 export type LayoutFeatureTag = OpenType.FeatureTag | AAT.FeatureTag;
-
-/**
- * FIXME! Remove this!
- */
-export interface FontTableFields extends RegistryTableProps {
-	// A clean programmatic alias for the 'CFF ' PostScript stream.
-	cff: FilteredTableMap['CFF '];
-}
-
 export interface FontAxis {
 	axisTag: string;
 	minValue: number;
@@ -71,6 +53,8 @@ export interface BaseFontDirectory {
 	numTables: number;
 	tables: Record<string, any>;
 }
+
+export type FontTableFields = SFNTTableMap;
 
 export interface SFNTFont<
 	TDirectory extends BaseFontDirectory = BaseFontDirectory,
@@ -90,7 +74,7 @@ export class SFNTFont<
 	public stream: DecodeStream;
 	private variationCoords: number[] | null;
 	private directoryPos: number;
-	private tables: SFNTTableMap = {};
+	private tables: SFNTTableMap = {} as SFNTTableMap;
 	protected glyphs: Record<number, Glyph> = {};
 	public directory: TDirectory;
 
@@ -105,7 +89,7 @@ export class SFNTFont<
 	private _variationProcessor!: GlyphVariationProcessor | null;
 
 	// Explicitly declare the custom alias property.
-	public cff!: FilteredTableMap['CFF '];
+	public cff!: SFNTTableMap['CFF '];
 
 	// Infers all other table properties (cmap, head, OS/2, etc.) via the
 	// interface heritage.
@@ -125,7 +109,7 @@ export class SFNTFont<
 		this.variationCoords = variationCoords;
 
 		this.directoryPos = this.stream.pos;
-		this.tables = {};
+		this.tables = {} as SFNTTableMap;
 		this.glyphs = {};
 		this.directory = this.decodeDirectory();
 
@@ -149,19 +133,21 @@ export class SFNTFont<
 		}
 	}
 
-	_getTable<K extends string>(
+	_getTable<K extends keyof SFNTTableMap>(
 		table: SFNTDirectoryEntry,
 	): SFNTTableMap[K] | null {
-		if (!(table.tag in this.tables)) {
+		const tag = table.tag as keyof SFNTTableMap;
+		const tables = this.tables as Record<keyof SFNTTableMap, unknown>;
+		if (!(tag in tables)) {
 			try {
-				this.tables[table.tag] = this.decodeTable(table);
+				tables[tag] = this.decodeTable(table);
 			} catch (e) {
 				if (e instanceof FatalFontError) {
 					throw e;
 				}
 
 				// Avoid retrying the failed decode attempt.
-				this.tables[table.tag] = null;
+				tables[tag] = null;
 				if (fontkit.logErrors) {
 					console.error(`Error decoding table ${table.tag}`);
 					if (e instanceof Error) {
@@ -173,7 +159,7 @@ export class SFNTFont<
 			}
 		}
 
-		return this.tables[table.tag] as SFNTTableMap[K] | null;
+		return tables[tag] as SFNTTableMap[K] | null;
 	}
 
 	protected getTableStream(tag: string): DecodeStream | null {

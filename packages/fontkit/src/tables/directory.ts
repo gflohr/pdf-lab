@@ -4,17 +4,10 @@ import r, {
 	type StructT,
 } from '@pdf-lib/restructure';
 import Tables from './index.js';
-import type { VORGTable } from './VORG.js';
 
-type InferredTableMap = {
+export type SFNTTableMap = {
 	[K in keyof typeof Tables]: ReturnType<(typeof Tables)[K]['decode']>;
 };
-
-export type FilteredTableMap = InferredTableMap & {
-	VORG: VORGTable.VORG;
-} & Record<string, unknown>;
-
-export type SFNTTableMap = Record<string, unknown> & Partial<FilteredTableMap>;
 
 /**
  * Tier 1: Pure Binary Representation (Matches file bytes exactly).
@@ -36,7 +29,7 @@ export interface SFNTDirectoryBinary {
 }
 
 /**
- * Tier 2: Post-Processed Runtime Representation (App API)
+ * Tier 2: Post-Processed Runtime Representation (App API).
  */
 export interface SFNTDirectoryEntry extends SFNTTableEntryBinary {
 	/** The actual decoded table payload stream, or null if unparsed */
@@ -57,14 +50,12 @@ export interface SFNTDirectory {
  * Context interface matching the internal state inside restructure lifecycle hooks
  */
 interface DirectoryContext extends Omit<SFNTDirectory, 'tables'> {
-	// During execution, tables transitions from the raw array to the mapped record
+	// During execution, tables transitions from the raw array to the mapped
+	// record.
 	tables: SFNTTableEntryBinary[] & Record<string, SFNTDirectoryEntry>;
 }
 
-/* ========================================================================== */
-/* Binary Layout Definitions                                                  */
-/* ========================================================================== */
-
+// Binary Layout Definitions
 const tableEntryFields = {
 	tag: new r.String(4),
 	checkSum: r.uint32,
@@ -90,10 +81,7 @@ const directory = new r.Struct<typeof directoryFields, SFNTDirectory>(
 	directoryFields,
 );
 
-/* ========================================================================== */
-/* Restructure Lifecycle Hooks                                                */
-/* ========================================================================== */
-
+// Restructure Lifecycle Hooks.
 directory.process = function (this: DirectoryContext): void {
 	const mappedTables: Record<string, SFNTDirectoryEntry> = {};
 
@@ -101,7 +89,8 @@ directory.process = function (this: DirectoryContext): void {
 		mappedTables[table.tag] = table;
 	}
 
-	// Safely cast away the binary array representation to the clean runtime map
+	// Safely cast away the binary array representation to the clean runtime
+	// map.
 	this.tables = mappedTables as any;
 };
 
@@ -146,9 +135,9 @@ directory.preEncode = function (this: DirectoryContext): void {
 	this.rangeShift = this.numTables * 16 - this.searchRange;
 };
 
-export type SFNTDirectoryEncodeInput = {
+export interface SFNTDirectoryEncodeInput {
 	tables: Record<string, unknown>;
-};
+}
 
 export default directory as Omit<typeof directory, 'encode'> & {
 	encode(stream: EncodeStream, value: SFNTDirectoryEncodeInput): void;
