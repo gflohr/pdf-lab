@@ -10,11 +10,15 @@ class CFFFont {
 	private topDictIndex!: CFFDict[];
 	public topDict!: Record<string, any>;
 	private stringIndex!: string[];
-	private isCIDFont!: boolean;
+	public isCIDFont!: boolean;
 	private nameIndex!: string[];
 	public globalSubrIndex!: CFFIndexRecord[];
+	// These three properties somehow pop up and are needed for subsetting.
+	public hdrSize!: number;
+	public length!: number;
+	public header!: Uint8Array;
 
-	constructor(private readonly stream: DecodeStream) {
+	constructor(public readonly stream: DecodeStream) {
 		this.decode();
 	}
 

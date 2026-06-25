@@ -1,5 +1,5 @@
 import fontkit from './base.js';
-import DFont from './DFont.js';
+import DFont from './d-font.js';
 import TrueTypeCollection from './true-type-collection.js';
 import { TrueTypeFont } from './true-type-font.js';
 import { WOFFFont } from './woff-font.js';

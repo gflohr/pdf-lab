@@ -11,9 +11,67 @@ import r, {
 	type FieldT,
 	type InferField,
 	type ParsingContext,
+	type StructT,
 } from '@pdf-lib/restructure';
 
 export namespace AAT {
+	/**
+	 * A map of Apple Advanced Typography (AAT) as described by Apple’s
+	 * TrueType Reference manual:
+	 * https://developer.apple.com/fonts/TrueType-Reference-Manual/RM06/Chap6AATIntro.html
+	 */
+	export type Features = {
+		acnt?: boolean;
+		ankr?: boolean;
+		avar?: boolean;
+		bdat?: boolean;
+		bhed?: boolean;
+		bloc?: boolean;
+		bsln?: boolean;
+		cmap?: boolean;
+		cvar?: boolean;
+		cvt?: boolean;
+		EBSC?: boolean;
+		fdsc?: boolean;
+		feat?: boolean;
+		fmtx?: boolean;
+		fond?: boolean;
+		fpgm?: boolean;
+		fvar?: boolean;
+		gasp?: boolean;
+		gcid?: boolean;
+		glyf?: boolean;
+		gvar?: boolean;
+		hdmx?: boolean;
+		head?: boolean;
+		hhea?: boolean;
+		hmtx?: boolean;
+		just?: boolean;
+		kern?: boolean;
+		kerx?: boolean;
+		lcar?: boolean;
+		loca?: boolean;
+		ltag?: boolean;
+		maxp?: boolean;
+		meta?: boolean;
+		mort?: boolean;
+		morx?: boolean;
+		name?: boolean;
+		opbd?: boolean;
+		'OS/2'?: boolean;
+		post?: boolean;
+		prep?: boolean;
+		prop?: boolean;
+		sbix?: boolean;
+		trak?: boolean;
+		vhea?: boolean;
+		vmtx?: boolean;
+		xref?: boolean;
+		Zapf?: boolean;
+	};
+
+	export type FeatureTag = keyof Features;
+
 	// Common AAT binary search header structure
 	export interface BinarySearchHeader {
 		unitSize: number;
@@ -25,7 +83,7 @@ export namespace AAT {
 
 	export interface LookupTableV0<T> {
 		version: 0;
-		values: T[];
+		values: UnboundedArrayAccessor<FieldT<T>>;
 	}
 
 	export interface LookupSegmentSingle<T> {
@@ -87,8 +145,8 @@ export namespace AAT {
 	export interface StateHeader<TLookup = number, TEntry = Record<string, any>> {
 		nClasses: number;
 		classTable: LookupTable<TLookup>;
-		stateArray: number;
-		entryTable: StateEntry<TEntry>[];
+		stateArray: UnboundedArrayAccessor<FieldT<number[]>>;
+		entryTable: UnboundedArrayAccessor<FieldT<StateEntry<TEntry>>>;
 	}
 
 	export type StateEntry1<TEntry> = {
@@ -100,12 +158,21 @@ export namespace AAT {
 	export interface StateHeader1<TEntry = Record<string, any>> {
 		nClasses: number;
 		classTable: Omit<LookupTableV8<number>, 'count'>;
-		stateArray: number[][];
-		entryTable: StateEntry1<TEntry>[];
+		stateArray: UnboundedArrayAccessor<FieldT<number[][]>>;
+		entryTable: UnboundedArrayAccessor<FieldT<StateEntry1<TEntry>>>;
 	}
+
+	export type StateTable = StructT<Record<string, unknown>, AAT.StateHeader>;
+
+	export type StateTable1<TEntryData> = StructT<
+		TEntryData,
+		StateHeader1<TEntryData>
+	>;
+
+	export type TypeFeatures = Record<string, Record<string, boolean>>;
 }
 
-class UnboundedArrayAccessor<TField extends FieldT<any>> {
+export class UnboundedArrayAccessor<TField extends FieldT<any>> {
 	private type: TField;
 	private stream: DecodeStream;
 	private parent?: ParsingContext;
@@ -120,7 +187,8 @@ class UnboundedArrayAccessor<TField extends FieldT<any>> {
 		this._items = [];
 	}
 
-	// Changing the return from 'unknown' to 'InferField<TField>' fixes downstream usage
+	// Changing the return from 'unknown' to 'InferField<TField>' fixes
+	// downstream usage.
 	getItem(index: number): InferField<TField> {
 		if (this._items[index] == null) {
 			const pos = this.stream.pos;
@@ -296,11 +364,11 @@ export function aatStateTable<
 		stateArray: new r.Pointer(r.uint32, StateArray),
 		entryTable: new r.Pointer(r.uint32, new AATUnboundedArray(Entry)),
 	};
-	const StateHeader = new r.Struct<typeof stateHeaderFields, AAT.StateHeader>(
+	const stateHeader = new r.Struct<typeof stateHeaderFields, AAT.StateHeader>(
 		stateHeaderFields,
 	);
 
-	return StateHeader;
+	return stateHeader;
 }
 
 // This is the old version of the StateTable structure.
@@ -345,10 +413,10 @@ export function aatStateTable1<
 		entryTable: new r.Pointer(r.uint16, new AATUnboundedArray(Entry)),
 	};
 
-	const StateHeader1 = new r.Struct<
+	const stateHeader1 = new r.Struct<
 		typeof stateHeader1Fields,
 		AAT.StateHeader1<TEntryData>
 	>(stateHeader1Fields);
 
-	return StateHeader1;
+	return stateHeader1;
 }

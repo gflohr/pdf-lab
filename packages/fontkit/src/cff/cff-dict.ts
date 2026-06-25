@@ -245,4 +245,6 @@ export default class CFFDict implements FieldT<Record<string, any>> {
 			}
 		}
 	}
+
+	[key: string]: unknown;
 }

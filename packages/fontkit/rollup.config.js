@@ -54,7 +54,7 @@ const onwarn = (warning, warn) => {
 
 export default [
 	{
-		input: 'src/index.js',
+		input: 'src/index.ts',
 		external: ['pako'], // pdf-lib provides pako for the other formats.
 		output: {
 			file: 'dist/fontkit.esm.js',
@@ -65,7 +65,7 @@ export default [
 		onwarn,
 	},
 	{
-		input: 'src/index.js',
+		input: 'src/index.ts',
 		output: {
 			file: 'dist/fontkit.cjs.js',
 			format: 'cjs',
@@ -77,7 +77,7 @@ export default [
 		onwarn,
 	},
 	{
-		input: 'src/index.js',
+		input: 'src/index.ts',
 		output: {
 			file: 'dist/fontkit.umd.js',
 			format: 'umd',
@@ -92,7 +92,7 @@ export default [
 		onwarn,
 	},
 	{
-		input: 'src/index.js',
+		input: 'src/index.ts',
 		output: {
 			file: 'dist/fontkit.umd.min.js',
 			format: 'umd',

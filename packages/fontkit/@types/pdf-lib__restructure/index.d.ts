@@ -20,7 +20,7 @@ declare module '@pdf-lib/restructure' {
 		constructor(length?: Length | Uint8Array);
 
 		readString(length: number, encoding?: string): string;
-		readBuffer(offset: number): Buffer;
+		readBuffer(offset: number): Uint8Array;
 		readInt8(): number;
 		readUInt8(): number;
 		readInt16(): number;
@@ -37,9 +37,10 @@ declare module '@pdf-lib/restructure' {
 		buffer: Uint8Array;
 		pos: number;
 
-		constructor(buffer: number);
+		constructor(buffer?: number);
 
 		fill(val: number, length: number): void;
+		end(): void;
 
 		writeUInt8(val: number): void;
 		writeInt16(val: number): void;
@@ -131,6 +132,7 @@ declare module '@pdf-lib/restructure' {
 
 	export interface RestructureLazyArray<T> extends Array<T> {
 		get(index: number): T;
+		toArray(): T[];
 	}
 
 	export class LazyArrayT<

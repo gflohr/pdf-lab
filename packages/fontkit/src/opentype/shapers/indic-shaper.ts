@@ -3,9 +3,9 @@ import * as base64 from 'base64-arraybuffer';
 import StateMachine from 'dfa';
 import pako from 'pako';
 import UnicodeTrie from 'unicode-trie';
-import type { OpenTypeFeatureTag } from '../../layout/glyph-run.js';
 import * as Script from '../../layout/script.js';
 import type { SFNTFont } from '../../sfnt-font.js';
+import type { OpenType } from '../../tables/opentype.js';
 import GlyphInfo from '../glyph-info.js';
 import type ShapingPlan from '../shaping-plan.js';
 import type { ShapingFunction } from '../shaping-plan.js';
@@ -214,7 +214,7 @@ function isHalantOrCoeng(glyph: IndicGlyphInfo) {
  */
 function wouldSubstitute(
 	glyphs: IndicGlyphInfo[],
-	feature: OpenTypeFeatureTag,
+	feature: OpenType.FeatureTag,
 ) {
 	for (const glyph of glyphs) {
 		glyph.features = { [feature]: true };

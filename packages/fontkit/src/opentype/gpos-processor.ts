@@ -1,5 +1,6 @@
 import type GlyphPosition from '../layout/glyph-position.js';
 import type { GPOSTable } from '../tables/GPOS.js';
+import type { OpenType } from '../tables/opentype.js';
 import type GlyphInfo from './glyph-info.js';
 import OTProcessor from './ot-processor.js';
 
@@ -369,7 +370,7 @@ export default class GPOSProcessor<T> extends OTProcessor<T> {
 	}
 
 	public applyFeatures(
-		userFeatures: string[],
+		userFeatures: OpenType.FeatureTag[],
 		glyphs: GlyphInfo<T>[],
 		advances: GlyphPosition[],
 	): void {

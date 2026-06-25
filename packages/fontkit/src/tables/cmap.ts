@@ -119,7 +119,7 @@ export namespace cmapTable {
 		length: number;
 		language: number;
 		nGroups: number;
-		groups: RestructureLazyArray<number>;
+		groups: RestructureLazyArray<Group>;
 	}
 
 	/**

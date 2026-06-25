@@ -1,7 +1,7 @@
 import type { DecodeStream, FieldT } from '@pdf-lib/restructure';
 import r from '@pdf-lib/restructure';
 import fontkit from './base.js';
-import CmapProcessor from './CmapProcessor.js';
+import CmapProcessor from './cmap-processor.js';
 import { FatalFontError } from './fatal-font-error.js';
 import type {
 	Font,
@@ -19,10 +19,13 @@ import type Glyph from './glyph/glyph.js';
 import GlyphVariationProcessor from './glyph/glyph-variation-processor.js';
 import SBIXGlyph from './glyph/sbix-glyph.js';
 import TTFGlyph from './glyph/ttf-glyph.js';
-import LayoutEngine from './layout/LayoutEngine.js';
-import CFFSubset from './subset/CFFSubset.js';
-import type Subset from './subset/Subset.js';
-import TTFSubset from './subset/TTFSubset.js';
+import type { BidiDirection } from './layout/glyph-run.js';
+import LayoutEngine from './layout/layout-engine.js';
+import type * as Script from './layout/script.js';
+import CFFSubset from './subset/cff-subset.js';
+import type Subset from './subset/subset.js';
+import TTFSubset from './subset/ttf-subset.js';
+import type { AAT } from './tables/aat.js';
 import type {
 	FilteredTableMap,
 	SFNTDirectoryEntry,
@@ -41,8 +44,12 @@ type RegistryTableProps = {
 	[K in keyof typeof tables]: FilteredTableMap[K];
 };
 
+export type LayoutFeatures = OpenType.Features | AAT.Features;
+
+export type LayoutFeatureTag = OpenType.FeatureTag | AAT.FeatureTag;
+
 /**
- * Temporary ...
+ * FIXME! Remove this!
  */
 export interface FontTableFields extends RegistryTableProps {
 	// A clean programmatic alias for the 'CFF ' PostScript stream.
@@ -518,14 +525,14 @@ export class SFNTFont<
 	 */
 	layout(
 		str: string,
-		userFeatures?: OpenType.TypeFeatures | (keyof OpenType.TypeFeatures)[],
-		script?: string | null,
-		language?: string | null,
-		direction?: string | null,
+		userFeatures?: OpenType.Features | OpenType.FeatureTag[],
+		script?: string,
+		language?: string,
+		direction?: BidiDirection,
 	) {
 		return this._layoutEngine.layout(
 			str,
-			userFeatures,
+			userFeatures ?? [],
 			script,
 			language,
 			direction,
@@ -557,7 +564,7 @@ export class SFNTFont<
 	 *
 	 * @returns the supported features
 	 */
-	get availableFeatures(): (keyof OpenType.TypeFeatures)[] {
+	get availableFeatures(): OpenType.FeatureTag[] {
 		return this._layoutEngine.getAvailableFeatures();
 	}
 
@@ -576,13 +583,16 @@ export class SFNTFont<
 	 * @returns the supported features
 	 */
 	getAvailableFeatures(
-		script: string,
+		script: Script.UnicodeScript,
 		language?: string,
-	): (keyof OpenType.TypeFeatures)[] {
+	): OpenType.FeatureTag[] {
 		return this._layoutEngine.getAvailableFeatures(script, language);
 	}
 
-	public getBaseGlyph(glyph: number, characters: number[] = []): Glyph | null {
+	public getBaseGlyph(
+		glyph: number,
+		characters: readonly number[] = [],
+	): Glyph | null {
 		if (!this.glyphs[glyph]) {
 			if (this.directory.tables.glyf) {
 				this.glyphs[glyph] = new TTFGlyph(
@@ -611,7 +621,7 @@ export class SFNTFont<
 	 * @param characters an array of code points this glyph represents
 	 * @returns the corresponding glyph
 	 */
-	getGlyph(glyph: number, characters: number[] = []): Glyph {
+	getGlyph(glyph: number, characters: readonly number[] = []): Glyph {
 		if (!this.glyphs[glyph]) {
 			// FIXME! Get rid of the casts!
 			if (this.directory.tables.sbix) {

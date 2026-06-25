@@ -2,7 +2,7 @@ import type CFFFont from './cff/cff-font.js';
 import type BoundingBox from './glyph/bounding-box.js';
 import type Glyph from './glyph/glyph.js';
 import type GlyphRun from './layout/glyph-run.js';
-import type Subset from './subset/Subset.js';
+import type Subset from './subset/subset.js';
 import type { HVARTable } from './tables/HVAR.js';
 import type { headTable } from './tables/head.js';
 import type { hheaTable } from './tables/hhea.js';
@@ -64,7 +64,7 @@ export interface Font {
 	// Other properties
 	numGlyphs: number /** Number of glyphs in the font */;
 	characterSet: number[] /** Array of all of the unicode code points supported by the font */;
-	availableFeatures: (keyof OpenType.TypeFeatures)[] /** OpenType feature tags (or mapped AAT tags) supported by the font */;
+	availableFeatures: OpenType.FeatureTag[] /** OpenType feature tags (or mapped AAT tags) supported by the font */;
 
 	// Character to Glyph Mapping Methods
 
@@ -102,7 +102,7 @@ export interface Font {
 	 */
 	layout(
 		text: string,
-		features?: OpenType.TypeFeatures | (keyof OpenType.TypeFeatures)[],
+		features?: OpenType.Features | OpenType.FeatureTag[],
 		script?: string | null,
 		language?: string | null,
 		direction?: string | null,

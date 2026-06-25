@@ -1,9 +1,11 @@
-import r, { type PointerT } from '@pdf-lib/restructure';
+import r, { type FieldT, type PointerT } from '@pdf-lib/restructure';
+import AATLookupTable from '../aat/aat-lookup-table.js';
 import {
 	type AAT,
 	AATUnboundedArray,
 	aatLookupTable,
 	aatStateTable,
+	type UnboundedArrayAccessor,
 } from './aat.js';
 
 export namespace morxTable {
@@ -20,7 +22,7 @@ export namespace morxTable {
 	}
 
 	export interface SubstitutionTable {
-		items: AAT.LookupTable<number>[];
+		items: UnboundedArrayAccessor<FieldT<AAT.LookupTable<number>>>;
 	}
 
 	export interface SubtableDataV1 {
@@ -39,9 +41,9 @@ export namespace morxTable {
 	export interface SubtableDataV2 {
 		version: 2;
 		stateTable: AAT.StateHeader<number, LigatureData>;
-		ligatureActions: number[];
-		components: number[];
-		ligatureList: number[];
+		ligatureActions: UnboundedArrayAccessor<FieldT<number>>;
+		components: UnboundedArrayAccessor<FieldT<number>>;
+		ligatureList: UnboundedArrayAccessor<FieldT<number>>;
 	}
 
 	// Format 4: Non-contextual glyph substitution subtable.
@@ -60,7 +62,7 @@ export namespace morxTable {
 	export interface SubtableDataV5 {
 		version: 5;
 		stateTable: AAT.StateHeader<number, InsertionData>;
-		insertionActions: number[];
+		insertionActions: UnboundedArrayAccessor<FieldT<number>>;
 	}
 
 	export type SubtableData =
@@ -77,6 +79,7 @@ export namespace morxTable {
 		subFeatureFlags: number;
 		table: SubtableData;
 	}
+
 	export interface FeatureEntry {
 		featureType: number;
 		featureSetting: number;

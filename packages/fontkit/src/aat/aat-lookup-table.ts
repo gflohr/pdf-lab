@@ -1,12 +1,14 @@
+import type { AAT } from '../tables/aat.js';
 import { range } from '../utils.js';
 
-export default class AATLookupTable {
-	constructor(table) {
-		this.table = table;
-		this._glyphsForValueCache = new Map();
+export default class AATLookupTable<T> {
+	private glyphsForValueCache: Map<number, number[]>;
+
+	constructor(private readonly table: AAT.LookupTable<T>) {
+		this.glyphsForValueCache = new Map();
 	}
 
-	lookup(glyph) {
+	public lookup(glyph: number) {
 		switch (this.table.version) {
 			case 0: // simple array format
 				return this.table.values.getItem(glyph);
@@ -31,9 +33,9 @@ export default class AATLookupTable {
 						min = mid + 1;
 					} else {
 						if (this.table.version === 2) {
-							return seg.value;
+							return this.table.segments[mid].value;
 						} else {
-							return seg.values[glyph - seg.firstGlyph];
+							return this.table.segments[mid].values[glyph - seg.firstGlyph];
 						}
 					}
 				}
@@ -71,22 +73,30 @@ export default class AATLookupTable {
 				return this.table.values[glyph - this.table.firstGlyph];
 
 			default:
-				throw new Error(`Unknown lookup table format: ${this.table.version}`);
+				throw new Error(
+					`Unknown lookup table format: ${(this.table as { version: number }).version}`,
+				);
 		}
 	}
 
-	_computeGlyphsForValue(classValue) {
-		const res = [];
+	private computeGlyphsForValue(classValue: number): number[] {
+		const res: number[] = [];
 
 		switch (this.table.version) {
 			case 2: // segment format
 			case 4: {
-				for (const segment of this.table.segments) {
+				for (let i = 0; i < this.table.segments.length; ++i) {
+					if (typeof this.table.segments[i] === 'undefined') {
+						continue;
+					}
+
 					if (this.table.version === 2) {
+						const segment = this.table.segments[i];
 						if (segment.value === classValue) {
 							res.push(...range(segment.firstGlyph, segment.lastGlyph + 1));
 						}
 					} else {
+						const segment = this.table.segments[i];
 						for (let index = 0; index < segment.values.length; index++) {
 							if (segment.values[index] === classValue) {
 								res.push(segment.firstGlyph + index);
@@ -127,14 +137,14 @@ export default class AATLookupTable {
 		return res;
 	}
 
-	glyphsForValue(classValue) {
-		if (!this._glyphsForValueCache.has(classValue)) {
-			this._glyphsForValueCache.set(
+	public glyphsForValue(classValue: number): number[] {
+		if (!this.glyphsForValueCache.has(classValue)) {
+			this.glyphsForValueCache.set(
 				classValue,
-				this._computeGlyphsForValue(classValue),
+				this.computeGlyphsForValue(classValue),
 			);
 		}
 
-		return this._glyphsForValueCache.get(classValue);
+		return this.glyphsForValueCache.get(classValue)!;
 	}
 }

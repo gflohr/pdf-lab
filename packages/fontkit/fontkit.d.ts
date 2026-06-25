@@ -255,6 +255,7 @@ export interface Subset {
 }
 
 /**
+ * @deprecated Use the type OpenType.Features instead!
  * A map of OpenType features as described in OpenType's spec:
  * https://docs.microsoft.com/en-gb/typography/opentype/spec/featurelist.
  */
@@ -490,6 +491,7 @@ export interface OpenTypeFeatures {
 	zero?: boolean;
 }
 /**
+ * @deprecated Use the type AAT.Features instead!
  * A map of Apple Advanced Typography (AAT) as described by Apple’s TrueType
  * Reference manual:
  * https://developer.apple.com/fonts/TrueType-Reference-Manual/RM06/Chap6AATIntro.html

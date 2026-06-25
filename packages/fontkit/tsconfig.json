@@ -1,7 +1,5 @@
 {
 	"compilerOptions": {
-		"allowJs": true,
-		"checkJs": false,
 		"esModuleInterop": true,
 		"types": ["node"],
 		"typeRoots": ["./node_modules/@types", "./@types"],

@@ -1,53 +1,86 @@
-import cloneDeep from 'clone';
+import type { EncodeStream } from '@pdf-lib/restructure';
+import type Path from '../glyph/path.js';
+import TTFGlyph from '../glyph/ttf-glyph.js';
 import TTFGlyphEncoder from '../glyph/ttf-glyph-encoder.js';
-import Directory from '../tables/directory.js';
+import Directory, { type SFNTDirectoryEntry } from '../tables/directory.js';
+import type { hmtxTable } from '../tables/hmtx.js';
 import Tables from '../tables/index.js';
-import Subset from './Subset.js';
+import type { TrueTypeFont } from '../true-type-font.js';
+import Subset from './subset.js';
+
+type Glyf = Uint8Array[];
+type Loca = {
+	version?: number;
+	offsets: number[];
+};
+type Hmtx = {
+	metrics: hmtxTable.Entry[];
+	bearings: number[];
+};
 
 export default class TTFSubset extends Subset {
-	constructor(font) {
+	private readonly glyphEncoder: TTFGlyphEncoder;
+	private offset?: number;
+	private glyf?: Glyf;
+	private loca?: Loca;
+	private hmtx?: Hmtx;
+
+	constructor(font: TrueTypeFont) {
 		super(font);
 		this.glyphEncoder = new TTFGlyphEncoder();
 	}
 
-	_addGlyph(gid) {
-		const glyph = this.font.getGlyph(gid);
+	private addGlyph(gid: number): number {
+		const glyph = this.getGlyph(gid);
 		const glyf = glyph.decode();
 
-		// get the offset to the glyph from the loca table
+		// Get the offset to the glyph from the loca table.
 		const curOffset = this.font.loca.offsets[gid];
 		const nextOffset = this.font.loca.offsets[gid + 1];
 
 		const stream = this.font.getGlyfTableStream();
+		if (!stream) {
+			throw new Error("Cannot get 'glyf' table stream");
+		}
 		stream.pos += curOffset;
 
 		let buffer = stream.readBuffer(nextOffset - curOffset);
 
 		// if it is a compound glyph, include its components
 		if (glyf && glyf.numberOfContours < 0) {
-			buffer = Buffer.from(buffer);
-			for (const component of glyf.components) {
+			buffer = new Uint8Array(buffer);
+			const view = new DataView(
+				buffer.buffer,
+				buffer.byteOffset,
+				buffer.byteLength,
+			);
+
+			for (const component of glyf.components || []) {
 				gid = this.includeGlyph(component.glyphID);
-				buffer.writeUInt16BE(gid, component.pos);
+				view.setUint16(component.pos, gid, false);
 			}
 		} else if (glyf && this.font.variationProcessor) {
 			// If this is a TrueType variation glyph, re-encode the path
-			buffer = this.glyphEncoder.encodeSimple(glyph.path, glyf.instructions);
+			buffer = this.glyphEncoder.encodeSimple(
+				glyph.path as Path,
+				glyf.instructions,
+			);
 		}
 
-		this.glyf.push(buffer);
-		this.loca.offsets.push(this.offset);
+		this.glyf!.push(buffer);
+		this.loca!.offsets.push(this.offset!);
 
-		this.hmtx.metrics.push({
+		this.hmtx!.metrics.push({
 			advance: glyph.advanceWidth,
 			bearing: glyph.getMetrics().leftBearing,
 		});
 
-		this.offset += buffer.length;
-		return this.glyf.length - 1;
+		this.offset! += buffer.length;
+
+		return this.glyf!.length - 1;
 	}
 
-	encode(stream) {
+	encode(stream: EncodeStream) {
 		// tables required by PDF spec:
 		//   head, hhea, loca, maxp, cvt , prep, glyf, hmtx, fpgm
 		//
@@ -70,19 +103,23 @@ export default class TTFSubset extends Subset {
 		// glyphs to the array as we go, and CoffeeScript caches the length.
 		let i = 0;
 		while (i < this.glyphs.length) {
-			this._addGlyph(this.glyphs[i++]);
+			this.addGlyph(this.glyphs[i++]);
 		}
 
-		const maxp = cloneDeep(this.font.maxp);
+		const maxp = structuredClone(this.font.maxp);
 		maxp.numGlyphs = this.glyf.length;
 
 		this.loca.offsets.push(this.offset);
-		Tables.loca.preEncode.call(this.loca);
+		(Tables.loca.preEncode as () => void).call(this.loca);
 
-		const head = cloneDeep(this.font.head);
-		head.indexToLocFormat = this.loca.version;
+		const head = structuredClone(this.font.head) as typeof this.font.head & {
+			indexToLocFormat: number;
+		};
+		head.indexToLocFormat = this.loca.version!;
 
-		const hhea = cloneDeep(this.font.hhea);
+		const hhea = structuredClone(this.font.hhea) as typeof this.font.hhea & {
+			numberOfMetrics: number;
+		};
 		hhea.numberOfMetrics = this.hmtx.metrics.length;
 
 		// map = []
@@ -124,7 +161,19 @@ export default class TTFSubset extends Subset {
 				// 'OS/2': clone @font['OS/2']
 				// post: clone @font.post
 				// cmap: cmap
-			},
+			} as Record<string, SFNTDirectoryEntry | Record<string, any>>,
 		});
+	}
+
+	private getGlyph(gid: number): TTFGlyph {
+		const glyph = this.font.getGlyph(gid);
+
+		if (!(glyph instanceof TTFGlyph)) {
+			throw new Error(
+				'TrueType font subset cannot contain glyphs that are not TrueType glyphs',
+			);
+		}
+
+		return glyph;
 	}
 }
