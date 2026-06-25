@@ -159,7 +159,7 @@ export namespace AAT {
 		nClasses: number;
 		classTable: Omit<LookupTableV8<number>, 'count'>;
 		stateArray: UnboundedArrayAccessor<FieldT<number[][]>>;
-		entryTable: UnboundedArrayAccessor<FieldT<StateEntry1<TEntry>[]>>;
+		entryTable: UnboundedArrayAccessor<FieldT<StateEntry1<TEntry>>>;
 	}
 
 	export type StateTable = StructT<Record<string, unknown>, AAT.StateHeader>;
