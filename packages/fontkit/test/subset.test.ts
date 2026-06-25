@@ -3,10 +3,11 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import r from '@pdf-lib/restructure';
 import { describe, expect, it } from 'vitest';
+import type { SubsetStream } from '../fontkit.js';
 import CFFFont from '../src/cff/cff-font.js';
 import type { Font } from '../src/font.js';
 import CFFGlyph from '../src/glyph/cff-glyph.js';
-import type { Subset, SubsetStream } from '../src/subset/Subset.js';
+import type Subset from '../src/subset/subset.js';
 import fontkit from './helpers.js';
 
 const datadir = path.resolve(import.meta.dirname, './data');

@@ -37,9 +37,10 @@ declare module '@pdf-lib/restructure' {
 		buffer: Uint8Array;
 		pos: number;
 
-		constructor(buffer: number);
+		constructor(buffer?: number);
 
 		fill(val: number, length: number): void;
+		end(): void;
 
 		writeUInt8(val: number): void;
 		writeInt16(val: number): void;
