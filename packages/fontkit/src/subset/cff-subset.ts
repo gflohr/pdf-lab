@@ -1,9 +1,20 @@
+import type { EncodeStream } from '@pdf-lib/restructure';
+import type CFFDict from '../cff/cff-dict.js';
+import type CFFFont from '../cff/cff-font.js';
+import type { CFFIndexRecord } from '../cff/cff-index.js';
 import standardStrings from '../cff/cff-standard-strings.js';
-import CFFTop from '../cff/cff-top.js';
+import CFFTop, { type CFFTopData } from '../cff/cff-top.js';
+import CFFGlyph from '../glyph/cff-glyph.js';
+import type { SFNTFont } from '../sfnt-font.js';
 import Subset from './subset.js';
 
 export default class CFFSubset extends Subset {
-	constructor(font) {
+	private readonly cff: CFFFont;
+	private charstrings: Uint8Array[] = [];
+	private gsubrs?: Uint8Array[];
+	private strings?: string[];
+
+	constructor(protected font: SFNTFont) {
 		super(font);
 
 		this.cff = this.font['CFF '];
@@ -12,17 +23,20 @@ export default class CFFSubset extends Subset {
 		}
 	}
 
-	subsetCharstrings() {
+	private subsetCharstrings(): void {
 		this.charstrings = [];
-		const gsubrs = {};
+		const gsubrs: Record<number, boolean> = {};
 
 		for (const gid of this.glyphs) {
 			this.charstrings.push(this.cff.getCharString(gid));
 
-			const glyph = this.font.getGlyph(gid);
+			const glyph = this.getGlyph(gid);
+
 			// FIXME! The getter must have a side-effect.
 			glyph.path; // this causes the glyph to be parsed
 
+			// FIXME! Actually, subr is a number. But converting it to a
+			// number breaks things.
 			for (const subr in glyph.usedGsubrs) {
 				gsubrs[subr] = true;
 			}
@@ -31,8 +45,8 @@ export default class CFFSubset extends Subset {
 		this.gsubrs = this.subsetSubrs(this.cff.globalSubrIndex, gsubrs);
 	}
 
-	subsetSubrs(subrs, used) {
-		const res = [];
+	private subsetSubrs(subrs: CFFIndexRecord[], used: Record<number, boolean>): Uint8Array[] {
+		const res: Uint8Array[] = [];
 		for (let i = 0; i < subrs.length; i++) {
 			const subr = subrs[i];
 			if (used[i]) {
@@ -46,15 +60,19 @@ export default class CFFSubset extends Subset {
 		return res;
 	}
 
-	subsetFontdict(topDict) {
-		topDict.FDArray = [];
-		topDict.FDSelect = {
-			version: 0,
-			fds: [],
-		};
+	private subsetFontdict(topDict: CFFDict) {
+		const fdArray: Record<string, unknown>[] = [];
+		topDict.FDArray = fdArray;
 
-		const fdMap = {};
-		const used_subrs = [];
+		const fds: number[] = [];
+		const fdSelect = {
+			version: 0,
+			fds,
+		};
+		topDict.FDSelect = fdSelect;
+
+		const fdMap: Record<number, number> = {};
+		const used_subrs: Record<number, boolean>[] = [];
 		for (const gid of this.glyphs) {
 			const fd = this.cff.fdForGlyph(gid);
 			if (fd == null) {
@@ -62,15 +80,15 @@ export default class CFFSubset extends Subset {
 			}
 
 			if (fdMap[fd] == null) {
-				topDict.FDArray.push(Object.assign({}, this.cff.topDict.FDArray[fd]));
+				fdArray.push(Object.assign({}, this.cff.topDict.FDArray[fd]));
 				used_subrs.push({});
-				fdMap[fd] = topDict.FDArray.length - 1;
+				fdMap[fd] = fdArray.length - 1;
 			}
 
 			const subsetFdIndex = fdMap[fd];
-			topDict.FDSelect.fds.push(subsetFdIndex);
+			fdSelect.fds.push(subsetFdIndex);
 
-			const glyph = this.font.getGlyph(gid);
+			const glyph = this.getGlyph(gid);
 
 			glyph.path; // this causes the glyph to be parsed
 			for (const subr in glyph.usedSubrs) {
@@ -78,13 +96,16 @@ export default class CFFSubset extends Subset {
 			}
 		}
 
-		for (let i = 0; i < topDict.FDArray.length; i++) {
-			const dict = topDict.FDArray[i];
+		for (let i = 0; i < fdArray.length; i++) {
+			const dict = fdArray[i] as {
+				FontName: unknown;
+				Private?: Record<string, CFFIndexRecord[] | Uint8Array[]>,
+			};
 			delete dict.FontName;
 			if (dict.Private?.Subrs) {
 				dict.Private = Object.assign({}, dict.Private);
 				dict.Private.Subrs = this.subsetSubrs(
-					dict.Private.Subrs,
+					dict.Private.Subrs as CFFIndexRecord[],
 					used_subrs[i],
 				);
 			}
@@ -93,10 +114,10 @@ export default class CFFSubset extends Subset {
 		return;
 	}
 
-	createCIDFontdict(topDict) {
-		const used_subrs = {};
+	private createCIDFontdict(topDict: CFFDict) {
+		const used_subrs: Record<string, boolean> = {};
 		for (const gid of this.glyphs) {
-			const glyph = this.font.getGlyph(gid);
+			const glyph = this.getGlyph(gid);
 
 			// FIXME! The getter must have a side-effect.
 			glyph.path; // this causes the glyph to be parsed
@@ -125,8 +146,8 @@ export default class CFFSubset extends Subset {
 		return topDict.FDSelect;
 	}
 
-	addString(string) {
-		if (!string) {
+	private addString(str: string | null) {
+		if (!str) {
 			return null;
 		}
 
@@ -134,11 +155,12 @@ export default class CFFSubset extends Subset {
 			this.strings = [];
 		}
 
-		this.strings.push(string);
+		this.strings.push(str);
+
 		return standardStrings.length + this.strings.length - 1;
 	}
 
-	encode(stream) {
+	encode(stream: EncodeStream) {
 		this.subsetCharstrings();
 
 		const charset = {
@@ -146,7 +168,7 @@ export default class CFFSubset extends Subset {
 			ranges: [{ first: 1, nLeft: this.charstrings.length - 2 }],
 		};
 
-		const topDict = Object.assign({}, this.cff.topDict);
+		const topDict = Object.assign({}, this.cff.topDict) as CFFDict;
 		topDict.Private = null;
 		topDict.charset = charset;
 		topDict.Encoding = null;
@@ -163,7 +185,7 @@ export default class CFFSubset extends Subset {
 			'BaseFontName',
 			'FontName',
 		]) {
-			topDict[key] = this.addString(this.cff.string(topDict[key]));
+			topDict[key] = this.addString(this.cff.string(topDict[key] as number | null));
 		}
 
 		topDict.ROS = [this.addString('Adobe'), this.addString('Identity'), 0];
@@ -184,8 +206,18 @@ export default class CFFSubset extends Subset {
 			topDictIndex: [topDict],
 			stringIndex: this.strings,
 			globalSubrIndex: this.gsubrs,
-		};
+		} as unknown as CFFTopData;
 
 		CFFTop.encode(stream, top);
+	}
+
+	private getGlyph(gid: number): CFFGlyph {
+		const glyph = this.font.getGlyph(gid);
+
+		if (!(glyph instanceof CFFGlyph)) {
+			throw new Error('CFF subset cannot contain glyphs that are not CFF glyphs');
+		}
+
+		return glyph;
 	}
 }

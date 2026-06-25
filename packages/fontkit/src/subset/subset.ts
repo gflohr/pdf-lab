@@ -3,10 +3,10 @@ import type Glyph from '../glyph/glyph';
 import type { SFNTFont } from '../sfnt-font';
 
 export default abstract class Subset {
-	private readonly glyphs: number[];
+	protected readonly glyphs: number[];
 	private readonly mapping: Record<number, number>;
 
-	constructor(private readonly font: SFNTFont) {
+	constructor(protected readonly font: SFNTFont) {
 		this.font = font;
 		this.glyphs = [];
 		this.mapping = {};
