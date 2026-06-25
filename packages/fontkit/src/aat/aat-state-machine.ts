@@ -19,7 +19,7 @@ type ProcessEntry = (
 interface TraverseOpts {
 	enter: (glyph: number, entry: AAT.StateEntry<Record<string, any>>) => void;
 	exit: (glyph: number, entry: AAT.StateEntry<Record<string, any>>) => void;
-};
+}
 export default class AATStateMachine {
 	private readonly lookupTable: AATLookupTable<number>;
 

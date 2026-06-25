@@ -45,6 +45,7 @@ Use `type`:
   * Template literal types.
   * Conditional types using `infer`.
 * When extension via declaration merging must be explicitly prevented.
+* When the type is an array.
 * For standalone function types (e.g., callbacks or event handlers). Rationale: Explicit type aliases are cleaner and more readable than anonymous interface signatures.
 * For native arrays or standard utility mappings like `Record<K, T>` or `Partial<T>`. Rationale: Wrapping these constructs in an interface introduces unnecessary boilerplates and syntax friction.
 

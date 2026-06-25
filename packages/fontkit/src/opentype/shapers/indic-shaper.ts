@@ -54,9 +54,9 @@ const { decompositions } = useData;
 const trie = new UnicodeTrie(trieData);
 const stateMachine = new StateMachine(indicMachine);
 
-type IndicGlyphInfo = GlyphInfo<IndicInfo> & {
+interface IndicGlyphInfo extends GlyphInfo<IndicInfo> {
 	shaperInfo: IndicInfo;
-};
+}
 
 // FIXME! Fix the explicit any occurrencies!
 

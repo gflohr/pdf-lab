@@ -37,7 +37,7 @@ const MARKED_INSERT_COUNT = 0x001f;
 interface MorxProcessorSnapshot {
 	glyphs: Glyph[];
 	ligatureStack: number[];
-};
+}
 
 export default class AATMorxProcessor {
 	private readonly aatStateMachineCache: Map<
@@ -415,11 +415,7 @@ export default class AATMorxProcessor {
 				glyphs.push(input[input.length - 1]);
 
 				// Process ligature substitution.
-				process(
-					glyphs[glyphs.length - 1],
-					entry,
-					glyphs.length - 1,
-				);
+				process(glyphs[glyphs.length - 1], entry, glyphs.length - 1);
 
 				// Add input to result if only one matching (non-deleted) glyph remains.
 				let count = 0;

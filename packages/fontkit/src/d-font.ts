@@ -142,7 +142,9 @@ export default class DFont {
 	}
 
 	get fonts(): SFNTFont[] {
-		return this.sfnt ? this.sfnt.refList.map((ref) => this.decodeFont(ref)) : [];
+		return this.sfnt
+			? this.sfnt.refList.map((ref) => this.decodeFont(ref))
+			: [];
 	}
 
 	private decodeFont(ref: Ref): TrueTypeFont {
