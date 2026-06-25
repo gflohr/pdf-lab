@@ -418,7 +418,7 @@ export default class AATMorxProcessor {
 
 				// Process ligature substitution.
 				process(
-					glyphs[glyphs.length - 1] as Glyph & morxTable.Subtable,
+					glyphs[glyphs.length - 1],
 					entry,
 					glyphs.length - 1,
 				);
