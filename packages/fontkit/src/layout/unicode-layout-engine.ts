@@ -1,9 +1,9 @@
 import unicode, {
 	type UnicodeCombiningClassName,
 } from '@pdf-lib/unicode-properties';
-import type Glyph from '../glyph/glyph';
-import type { SFNTFont } from '../sfnt-font';
-import type GlyphPosition from './glyph-position';
+import type Glyph from '../glyph/glyph.js';
+import type { SFNTFont } from '../sfnt-font.js';
+import type GlyphPosition from './glyph-position.js';
 
 /**
  * This class is used when GPOS does not define 'mark' or 'mkmk' features
