@@ -1,4 +1,4 @@
-import r, { type FieldT, type StructT } from '@pdf-lib/restructure';
+import r, { EncodeStream, type FieldT, type StructT } from '@pdf-lib/restructure';
 import Tables from './index.js';
 import type { VORGTable } from './VORG.js';
 
@@ -142,4 +142,10 @@ directory.preEncode = function (this: DirectoryContext): void {
 	this.rangeShift = this.numTables * 16 - this.searchRange;
 };
 
-export default directory;
+export type SFNTDirectoryEncodeInput = {
+	tables: Record<string, unknown>;
+}
+
+export default directory as Omit<typeof directory, 'encode'> & {
+	encode(stream: EncodeStream, value: SFNTDirectoryEncodeInput): void;
+};

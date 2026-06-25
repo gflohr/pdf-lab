@@ -24,7 +24,7 @@ import LayoutEngine from './layout/layout-engine.js';
 import type * as Script from './layout/script.js';
 import CFFSubset from './subset/cff-subset.js';
 import type Subset from './subset/subset.js';
-import TTFSubset from './subset/TTFSubset.js';
+import TTFSubset from './subset/ttf-subset.js';
 import type { AAT } from './tables/aat.js';
 import type {
 	FilteredTableMap,

@@ -165,7 +165,7 @@ export default class TTFGlyph extends Glyph {
 
 	// Decodes the glyph data into points for simple glyphs,
 	// or components for composite glyphs
-	protected decode(): DecodedGlyph | null {
+	public decode(): DecodedGlyph | null {
 		const glyphPos = this._font.loca.offsets[this.id];
 		const nextPos = this._font.loca.offsets[this.id + 1];
 
