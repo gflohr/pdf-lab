@@ -54,9 +54,9 @@ const { decompositions } = useData;
 const trie = new UnicodeTrie(trieData);
 const stateMachine = new StateMachine(indicMachine);
 
-type IndicGlyphInfo = GlyphInfo<IndicInfo> & {
+interface IndicGlyphInfo extends GlyphInfo<IndicInfo> {
 	shaperInfo: IndicInfo;
-};
+}
 
 // FIXME! Fix the explicit any occurrencies!
 
@@ -220,7 +220,7 @@ function wouldSubstitute(
 		glyph.features = { [feature]: true };
 	}
 
-	const GSUB = (glyphs[0]._font._layoutEngine as any).engine.GSUBProcessor;
+	const GSUB = (glyphs[0]._font.layoutEngine as any).engine.GSUBProcessor;
 	GSUB.applyFeatures([feature], glyphs);
 
 	return glyphs.length === 1;
@@ -258,7 +258,7 @@ function initialReordering(
 	plan: ShapingPlan<IndicInfo>,
 ) {
 	const indicConfig = plan.indicConfig!;
-	const features = (font._layoutEngine.engine as any).GSUBProcessor.features;
+	const features = (font.layoutEngine.engine as any).GSUBProcessor.features;
 
 	const dottedCircle = font.glyphForCodePoint(0x25cc).id;
 	const virama = font.glyphForCodePoint(indicConfig!.virama).id;
@@ -721,7 +721,7 @@ function finalReordering(
 	plan: ShapingPlan<IndicInfo>,
 ) {
 	const indicConfig = plan.indicConfig!;
-	const features = (font._layoutEngine.engine as any).GSUBProcessor.features;
+	const features = (font.layoutEngine.engine as any).GSUBProcessor.features;
 
 	for (
 		let start = 0, end = nextSyllable(glyphs, 0);

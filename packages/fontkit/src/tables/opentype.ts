@@ -8,7 +8,7 @@ export namespace OpenType {
 	 * A map of OpenType features as described in OpenType's spec:
 	 * https://docs.microsoft.com/en-gb/typography/opentype/spec/featurelist.
 	 */
-	export type Features = {
+	export interface Features {
 		aalt?: boolean;
 		abvf?: boolean;
 		abvm?: boolean;
@@ -238,7 +238,7 @@ export namespace OpenType {
 		vrt2?: boolean;
 		vrtr?: boolean;
 		zero?: boolean;
-	};
+	}
 
 	export type FeatureTag = keyof Features;
 

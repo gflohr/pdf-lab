@@ -125,7 +125,7 @@ export interface Font {
 	/**
 	 * Horizontal header metrics (hhea table).
 	 */
-	hhea: hheaTable.hhea;
+	//hhea: hheaTable.hhea;
 
 	/**
 	 * Variable font axes (if present in the font).
@@ -151,41 +151,8 @@ export interface Font {
 	 */
 	stringsForGlyph(id: number): string[];
 
-	// FIXME! Change to something like hasTable(name: string) and
-	// const table = font.getTable<headTable>('head').
-
 	/**
-	 * The font's `CFF ` table.
+	 * An alias for the font's `CFF ` table.
 	 */
-	cff: CFFFont | null;
-
-	/**
-	 * The font's 'OS/2' table.
-	 */
-	'OS/2': OS2Table.OS2;
-
-	/**
-	 * The font's `head` table.
-	 */
-	head: headTable.head;
-
-	/**
-	 * The font's `hmtx` table.
-	 */
-	hmtx: hmtxTable.hmtx;
-
-	/**
-	 * The font's `HVAR` table.
-	 */
-	HVAR: HVARTable.HVAR;
-
-	/**
-	 * The font's `post` table.
-	 */
-	post: postTable.post;
-
-	/**
-	 * The font's `vmtx` table.
-	 */
-	vmtx: vmtxTable.vmtx;
+	cff?: CFFFont | null;
 }

@@ -1,9 +1,7 @@
 import type Glyph from '../glyph/glyph.js';
 import type { SFNTFont } from '../sfnt-font.js';
 import type { AAT } from '../tables/aat.js';
-import feat from '../tables/feat.js';
 import type { morxTable } from '../tables/morx.js';
-import { OpenType } from '../tables/opentype.js';
 import AATLookupTable from './aat-lookup-table.js';
 import AATStateMachine from './aat-state-machine.js';
 
@@ -36,10 +34,10 @@ const MARKED_INSERT_BEFORE = 0x0400;
 const CURRENT_INSERT_COUNT = 0x03e0;
 const MARKED_INSERT_COUNT = 0x001f;
 
-type MorxProcessorSnapshot = {
+interface MorxProcessorSnapshot {
 	glyphs: Glyph[];
 	ligatureStack: number[];
-};
+}
 
 export default class AATMorxProcessor {
 	private readonly aatStateMachineCache: Map<
@@ -417,11 +415,7 @@ export default class AATMorxProcessor {
 				glyphs.push(input[input.length - 1]);
 
 				// Process ligature substitution.
-				process(
-					glyphs[glyphs.length - 1],
-					entry,
-					glyphs.length - 1,
-				);
+				process(glyphs[glyphs.length - 1], entry, glyphs.length - 1);
 
 				// Add input to result if only one matching (non-deleted) glyph remains.
 				let count = 0;

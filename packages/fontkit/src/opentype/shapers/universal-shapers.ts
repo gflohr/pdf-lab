@@ -46,9 +46,9 @@ export class USEInfo {
 	) {}
 }
 
-type UniversalGlyphInfo = GlyphInfo<USEInfo> & {
+interface UniversalGlyphInfo extends GlyphInfo<USEInfo> {
 	shaperInfo: USEInfo;
-};
+}
 
 /**
  * This shaper is an implementation of the Universal Shaping Engine, which

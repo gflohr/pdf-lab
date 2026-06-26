@@ -43,9 +43,9 @@ export namespace justTable {
 	}
 
 	/** Stretch glyph action (no data, not supported by CoreText). */
-	export type ActionDataV3 = {
+	export interface ActionDataV3 {
 		version: 3;
-	};
+	}
 
 	/** Ductile glyph action (not supported by CoreText). */
 	export interface ActionDataV4 {
