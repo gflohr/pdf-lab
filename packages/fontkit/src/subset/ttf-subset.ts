@@ -12,11 +12,11 @@ type Glyf = Uint8Array[];
 interface Loca {
 	version?: number;
 	offsets: number[];
-};
+}
 interface Hmtx {
 	metrics: hmtxTable.Entry[];
 	bearings: number[];
-};
+}
 
 export default class TTFSubset extends Subset {
 	private readonly glyphEncoder: TTFGlyphEncoder;

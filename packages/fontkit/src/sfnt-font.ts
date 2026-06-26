@@ -19,6 +19,7 @@ import type Glyph from './glyph/glyph.js';
 import GlyphVariationProcessor from './glyph/glyph-variation-processor.js';
 import SBIXGlyph from './glyph/sbix-glyph.js';
 import TTFGlyph from './glyph/ttf-glyph.js';
+import type GlyphRun from './layout/glyph-run.js';
 import type { BidiDirection } from './layout/glyph-run.js';
 import LayoutEngine from './layout/layout-engine.js';
 import type * as Script from './layout/script.js';
@@ -26,10 +27,7 @@ import CFFSubset from './subset/cff-subset.js';
 import type Subset from './subset/subset.js';
 import TTFSubset from './subset/ttf-subset.js';
 import type { AAT } from './tables/aat.js';
-import type {
-	SFNTDirectoryEntry,
-	SFNTTableMap,
-} from './tables/directory.js';
+import type { SFNTDirectoryEntry, SFNTTableMap } from './tables/directory.js';
 import Directory from './tables/directory.js';
 import tables from './tables/index.js';
 import type { nameTable } from './tables/name.js';
@@ -54,7 +52,45 @@ export interface BaseFontDirectory {
 	tables: Record<string, any>;
 }
 
-export type FontTableFields = SFNTTableMap;
+/**
+ * The names of the 8 baseline tables strictly required for an OpenType
+ * font program file to be considered valid according to the structural
+ * specification.
+ */
+export const coreTableKeys = [
+	'cmap',
+	'head',
+	'hhea',
+	'hmtx',
+	'maxp',
+	'name',
+	'OS/2',
+	'post',
+] as const;
+
+/**
+ * The literał union type representing the names of the core required OpenType
+ * tables.
+ */
+export type CoreTableKey = (typeof coreTableKeys)[number];
+
+/**
+ * Internal map of core tables enforced as non-optional.
+ */
+export type CoreTables = Required<Pick<SFNTTableMap, CoreTableKey>>;
+
+/**
+ * An object map representing optional extension tables (like GSUB, GPOS, or
+ * VORG).
+ */
+export type ExtensionTables = Omit<SFNTTableMap, CoreTableKey>;
+
+/**
+ * Supported SFNT Binary Tables.
+ * This handles merging the strict, guaranteed core tables together with the
+ * optional peripheral layout and font mapping registries.
+ */
+export type FontTableFields = CoreTables & ExtensionTables;
 
 export interface SFNTFont<
 	TDirectory extends BaseFontDirectory = BaseFontDirectory,
@@ -113,7 +149,7 @@ export class SFNTFont<
 		this.glyphs = {};
 		this.directory = this.decodeDirectory();
 
-		// define properties for each table to lazily parse
+		// define properties for each table to lazily parse.
 		for (const tag in this.directory.tables) {
 			const entry = this.directory.tables[tag];
 			if (entry && tables[tag as keyof typeof tables] && entry.length > 0) {
@@ -209,7 +245,7 @@ export class SFNTFont<
 	 * The unique PostScript name for this font.
 	 * @returns the PostScript name or `null` if not present.
 	 */
-	get postscriptName() {
+	get postscriptName(): string | null {
 		const name = this.name.records.postscriptName;
 		if (name) {
 			const lang = Object.keys(name)[0];
@@ -224,7 +260,10 @@ export class SFNTFont<
 	 * `lang` is a BCP-47 language code.
 	 * @returns the table entry or `null` if not present.
 	 */
-	getName(key: keyof nameTable.ProcessedRecords, lang = 'en'): string | null {
+	protected getName(
+		key: keyof nameTable.ProcessedRecords,
+		lang = 'en',
+	): string | null {
 		const record = this.name.records[key];
 		if (record) {
 			return (record as Record<string, string>)[lang];
@@ -515,7 +554,7 @@ export class SFNTFont<
 		script?: string,
 		language?: string,
 		direction?: BidiDirection,
-	) {
+	): GlyphRun {
 		return this.layoutEngine.layout(
 			str,
 			userFeatures ?? [],
