@@ -90,6 +90,11 @@ export interface OpenTypePostScriptFont
 		StrictTables<RequiredOpenTypePostScriptTableTag> {
 	/** Discriminator for the different outline types. */
 	readonly outlines: 'PostScript';
+
+	/**
+	 * Alias for the structural {@link OpenTypePostScriptFont#CFF } table.
+	 */
+	readonly cff: NonNullable<SFNTTableMap['CFF ']>;
 }
 
 /**

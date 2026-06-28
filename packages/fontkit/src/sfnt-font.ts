@@ -186,7 +186,7 @@ export class SFNTFont<TDirectory extends BaseFontDirectory = BaseFontDirectory>
 	/**
 	 * Alias for the table 'CFF ';
 	 */
-	public get cff(): CFFFont {
+	public get cff(): CFFFont | null {
 		return this['CFF '];
 	}
 
