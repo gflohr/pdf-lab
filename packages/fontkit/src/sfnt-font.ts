@@ -199,7 +199,7 @@ export class SFNTFont<TDirectory extends BaseFontDirectory = BaseFontDirectory>
 
 		const tables = this.tables as Record<
 			keyof SFNTTableMap,
-			SFNTTableMap[K] | null
+			SFNTTableMap[keyof SFNTTableMap] | null
 		>;
 		const tag = table.tag as keyof SFNTTableMap;
 		if (!(tag in tables)) {
@@ -224,7 +224,9 @@ export class SFNTFont<TDirectory extends BaseFontDirectory = BaseFontDirectory>
 			}
 		}
 
-		return tables[tag];
+		if (!tables[tag]) return null;
+
+		return tables[tag] as SFNTTableMap[K];
 	}
 
 	protected getTableStream(tag: string): DecodeStream | null {
@@ -719,8 +721,7 @@ export class SFNTFont<TDirectory extends BaseFontDirectory = BaseFontDirectory>
 		return new TTFSubset(this);
 	}
 
-	private;
-	computeVariationAxes() {
+	private computeVariationAxes() {
 		const res: VariationAxes = {};
 		if (!this.fvar) {
 			return res;
