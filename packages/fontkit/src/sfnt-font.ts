@@ -1,6 +1,7 @@
 import type { DecodeStream, FieldT } from '@pdf-lib/restructure';
 import r from '@pdf-lib/restructure';
 import fontkit from './base.js';
+import type CFFFont from './cff/cff-font.js';
 import CmapProcessor from './cmap-processor.js';
 import { FatalFontError } from './fatal-font-error.js';
 import type {
@@ -23,6 +24,13 @@ import type GlyphRun from './layout/glyph-run.js';
 import type { BidiDirection } from './layout/glyph-run.js';
 import LayoutEngine from './layout/layout-engine.js';
 import type * as Script from './layout/script.js';
+import type { BaseFontDirectory, NullFont } from './null-font.js';
+import type { OpenTypeFont } from './open-type-font.js';
+import {
+	requiredOpenTypePostScriptTables,
+	requiredOpenTypeTables,
+	requiredOpenTypeTrueTypeTables,
+} from './open-type-font.js';
 import CFFSubset from './subset/cff-subset.js';
 import type Subset from './subset/subset.js';
 import TTFSubset from './subset/ttf-subset.js';
@@ -41,15 +49,6 @@ export interface FontAxis {
 	minValue: number;
 	defaultValue: number;
 	maxValue: number;
-}
-
-/**
- * A universal base interface for any font directory (SFNT, WOFF, WOFF2).
- */
-export interface BaseFontDirectory {
-	tag: string;
-	numTables: number;
-	tables: Record<string, any>;
 }
 
 /**
@@ -90,12 +89,12 @@ export type ExtensionTables = Omit<SFNTTableMap, CoreTableKey>;
  * This handles merging the strict, guaranteed core tables together with the
  * optional peripheral layout and font mapping registries.
  */
-export type FontTableFields = CoreTables & ExtensionTables;
+export type FontTableField = CoreTables & ExtensionTables;
 
 export interface SFNTFont<
 	TDirectory extends BaseFontDirectory = BaseFontDirectory,
 > extends Font,
-		FontTableFields {
+		FontTableField {
 	directory: TDirectory;
 }
 
@@ -104,15 +103,16 @@ export interface SFNTFont<
  * It supports TrueType, and PostScript glyphs, and several color glyph formats.
  */
 // biome-ignore lint/suspicious/noUnsafeDeclarationMerging: Merged with FontTableFields to map table layout properties dynamically via the constructor loop.
-export class SFNTFont<
-	TDirectory extends BaseFontDirectory = BaseFontDirectory,
-> {
+export class SFNTFont<TDirectory extends BaseFontDirectory = BaseFontDirectory>
+	implements NullFont
+{
 	public stream: DecodeStream;
 	private variationCoords: number[] | null;
 	private directoryPos: number;
 	private tables: SFNTTableMap = {} as SFNTTableMap;
 	protected glyphs: Record<number, Glyph> = {};
 	public directory: TDirectory;
+	private existingTableTags = new Set<string>();
 
 	// Those variables are lazily instantiated by their respctive getters, and
 	// then frozen.
@@ -124,8 +124,7 @@ export class SFNTFont<
 	private _namedVariations!: NamedVariations;
 	private _variationProcessor!: GlyphVariationProcessor | null;
 
-	// Explicitly declare the custom alias property.
-	public cff!: SFNTTableMap['CFF '];
+	public outlines = '';
 
 	// Infers all other table properties (cmap, head, OS/2, etc.) via the
 	// interface heritage.
@@ -149,53 +148,83 @@ export class SFNTFont<
 		this.glyphs = {};
 		this.directory = this.decodeDirectory();
 
-		// define properties for each table to lazily parse.
-		for (const tag in this.directory.tables) {
+		// Define properties for each table to lazily parse.
+		for (const tag in tables) {
+			Object.defineProperty(this, tag, {
+				get: () => this.getTable(entry),
+			});
+
 			const entry = this.directory.tables[tag];
 			if (entry && tables[tag as keyof typeof tables] && entry.length > 0) {
-				Object.defineProperty(this, tag, {
-					get: () => this.getTable(entry),
-				});
-			}
-
-			// Clean fallback mapping: if the tag is 'CFF ', mirror it to 'cff'.
-			if (tag === 'CFF ') {
-				Object.defineProperty(this, 'cff', {
-					get: () => this.getTable(entry),
-					configurable: true,
-					enumerable: true,
-				});
+				this.existingTableTags.add(tag);
 			}
 		}
+
+		if (
+			requiredOpenTypeTables.every((tag) => this.existingTableTags.has(tag))
+		) {
+			if (
+				requiredOpenTypeTrueTypeTables.every((tag) =>
+					this.existingTableTags.has(tag),
+				)
+			) {
+				this.outlines = 'TrueType';
+			} else if (
+				requiredOpenTypePostScriptTables.every((tag) =>
+					this.existingTableTags.has(tag),
+				)
+			) {
+				this.outlines = 'PostScript';
+			} else {
+				this.outlines = 'none';
+			}
+		} else {
+			this.outlines = '';
+		}
+	}
+
+	/**
+	 * Alias for the table 'CFF ';
+	 */
+	public get cff(): CFFFont {
+		return this['CFF '];
 	}
 
 	private getTable<K extends keyof SFNTTableMap>(
 		table: SFNTDirectoryEntry,
 	): SFNTTableMap[K] | null {
+		if (!table) {
+			return null;
+		}
+
+		const tables = this.tables as Record<
+			keyof SFNTTableMap,
+			SFNTTableMap[K] | null
+		>;
 		const tag = table.tag as keyof SFNTTableMap;
-		const tables = this.tables as Record<keyof SFNTTableMap, unknown>;
 		if (!(tag in tables)) {
 			try {
 				tables[tag] = this.decodeTable(table);
 			} catch (e) {
-				if (e instanceof FatalFontError) {
-					throw e;
-				}
-
 				// Avoid retrying the failed decode attempt.
 				tables[tag] = null;
+
 				if (fontkit.logErrors) {
-					console.error(`Error decoding table ${table.tag}`);
+					console.error(`Error decoding table ${table.tag}: ${e}`);
 					if (e instanceof Error) {
 						console.error(e.stack);
 					} else {
 						console.error(e);
 					}
 				}
+
+				if (e instanceof FatalFontError) {
+					throw e;
+				}
 			}
 		}
 
-		return tables[tag] as SFNTTableMap[K] | null;
+		return tables[tag];
 	}
 
 	protected getTableStream(tag: string): DecodeStream | null {
@@ -225,20 +254,30 @@ export class SFNTFont<
 		const stream = this.getTableStream(table.tag);
 
 		if (table.tag in tables && stream) {
-			const tag = table.tag as K;
-			const result = tables[tag].decode(
-				stream,
-				this as unknown as FieldT<unknown>,
-				table.length,
-			);
-			this.stream.pos = pos;
+			try {
+				const tag = table.tag as K;
+				const result = tables[tag].decode(
+					stream,
+					this as unknown as FieldT<unknown>,
+					table.length,
+				);
+				this.stream.pos = pos;
 
-			return result as ReturnType<(typeof tables)[K]['decode']>;
+				return result as ReturnType<(typeof tables)[K]['decode']>;
+			} catch (e) {
+				throw new FatalFontError(
+					`Corrupt table '${table.tag}': ${e}`,
+					table.tag,
+				);
+			}
 		}
 
 		this.stream.pos = pos;
 
-		throw new Error(`Unsupported font table tag: ${table.tag}`);
+		throw new FatalFontError(
+			`Unsupported font table tag: ${table.tag}`,
+			table.tag,
+		);
 	}
 
 	/**
@@ -433,9 +472,8 @@ export class SFNTFont<
 	 * @return all unicode code points
 	 */
 	get characterSet(): number[] {
-		if (typeof this._characterSet === 'undefined') {
+		if (typeof this._characterSet === 'undefined')
 			this._characterSet = this.cmapProcessor.getCharacterSet();
-		}
 
 		return this._characterSet;
 	}
@@ -548,7 +586,7 @@ export class SFNTFont<
 	 * @param direction the writing directory for the string
 	 * @returns the rendered string
 	 */
-	layout(
+	public layout(
 		str: string,
 		userFeatures?: OpenType.Features | OpenType.FeatureTag[],
 		script?: string,
@@ -646,7 +684,7 @@ export class SFNTFont<
 	 * @param characters an array of code points this glyph represents
 	 * @returns the corresponding glyph
 	 */
-	getGlyph(glyph: number, characters: readonly number[] = []): Glyph {
+	public getGlyph(glyph: number, characters: readonly number[] = []): Glyph {
 		if (!this.glyphs[glyph]) {
 			// FIXME! Get rid of the casts!
 			if (this.directory.tables.sbix) {
@@ -673,7 +711,7 @@ export class SFNTFont<
 	 * Creates a Subset of this font.
 	 * @returns the empty subset
 	 */
-	createSubset(): Subset {
+	public createSubset(): Subset {
 		if (this.directory.tables['CFF ']) {
 			return new CFFSubset(this);
 		}
@@ -681,7 +719,8 @@ export class SFNTFont<
 		return new TTFSubset(this);
 	}
 
-	private computeVariationAxes() {
+	private;
+	computeVariationAxes() {
 		const res: VariationAxes = {};
 		if (!this.fvar) {
 			return res;
@@ -756,7 +795,7 @@ export class SFNTFont<
 	 * @param settings the instance name or variation settings
 	 * @returns the generated font
 	 */
-	getVariation(settings: string | VariationCoordinates): Font {
+	public getVariation(settings: string | VariationCoordinates): Font {
 		if (
 			!(
 				this.directory.tables.fvar &&
@@ -839,7 +878,47 @@ export class SFNTFont<
 	 * @param name the variation name
 	 * @returns the font
 	 */
-	getFont(name: string): Font {
+	public getFont(name: string): Font {
 		return this.getVariation(name);
+	}
+
+	public hasTable<K extends string = string>(
+		tag: K | keyof SFNTTableMap,
+		decode?: boolean,
+	): boolean {
+		if (!this.existingTableTags.has(tag)) {
+			return false;
+		}
+
+		if (decode) {
+			if (!this.getTable(this.directory.tables[tag])) return false;
+		}
+
+		return true;
+	}
+
+	public asOpenTypeFont(decode = false): OpenTypeFont | null {
+		if (this.outlines === '') return null;
+
+		if (decode) {
+			let tags: string[];
+
+			if (this.outlines === 'TrueType') {
+				tags = [...requiredOpenTypeTrueTypeTables];
+			} else if (this.outlines === 'PostScript') {
+				tags = [...requiredOpenTypePostScriptTables];
+			} else {
+				tags = [...requiredOpenTypeTables];
+			}
+
+			for (let i = 0; i < tags.length; ++i) {
+				const tag = tags[i];
+				if (!this.getTable(this.directory.tables[tag])) {
+					return null;
+				}
+			}
+		}
+
+		return this as OpenTypeFont;
 	}
 }

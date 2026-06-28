@@ -75,6 +75,7 @@ export class WOFF2Font extends SFNTFont<WOFF2Directory> {
 		if (!this.decompressed) {
 			throw new FatalFontError(
 				'Attempt to access uninitialised font table data!',
+				table.tag,
 			);
 		}
 

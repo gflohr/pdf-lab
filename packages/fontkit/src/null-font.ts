@@ -6,6 +6,7 @@ import type GlyphRun from './layout/glyph-run.js';
 import type { BidiDirection } from './layout/glyph-run.js';
 import type LayoutEngine from './layout/layout-engine.js';
 import type * as Script from './layout/script.js';
+import type { OpenTypeFont } from './open-type-font.js';
 import type Subset from './subset/subset.js';
 import type { avarTable } from './tables/avar.js';
 import type { BASETable } from './tables/BASE.js';
@@ -15,6 +16,7 @@ import type { CPALTable } from './tables/CPAL.js';
 import type { cmapTable } from './tables/cmap.js';
 import type { cvtTable } from './tables/cvt.js';
 import type { DSIGTable } from './tables/DSIG.js';
+import type { SFNTTableMap } from './tables/directory.js';
 import type { EBLCTable } from './tables/EBLC.js';
 import type { featTable } from './tables/feat.js';
 import type { fpgmTable } from './tables/fpgm.js';
@@ -66,6 +68,35 @@ export interface BaseFontDirectory {
 export interface NullFont<
 	TDirectory extends BaseFontDirectory = BaseFontDirectory,
 > {
+	/**
+	 * Tests whether a certain table is present in the font file.
+	 *
+	 * If you pass a truthy value, as the second parameter, it is also
+	 * attempted to load the table. Otherwise, the table will still be lazily
+	 * loaded, when it is accessed for the first time.
+	 *
+	 * @param tag the table name like `cmap`, `OS/2`, or `hmtx`
+	 * @param decode specify whether the table should be decoded.
+	 */
+	hasTable<K extends string = string>(
+		tag: K | keyof SFNTTableMap,
+		decode?: boolean,
+	): boolean;
+
+	/**
+	 * Attempts to view this font instance as a strict OpenType font
+	 * layout. Returns null, if a structurally required table is missing.
+	 *
+	 * See {@link OpenTypeFont} for usage instructions!
+	 *
+	 * If the argument `decode` is true, all tables are attempted to be
+	 * decoded. That will throw an exception on failure.
+	 *
+	 * @param decode - also decode tables
+	 * @returns the font with an update
+	 */
+	asOpenTypeFont(decode?: boolean): OpenTypeFont | null;
+
 	/**
 	 * Character to Glyph Index Mapping Table. Maps characters to internal
 	 * glyph indices.
@@ -137,6 +168,7 @@ export interface NullFont<
 	 * control raster adjustments.
 	 */
 	'cvt ': cvtTable.cvt | null;
+
 	/**
 	 * Glyph Data Table. Stores coordinate boundaries outlining standard
 	 * TrueType geometric shapes.
@@ -417,7 +449,7 @@ export interface NullFont<
 	/**
 	 * The font’s bounding box, i.e. the box that encloses all glyphs in the font.
 	 */
-	bbox(): Readonly<BoundingBox>;
+	bbox: Readonly<BoundingBox>;
 
 	/**
 	 * An array of all of the unicode code points supported by the font.
@@ -480,17 +512,19 @@ export interface NullFont<
 	stringsForGlyph(gid: number): string[];
 
 	/**
-	 * Returns an array of alternative unicode mapping arrays tied to a specific glyph ID.
+	 * Returns an array of alternative unicode mapping arrays tied to a
+	 * specific glyph ID.
 	 */
 	codePointsForGlyph(gid: number): number[];
 
 	/**
 	 * An array of all OpenType feature tags supported by the font.
 	 */
-	get availableFeatures(): OpenType.FeatureTag[];
+	availableFeatures: OpenType.FeatureTag[];
 
 	/**
-	 * An array of all OpenType feature tags supported by the font for a given script and language.
+	 * An array of all OpenType feature tags supported by the font for a given
+	 * script and language.
 	 */
 	getAvailableFeatures(
 		script: Script.UnicodeScript,
@@ -498,7 +532,9 @@ export interface NullFont<
 	): OpenType.FeatureTag[];
 
 	/**
-	 * Matches an overarching composite base target index parsing complex structures. */
+	 * Matches an overarching composite base target index parsing complex
+	 * structures.
+	 */
 	getBaseGlyph(glyph: number, characters: readonly number[]): Glyph | null;
 
 	/**
@@ -511,7 +547,8 @@ export interface NullFont<
 	getGlyph(glyph: number, characters: readonly number[]): Glyph;
 
 	/**
-	 * Creates an empty layout subset utilizing this font structure as its baseline data map.
+	 * Creates an empty layout subset utilizing this font structure as its
+	 * baseline data map.
 	 */
 	createSubset(): Subset;
 
