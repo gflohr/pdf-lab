@@ -1,0 +1,12 @@
+{
+	"$schema": "https://typedoc.org/schema.json",
+	"entryPoints": ["./src/index.ts"],
+	"plugin": ["typedoc-plugin-markdown", "typedoc-vitepress-theme"],
+	"out": "./docs/api",
+	"docsRoot": "./docs",
+	"readme": "none",
+	"router": "kind",
+ 	"parametersFormat": "table",
+ 	"classPropertiesFormat": "table",
+	"sourceLinkTemplate": "https://github.com/gflohr/pdf-lab/blob/main/{path}#L{line}"
+}
