@@ -15,11 +15,16 @@ export const requiredOpenTypeTables = [
 	'post',
 ] as const;
 
+/**
+ * Union type for the items in the @{link requiredOpentTypeTables} list.
+ */
 export type RequiredOpenTypeTableTag = (typeof requiredOpenTypeTables)[number];
 
 /**
  * The list of strictly required tables for an OpenType font with TrueType
  * outlines.
+ *
+ * * @group Outlines
  */
 export const requiredOpenTypeTrueTypeTables = [
 	'glyf',
@@ -27,30 +32,44 @@ export const requiredOpenTypeTrueTypeTables = [
 	...requiredOpenTypeTables,
 ] as const;
 
+/**
+ * Union type for the items in the @{link requiredOpenTypeTables} list.
+ */
 export type RequiredOpenTypeTrueTypeTableTag =
 	(typeof requiredOpenTypeTrueTypeTables)[number];
 
 /**
  * The list of strictly required tables for an OpenType font with PostScript
  * outlines, legacy version.
+ *
+ * * @group Outlines
  */
 export const requiredOpenTypeCFF1Tables = [
 	'CFF ',
 	...requiredOpenTypeTables,
 ] as const;
 
+/**
+ * Union type for the items in the @{link requiredOpenTypeCFF1Tables} list.
+ */
 export type RequiredOpenTypeCFF1TableTag =
 	(typeof requiredOpenTypeCFF1Tables)[number];
 
 /**
  * The list of strictly required tables for an OpenType font with PostScript
  * outlines, modern version.
+ *
+ * * @group Outlines
+ * @see {@line requiredOpenTypeCFF1Tables} for legacy tables
  */
 export const requiredOpenTypeCFF2Tables = [
 	'CFF2',
 	...requiredOpenTypeTables,
 ] as const;
 
+/**
+ * Union type for the items in the @{link requiredOpenTypeCFF2Tables} list.
+ */
 export type RequiredOpenTypeCFF2TableTag =
 	(typeof requiredOpenTypeCFF2Tables)[number];
 
@@ -59,23 +78,10 @@ type StrictTables<T extends keyof SFNTTableMap> = {
 };
 
 /**
- * An OpenTypeNoOutlinesFont extends {@link NullFont} by marking the core 8
- * baseline tables as non-nullable, guaranteeing they are present in the font
- * dictionary.
+ * OpenType which lacks one or more of the 8 core tables.
  *
- * The required tables are:
- *
- * - cmap
- * - head
- * - hhea
- * - hmtx
- * - maxp
- * - name
- * - OS/2
- * - post
- */
-/**
- * Utility helper to mark a picked set of tables as strictly Required and Readonly.
+ * * @group Outlines
+ * @see {@link requiredOpenTypeTables} for the list of required tables.
  */
 export interface OpenTypeNoOutlinesFont
 	extends Omit<NullFont, RequiredOpenTypeTableTag>,
@@ -88,6 +94,8 @@ export interface OpenTypeNoOutlinesFont
 
 /**
  * OpenType font with verified TrueType vector geometry outline components (glyf + loca).
+ *
+ * * @group Outlines
  */
 export interface OpenTypeTrueTypeFont
 	extends Omit<NullFont, RequiredOpenTypeTrueTypeTableTag>,
@@ -101,6 +109,8 @@ export interface OpenTypeTrueTypeFont
 /**
  * OpenType font with verified PostScript Compact Font Format (CFF) components,
  * legacy version.
+ *
+ * * @group Outlines
  */
 export interface OpenTypeCFF1Font
 	extends Omit<NullFont, RequiredOpenTypeCFF1TableTag>,
@@ -120,6 +130,8 @@ export interface OpenTypeCFF1Font
 /**
  * OpenType font with verified PostScript Compact Font Format (CFF) components,
  * legacy version.
+ *
+ * * @group Outlines
  */
 export interface OpenTypeCFF2Font
 	extends Omit<NullFont, RequiredOpenTypeCFF2TableTag>,
@@ -134,6 +146,8 @@ export interface OpenTypeCFF2Font
 /**
  * Discriminated union representing an OpenType font with PostScript
  * outlines.
+ *
+ * * @group Outlines
  */
 export type OpenTypePostScriptFont = OpenTypeCFF1Font | OpenTypeCFF2Font;
 
