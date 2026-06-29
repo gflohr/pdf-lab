@@ -1,33 +1,31 @@
 import assert from 'node:assert';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import r from '@pdf-lib/restructure';
+import r, { type EncodeStream } from '@pdf-lib/restructure';
 import { describe, expect, it } from 'vitest';
-import type { SubsetStream } from '../fontkit.js';
 import { CFFFont } from '../src/cff/cff-font.js';
-import type { Font } from '../src/font.js';
 import { CFFGlyph } from '../src/glyph/cff-glyph.js';
+import type { SFNTFont } from '../src/sfnt-font.js';
 import type { Subset } from '../src/subset/subset.js';
 import fontkit from './helpers.js';
 
 const datadir = path.resolve(import.meta.dirname, './data');
 
-async function readSubsetStream(
-	stream: SubsetStream,
-): Promise<Buffer<ArrayBuffer>> {
+async function readSubsetStream(stream: EncodeStream): Promise<Buffer> {
 	const chunks: Buffer[] = [];
-	for await (const chunk of stream) {
+
+	for await (const chunk of stream as unknown as AsyncIterable<Uint8Array>) {
 		chunks.push(Buffer.from(chunk));
 	}
 
 	return Buffer.concat(chunks);
 }
 
-async function getSubsetFont(subset: Subset): Promise<Font> {
+async function getSubsetFont(subset: Subset): Promise<SFNTFont> {
 	const stream = subset.encodeStream();
 	const buf = await readSubsetStream(stream);
 
-	return fontkit.create(buf) as Font;
+	return fontkit.create(buf) as SFNTFont;
 }
 
 describe('font subsetting', () => {
@@ -49,7 +47,7 @@ describe('font subsetting', () => {
 
 			expect(f.numGlyphs).toBe(5);
 
-			expect(f.getGlyph(1).path.toSVG()).toBe(
+			expect(f.getGlyph(1)!.path.toSVG()).toBe(
 				font.glyphsForString('h')[0]!.path.toSVG(),
 			);
 		});
@@ -69,7 +67,7 @@ describe('font subsetting', () => {
 
 			const f = await getSubsetFont(subset);
 
-			expect(f.getGlyph(1).path.toSVG()).toBe(
+			expect(f.getGlyph(1)!.path.toSVG()).toBe(
 				font.glyphsForString('e')[0]!.path.toSVG(),
 			);
 		});
@@ -81,7 +79,7 @@ describe('font subsetting', () => {
 			const f = await getSubsetFont(subset);
 
 			expect(f.numGlyphs).toBe(4);
-			expect(f.getGlyph(1).path.toSVG()).toBe(
+			expect(f.getGlyph(1)!.path.toSVG()).toBe(
 				font.glyphsForString('é')[0]!.path.toSVG(),
 			);
 		});
@@ -111,7 +109,7 @@ describe('font subsetting', () => {
 
 			const stream = new r.DecodeStream(buf);
 			const cff = new CFFFont(stream);
-			const glyph = new CFFGlyph(1, [], { stream, 'CFF ': cff });
+			const glyph = new CFFGlyph(1, [], { stream, 'CFF ': cff } as SFNTFont);
 
 			expect(glyph.path.toSVG()).toBe(
 				font.glyphsForString('h')[0]!.path.toSVG(),
@@ -136,7 +134,7 @@ describe('font subsetting', () => {
 
 			const stream = new r.DecodeStream(buf);
 			const cff = new CFFFont(stream);
-			const glyph = new CFFGlyph(1, [], { stream, 'CFF ': cff });
+			const glyph = new CFFGlyph(1, [], { stream, 'CFF ': cff } as SFNTFont);
 
 			expect(glyph.path.toSVG()).toBe(f.glyphsForString('갈')[0]!.path.toSVG());
 

@@ -1,7 +1,7 @@
 import assert from 'node:assert';
 import * as path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import type { Font } from '../src/types/font.js';
+import type { Font } from '../src/font.js';
 import fontkit from './helpers.js';
 
 const datadir = path.resolve(import.meta.dirname, './data');

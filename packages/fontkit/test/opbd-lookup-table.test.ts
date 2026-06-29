@@ -45,9 +45,7 @@ describe('opbd (Optical Bounds) Table parsing', () => {
 		]);
 
 		// Decode the raw mock binary using restructure
-		const result = opbd.decode(
-			new r.DecodeStream(Buffer.from(mockOpbdData)),
-		);
+		const result = opbd.decode(new r.DecodeStream(Buffer.from(mockOpbdData)));
 
 		// Verify the parent header
 		expect(result.version).toBe(1.0);

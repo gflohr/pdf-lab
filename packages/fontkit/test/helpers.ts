@@ -1,10 +1,9 @@
 /* istanbul ignore file */
 import { readFileSync } from 'node:fs';
 import * as fs from 'node:fs/promises';
-import type { Font } from '../src/font.js';
+import type { Font, VariationCoordinates } from '../src/font.js';
 import fontkit from '../src/index.js';
 import type { SFNTFont } from '../src/sfnt-font.js';
-import type { VariationCoordinates } from '../src/types/internal/tables/fvar.js';
 
 type OpenCallback = (error: Error | unknown | null, font?: SFNTFont) => void;
 
@@ -43,7 +42,7 @@ typedFontkit.open = async (
 ): Promise<SFNTFont> => {
 	const fontBytes = await fs.readFile(filename);
 
-	return fontkit.create(fontBytes, postScriptName);
+	return fontkit.create(fontBytes, postScriptName as string) as SFNTFont;
 };
 
 export default typedFontkit;

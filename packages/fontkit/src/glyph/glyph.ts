@@ -114,7 +114,7 @@ export class Glyph {
 	 * @param codePoints the array of Unicode code points.
 	 * @param font
 	 */
-	constructor(id: number, codePoints: readonly number[], font: Font) {
+	constructor(id: number, codePoints: readonly number[], font: SFNTFont) {
 		this.id = id;
 
 		this.codePoints = [...codePoints];
