@@ -163,9 +163,7 @@ export class SFNTFont<TDirectory extends BaseFontDirectory = BaseFontDirectory>
 			}
 		}
 
-		if (
-			requiredOpenTypeTables.every((tag) => existingTableTags.has(tag))
-		) {
+		if (requiredOpenTypeTables.every((tag) => existingTableTags.has(tag))) {
 			if (
 				requiredOpenTypeTrueTypeTables.every((tag) =>
 					existingTableTags.has(tag),
@@ -174,16 +172,12 @@ export class SFNTFont<TDirectory extends BaseFontDirectory = BaseFontDirectory>
 				this.outlines = 'TrueType';
 				this.outlineVersion = 1;
 			} else if (
-				requiredOpenTypeCFF2Tables.every((tag) =>
-					existingTableTags.has(tag),
-				)
+				requiredOpenTypeCFF2Tables.every((tag) => existingTableTags.has(tag))
 			) {
 				this.outlines = 'PostScript';
 				this.outlineVersion = 2;
 			} else if (
-				requiredOpenTypeCFF1Tables.every((tag) =>
-					existingTableTags.has(tag),
-				)
+				requiredOpenTypeCFF1Tables.every((tag) => existingTableTags.has(tag))
 			) {
 				this.outlines = 'PostScript';
 				this.outlineVersion = 1;
@@ -195,9 +189,6 @@ export class SFNTFont<TDirectory extends BaseFontDirectory = BaseFontDirectory>
 		}
 	}
 
-	/**
-	 * Alias for the table 'CFF ';
-	 */
 	public get cff(): CFFFont | null {
 		return this['CFF '];
 	}
@@ -293,10 +284,6 @@ export class SFNTFont<TDirectory extends BaseFontDirectory = BaseFontDirectory>
 		);
 	}
 
-	/**
-	 * The unique PostScript name for this font.
-	 * @returns the PostScript name or `null` if not present.
-	 */
 	get postscriptName(): string | null {
 		const name = this.name.records.postscriptName;
 		if (name) {
@@ -307,11 +294,6 @@ export class SFNTFont<TDirectory extends BaseFontDirectory = BaseFontDirectory>
 		return null;
 	}
 
-	/**
-	 * Gets a string from the font's `name` table
-	 * `lang` is a BCP-47 language code.
-	 * @returns the table entry or `null` if not present.
-	 */
 	protected getName(
 		key: keyof nameTable.ProcessedRecords,
 		lang = 'en',
@@ -324,140 +306,70 @@ export class SFNTFont<TDirectory extends BaseFontDirectory = BaseFontDirectory>
 		return null;
 	}
 
-	/**
-	 * The font's full name, e.g. "Helvetica Bold".
-	 * @returns the full name or `null` if not present.
-	 */
-	get fullName(): string | null {
+	public get fullName(): string | null {
 		return this.getName('fullName');
 	}
 
-	/**
-	 * The font's family name, e.g. "Helvetica".
-	 * @returns the family name or `null` if not present.
-	 */
-	get familyName(): string | null {
+	public get familyName(): string | null {
 		return this.getName('fontFamily');
 	}
 
-	/**
-	 * The font's sub-family, e.g. "Bold".
-	 * @returns the sub-family or `null` if not present.
-	 */
-	get subfamilyName(): string | null {
+	public get subfamilyName(): string | null {
 		return this.getName('fontSubfamily');
 	}
 
-	/**
-	 * The font's copyright information.
-	 * @returns the copright information or `null` if not present.
-	 */
-	get copyright(): string | null {
+	public get copyright(): string | null {
 		return this.getName('copyright');
 	}
 
-	/**
-	 * The font's version number.
-	 * @returns the version number or `null` if not present.
-	 */
-	get version(): string | null {
+	public get version(): string | null {
 		return this.getName('version');
 	}
 
-	/**
-	 * The font’s
-	 * [ascender](https://en.wikipedia.org/wiki/Ascender_(typography)).
-	 * @returns the ascender.
-	 */
-	get ascent(): number {
+	public get ascent(): number {
 		return this.hhea.ascent;
 	}
 
-	/**
-	 * The font’s
-	 * [descender](https://en.wikipedia.org/wiki/Descender).
-	 * @returns the descender
-	 */
-	get descent() {
+	public get descent() {
 		return this.hhea.descent;
 	}
 
-	/**
-	 * The amount of space that should be included between lines.
-	 * @returns the line gap
-	 */
-	get lineGap(): number {
+	public get lineGap(): number {
 		return this.hhea.lineGap;
 	}
 
-	/**
-	 * The offset from the normal underline position that should be used.
-	 * @returns the offset
-	 */
-	get underlinePosition(): number {
+	public get underlinePosition(): number {
 		return this.post.underlinePosition;
 	}
 
-	/**
-	 * The weight of the underline that should be used.
-	 * @returns the underline weight
-	 */
-	get underlineThickness() {
+	public get underlineThickness() {
 		return this.post.underlineThickness;
 	}
 
-	/**
-	 * If this is an italic font, the angle the cursor should be drawn at to
-	 * match the font design.
-	 * @returns the italic angle
-	 */
-	get italicAngle(): number {
+	public get italicAngle(): number {
 		return this.post.italicAngle;
 	}
 
-	/**
-	 * The height of capital letters above the baseline.
-	 * See [here](https://en.wikipedia.org/wiki/Cap_height) for more details.
-	 * @returns the capital letter height.
-	 */
-	get capHeight() {
+	public get capHeight() {
 		const os2 = this['OS/2'];
 		// The partial exposure of the OS/2 table will be fixed later.
 		return os2 ? (os2 as any).capHeight : this.ascent;
 	}
 
-	/**
-	 * The height of lowercase letters in the font.
-	 * See [here](https://en.wikipedia.org/wiki/X-height) for more details.
-	 * @returns the height of the lowercase letters
-	 */
-	get xHeight() {
+	public get xHeight() {
 		const os2 = this['OS/2'];
 		return os2 ? (os2 as any).xHeight : 0;
 	}
 
-	/**
-	 * The number of glyphs in the font.
-	 * @returns the number of glyphs
-	 */
-	get numGlyphs(): number {
+	public get numGlyphs(): number {
 		return this.maxp.numGlyphs;
 	}
 
-	/**
-	 * The size of the font’s internal coordinate grid.
-	 * @returns the units per em
-	 */
-	get unitsPerEm() {
+	public get unitsPerEm() {
 		return this.head.unitsPerEm;
 	}
 
-	/**
-	 * The font’s bounding box, i.e. the box that encloses all glyphs in the
-	 * font.
-	 * @returns the bbox
-	 */
-	get bbox() {
+	public get bbox() {
 		if (typeof this._bbox === 'undefined') {
 			this._bbox = Object.freeze(
 				new BoundingBox(
@@ -480,52 +392,25 @@ export class SFNTFont<TDirectory extends BaseFontDirectory = BaseFontDirectory>
 		return this._cmapProcessor;
 	}
 
-	/**
-	 * An array of all of the unicode code points supported by the font.
-	 * @return all unicode code points
-	 */
-	get characterSet(): number[] {
+	public get characterSet(): number[] {
 		if (typeof this._characterSet === 'undefined')
 			this._characterSet = this.cmapProcessor.getCharacterSet();
 
 		return this._characterSet;
 	}
 
-	/**
-	 * Returns whether there is glyph in the font for the given unicode code point.
-	 *
-	 * @param - the unicode code point
-	 * @returns `true` if a glyph is available for the code point, `false` otherwise
-	 */
-	hasGlyphForCodePoint(codePoint: number): boolean {
+	public hasGlyphForCodePoint(codePoint: number): boolean {
 		return !!this.cmapProcessor.lookup(codePoint);
 	}
 
-	/**
-	 * Maps a single unicode code point to a Glyph object.
-	 * Does not perform any advanced substitutions (there is no context to do
-	 * so).
-	 *
-	 * @param codePoint - the unicode code point
-	 * @returns the corresponding glyph
-	 */
-	glyphForCodePoint(codePoint: number): Glyph {
+	public glyphForCodePoint(codePoint: number): Glyph {
 		// FIXME! Get rid of the cast to never!
 		return this.getGlyph(this.cmapProcessor.lookup(codePoint), [
 			codePoint,
 		] as never);
 	}
 
-	/**
-	 * Returns an array of Glyph objects for the given string.
-	 * This is only a one-to-one mapping from characters to glyphs.
-	 * For most uses, you should use font.layout (described below), which
-	 * provides a much more advanced mapping supporting AAT and OpenType shaping.
-	 *
-	 * @param str the string to encode
-	 * @returns the corresponding glyphs
-	 */
-	glyphsForString(str: string): Glyph[] {
+	public glyphsForString(str: string): Glyph[] {
 		const glyphs = [];
 		const len = str.length;
 		let idx = 0;
@@ -586,19 +471,6 @@ export class SFNTFont<TDirectory extends BaseFontDirectory = BaseFontDirectory>
 		return this._layoutEngine;
 	}
 
-	/**
-	 * Returns a GlyphRun object, which includes an array of Glyphs and
-	 * GlyphPositions for the given string.
-	 *
-	 * @param str the string to encode
-	 * @param features an array of OpenType feature tags to be applied
-	 * in addition to the default set. If this is an AAT font, the OpenType
-	 * feature tags are mapped to AAT features.
-	 * @param script the script of the string
-	 * @param language the language of the string
-	 * @param direction the writing directory for the string
-	 * @returns the rendered string
-	 */
 	public layout(
 		str: string,
 		userFeatures?: OpenType.Features | OpenType.FeatureTag[],
@@ -615,50 +487,19 @@ export class SFNTFont<TDirectory extends BaseFontDirectory = BaseFontDirectory>
 		);
 	}
 
-	/**
-	 * Returns an array of strings that map to the given glyph id.
-	 * @param gid - the glyph id
-	 */
-	stringsForGlyph(gid: number): string[] {
+	public stringsForGlyph(gid: number): string[] {
 		return this.layoutEngine.stringsForGlyph(gid);
 	}
 
-	codePointsForGlyph(gid: number): number[] {
+	public codePointsForGlyph(gid: number): number[] {
 		return this.cmapProcessor.codePointsForGlyph(gid);
 	}
 
-	/**
-	 * An array of all [OpenType feature
-	 * tags](https://www.microsoft.com/typography/otspec/featuretags.htm) (or
-	 * mapped AAT tags) supported by the font.
-	 *
-	 * The features parameter is an array of OpenType feature tags to be
-	 * applied in addition to the default set.
-	 *
-	 * If this is an AAT font, the OpenType feature tags are mapped to AAT
-	 * features.
-	 *
-	 * @returns the supported features
-	 */
-	get availableFeatures(): OpenType.FeatureTag[] {
+	public get availableFeatures(): OpenType.FeatureTag[] {
 		return this.layoutEngine.getAvailableFeatures();
 	}
 
-	/**
-	 * An array of all [OpenType feature
-	 * tags](https://www.microsoft.com/typography/otspec/featuretags.htm) (or
-	 * mapped AAT tags) supported by the font for a given script and
-	 * language.
-	 *
-	 * The features parameter is an array of OpenType feature tags to be
-	 * applied in addition to the default set.
-	 *
-	 * If this is an AAT font, the OpenType feature tags are mapped to AAT
-	 * features.
-	 *
-	 * @returns the supported features
-	 */
-	getAvailableFeatures(
+	public getAvailableFeatures(
 		script: Script.UnicodeScript,
 		language?: string,
 	): OpenType.FeatureTag[] {
@@ -688,15 +529,6 @@ export class SFNTFont<TDirectory extends BaseFontDirectory = BaseFontDirectory>
 		return this.glyphs[glyph] ?? null;
 	}
 
-	/**
-	 * Returns a glyph object for the given glyph id.
-	 * You can pass the array of code points this glyph represents for
-	 * your use later, and it will be stored in the glyph object.
-	 *
-	 * @param glyph the glyph id
-	 * @param characters an array of code points this glyph represents
-	 * @returns the corresponding glyph
-	 */
 	public getGlyph(glyph: number, characters: readonly number[] = []): Glyph {
 		if (!this.glyphs[glyph]) {
 			// FIXME! Get rid of the casts!
@@ -720,10 +552,6 @@ export class SFNTFont<TDirectory extends BaseFontDirectory = BaseFontDirectory>
 		return this.glyphs[glyph] ?? null;
 	}
 
-	/**
-	 * Creates a Subset of this font.
-	 * @returns the empty subset
-	 */
 	public createSubset(): Subset {
 		if (this.directory.tables['CFF ']) {
 			return new CFFSubset(this);
@@ -750,14 +578,7 @@ export class SFNTFont<TDirectory extends BaseFontDirectory = BaseFontDirectory>
 		return res;
 	}
 
-	/**
-	 * Returns an object describing the available variation axes
-	 * that this font supports. Keys are setting tags, and values
-	 * contain the axis name, range, and default value.
-	 *
-	 * @returns the variation axes
-	 */
-	get variationAxes(): VariationAxes {
+	public get variationAxes(): VariationAxes {
 		if (typeof this._variationAxes === 'undefined') {
 			this._variationAxes = this.computeVariationAxes();
 		}
@@ -784,14 +605,7 @@ export class SFNTFont<TDirectory extends BaseFontDirectory = BaseFontDirectory>
 		return res;
 	}
 
-	/**
-	 * Returns an object describing the named variation instances
-	 * that the font designer has specified. Keys are variation names
-	 * and values are the variation settings for this instance.
-	 *
-	 * @returns the named variations
-	 */
-	get namedVariations(): NamedVariations {
+	public get namedVariations(): NamedVariations {
 		if (typeof this._namedVariations === 'undefined') {
 			this._namedVariations = this.computeNamedVariations();
 		}
@@ -799,14 +613,6 @@ export class SFNTFont<TDirectory extends BaseFontDirectory = BaseFontDirectory>
 		return this._namedVariations;
 	}
 
-	/**
-	 * Returns a new font with the given variation settings applied.
-	 * Settings can either be an instance name, or an object containing
-	 * variation tags as specified by the `variationAxes` property.
-	 *
-	 * @param settings the instance name or variation settings
-	 * @returns the generated font
-	 */
 	public getVariation(settings: string | VariationCoordinates): Font {
 		if (
 			!(
@@ -885,11 +691,6 @@ export class SFNTFont<TDirectory extends BaseFontDirectory = BaseFontDirectory>
 		return this._variationProcessor;
 	}
 
-	/**
-	 * The font variation by variation name.
-	 * @param name the variation name
-	 * @returns the font
-	 */
 	public getFont(name: string): Font {
 		return this.getVariation(name);
 	}
