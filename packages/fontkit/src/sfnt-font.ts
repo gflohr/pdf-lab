@@ -274,7 +274,6 @@ export class SFNTFont<TDirectory extends BaseFontDirectory = BaseFontDirectory>
 					this as unknown as FieldT<unknown>,
 					table.length,
 				);
-				this.stream.pos = pos;
 
 				return result as ReturnType<(typeof tables)[K]['decode']>;
 			} catch (e) {
@@ -282,10 +281,10 @@ export class SFNTFont<TDirectory extends BaseFontDirectory = BaseFontDirectory>
 					`Corrupt table '${table.tag}': ${e}`,
 					table.tag,
 				);
+			} finally {
+				this.stream.pos = pos;
 			}
 		}
-
-		this.stream.pos = pos;
 
 		throw new FatalFontError(
 			`Unsupported font table tag: ${table.tag}`,
