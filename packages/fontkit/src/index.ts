@@ -16,3 +16,4 @@ export default fontkit;
 
 export * from './aat';
 export * from './cff';
+export * from './glyph';

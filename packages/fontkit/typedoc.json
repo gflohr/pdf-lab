@@ -6,7 +6,7 @@
 	"docsRoot": "./docs",
 	"readme": "none",
 	"router": "kind",
- 	"parametersFormat": "table",
- 	"classPropertiesFormat": "table",
+	"parametersFormat": "table",
+	"classPropertiesFormat": "table",
 	"sourceLinkTemplate": "https://github.com/gflohr/pdf-lab/blob/main/{path}#L{line}"
 }

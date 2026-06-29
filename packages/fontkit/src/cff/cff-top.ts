@@ -296,7 +296,7 @@ const CFF2TopDict = new CFFDict([
 	[25, 'maxstack', 'number', 193],
 ]);
 
-interface CFFTopDataV1 {
+export interface CFFTopDataV1 {
 	version: 1;
 	hdrSize: number;
 	offSize: number;
@@ -306,7 +306,7 @@ interface CFFTopDataV1 {
 	globalSubrIndex: { offset: number; length: number };
 }
 
-interface CFFTopDataV2 {
+export interface CFFTopDataV2 {
 	version: 2;
 	hdrSize: number;
 	length: number;
