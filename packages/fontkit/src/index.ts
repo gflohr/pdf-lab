@@ -13,3 +13,5 @@ fontkit.registerFormat(TrueTypeCollection);
 fontkit.registerFormat(DFont);
 
 export default fontkit;
+
+export * from './aat';

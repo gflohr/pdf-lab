@@ -67,10 +67,10 @@ export default [
 	{
 		input: 'src/index.ts',
 		output: {
-			file: 'dist/fontkit.cjs.js',
+			file: 'dist/fontkit.cjs',
 			format: 'cjs',
 			sourcemap: true,
-			exports: 'auto',
+			exports: 'named',
 		},
 
 		plugins,
@@ -86,6 +86,7 @@ export default [
 			globals: {
 				pako: 'pako',
 			},
+			exports: 'named',
 		},
 		external: ['pako'],
 		plugins,
@@ -101,6 +102,7 @@ export default [
 			globals: {
 				pako: 'pako',
 			},
+			exports: 'named',
 		},
 		external: ['pako'],
 		plugins: [...plugins, terser()],
