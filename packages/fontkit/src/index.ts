@@ -15,3 +15,4 @@ fontkit.registerFormat(DFont);
 export default fontkit;
 
 export * from './aat';
+export * from './cff';
