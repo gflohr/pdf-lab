@@ -1,5 +1,8 @@
 export class FatalFontError extends Error {
-	constructor(message: string) {
+	constructor(
+		message: string,
+		public tag: string,
+	) {
 		super(message);
 		this.name = 'FatalFontError';
 	}

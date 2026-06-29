@@ -20,7 +20,7 @@ export namespace AAT {
 	 * TrueType Reference manual:
 	 * https://developer.apple.com/fonts/TrueType-Reference-Manual/RM06/Chap6AATIntro.html
 	 */
-	export type Features = {
+	export interface Features {
 		acnt?: boolean;
 		ankr?: boolean;
 		avar?: boolean;
@@ -68,7 +68,7 @@ export namespace AAT {
 		vmtx?: boolean;
 		xref?: boolean;
 		Zapf?: boolean;
-	};
+	}
 
 	export type FeatureTag = keyof Features;
 

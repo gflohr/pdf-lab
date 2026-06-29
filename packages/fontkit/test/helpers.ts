@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 import { readFileSync } from 'node:fs';
 import * as fs from 'node:fs/promises';
 import type { Font } from '../src/font.js';

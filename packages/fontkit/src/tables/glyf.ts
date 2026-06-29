@@ -1,7 +1,7 @@
 import r from '@pdf-lib/restructure';
 
 export namespace glyfTable {
-	export type glyph = Buffer[];
+	export type glyph = Uint8Array[];
 }
 
 // Only used for encoding.

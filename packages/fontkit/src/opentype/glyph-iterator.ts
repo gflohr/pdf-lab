@@ -11,7 +11,7 @@ export interface GlyphIteratorFlags {
 export interface GlyphIteratorOptions {
 	flags?: GlyphIteratorFlags;
 	markAttachmentType?: number;
-};
+}
 
 export default class GlyphIterator<T> {
 	public options!: GlyphIteratorOptions;

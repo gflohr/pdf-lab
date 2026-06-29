@@ -11,7 +11,7 @@ interface Ref {
 	attr: number;
 	dataOffset: number;
 	handle: number;
-};
+}
 
 const refFields = {
 	id: r.uint16,
@@ -72,7 +72,7 @@ interface DFontHeader {
 	map: DFontMap;
 	dataLength: number;
 	mapLength: number;
-};
+}
 
 const dfontHeaderFields = {
 	dataOffset: r.uint32,
