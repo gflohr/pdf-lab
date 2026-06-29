@@ -4,8 +4,6 @@ import type { DecodeStream } from '@pdf-lib/restructure';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { BaseFontDirectory } from '../src/null-font.js';
 import {
-	requiredOpenTypeCFF1Tables,
-	requiredOpenTypeCFF2Tables,
 	requiredOpenTypeTables,
 } from '../src/open-type-font.js';
 import { SFNTFont } from '../src/sfnt-font.js';
