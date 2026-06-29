@@ -1,6 +1,6 @@
 import type { COLRTable } from '../tables/COLR.js';
-import BoundingBox from './bounding-box.js';
-import Glyph, { type FontkitRenderingContext } from './glyph.js';
+import { BoundingBox } from './bounding-box.js';
+import { type FontkitRenderingContext, Glyph } from './glyph.js';
 
 interface Color {
 	red: number;
@@ -21,7 +21,7 @@ class COLRLayer {
  * Each glyph in this format contain a list of colored layers, each
  * of which  is another vector glyph.
  */
-export default class COLRGlyph extends Glyph {
+export class COLRGlyph extends Glyph {
 	getBBox(): BoundingBox {
 		const bbox = new BoundingBox();
 		for (let i = 0; i < this.layers.length; i++) {

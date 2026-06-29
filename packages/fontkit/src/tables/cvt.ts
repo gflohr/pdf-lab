@@ -10,6 +10,6 @@ export namespace cvtTable {
 const cvtStructFields = {
 	controlValues: new r.Array(r.int16),
 };
-export default new r.Struct<typeof cvtStructFields, cvtTable.cvt>(
+export const cvt = new r.Struct<typeof cvtStructFields, cvtTable.cvt>(
 	cvtStructFields,
 );

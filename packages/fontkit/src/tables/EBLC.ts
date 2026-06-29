@@ -200,6 +200,6 @@ const eblcStructFields = {
 	numSizes: r.uint32,
 	sizes: new r.Array(bitmapSizeTable, 'numSizes'),
 };
-export default new r.Struct<typeof eblcStructFields, EBLCTable.EBLC>(
+export const EBLC = new r.Struct<typeof eblcStructFields, EBLCTable.EBLC>(
 	eblcStructFields,
 );

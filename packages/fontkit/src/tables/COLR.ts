@@ -102,6 +102,6 @@ const colrStructFields = {
 	numLayerRecords: r.uint16,
 };
 
-export default new r.Struct<typeof colrStructFields, COLRTable.COLR>(
+export const COLR = new r.Struct<typeof colrStructFields, COLRTable.COLR>(
 	colrStructFields,
 );

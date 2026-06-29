@@ -6,18 +6,19 @@ import r, {
 	type ParsingContext,
 } from '@pdf-lib/restructure';
 import { FatalFontError } from './fatal-font-error.js';
-import type Glyph from './glyph/glyph.js';
-import TTFGlyph, {
+import type { Glyph } from './glyph/glyph.js';
+import {
 	type DecodedCompositeGlyph,
 	type DecodedGlyph,
 	Point,
+	TTFGlyph,
 } from './glyph/ttf-glyph.js';
-import WOFF2Glyph from './glyph/woff2-glyph.js';
+import { WOFF2Glyph } from './glyph/woff2-glyph.js';
 import { SFNTFont } from './sfnt-font.js';
 import type { SFNTDirectoryEntry } from './tables/directory.js';
-import type tables from './tables/index.js';
+import type { tables } from './tables/index.js';
 import type { WOFF2Directory } from './tables/woff2-directory.js';
-import WOFF2DirectoryStruct from './tables/woff2-directory.js';
+import { woff2DirectoryStruct } from './tables/woff2-directory.js';
 
 /**
  * Subclass of TrueTypeFont that represents a TTF/OTF font compressed by WOFF2
@@ -42,7 +43,7 @@ export class WOFF2Font extends SFNTFont<WOFF2Directory> {
 	}
 
 	protected decodeDirectory(): WOFF2Directory {
-		const directory = WOFF2DirectoryStruct.decode(this.stream);
+		const directory = woff2DirectoryStruct.decode(this.stream);
 
 		this.dataPos = this.stream.pos;
 

@@ -55,9 +55,7 @@ export class Ptr {
  * Specialized CFF Dict stream pointer. Handles variable operands collected
  * from the dictionary stack as dynamic lookahead offsets.
  */
-export default class CFFPointer<
-	TField extends FieldT<any>,
-> extends r.Pointer<TField> {
+export class CFFPointer<TField extends FieldT<any>> extends r.Pointer<TField> {
 	constructor(type: TField, options: PointerTOptions = {}) {
 		if (options.type == null) {
 			options.type = 'global';

@@ -74,6 +74,6 @@ const fvarStructFields = {
 	axis: new r.Array(axis, 'axisCount'),
 	instance: new r.Array(instance, 'instanceCount'),
 };
-export default new r.Struct<typeof fvarStructFields, fvarTable.fvar>(
+export const fvar = new r.Struct<typeof fvarStructFields, fvarTable.fvar>(
 	fvarStructFields,
 );

@@ -63,4 +63,4 @@ const vheaFields = {
 };
 
 // Vertical Header Table
-export default new r.Struct<typeof vheaFields, vheaTable.vhea>(vheaFields);
+export const vhea = new r.Struct<typeof vheaFields, vheaTable.vhea>(vheaFields);

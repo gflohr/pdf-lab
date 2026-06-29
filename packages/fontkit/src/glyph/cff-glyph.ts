@@ -1,11 +1,11 @@
 import type { CFFIndexRecord } from '../cff/cff-index.js';
-import Glyph from './glyph.js';
-import Path from './path.js';
+import { Glyph } from './glyph.js';
+import { Path } from './path.js';
 
 /**
  * Represents an OpenType PostScript glyph, in the Compact Font Format.
  */
-export default class CFFGlyph extends Glyph {
+export class CFFGlyph extends Glyph {
 	public usedGsubrs: Record<number, boolean> = {};
 	public usedSubrs: Record<number, boolean> = {};
 

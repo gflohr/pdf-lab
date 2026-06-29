@@ -13,11 +13,11 @@ import {
 	ExpertSubsetCharset,
 	ISOAdobeCharset,
 } from './cff-charsets.js';
-import CFFDict from './cff-dict.js';
+import { CFFDict } from './cff-dict.js';
 import { ExpertEncoding, StandardEncoding } from './cff-encodings.js';
-import CFFIndex from './cff-index.js';
-import CFFPointer, { type Ptr } from './cff-pointer.js';
-import CFFPrivateDict from './cff-private-dict.js';
+import { CFFIndex } from './cff-index.js';
+import { CFFPointer, type Ptr } from './cff-pointer.js';
+import { privateCFFDict } from './cff-private-dict.js';
 
 interface RangeRecord {
 	first: number;
@@ -209,7 +209,7 @@ const FDSelect = new r.VersionedStruct(r.uint8, {
 	},
 });
 
-const ptr = new CFFPointer(CFFPrivateDict);
+const ptr = new CFFPointer(privateCFFDict);
 export class CFFPrivateOp {
 	decode(
 		stream: DecodeStream,
@@ -224,12 +224,12 @@ export class CFFPrivateOp {
 		// The original version used ptr.size(dict, ctx)[0] as the second
 		// value. But invoking size() on ptr would cause a crash, as "this"
 		// is undefined in that context.
-		return [CFFPrivateDict.size(dict, ctx, false), 0];
+		return [privateCFFDict.size(dict, ctx, false), 0];
 	}
 
 	encode(stream: EncodeStream, dict: CFFDict, ctx?: ParsingContext) {
 		return [
-			CFFPrivateDict.size(dict, ctx, false),
+			privateCFFDict.size(dict, ctx, false),
 			ptr.encode(stream, dict, ctx)[0],
 		];
 	}
@@ -334,9 +334,7 @@ const fields = {
 	},
 };
 
-const CFFTop = new r.VersionedStruct<typeof fields, CFFTopData>(
+export const CFFTop = new r.VersionedStruct<typeof fields, CFFTopData>(
 	r.fixed16,
 	fields,
 );
-
-export default CFFTop;

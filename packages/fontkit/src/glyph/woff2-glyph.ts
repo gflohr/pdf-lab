@@ -1,10 +1,10 @@
 import type { WOFF2Font } from '../woff2-font.js';
-import TTFGlyph, { type DecodedGlyph } from './ttf-glyph.js';
+import { type DecodedGlyph, TTFGlyph } from './ttf-glyph.js';
 
 /**
  * Represents a TrueType glyph in the WOFF2 format, which compresses glyphs differently.
  */
-export default class WOFF2Glyph extends TTFGlyph {
+export class WOFF2Glyph extends TTFGlyph {
 	decode() {
 		// We have to decode in advance (in WOFF2Font), so just return the pre-decoded data.
 		return (this._font as WOFF2Font).transformedGlyphs?.[

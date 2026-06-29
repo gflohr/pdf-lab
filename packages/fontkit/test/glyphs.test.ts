@@ -1,6 +1,6 @@
 import * as path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import BoundingBox from '../src/glyph/bounding-box.js';
+import { BoundingBox } from '../src/glyph/bounding-box.js';
 import fontkit from './helpers.js';
 
 const datadir = path.resolve(import.meta.dirname, './data');

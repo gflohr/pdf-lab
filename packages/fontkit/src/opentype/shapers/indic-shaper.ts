@@ -6,10 +6,9 @@ import UnicodeTrie from 'unicode-trie';
 import * as Script from '../../layout/script.js';
 import type { SFNTFont } from '../../sfnt-font.js';
 import type { OpenType } from '../../tables/opentype.js';
-import GlyphInfo from '../glyph-info.js';
-import type ShapingPlan from '../shaping-plan.js';
-import type { ShapingFunction } from '../shaping-plan.js';
-import DefaultShaper from './default-shaper.js';
+import { GlyphInfo } from '../glyph-info.js';
+import type { ShapingFunction, ShapingPlan } from '../shaping-plan.js';
+import { DefaultShaper } from './default-shaper.js';
 import base64DeflatedIndicMachine from './indic.js';
 import {
 	CATEGORIES,
@@ -64,7 +63,7 @@ interface IndicGlyphInfo extends GlyphInfo<IndicInfo> {
  * The IndicShaper supports indic scripts e.g. Devanagari, Kannada, etc.
  * Based on code from Harfbuzz: https://github.com/behdad/harfbuzz/blob/master/src/hb-ot-shape-complex-indic.cc
  */
-export default class IndicShaper extends DefaultShaper {
+export class IndicShaper extends DefaultShaper {
 	static zeroMarkWidths = 'NONE';
 	static planFeatures<IndicInfo>(plan: ShapingPlan<IndicInfo>) {
 		plan.addStage(setupSyllables as ShapingFunction<IndicInfo>);

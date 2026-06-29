@@ -72,7 +72,7 @@ const woffDirectoryEntryFields = {
 	origChecksum: r.uint32,
 };
 
-const WOFFDirectoryEntryStruct = new r.Struct<
+const woffDirectoryEntryStruct = new r.Struct<
 	typeof woffDirectoryEntryFields,
 	WOFFTableEntryBinary
 >(woffDirectoryEntryFields);
@@ -91,16 +91,17 @@ const fields = {
 	metaOrigLength: r.uint32,
 	privOffset: r.uint32,
 	privLength: r.uint32,
-	tables: new r.Array(WOFFDirectoryEntryStruct, 'numTables'),
+	tables: new r.Array(woffDirectoryEntryStruct, 'numTables'),
 };
 
-const WOFFDirectoryStruct = new r.Struct<typeof fields, WOFFDirectory>(fields);
+export const woffDirectoryStruct = new r.Struct<typeof fields, WOFFDirectory>(
+	fields,
+);
 
 /* ========================================================================== */
 /* Restructure Lifecycle Hooks                                                */
 /* ========================================================================== */
-
-WOFFDirectoryStruct.process = function (this: WOFFDirectoryContext): void {
+woffDirectoryStruct.process = function (this: WOFFDirectoryContext): void {
 	const mappedTables: Record<string, WOFFDirectoryEntry> = {};
 
 	for (const table of this.tables) {
@@ -110,5 +111,3 @@ WOFFDirectoryStruct.process = function (this: WOFFDirectoryContext): void {
 	// Safely cast away the binary array representation to the clean runtime map
 	this.tables = mappedTables as any;
 };
-
-export default WOFFDirectoryStruct;

@@ -1,16 +1,9 @@
-import type CFFFont from './cff/cff-font.js';
-import type BoundingBox from './glyph/bounding-box.js';
-import type Glyph from './glyph/glyph.js';
-import type GlyphRun from './layout/glyph-run.js';
-import type Subset from './subset/subset.js';
-import type { HVARTable } from './tables/HVAR.js';
-import type { headTable } from './tables/head.js';
-import type { hheaTable } from './tables/hhea.js';
-import type { hmtxTable } from './tables/hmtx.js';
-import type { OS2Table } from './tables/OS2.js';
+import type { CFFFont } from './cff/cff-font.js';
+import type { BoundingBox } from './glyph/bounding-box.js';
+import type { Glyph } from './glyph/glyph.js';
+import type { GlyphRun } from './layout/glyph-run.js';
+import type { Subset } from './subset/subset.js';
 import type { OpenType } from './tables/opentype.js';
-import type { postTable } from './tables/post.js';
-import type { vmtxTable } from './tables/vmtx.js';
 
 export interface VariationAxis {
 	axisTag: string;

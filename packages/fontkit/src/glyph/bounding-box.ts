@@ -1,7 +1,7 @@
 /**
  * Represents a glyph bounding box.
  */
-export default class BoundingBox {
+export class BoundingBox {
 	/** The minimum X position in the bounding box. */
 	private _minX: number;
 

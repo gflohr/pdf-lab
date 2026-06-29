@@ -1,7 +1,7 @@
 import r from '@pdf-lib/restructure';
-import type DFont from './d-font.js';
+import type { DFont } from './d-font.js';
 import type { SFNTFont } from './sfnt-font.js';
-import type TrueTypeCollection from './true-type-collection.js';
+import type { TrueTypeCollection } from './true-type-collection.js';
 
 export type FontFormatClass = (new (
 	...args: any[]
@@ -11,7 +11,7 @@ export type FontFormatClass = (new (
 
 const formats: FontFormatClass[] = [];
 
-const fontkit = {
+export const fontkit = {
 	logErrors: false,
 
 	registerFormat: (format: FontFormatClass) => {
@@ -34,5 +34,3 @@ const fontkit = {
 		throw new Error('Unknown font format');
 	},
 };
-
-export default fontkit;

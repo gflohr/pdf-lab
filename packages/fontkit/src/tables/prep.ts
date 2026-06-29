@@ -13,6 +13,6 @@ export namespace prepTable {
 const prepStructFields = {
 	controlValueProgram: new r.Array(r.uint8),
 };
-export default new r.Struct<typeof prepStructFields, prepTable.prep>(
+export const prep = new r.Struct<typeof prepStructFields, prepTable.prep>(
 	prepStructFields,
 );

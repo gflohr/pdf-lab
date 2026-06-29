@@ -38,6 +38,6 @@ const gaspStructFields = {
 	numRanges: r.uint16,
 	gaspRanges: new r.Array(gaspRange, 'numRanges'), // Sorted by ppem
 };
-export default new r.Struct<typeof gaspStructFields, gaspTable.gasp>(
+export const gasp = new r.Struct<typeof gaspStructFields, gaspTable.gasp>(
 	gaspStructFields,
 );

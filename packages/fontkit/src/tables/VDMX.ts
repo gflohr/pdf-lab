@@ -70,6 +70,6 @@ const vdmxStructFields = {
 	groups: new r.Array(vdmxGroup, 'numRecs'), // The actual VDMX groupings
 };
 
-export default new r.Struct<typeof vdmxStructFields, VDMXTable.VDMX>(
+export const VDMX = new r.Struct<typeof vdmxStructFields, VDMXTable.VDMX>(
 	vdmxStructFields,
 );

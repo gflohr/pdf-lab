@@ -1,10 +1,10 @@
-import type GlyphPosition from '../layout/glyph-position.js';
+import type { GlyphPosition } from '../layout/glyph-position.js';
 import type { GPOSTable } from '../tables/GPOS.js';
 import type { OpenType } from '../tables/opentype.js';
-import type GlyphInfo from './glyph-info.js';
-import OTProcessor from './ot-processor.js';
+import type { GlyphInfo } from './glyph-info.js';
+import { OTProcessor } from './ot-processor.js';
 
-export default class GPOSProcessor<T> extends OTProcessor<T> {
+export class GPOSProcessor<T> extends OTProcessor<T> {
 	private applyPositionValue(
 		sequenceIndex: number,
 		value: GPOSTable.DecodedValueRecord,

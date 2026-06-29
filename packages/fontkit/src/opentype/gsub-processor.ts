@@ -1,6 +1,6 @@
 import type { GSUBTable } from '../tables/GSUB.js';
-import GlyphInfo from './glyph-info.js';
-import OTProcessor from './ot-processor.js';
+import { GlyphInfo } from './glyph-info.js';
+import { OTProcessor } from './ot-processor.js';
 
 /**
  * Applies OpenType GSUB lookups (substitutions) to a glyph buffer.
@@ -8,7 +8,7 @@ import OTProcessor from './ot-processor.js';
  * contextual (6) lookups to OTProcessor, and recursively resolving
  * extension substitutions (7).
  */
-export default class GSUBProcessor<T> extends OTProcessor<T> {
+export class GSUBProcessor<T> extends OTProcessor<T> {
 	public applyLookup(
 		lookupType: number,
 		table: GSUBTable.LookupTable,

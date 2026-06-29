@@ -15,6 +15,6 @@ export namespace fpgmTable {
 const fpgmStructFields = {
 	instructions: new r.Array(r.uint8),
 };
-export default new r.Struct<typeof fpgmStructFields, fpgmTable.fpgm>(
+export const fpgm = new r.Struct<typeof fpgmStructFields, fpgmTable.fpgm>(
 	fpgmStructFields,
 );

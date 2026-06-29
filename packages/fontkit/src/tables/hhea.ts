@@ -100,4 +100,4 @@ const fields = {
 	numberOfMetrics: r.uint16,
 };
 
-export default new r.Struct<typeof fields, hheaTable.hhea>(fields);
+export const hhea = new r.Struct<typeof fields, hheaTable.hhea>(fields);

@@ -1,4 +1,4 @@
-import type GlyphPosition from '../layout/glyph-position.js';
+import type { GlyphPosition } from '../layout/glyph-position.js';
 import type { BidiDirection } from '../layout/glyph-run.js';
 import * as Script from '../layout/script.js';
 import type { SFNTFont } from '../sfnt-font.js';
@@ -6,8 +6,8 @@ import type { GPOSTable } from '../tables/GPOS.js';
 import type { GSUBTable } from '../tables/GSUB.js';
 import type { OpenType } from '../tables/opentype.js';
 import type { OpenTypeVariation } from '../tables/variations.js';
-import type GlyphInfo from './glyph-info.js';
-import GlyphIterator from './glyph-iterator.js';
+import type { GlyphInfo } from './glyph-info.js';
+import { GlyphIterator } from './glyph-iterator.js';
 
 const DEFAULT_SCRIPTS = ['DFLT', 'dflt', 'latn'];
 
@@ -16,7 +16,7 @@ type MatcherFunction<T> = (
 	glyph: GlyphInfo<T>,
 ) => boolean;
 
-export default class OTProcessor<T> {
+export class OTProcessor<T> {
 	protected font: SFNTFont;
 	private table: GPOSTable.GPOS | GSUBTable.GSUB;
 	private script: OpenType.Script | null;

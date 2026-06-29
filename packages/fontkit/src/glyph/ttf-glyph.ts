@@ -1,7 +1,7 @@
 import r, { type DecodeStream } from '@pdf-lib/restructure';
-import BoundingBox from './bounding-box.js';
-import Glyph, { type GlyphLayoutMetrics } from './glyph.js';
-import Path from './path.js';
+import { BoundingBox } from './bounding-box.js';
+import { Glyph, type GlyphLayoutMetrics } from './glyph.js';
+import { Path } from './path.js';
 
 // The header for both simple and composite glyphs.
 interface GlyphHeaderData {
@@ -100,7 +100,7 @@ export type DecodedGlyph =
 /**
  * Represents a TrueType glyph.
  */
-export default class TTFGlyph extends Glyph {
+export class TTFGlyph extends Glyph {
 	// Legacys Hack: Properties injected via base Glyph constructor mutations.
 	public numberOfContours!: number;
 	public xMin!: number;

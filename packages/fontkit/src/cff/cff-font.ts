@@ -1,11 +1,11 @@
 import type { DecodeStream } from '@pdf-lib/restructure';
-import type CFFDict from './cff-dict.js';
+import type { CFFDict } from './cff-dict.js';
 import type { CFFIndexRecord } from './cff-index.js';
 import type { CFFPrivateDictTable } from './cff-pointer.js';
-import standardStrings from './cff-standard-strings.js';
-import CFFTop from './cff-top.js';
+import { standardStrings } from './cff-standard-strings.js';
+import { CFFTop } from './cff-top.js';
 
-class CFFFont {
+export class CFFFont {
 	public version!: number;
 	private topDictIndex!: CFFDict[];
 	public topDict!: Record<string, any>;
@@ -176,5 +176,3 @@ class CFFFont {
 		return this.topDict.FDArray[0].Private;
 	}
 }
-
-export default CFFFont;

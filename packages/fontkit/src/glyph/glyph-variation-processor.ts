@@ -48,7 +48,7 @@ interface MetricVariationTable {
  * FIXME! This class cache blend vectors and calculates normalised coordinates
  * and remembers them. That can easily be integrated into the SFNTFont class.
  */
-export default class GlyphVariationProcessor {
+export class GlyphVariationProcessor {
 	private font: SFNTFont;
 	public _normalizedCoords: number[];
 	private blendVectors = new Map<

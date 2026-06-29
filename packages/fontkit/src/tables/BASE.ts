@@ -215,7 +215,7 @@ const baseStructFields = {
 		itemVariationStore: new r.Pointer(r.uint32, itemVariationStore),
 	},
 };
-export default new r.VersionedStruct<typeof baseStructFields, BASETable.BASE>(
-	r.uint32,
-	baseStructFields,
-);
+export const BASE = new r.VersionedStruct<
+	typeof baseStructFields,
+	BASETable.BASE
+>(r.uint32, baseStructFields);

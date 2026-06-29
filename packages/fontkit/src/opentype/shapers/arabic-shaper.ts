@@ -4,9 +4,9 @@ import type { CodepointEntry } from 'codepoints';
 import pako from 'pako';
 import UnicodeTrie from 'unicode-trie';
 import type { OpenType } from '../../tables/opentype.js';
-import type GlyphInfo from '../glyph-info.js';
-import type ShapingPlan from '../shaping-plan.js';
-import DefaultShaper from './default-shaper.js';
+import type { GlyphInfo } from '../glyph-info.js';
+import type { ShapingPlan } from '../shaping-plan.js';
+import { DefaultShaper } from './default-shaper.js';
 // Trie is serialized as a Buffer in node, but here
 // we may be running in a browser so we make an Uint8Array.
 import base64DeflatedTrie from './trie.js';
@@ -165,7 +165,7 @@ const STATE_TABLE: StateTable = [
  * The shaping state machine was ported from Harfbuzz.
  * https://github.com/behdad/harfbuzz/blob/master/src/hb-ot-shape-complex-arabic.cc
  */
-export default class ArabicShaper extends DefaultShaper {
+export class ArabicShaper extends DefaultShaper {
 	static planFeatures<T>(plan: ShapingPlan<T>) {
 		plan.add(['ccmp', 'locl']);
 		for (let i = 0; i < FEATURES.length; i++) {

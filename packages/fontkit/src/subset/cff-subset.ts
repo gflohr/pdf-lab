@@ -1,14 +1,14 @@
 import type { EncodeStream } from '@pdf-lib/restructure';
-import type CFFDict from '../cff/cff-dict.js';
-import type CFFFont from '../cff/cff-font.js';
+import type { CFFDict } from '../cff/cff-dict.js';
+import type { CFFFont } from '../cff/cff-font.js';
 import type { CFFIndexRecord } from '../cff/cff-index.js';
-import standardStrings from '../cff/cff-standard-strings.js';
-import CFFTop, { type CFFTopData } from '../cff/cff-top.js';
-import CFFGlyph from '../glyph/cff-glyph.js';
+import { standardStrings } from '../cff/cff-standard-strings.js';
+import { CFFTop, type CFFTopData } from '../cff/cff-top.js';
+import { CFFGlyph } from '../glyph/cff-glyph.js';
 import type { SFNTFont } from '../sfnt-font.js';
-import Subset from './subset.js';
+import { Subset } from './subset.js';
 
-export default class CFFSubset extends Subset {
+export class CFFSubset extends Subset {
 	private readonly cff: CFFFont;
 	private charstrings: Uint8Array[] = [];
 	private gsubrs?: Uint8Array[];

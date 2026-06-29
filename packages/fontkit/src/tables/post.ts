@@ -90,7 +90,7 @@ const postFields = {
 	},
 };
 
-export default new r.VersionedStruct<typeof postFields, postTable.post>(
+export const post = new r.VersionedStruct<typeof postFields, postTable.post>(
 	r.fixed32,
 	postFields,
 );

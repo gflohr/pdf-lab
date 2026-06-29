@@ -1,8 +1,8 @@
-import ArabicShaper from './arabic-shaper.js';
-import DefaultShaper from './default-shaper.js';
-import HangulShaper from './hangul-shaper.js';
-import IndicShaper from './indic-shaper.js';
-import UniversalShaper from './universal-shapers.js';
+import { ArabicShaper } from './arabic-shaper.js';
+import { DefaultShaper } from './default-shaper.js';
+import { HangulShaper } from './hangul-shaper.js';
+import { IndicShaper } from './indic-shaper.js';
+import { UniversalShaper } from './universal-shapers.js';
 
 const SHAPERS: Record<string, typeof DefaultShaper> = {
 	arab: ArabicShaper, // Arabic

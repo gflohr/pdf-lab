@@ -1,8 +1,8 @@
 import type { DecodeStream, FieldT } from '@pdf-lib/restructure';
 import r from '@pdf-lib/restructure';
-import fontkit from './base.js';
-import type CFFFont from './cff/cff-font.js';
-import CmapProcessor from './cmap-processor.js';
+import { fontkit } from './base.js';
+import type { CFFFont } from './cff/cff-font.js';
+import { CmapProcessor } from './cmap-processor.js';
 import { FatalFontError } from './fatal-font-error.js';
 import type {
 	Font,
@@ -13,16 +13,15 @@ import type {
 	VariationCoordinates,
 	VariationSettings,
 } from './font.js';
-import BoundingBox from './glyph/bounding-box.js';
-import CFFGlyph from './glyph/cff-glyph.js';
-import COLRGlyph from './glyph/colr-glyph.js';
-import type Glyph from './glyph/glyph.js';
-import GlyphVariationProcessor from './glyph/glyph-variation-processor.js';
-import SBIXGlyph from './glyph/sbix-glyph.js';
-import TTFGlyph from './glyph/ttf-glyph.js';
-import type GlyphRun from './layout/glyph-run.js';
-import type { BidiDirection } from './layout/glyph-run.js';
-import LayoutEngine from './layout/layout-engine.js';
+import { BoundingBox } from './glyph/bounding-box.js';
+import { CFFGlyph } from './glyph/cff-glyph.js';
+import { COLRGlyph } from './glyph/colr-glyph.js';
+import type { Glyph } from './glyph/glyph.js';
+import { GlyphVariationProcessor } from './glyph/glyph-variation-processor.js';
+import { SBIXGlyph } from './glyph/sbix-glyph.js';
+import { TTFGlyph } from './glyph/ttf-glyph.js';
+import type { BidiDirection, GlyphRun } from './layout/glyph-run.js';
+import { LayoutEngine } from './layout/layout-engine.js';
 import type * as Script from './layout/script.js';
 import type { BaseFontDirectory, NullFont } from './null-font.js';
 import type { OpenTypeFont } from './open-type-font.js';
@@ -32,13 +31,13 @@ import {
 	requiredOpenTypeTables,
 	requiredOpenTypeTrueTypeTables,
 } from './open-type-font.js';
-import CFFSubset from './subset/cff-subset.js';
-import type Subset from './subset/subset.js';
-import TTFSubset from './subset/ttf-subset.js';
+import { CFFSubset } from './subset/cff-subset.js';
+import type { Subset } from './subset/subset.js';
+import { TTFSubset } from './subset/ttf-subset.js';
 import type { AAT } from './tables/aat.js';
 import type { SFNTDirectoryEntry, SFNTTableMap } from './tables/directory.js';
-import Directory from './tables/directory.js';
-import tables from './tables/index.js';
+import { directory } from './tables/directory.js';
+import { tables } from './tables/index.js';
 import type { nameTable } from './tables/name.js';
 import type { OpenType } from './tables/opentype.js';
 
@@ -247,7 +246,7 @@ export class SFNTFont<TDirectory extends BaseFontDirectory = BaseFontDirectory>
 	}
 
 	protected decodeDirectory(): TDirectory {
-		return Directory.decode(this.stream, {
+		return directory.decode(this.stream, {
 			_startOffset: 0,
 		} as FieldT<unknown>) as unknown as TDirectory;
 	}

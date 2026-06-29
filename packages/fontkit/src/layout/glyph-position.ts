@@ -1,7 +1,7 @@
 /**
  * Represents positioning information for a glyph in a GlyphRun.
  */
-export default class GlyphPosition {
+export class GlyphPosition {
 	/**
 	 * Create a position.
 	 *

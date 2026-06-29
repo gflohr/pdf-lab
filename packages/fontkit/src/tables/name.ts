@@ -119,12 +119,10 @@ const nameFields = {
 
 // We explicitly cast the base generic here to pass the runtime array format checks
 // internally inside restructure, but map it gracefully to the finalized nameTable.name shape.
-const nameStruct = new r.VersionedStruct<typeof nameFields, nameTable.name>(
+export const name = new r.VersionedStruct<typeof nameFields, nameTable.name>(
 	r.uint16,
 	nameFields,
 );
-
-export default nameStruct;
 
 const NAMES = [
 	'copyright',
@@ -152,7 +150,7 @@ const NAMES = [
 	'wwsSubfamilyName',
 ];
 
-nameStruct.process = function (this: any) {
+name.process = function (this: any) {
 	const rawRecords = this.records as nameTable.NameRecord[];
 	const processedRecords: nameTable.ProcessedRecords = {};
 
@@ -206,7 +204,7 @@ nameStruct.process = function (this: any) {
 	this.records = processedRecords;
 };
 
-nameStruct.preEncode = function (this: any) {
+name.preEncode = function (this: any) {
 	if (Array.isArray(this.records)) return;
 	this.version = 0;
 
@@ -255,5 +253,5 @@ nameStruct.preEncode = function (this: any) {
 
 	this.records = records;
 	this.count = records.length;
-	this.stringOffset = nameStruct.size(this, null, false);
+	this.stringOffset = name.size(this, null, false);
 };
