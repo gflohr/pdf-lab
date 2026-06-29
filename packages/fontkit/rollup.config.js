@@ -1,3 +1,4 @@
+import path from 'node:path'
 import commonjs from '@rollup/plugin-commonjs';
 import inject from '@rollup/plugin-inject';
 import json from '@rollup/plugin-json';
@@ -7,105 +8,113 @@ import terser from '@rollup/plugin-terser';
 import nodePolyfills from 'rollup-plugin-polyfill-node';
 import typescript from 'rollup-plugin-typescript2';
 
-const plugins = [
-	typescript({
-		include: ['*/**/*.{js,ts}'],
-		exclude: ['**/node_modules/**/*'],
-	}),
+const getPlugins = () => [
+    typescript({
+        include: ['*/**/*.{js,ts}'],
+        exclude: ['**/node_modules/**/*'],
+    }),
 
-	nodeResolve({
-		browser: true,
-		preferBuiltins: false,
-	}),
+    nodeResolve({
+        browser: true,
+        preferBuiltins: false,
+        // Let it look in node_modules for ALL targets
+        moduleDirectories: ['node_modules']
+    }),
 
-	json(),
+    json(),
+    nodePolyfills(),
 
-	nodePolyfills(),
+    swc({
+        include: ['**/*.js'],
+        exclude: ['node_modules/**'],
+        jsc: {
+            parser: { syntax: 'ecmascript', decorators: true },
+            transform: { legacyDecorator: true, decoratorMetadata: false },
+            target: 'es2020',
+        },
+    }),
 
-	swc({
-		include: ['**/*.js'],
-		exclude: ['node_modules/**'],
-		jsc: {
-			parser: {
-				syntax: 'ecmascript',
-				decorators: true,
-			},
-			transform: {
-				legacyDecorator: true,
-				decoratorMetadata: false,
-			},
-			target: 'es2020',
-		},
-	}),
+    commonjs(),
 
-	commonjs(),
-
-	inject({
-		Buffer: ['buffer', 'Buffer'],
-		process: 'process',
-	}),
+    inject({
+        Buffer: ['buffer', 'Buffer'],
+        process: 'process',
+    }),
 ];
 
 const onwarn = (warning, warn) => {
-	// Silence noisy legacy dependency warnings.
-	if (warning.code === 'CIRCULAR_DEPENDENCY') return;
-	warn(warning);
+    if (warning.code === 'CIRCULAR_DEPENDENCY') return;
+    warn(warning);
+};
+
+// A helper function to automatically treat all node_modules dependencies
+// as external for ESM/CJS, but return an empty array for UMD so everything
+// packages up.
+const configureExternal = (isUmd) => {
+    if (isUmd) return [];
+
+    return (id) => {
+        // 1. Instantly skip internal relative files
+        if (id.startsWith('.') || id.startsWith('/') || id.startsWith('\0') || id.startsWith('src/')) return false;
+
+        // 2. Prevent our own absolute source files from ever being externalized
+        if (path.isAbsolute(id)) {
+            return id.includes('node_modules');
+        }
+
+        // 3. If it doesn't look like a local path, it's an external library dependency
+        return true;
+    };
 };
 
 export default [
-	{
-		input: 'src/index.ts',
-		external: ['pako'], // pdf-lib provides pako for the other formats.
-		output: {
-			file: 'dist/fontkit.esm.js',
-			format: 'esm',
-			sourcemap: true,
-		},
-		plugins,
-		onwarn,
-	},
-	{
-		input: 'src/index.ts',
-		output: {
-			file: 'dist/fontkit.cjs',
-			format: 'cjs',
-			sourcemap: true,
-			exports: 'named',
-		},
-
-		plugins,
-		onwarn,
-	},
-	{
-		input: 'src/index.ts',
-		output: {
-			file: 'dist/fontkit.umd.js',
-			format: 'umd',
-			name: 'fontkit',
-			sourcemap: true,
-			globals: {
-				pako: 'pako',
-			},
-			exports: 'named',
-		},
-		external: ['pako'],
-		plugins,
-		onwarn,
-	},
-	{
-		input: 'src/index.ts',
-		output: {
-			file: 'dist/fontkit.umd.min.js',
-			format: 'umd',
-			name: 'fontkit',
-			sourcemap: true,
-			globals: {
-				pako: 'pako',
-			},
-			exports: 'named',
-		},
-		external: ['pako'],
-		plugins: [...plugins, terser()],
-		onwarn,
-	},
+    {
+        input: 'src/index.ts',
+        external: configureExternal(false), // Automatically flags pako, restructure, deep-equal, etc.
+        output: {
+            file: 'dist/fontkit.esm.js',
+            format: 'esm',
+            sourcemap: true,
+        },
+        plugins: getPlugins(),
+        onwarn,
+    },
+    {
+        input: 'src/index.ts',
+        external: configureExternal(false),
+        output: {
+            file: 'dist/fontkit.cjs',
+            format: 'cjs',
+            sourcemap: true,
+            exports: 'named',
+        },
+        plugins: getPlugins(),
+        onwarn,
+    },
+    {
+        input: 'src/index.ts',
+        external: configureExternal(true), // Bundles pako and every other sub-dependency
+        output: {
+            file: 'dist/fontkit.umd.js',
+            format: 'umd',
+            name: 'fontkit',
+            sourcemap: true,
+            exports: 'named',
+        },
+        plugins: getPlugins(),
+        onwarn,
+    },
+    {
+        input: 'src/index.ts',
+        external: configureExternal(true),
+        output: {
+            file: 'dist/fontkit.umd.min.js',
+            format: 'umd',
+            name: 'fontkit',
+            sourcemap: true,
+            exports: 'named',
+        },
+        plugins: [...getPlugins(), terser()],
+        onwarn,
+    },
 ];

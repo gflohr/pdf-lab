@@ -1,6 +1,6 @@
 import { defineConfig } from 'vitepress';
+import { tabsMarkdownPlugin } from 'vitepress-plugin-tabs';
 import typedocSidebar from '../api/typedoc-sidebar.json';
-import { tabsMarkdownPlugin } from 'vitepress-plugin-tabs'
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
@@ -8,14 +8,12 @@ export default defineConfig({
 	markdown: {
 		config(md) {
 			md.use(tabsMarkdownPlugin);
-		}
+		},
 	},
 	description: 'An advanced font engine for Node and the browser.',
 	themeConfig: {
 		// https://vitepress.dev/reference/default-theme-config
-		nav: [
-			{ text: 'API', link: '/api/' },
-		],
+		nav: [{ text: 'API', link: '/api/' }],
 
 		sidebar: [
 			{
@@ -23,16 +21,16 @@ export default defineConfig({
 				items: [
 					{
 						text: 'What is Fontkit?',
-						link: '/introduction/what-is-fontkit'
+						link: '/introduction/what-is-fontkit',
 					},
 					{
 						text: 'Installation',
-						link: '/introduction/installation'
+						link: '/introduction/installation',
 					},
 					{
 						text: 'Basic Usage',
-						link: '/introduction/basic-usage'
-					}
+						link: '/introduction/basic-usage',
+					},
 				],
 			},
 			{
