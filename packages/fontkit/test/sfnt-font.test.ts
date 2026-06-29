@@ -36,7 +36,6 @@ describe('SFNTFont Capabilities & Table Resolution', () => {
 	beforeEach(() => {
 		font = Object.create(SFNTFont.prototype);
 
-		font['existingTableTags'] = new Set<string>();
 		font['tables'] = {} as SFNTTableMap;
 		font.directory = {
 			tag: 'true',
@@ -58,15 +57,33 @@ describe('SFNTFont Capabilities & Table Resolution', () => {
 		});
 
 		it('should return true if the table exists and decode is false (without parsing it)', () => {
-			font['existingTableTags'].add('head');
+			++font.directory.numTables;
+			font.directory.tables.head = {
+				tag: 'head',
+				offset: 100,
+			}
 
 			expect(font.hasTable('head', false)).toBe(true);
 			expect(font['decodeTable']).not.toHaveBeenCalled();
 		});
 
+		it('should return true if an unknown table exists and decode is false (without parsing it)', () => {
+			++font.directory.numTables;
+			font.directory.tables.foot = {
+				tag: 'foot',
+				offset: 100,
+			}
+
+			expect(font.hasTable('foot', false)).toBe(true);
+			expect(font['decodeTable']).not.toHaveBeenCalled();
+		});
+
 		it('should trigger eager decoding and return true if decode is true and parsing succeeds', () => {
-			font['existingTableTags'].add('head');
-			font.directory.tables['head'] = { tag: 'head', offset: 100 } as unknown;
+			++font.directory.numTables;
+			font.directory.tables.head = {
+				tag: 'head',
+				offset: 100,
+			}
 
 			expect(font.hasTable('head', true)).toBe(true);
 			expect(font['decodeTable']).toHaveBeenCalledWith({
@@ -76,9 +93,24 @@ describe('SFNTFont Capabilities & Table Resolution', () => {
 			expect(font['tables']['head']).toEqual({ tag: 'head', mockParsed: true });
 		});
 
+		it('should not trigger eager decoding for an unknown table and return false if decode is true', () => {
+			++font.directory.numTables;
+			font.directory.tables.foot = {
+				tag: 'foot',
+				offset: 100,
+			}
+
+			expect(font.hasTable('foot', true)).toBe(false);
+			expect(font['decodeTable']).not.toHaveBeenCalledWith();
+		});
+
 		it('should trap standard decoding errors and throw, when decode is true', () => {
-			font['existingTableTags'].add('head');
-			font.directory.tables['head'] = { tag: 'head' } as SFNTDirectoryEntry;
+			++font.directory.numTables;
+			font.directory.tables.head = {
+				tag: 'head',
+				offset: 100,
+			}
+
 			vi.mocked(font['decodeTable']).mockImplementationOnce(() => {
 				throw new Error('Corrupt data');
 			});

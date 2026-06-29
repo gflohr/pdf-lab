@@ -113,7 +113,6 @@ export class SFNTFont<TDirectory extends BaseFontDirectory = BaseFontDirectory>
 	private tables: SFNTTableMap = {} as SFNTTableMap;
 	protected glyphs: Record<number, Glyph> = {};
 	public directory: TDirectory;
-	private existingTableTags = new Set<string>();
 
 	// Those variables are lazily instantiated by their respctive getters, and
 	// then frozen.
@@ -150,6 +149,8 @@ export class SFNTFont<TDirectory extends BaseFontDirectory = BaseFontDirectory>
 		this.glyphs = {};
 		this.directory = this.decodeDirectory();
 
+		const existingTableTags = new Set<string>();
+
 		// Define properties for each table to lazily parse.
 		for (const tag in tables) {
 			Object.defineProperty(this, tag, {
@@ -158,30 +159,30 @@ export class SFNTFont<TDirectory extends BaseFontDirectory = BaseFontDirectory>
 
 			const entry = this.directory.tables[tag];
 			if (entry && tables[tag as keyof typeof tables] && entry.length > 0) {
-				this.existingTableTags.add(tag);
+				existingTableTags.add(tag);
 			}
 		}
 
 		if (
-			requiredOpenTypeTables.every((tag) => this.existingTableTags.has(tag))
+			requiredOpenTypeTables.every((tag) => existingTableTags.has(tag))
 		) {
 			if (
 				requiredOpenTypeTrueTypeTables.every((tag) =>
-					this.existingTableTags.has(tag),
+					existingTableTags.has(tag),
 				)
 			) {
 				this.outlines = 'TrueType';
 				this.outlineVersion = 1;
 			} else if (
 				requiredOpenTypeCFF2Tables.every((tag) =>
-					this.existingTableTags.has(tag),
+					existingTableTags.has(tag),
 				)
 			) {
 				this.outlines = 'PostScript';
 				this.outlineVersion = 2;
 			} else if (
 				requiredOpenTypeCFF1Tables.every((tag) =>
-					this.existingTableTags.has(tag),
+					existingTableTags.has(tag),
 				)
 			) {
 				this.outlines = 'PostScript';
@@ -897,12 +898,12 @@ export class SFNTFont<TDirectory extends BaseFontDirectory = BaseFontDirectory>
 		tag: K | keyof SFNTTableMap,
 		decode?: boolean,
 	): boolean {
-		if (!this.existingTableTags.has(tag)) {
-			return false;
-		}
+		const entry = this.directory.tables[tag];
+		if (!entry) return false;
 
 		if (decode) {
-			if (!this.getTable(this.directory.tables[tag])) return false;
+			if (!(tag in tables) || entry.length === 0) return false;
+			if (!this.getTable(entry)) return false;
 		}
 
 		return true;
