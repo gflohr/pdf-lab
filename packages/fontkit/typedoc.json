@@ -3,6 +3,7 @@
 	"entryPoints": ["./src/index.ts"],
 	"plugin": ["typedoc-plugin-markdown", "typedoc-vitepress-theme"],
 	"out": "./docs/api",
+	"excludeNotDocumented": false,
 	"docsRoot": "./docs",
 	"readme": "none",
 	"router": "kind",

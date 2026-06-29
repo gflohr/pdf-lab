@@ -5,7 +5,7 @@ import type {
 	ParsingContext,
 } from '@pdf-lib/restructure';
 import isEqual from 'deep-equal';
-import { CFFOperand } from './cff-operand.js';
+import { cffOperand } from './cff-operand.js';
 import type { CFFPrivateDictTable } from './cff-pointer.js';
 import type { CFFPrivateOp } from './cff-top.js';
 
@@ -165,7 +165,7 @@ export class CFFDict implements FieldT<Record<string, any>> {
 
 				operands = [];
 			} else {
-				operands.push(CFFOperand.decode(stream, b));
+				operands.push(cffOperand.decode(stream, b));
 			}
 		}
 
@@ -195,7 +195,7 @@ export class CFFDict implements FieldT<Record<string, any>> {
 
 			const operands = this.encodeOperands(field[2], null, ctx, val);
 			for (const op of operands) {
-				len += CFFOperand.size(op);
+				len += cffOperand.size(op);
 			}
 
 			const key = Array.isArray(field[0]) ? field[0] : [field[0]];
@@ -228,7 +228,7 @@ export class CFFDict implements FieldT<Record<string, any>> {
 
 			const operands = this.encodeOperands(field[2], stream, ctx, val);
 			for (const op of operands) {
-				CFFOperand.encode(stream, op);
+				cffOperand.encode(stream, op);
 			}
 
 			const key = Array.isArray(field[0]) ? field[0] : [field[0]];

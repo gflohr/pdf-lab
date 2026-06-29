@@ -9,12 +9,12 @@ import r from '@pdf-lib/restructure';
 import { resolveLength } from '@pdf-lib/restructure/src/utils.js';
 import { itemVariationStore } from '../tables/variations.js';
 import {
-	ExpertCharset,
-	ExpertSubsetCharset,
-	ISOAdobeCharset,
+	expertCharset,
+	expertSubsetCharset,
+	isoAdobeCharset,
 } from './cff-charsets.js';
 import { CFFDict } from './cff-dict.js';
-import { ExpertEncoding, StandardEncoding } from './cff-encodings.js';
+import { expertEncoding, standardEncoding } from './cff-encodings.js';
 import { CFFIndex } from './cff-index.js';
 import { CFFPointer, type Ptr } from './cff-pointer.js';
 import { privateCFFDict } from './cff-private-dict.js';
@@ -73,13 +73,13 @@ const range1Fields = {
 	first: r.uint16,
 	nLeft: r.uint8,
 };
-const Range1 = new r.Struct<typeof range1Fields, RangeRecord>(range1Fields);
+const range1 = new r.Struct<typeof range1Fields, RangeRecord>(range1Fields);
 
 const range2Fields = {
 	first: r.uint16,
 	nLeft: r.uint16,
 };
-const Range2 = new r.Struct<typeof range2Fields, RangeRecord>(range2Fields);
+const range2 = new r.Struct<typeof range2Fields, RangeRecord>(range2Fields);
 
 interface CFFCustomEncodingDataV0 {
 	version: 0;
@@ -103,19 +103,19 @@ const cffCustomEncodingFields = {
 
 	1: {
 		nRanges: r.uint8,
-		ranges: new r.Array(Range1, 'nRanges'),
+		ranges: new r.Array(range1, 'nRanges'),
 	},
 
 	// TODO: supplement?
 };
-const CFFCustomEncoding = new r.VersionedStruct<
+const cffCustomEncoding = new r.VersionedStruct<
 	typeof cffCustomEncodingFields,
 	CFFCustomEncodingData
 >(new CFFEncodingVersion(), cffCustomEncodingFields);
 
-const CFFEncoding = new PredefinedOp(
-	[StandardEncoding, ExpertEncoding],
-	new CFFPointer(CFFCustomEncoding, { lazy: true }),
+const cffEncoding = new PredefinedOp(
+	[standardEncoding, expertEncoding],
+	new CFFPointer(cffCustomEncoding, { lazy: true }),
 );
 
 // Decodes an array of ranges until the total
@@ -164,47 +164,47 @@ const cffCustomCharsetFields = {
 	},
 
 	1: {
-		ranges: new RangeArray(Range1, (t) => t.parent.CharStrings.length - 1),
+		ranges: new RangeArray(range1, (t) => t.parent.CharStrings.length - 1),
 	},
 
 	2: {
-		ranges: new RangeArray(Range2, (t) => t.parent.CharStrings.length - 1),
+		ranges: new RangeArray(range2, (t) => t.parent.CharStrings.length - 1),
 	},
 };
-const CFFCustomCharset = new r.VersionedStruct<
+const cffCustomCharset = new r.VersionedStruct<
 	typeof cffCustomCharsetFields,
 	CFFCustomCharsetData
 >(r.uint8, cffCustomCharsetFields);
 
-const CFFCharset = new PredefinedOp(
-	[ISOAdobeCharset, ExpertCharset, ExpertSubsetCharset],
-	new CFFPointer(CFFCustomCharset, { lazy: true }),
+const cffCharset = new PredefinedOp(
+	[isoAdobeCharset, expertCharset, expertSubsetCharset],
+	new CFFPointer(cffCustomCharset, { lazy: true }),
 );
 
-const FDRange3 = new r.Struct({
+const fdRange3 = new r.Struct({
 	first: r.uint16,
 	fd: r.uint8,
 });
 
-const FDRange4 = new r.Struct({
+const fdRange4 = new r.Struct({
 	first: r.uint32,
 	fd: r.uint16,
 });
 
-const FDSelect = new r.VersionedStruct(r.uint8, {
+const fdSelect = new r.VersionedStruct(r.uint8, {
 	0: {
 		fds: new r.Array(r.uint8, (t) => t.parent.CharStrings.length),
 	},
 
 	3: {
 		nRanges: r.uint16,
-		ranges: new r.Array(FDRange3, 'nRanges'),
+		ranges: new r.Array(fdRange3, 'nRanges'),
 		sentinel: r.uint16,
 	},
 
 	4: {
 		nRanges: r.uint32,
-		ranges: new r.Array(FDRange4, 'nRanges'),
+		ranges: new r.Array(fdRange4, 'nRanges'),
 		sentinel: r.uint32,
 	},
 });
@@ -235,13 +235,13 @@ export class CFFPrivateOp {
 	}
 }
 
-const FontDict = new CFFDict([
+const fontDict = new CFFDict([
 	// key, name, type(s), default
 	[18, 'Private', new CFFPrivateOp(), null],
 	[[12, 38], 'FontName', 'sid', null],
 ]);
 
-const CFFTopDict = new CFFDict([
+const cffTopDict = new CFFDict([
 	// key, name, type(s), default
 	[[12, 30], 'ROS', ['sid', 'sid', 'number'], null],
 
@@ -262,8 +262,8 @@ const CFFTopDict = new CFFDict([
 	[5, 'FontBBox', 'array', [0, 0, 0, 0]],
 	[[12, 8], 'StrokeWidth', 'number', 0],
 	[14, 'XUID', 'array', null],
-	[15, 'charset', CFFCharset, ISOAdobeCharset],
-	[16, 'Encoding', CFFEncoding, StandardEncoding],
+	[15, 'charset', cffCharset, isoAdobeCharset],
+	[16, 'Encoding', cffEncoding, standardEncoding],
 	[17, 'CharStrings', new CFFPointer(new CFFIndex()), null],
 	[18, 'Private', new CFFPrivateOp(), null],
 	[[12, 20], 'SyntheticBase', 'number', null],
@@ -277,22 +277,22 @@ const CFFTopDict = new CFFDict([
 	[[12, 33], 'CIDFontType', 'number', 0],
 	[[12, 34], 'CIDCount', 'number', 8720],
 	[[12, 35], 'UIDBase', 'number', null],
-	[[12, 37], 'FDSelect', new CFFPointer(FDSelect), null],
-	[[12, 36], 'FDArray', new CFFPointer(new CFFIndex(FontDict)), null],
+	[[12, 37], 'FDSelect', new CFFPointer(fdSelect), null],
+	[[12, 36], 'FDArray', new CFFPointer(new CFFIndex(fontDict)), null],
 	[[12, 38], 'FontName', 'sid', null],
 ]);
 
-const VariationStore = new r.Struct({
+const variationStore = new r.Struct({
 	length: r.uint16,
 	itemVariationStore: itemVariationStore,
 });
 
-const CFF2TopDict = new CFFDict([
+const cff2TopDict = new CFFDict([
 	[[12, 7], 'FontMatrix', 'array', [0.001, 0, 0, 0.001, 0, 0]],
 	[17, 'CharStrings', new CFFPointer(new CFFIndex()), null],
-	[[12, 37], 'FDSelect', new CFFPointer(FDSelect), null],
-	[[12, 36], 'FDArray', new CFFPointer(new CFFIndex(FontDict)), null],
-	[24, 'vstore', new CFFPointer(VariationStore), null],
+	[[12, 37], 'FDSelect', new CFFPointer(fdSelect), null],
+	[[12, 36], 'FDArray', new CFFPointer(new CFFIndex(fontDict)), null],
+	[24, 'vstore', new CFFPointer(variationStore), null],
 	[25, 'maxstack', 'number', 193],
 ]);
 
@@ -321,7 +321,7 @@ const fields = {
 		hdrSize: r.uint8,
 		offSize: r.uint8,
 		nameIndex: new CFFIndex(new r.String('length')),
-		topDictIndex: new CFFIndex(CFFTopDict),
+		topDictIndex: new CFFIndex(cffTopDict),
 		stringIndex: new CFFIndex(new r.String('length')),
 		globalSubrIndex: new CFFIndex(),
 	},
@@ -329,12 +329,12 @@ const fields = {
 	2: {
 		hdrSize: r.uint8,
 		length: r.uint16,
-		topDict: CFF2TopDict,
+		topDict: cff2TopDict,
 		globalSubrIndex: new CFFIndex(),
 	},
 };
 
-export const CFFTop = new r.VersionedStruct<typeof fields, CFFTopData>(
+export const cffTop = new r.VersionedStruct<typeof fields, CFFTopData>(
 	r.fixed16,
 	fields,
 );

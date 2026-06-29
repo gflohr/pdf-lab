@@ -3,7 +3,7 @@ import type { CFFDict } from './cff-dict.js';
 import type { CFFIndexRecord } from './cff-index.js';
 import type { CFFPrivateDictTable } from './cff-pointer.js';
 import { standardStrings } from './cff-standard-strings.js';
-import { CFFTop } from './cff-top.js';
+import { cffTop } from './cff-top.js';
 
 export class CFFFont {
 	public version!: number;
@@ -27,7 +27,7 @@ export class CFFFont {
 	}
 
 	decode() {
-		const top = CFFTop.decode(this.stream);
+		const top = cffTop.decode(this.stream);
 		for (const k in top) {
 			const key = k as keyof typeof top;
 			const val = top[key];
