@@ -31,7 +31,7 @@ const fontkit = require('@pdf-lab/fontkit');
 
 const bytes = fs.readFileSync('Helvetica.ttf');
 const font = fontkit.create(bytes);
-const bbox = new fontkit.BoundingBox(5, , 25, 30);
+const bbox = new fontkit.BoundingBox(5, 3, 25, 30);
 ```
 
 == UMD
@@ -48,7 +48,18 @@ window.fetch('Helvetica.ttf')
 	.then(buffer => {
 		const fontData = new Uint8Array(buffer);
 		const font = fontkit.create(fontData);
-		const bbox = new fontkit.BoundingBox(5, 3, 25, 30);
 	})
 	.catch(error => console.error('Error loading font:', error));
 ```
+
+:::
+
+Note that for UMD builds, you can only access the default export `fontkit` but no
+utility exports like [`BoundingBox`](../../api/classes/BoundingBox) or
+[`Glyph`](../../api/classes/Glyph). This constraint is an
+intentional architectural design choice to preserve the legacy
+`window.fontkit.create()` global API footprint for backward compatibility.
+
+If you require standalone browser access to those individual helper classes,
+please use a modern module bundler instead of relying on raw UMD script
+injections. Alternatively, file a pull request that removes this limitation.
