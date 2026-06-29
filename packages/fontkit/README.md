@@ -95,7 +95,7 @@ Existing `fontkit` variants each address different constraints, but none satisfy
   is currently unmaintained and affected by accumulated bit rot and unresolved
   issues
 
-This project continues from `@pdf-lib/fontkit` with a focus on modernizing the
+This project continues from `@pdf-lib/fontkit` with a focus on modernising the
 codebase and improving long-term maintainability. It also aims at fixing all
 bugs that have been fixed in one of the other forks.
 

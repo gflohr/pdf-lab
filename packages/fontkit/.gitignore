@@ -14,3 +14,4 @@ src/**/use.ts
 stats.html
 docs/api
 docs/.vitepress/cache
+docs/.vitepress/dist
