@@ -13,3 +13,4 @@ src/**/indic.ts
 src/**/use.ts
 stats.html
 docs/api
+docs/.vitepress/cache
