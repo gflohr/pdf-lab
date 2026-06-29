@@ -27,7 +27,8 @@ import type * as Script from './layout/script.js';
 import type { BaseFontDirectory, NullFont } from './null-font.js';
 import type { OpenTypeFont } from './open-type-font.js';
 import {
-	requiredOpenTypePostScriptTables,
+	requiredOpenTypeCFF1Tables,
+	requiredOpenTypeCFF2Tables,
 	requiredOpenTypeTables,
 	requiredOpenTypeTrueTypeTables,
 } from './open-type-font.js';
@@ -125,6 +126,7 @@ export class SFNTFont<TDirectory extends BaseFontDirectory = BaseFontDirectory>
 	private _variationProcessor!: GlyphVariationProcessor | null;
 
 	public outlines = '';
+	public outlineVersion = 0;
 
 	// Infers all other table properties (cmap, head, OS/2, etc.) via the
 	// interface heritage.
@@ -169,12 +171,21 @@ export class SFNTFont<TDirectory extends BaseFontDirectory = BaseFontDirectory>
 				)
 			) {
 				this.outlines = 'TrueType';
+				this.outlineVersion = 1;
 			} else if (
-				requiredOpenTypePostScriptTables.every((tag) =>
+				requiredOpenTypeCFF2Tables.every((tag) =>
 					this.existingTableTags.has(tag),
 				)
 			) {
 				this.outlines = 'PostScript';
+				this.outlineVersion = 2;
+			} else if (
+				requiredOpenTypeCFF1Tables.every((tag) =>
+					this.existingTableTags.has(tag),
+				)
+			) {
+				this.outlines = 'PostScript';
+				this.outlineVersion = 1;
 			} else {
 				this.outlines = 'none';
 			}
@@ -907,7 +918,11 @@ export class SFNTFont<TDirectory extends BaseFontDirectory = BaseFontDirectory>
 			if (this.outlines === 'TrueType') {
 				tags = [...requiredOpenTypeTrueTypeTables];
 			} else if (this.outlines === 'PostScript') {
-				tags = [...requiredOpenTypePostScriptTables];
+				if (this.outlineVersion === 1) {
+					tags = [...requiredOpenTypeCFF1Tables];
+				} else {
+					tags = [...requiredOpenTypeCFF2Tables];
+				}
 			} else {
 				tags = [...requiredOpenTypeTables];
 			}

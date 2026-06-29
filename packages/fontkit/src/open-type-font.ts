@@ -32,15 +32,27 @@ export type RequiredOpenTypeTrueTypeTableTag =
 
 /**
  * The list of strictly required tables for an OpenType font with PostScript
- * outlines.
+ * outlines, legacy version.
  */
-export const requiredOpenTypePostScriptTables = [
+export const requiredOpenTypeCFF1Tables = [
 	'CFF ',
 	...requiredOpenTypeTables,
 ] as const;
 
-export type RequiredOpenTypePostScriptTableTag =
-	(typeof requiredOpenTypePostScriptTables)[number];
+export type RequiredOpenTypeCFF1TableTag =
+	(typeof requiredOpenTypeCFF1Tables)[number];
+
+/**
+ * The list of strictly required tables for an OpenType font with PostScript
+ * outlines, modern version.
+ */
+export const requiredOpenTypeCFF2Tables = [
+	'CFF2',
+	...requiredOpenTypeTables,
+] as const;
+
+export type RequiredOpenTypeCFF2TableTag =
+	(typeof requiredOpenTypeCFF2Tables)[number];
 
 type StrictTables<T extends keyof SFNTTableMap> = {
 	readonly [K in T]: NonNullable<SFNTTableMap[K]>;
@@ -70,6 +82,8 @@ export interface OpenTypeNoOutlinesFont
 		StrictTables<RequiredOpenTypeTableTag> {
 	/** Discriminator for the different outline types. */
 	readonly outlines: 'none';
+
+	readonly outlineVersion: 0;
 }
 
 /**
@@ -80,22 +94,48 @@ export interface OpenTypeTrueTypeFont
 		StrictTables<RequiredOpenTypeTrueTypeTableTag> {
 	/** Discriminator for the different outline types. */
 	readonly outlines: 'TrueType';
+
+	readonly outlineVersion: 1;
 }
 
 /**
- * OpenType font with verified PostScript Compact Font Format (CFF) components.
+ * OpenType font with verified PostScript Compact Font Format (CFF) components,
+ * legacy version.
  */
-export interface OpenTypePostScriptFont
-	extends Omit<NullFont, RequiredOpenTypePostScriptTableTag>,
-		StrictTables<RequiredOpenTypePostScriptTableTag> {
+export interface OpenTypeCFF1Font
+	extends Omit<NullFont, RequiredOpenTypeCFF1TableTag>,
+		StrictTables<RequiredOpenTypeCFF1TableTag> {
 	/** Discriminator for the different outline types. */
 	readonly outlines: 'PostScript';
+
+	/** Discriminator for CFF versions */
+	readonly outlineVersion: 1;
 
 	/**
 	 * Alias for the structural {@link OpenTypePostScriptFont#CFF } table.
 	 */
 	readonly cff: NonNullable<SFNTTableMap['CFF ']>;
 }
+
+/**
+ * OpenType font with verified PostScript Compact Font Format (CFF) components,
+ * legacy version.
+ */
+export interface OpenTypeCFF2Font
+	extends Omit<NullFont, RequiredOpenTypeCFF2TableTag>,
+		StrictTables<RequiredOpenTypeCFF2TableTag> {
+	/** Discriminator for the different outline types. */
+	readonly outlines: 'PostScript';
+
+	/** Discriminator for CFF versions */
+	readonly outlineVersion: 2;
+}
+
+/**
+ * Discriminated union representing an OpenType font with PostScript
+ * outlines.
+ */
+export type OpenTypePostScriptFont = OpenTypeCFF1Font | OpenTypeCFF2Font;
 
 /**
  * The final Discriminated Union representing any upcast, structurally

@@ -4,9 +4,9 @@ import type { DecodeStream } from '@pdf-lib/restructure';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { BaseFontDirectory } from '../src/null-font.js';
 import {
-	requiredOpenTypePostScriptTables,
+	requiredOpenTypeCFF1Tables,
+	requiredOpenTypeCFF2Tables,
 	requiredOpenTypeTables,
-	requiredOpenTypeTrueTypeTables,
 } from '../src/open-type-font.js';
 import { SFNTFont } from '../src/sfnt-font.js';
 import type {
@@ -249,8 +249,9 @@ describe('SFNTFont Capabilities & Table Resolution', () => {
 				);
 			});
 
-			it('should decode the 8 core tables PLUS CFF when outlines are "PostScript"', () => {
-				font['outlines'] = 'PostScript';
+			it('should decode the 8 core tables PLUS CFF when outlines are CFF version 1', () => {
+				font.outlines = 'PostScript';
+				font.outlineVersion = 1;
 
 				// Inject the structural PostScript dependencies into our mock maps
 				font['existingTableTags'].add('CFF ');
@@ -262,6 +263,23 @@ describe('SFNTFont Capabilities & Table Resolution', () => {
 				expect(font['getTable']).toHaveBeenCalledTimes(9);
 				expect(font['getTable']).toHaveBeenCalledWith(
 					font.directory.tables['CFF '],
+				);
+			});
+
+			it('should decode the 8 core tables PLUS CFF2 when outlines are CFF version 2', () => {
+				font.outlines = 'PostScript';
+				font.outlineVersion = 2;
+
+				// Inject the structural PostScript dependencies into our mock maps
+				font['existingTableTags'].add('CFF2');
+				font.directory.tables['CFF2'] = { tag: 'CFF2' } as SFNTDirectoryEntry;
+
+				font.asOpenTypeFont(true);
+
+				// 8 core tables + 1 outline table = 9 table resolution calls total
+				expect(font['getTable']).toHaveBeenCalledTimes(9);
+				expect(font['getTable']).toHaveBeenCalledWith(
+					font.directory.tables['CFF2'],
 				);
 			});
 
