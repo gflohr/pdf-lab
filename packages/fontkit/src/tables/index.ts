@@ -117,3 +117,52 @@ export const tables = {
 	morx,
 	opbd,
 } satisfies FontTable;
+
+export * from './aat.js'
+export * from './avar.js';
+export * from './BASE.js';
+export * from './bsln.js';
+export * from './cmap.js'
+export * from './COLR.js'
+export * from './CPAL.js'
+export * from './cvt.js'
+export * from './directory.js'
+export * from './DSIG.js'
+export * from './EBDT.js'
+export * from './EBLC.js'
+export * from './feat.js'
+export * from './fpgm.js'
+export * from './fvar.js'
+export * from './gasp.js'
+export * from './GDEF.js'
+export * from './glyf.js'
+export * from './GPOS.js'
+export * from './GSUB.js'
+export * from './gvar.js'
+export * from './hdmx.js'
+export * from './head.js'
+export * from './hhea.js'
+export * from './hmtx.js'
+export * from './HVAR.js'
+export * from './JSTF.js';
+export * from './just.js';
+export * from './kern.js';
+export * from './loca.js';
+export * from './LTSH.js';
+export * from './maxp.js';
+export * from './metrics.js';
+export * from './morx.js';
+export * from './name.js';
+export * from './opbd.js';
+export * from './opentype.js';
+export * from './PCLT.js';
+export * from './post.js';
+export * from './prep.js';
+export * from './sbix.js';
+export * from './variations.js';
+export * from './VDMX.js';
+export * from './vhea.js';
+export * from './vmtx.js';
+export * from './VORG.js';
+export * from './woff-directory.js';
+export * from './woff2-directory.js';

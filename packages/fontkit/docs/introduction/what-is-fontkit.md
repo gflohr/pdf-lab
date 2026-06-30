@@ -57,3 +57,11 @@ two forks. It tries to incorporate all improvements in the other forks.
 
 The main advantage of `@pdf-lab/fontkit` is that the original codebase has
 been ported to TypeScript, which improves developer experience significantly.
+
+## About This Documentation
+
+This documentation is a work in progress, and your contributions are highly
+welcome! If you spot any factual errors, notice missing sections, or have ideas
+for stylistic improvements, please feel free to open an issue or submit a pull
+request directly to the [pdf-lab GitHub
+repository](https://github.com/gflohr/pdf-lab).

@@ -36,6 +36,9 @@ export type CFFOpDefinition = [
 	defaultValue?: number | number[] | string[] | boolean | null,
 ];
 
+/**
+ * @internal
+ */
 export interface CFFContext {
 	parent?: CFFContext;
 	val: any;

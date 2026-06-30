@@ -64,6 +64,7 @@ export interface GlyphLayoutMetrics {
 
 /**
  * The minimum vector context shape fontkit expects for rendering.
+ * @internal
  */
 export interface FontkitRenderingContext {
 	fill(): void;

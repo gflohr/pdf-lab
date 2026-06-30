@@ -37,6 +37,8 @@ export interface CFFPrivateDictTable {
 /**
  * A specialized CFF wrapper representing an encapsulation pointer handle
  * that forces large 4-byte spacing output structures during encoding.
+ *
+ * @internal
  */
 export class Ptr {
 	public val: number;

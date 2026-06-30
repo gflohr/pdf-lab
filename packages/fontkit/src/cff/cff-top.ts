@@ -118,8 +118,11 @@ const cffEncoding = new PredefinedOp(
 	new CFFPointer(cffCustomEncoding, { lazy: true }),
 );
 
-// Decodes an array of ranges until the total
-// length is equal to the provided length.
+/**
+ * Decodes an array of ranges until the total
+ * length is equal to the provided length.
+ * @internal
+ */
 export class RangeArray extends r.Array<FieldT<RangeRecord>> {
 	override decode(stream: DecodeStream, parent?: ParsingContext) {
 		const length = resolveLength(this.length, stream, parent);

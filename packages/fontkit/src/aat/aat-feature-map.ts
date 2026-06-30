@@ -557,9 +557,9 @@ export type AATFeaturesInput = [number, number][] | AAT.TypeFeatures;
 
 /**
  * Maps AAT features to an array of OpenType features
- * Supports both arrays in the form of [[featureType, featureSetting]]
- * and objects in the form of {featureType:{featureSetting:true}}
- * featureTypes and featureSettings can be either strings or number codes.
+ * Supports both arrays in the form of `[[featureType, featureSetting]]`
+ * and objects in the form of `{featureType:{featureSetting:true}}`.
+ * `featureTypes` and `featureSettings` can be either strings or number codes.
  */
 export function mapAATToOT(features: AATFeaturesInput): OpenType.FeatureTag[] {
 	const res: OpenType.Features = {};
