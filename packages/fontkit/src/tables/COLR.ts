@@ -102,6 +102,7 @@ const colrStructFields = {
 	numLayerRecords: r.uint16,
 };
 
+/** @internal */
 export const COLR = new r.Struct<typeof colrStructFields, COLRTable.COLR>(
 	colrStructFields,
 );

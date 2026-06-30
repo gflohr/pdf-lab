@@ -115,6 +115,7 @@ const bigMetricsFields = {
 	vertBearingY: r.int8,
 	vertAdvance: r.uint8,
 };
+/** @internal */
 export const bigMetrics = new r.Struct<
 	typeof bigMetricsFields,
 	EBDTTable.BigMetrics

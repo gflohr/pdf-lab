@@ -68,6 +68,7 @@ const cpalStructFields = {
 		),
 	},
 };
+/** @internal */
 export const CPAL = new r.VersionedStruct<
 	typeof cpalStructFields,
 	CPALTable.CPAL

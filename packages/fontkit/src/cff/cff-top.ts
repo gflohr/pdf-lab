@@ -337,6 +337,7 @@ const fields = {
 	},
 };
 
+/** @internal */
 export const cffTop = new r.VersionedStruct<typeof fields, CFFTopData>(
 	r.fixed16,
 	fields,

@@ -334,6 +334,7 @@ const cmapStructFields = {
 	numSubtables: r.uint16,
 	tables: new r.Array(cmapEntry, 'numSubtables'),
 };
+/** @internal */
 export const cmap = new r.Struct<typeof cmapStructFields, cmapTable.cmap>(
 	cmapStructFields,
 );

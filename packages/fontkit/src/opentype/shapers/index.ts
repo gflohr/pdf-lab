@@ -2,7 +2,7 @@ import { ArabicShaper } from './arabic-shaper.js';
 import { DefaultShaper } from './default-shaper.js';
 import { HangulShaper } from './hangul-shaper.js';
 import { IndicShaper } from './indic-shaper.js';
-import { UniversalShaper } from './universal-shapers.js';
+import { UniversalShaper } from './universal-shaper.js';
 
 const SHAPERS: Record<string, typeof DefaultShaper> = {
 	arab: ArabicShaper, // Arabic
@@ -110,3 +110,10 @@ export function choose(script?: string | string[] | null): ShaperType {
 
 	return DefaultShaper;
 }
+
+export * from './arabic-shaper.js';
+export * from './default-shaper.js';
+export * from './hangul-shaper.js';
+export * from './indic-data.js';
+export * from './indic-shaper.js';
+export * from './universal-shaper.js';

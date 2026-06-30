@@ -23,8 +23,6 @@ export type RequiredOpenTypeTableTag = (typeof requiredOpenTypeTables)[number];
 /**
  * The list of strictly required tables for an OpenType font with TrueType
  * outlines.
- *
- * * @group Outlines
  */
 export const requiredOpenTypeTrueTypeTables = [
 	'glyf',
@@ -41,8 +39,6 @@ export type RequiredOpenTypeTrueTypeTableTag =
 /**
  * The list of strictly required tables for an OpenType font with PostScript
  * outlines, legacy version.
- *
- * * @group Outlines
  */
 export const requiredOpenTypeCFF1Tables = [
 	'CFF ',
@@ -58,9 +54,7 @@ export type RequiredOpenTypeCFF1TableTag =
 /**
  * The list of strictly required tables for an OpenType font with PostScript
  * outlines, modern version.
- *
- * * @group Outlines
- * @see {@line requiredOpenTypeCFF1Tables} for legacy tables
+ * @see {@link requiredOpenTypeCFF1Tables} for legacy tables
  */
 export const requiredOpenTypeCFF2Tables = [
 	'CFF2',
@@ -79,8 +73,6 @@ type StrictTables<T extends keyof SFNTTableMap> = {
 
 /**
  * OpenType which lacks one or more of the 8 core tables.
- *
- * * @group Outlines
  * @see {@link requiredOpenTypeTables} for the list of required tables.
  */
 export interface OpenTypeNoOutlinesFont
@@ -93,9 +85,8 @@ export interface OpenTypeNoOutlinesFont
 }
 
 /**
- * OpenType font with verified TrueType vector geometry outline components (glyf + loca).
- *
- * * @group Outlines
+ * OpenType font with verified TrueType vector geometry outline components
+ * (glyf + loca).
  */
 export interface OpenTypeTrueTypeFont
 	extends Omit<NullFont, RequiredOpenTypeTrueTypeTableTag>,
@@ -109,8 +100,6 @@ export interface OpenTypeTrueTypeFont
 /**
  * OpenType font with verified PostScript Compact Font Format (CFF) components,
  * legacy version.
- *
- * * @group Outlines
  */
 export interface OpenTypeCFF1Font
 	extends Omit<NullFont, RequiredOpenTypeCFF1TableTag>,
@@ -130,8 +119,6 @@ export interface OpenTypeCFF1Font
 /**
  * OpenType font with verified PostScript Compact Font Format (CFF) components,
  * legacy version.
- *
- * * @group Outlines
  */
 export interface OpenTypeCFF2Font
 	extends Omit<NullFont, RequiredOpenTypeCFF2TableTag>,
@@ -146,8 +133,6 @@ export interface OpenTypeCFF2Font
 /**
  * Discriminated union representing an OpenType font with PostScript
  * outlines.
- *
- * * @group Outlines
  */
 export type OpenTypePostScriptFont = OpenTypeCFF1Font | OpenTypeCFF2Font;
 

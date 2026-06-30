@@ -3,7 +3,7 @@ import type { SFNTFont } from '../sfnt-font.js';
 import type { OpenType } from '../tables/opentype.js';
 import { OTProcessor } from './ot-processor.js';
 import type { IndicInfo } from './shapers/indic-shaper.js';
-import type { USEInfo } from './shapers/universal-shapers.js';
+import type { USEInfo } from './shapers/universal-shaper.js';
 
 export type ShaperInfo = IndicInfo | USEInfo;
 
