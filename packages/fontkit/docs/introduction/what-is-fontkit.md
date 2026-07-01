@@ -15,7 +15,7 @@ Fontkit is an advanced font engine for Node and the browser.
 * Support for AAT variation glyphs, allowing for nearly infinite design control over weight, width, and other axes.
 * Font subsetting support - create a new font including only the specified glyphs.
 
-## Improvements in `@pdf-lib/fontkit`
+## Improvements in `@pdf-lab/fontkit`
 
 * Fully Typed Architecture: Re-engineered from the ground up in native TypeScript, offering robust auto-completion, strict compiler checks, and inline documentation for complex internal font structures (such as layout tables and glyph collections).
 * API documentation; you are currently reading it.
@@ -37,7 +37,7 @@ rendering engines.
 
 ## History of `fontkit`
 
-The [original version of fontkit](https://githubcom/foliojs/fontkit) was
+The [original version of fontkit](https://github.com/foliojs/fontkit) was
 written by [Devon Govett](https://github.com/devongovett) in JavaScript.
 
 Later, [Andrew Dillon](https://github.com/Hopding) created a fork
