@@ -2,7 +2,7 @@
 import { readFileSync } from 'node:fs';
 import * as fs from 'node:fs/promises';
 import type { Font, VariationCoordinates } from '../src/font.js';
-import fontkit from '../src/index.js';
+import { fontkit } from '../src/index.js';
 import type { SFNTFont } from '../src/sfnt-font.js';
 
 type OpenCallback = (error: Error | unknown | null, font?: SFNTFont) => void;

@@ -12,6 +12,7 @@ fontkit.registerFormat(WOFF2Font);
 fontkit.registerFormat(TrueTypeCollection);
 fontkit.registerFormat(DFont);
 
+export { fontkit };
 export default fontkit;
 
 export * from './aat/index.js';
