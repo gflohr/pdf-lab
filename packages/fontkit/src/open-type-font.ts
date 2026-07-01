@@ -16,7 +16,7 @@ export const requiredOpenTypeTables = [
 ] as const;
 
 /**
- * Union type for the items in the @{link requiredOpentTypeTables} list.
+ * Union type for the items in the {@link requiredOpentTypeTables} list.
  */
 export type RequiredOpenTypeTableTag = (typeof requiredOpenTypeTables)[number];
 
@@ -31,7 +31,7 @@ export const requiredOpenTypeTrueTypeTables = [
 ] as const;
 
 /**
- * Union type for the items in the @{link requiredOpenTypeTables} list.
+ * Union type for the items in the {@link requiredOpenTypeTables} list.
  */
 export type RequiredOpenTypeTrueTypeTableTag =
 	(typeof requiredOpenTypeTrueTypeTables)[number];
@@ -46,7 +46,7 @@ export const requiredOpenTypeCFF1Tables = [
 ] as const;
 
 /**
- * Union type for the items in the @{link requiredOpenTypeCFF1Tables} list.
+ * Union type for the items in the {@link requiredOpenTypeCFF1Tables} list.
  */
 export type RequiredOpenTypeCFF1TableTag =
 	(typeof requiredOpenTypeCFF1Tables)[number];
@@ -62,7 +62,7 @@ export const requiredOpenTypeCFF2Tables = [
 ] as const;
 
 /**
- * Union type for the items in the @{link requiredOpenTypeCFF2Tables} list.
+ * Union type for the items in the {@link requiredOpenTypeCFF2Tables} list.
  */
 export type RequiredOpenTypeCFF2TableTag =
 	(typeof requiredOpenTypeCFF2Tables)[number];
