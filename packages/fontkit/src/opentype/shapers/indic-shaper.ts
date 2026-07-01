@@ -4,7 +4,7 @@ import StateMachine from 'dfa';
 import pako from 'pako';
 import UnicodeTrie from 'unicode-trie';
 import * as Script from '../../layout/script.js';
-import type { SFNTFont } from '../../sfnt-font.js';
+import type { TrueTypeFont } from '../../true-type-font.js';
 import type { OpenType } from '../../tables/opentype.js';
 import { GlyphInfo } from '../glyph-info.js';
 import type { ShapingFunction, ShapingPlan } from '../shaping-plan.js';
@@ -148,7 +148,7 @@ function indicPosition(glyph: IndicGlyphInfo): number {
 	return 1 << (trie.get(glyph.codePoints[0]) & 0xff);
 }
 
-function setupSyllables(_font: SFNTFont, glyphs: IndicGlyphInfo[]) {
+function setupSyllables(_font: TrueTypeFont, glyphs: IndicGlyphInfo[]) {
 	let syllable = 0;
 	let last = 0;
 	for (const [start, end, tags] of stateMachine.match(
@@ -226,7 +226,7 @@ function wouldSubstitute(
 }
 
 function consonantPosition(
-	_font: SFNTFont,
+	_font: TrueTypeFont,
 	consonant: IndicGlyphInfo,
 	virama: IndicGlyphInfo,
 ): number {
@@ -252,7 +252,7 @@ function consonantPosition(
 }
 
 function initialReordering(
-	font: SFNTFont,
+	font: TrueTypeFont,
 	glyphs: IndicGlyphInfo[],
 	plan: ShapingPlan<IndicInfo>,
 ) {
@@ -715,7 +715,7 @@ function initialReordering(
 }
 
 function finalReordering(
-	font: SFNTFont,
+	font: TrueTypeFont,
 	glyphs: IndicGlyphInfo[],
 	plan: ShapingPlan<IndicInfo>,
 ) {

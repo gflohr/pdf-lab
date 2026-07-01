@@ -2,7 +2,7 @@ import unicode, {
 	type UnicodeCombiningClassName,
 } from '@pdf-lib/unicode-properties';
 import type { Glyph } from '../glyph/glyph.js';
-import type { SFNTFont } from '../sfnt-font.js';
+import type { TrueTypeFont } from '../true-type-font.js';
 import type { GlyphPosition } from './glyph-position.js';
 
 /**
@@ -14,7 +14,7 @@ import type { GlyphPosition } from './glyph-position.js';
  * https://github.com/behdad/harfbuzz/blob/master/src/hb-ot-shape-fallback.cc
  */
 export class UnicodeLayoutEngine {
-	constructor(private readonly font: SFNTFont) {}
+	constructor(private readonly font: TrueTypeFont) {}
 
 	/**
 	 * TODO Ligatures are currently not handled.

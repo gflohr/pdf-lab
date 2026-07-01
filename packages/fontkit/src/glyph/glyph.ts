@@ -1,6 +1,6 @@
 import unicode from '@pdf-lib/unicode-properties';
 import type { Font } from '../font.js';
-import type { SFNTFont } from '../sfnt-font.js';
+import type { TrueTypeFont } from '../true-type-font.js';
 import type { MetricsTable } from '../tables/metrics.js';
 import type { BoundingBox } from './bounding-box.js';
 import { Path } from './path.js';
@@ -94,7 +94,7 @@ export interface FontkitRenderingContext {
 export class Glyph {
 	public readonly id: number;
 	public readonly codePoints: readonly number[];
-	protected readonly _font: SFNTFont;
+	protected readonly _font: TrueTypeFont;
 	// FIXME! Make these two property private and private getters.
 	public readonly isMark: boolean;
 	public readonly isLigature: boolean;
@@ -115,11 +115,11 @@ export class Glyph {
 	 * @param codePoints the array of Unicode code points.
 	 * @param font
 	 */
-	constructor(id: number, codePoints: readonly number[], font: SFNTFont) {
+	constructor(id: number, codePoints: readonly number[], font: TrueTypeFont) {
 		this.id = id;
 
 		this.codePoints = [...codePoints];
-		this._font = font as unknown as SFNTFont;
+		this._font = font as unknown as TrueTypeFont;
 
 		// TODO: get this info from GDEF if available
 		this.isMark =

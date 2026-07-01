@@ -2,7 +2,7 @@ import type { CFFFont } from './cff/cff-font.js';
 import type { BoundingBox } from './glyph/bounding-box.js';
 import type { Glyph } from './glyph/glyph.js';
 import type { GlyphRun } from './layout/glyph-run.js';
-import { SFNTFont } from './sfnt-font.js';
+import { TrueTypeFont } from './true-type-font.js';
 import type { Subset } from './subset/subset.js';
 import type { OpenType } from './tables/opentype.js';
 
@@ -31,7 +31,7 @@ export type VariationSettings = Record<string, number>;
 
 /**
  * There are several different types of font objects that are returned by
- * fontkit depending on the font format. They all inherit from the SFNTFont class
+ * fontkit depending on the font format. They all inherit from the TrueTypeFont class
  * and have the same public API.
  */
 export interface Font {
@@ -156,5 +156,5 @@ export interface Font {
 	 * @param postScriptName Postscript name of the variation
 	 * @returns the found if found, null otherwise
 	 */
-	getFont(postScriptName: string): SFNTFont | null;
+	getFont(postScriptName: string): TrueTypeFont | null;
 }

@@ -1,7 +1,7 @@
 import { AATLayoutEngine } from '../aat/aat-layout-engine.js';
 import type { Glyph } from '../glyph/glyph.js';
 import { OTLayoutEngine } from '../opentype/ot-layout-engine.js';
-import type { SFNTFont } from '../sfnt-font.js';
+import type { TrueTypeFont } from '../true-type-font.js';
 import type { OpenType } from '../tables/opentype.js';
 import { GlyphPosition } from './glyph-position.js';
 import { type BidiDirection, GlyphRun } from './glyph-run.js';
@@ -14,7 +14,7 @@ export class LayoutEngine {
 	private kernProcessor: KernProcessor | null;
 	public readonly engine?: AATLayoutEngine | OTLayoutEngine<null>;
 
-	constructor(private readonly font: SFNTFont) {
+	constructor(private readonly font: TrueTypeFont) {
 		this.unicodeLayoutEngine = null;
 		this.kernProcessor = null;
 

@@ -1,4 +1,4 @@
-import type { NullFont } from './null-font.js';
+import type { SFNTFont } from './sfnt-font.js';
 import type { SFNTTableMap } from './tables/directory.js';
 
 /**
@@ -76,7 +76,7 @@ type StrictTables<T extends keyof SFNTTableMap> = {
  * @see {@link requiredOpenTypeTables} for the list of required tables.
  */
 export interface OpenTypeNoOutlinesFont
-	extends Omit<NullFont, RequiredOpenTypeTableTag>,
+	extends Omit<SFNTFont, RequiredOpenTypeTableTag>,
 		StrictTables<RequiredOpenTypeTableTag> {
 	/** Discriminator for the different outline types. */
 	readonly outlines: 'none';
@@ -89,7 +89,7 @@ export interface OpenTypeNoOutlinesFont
  * (glyf + loca).
  */
 export interface OpenTypeTrueTypeFont
-	extends Omit<NullFont, RequiredOpenTypeTrueTypeTableTag>,
+	extends Omit<SFNTFont, RequiredOpenTypeTrueTypeTableTag>,
 		StrictTables<RequiredOpenTypeTrueTypeTableTag> {
 	/** Discriminator for the different outline types. */
 	readonly outlines: 'TrueType';
@@ -102,7 +102,7 @@ export interface OpenTypeTrueTypeFont
  * legacy version.
  */
 export interface OpenTypeCFF1Font
-	extends Omit<NullFont, RequiredOpenTypeCFF1TableTag>,
+	extends Omit<SFNTFont, RequiredOpenTypeCFF1TableTag>,
 		StrictTables<RequiredOpenTypeCFF1TableTag> {
 	/** Discriminator for the different outline types. */
 	readonly outlines: 'PostScript';
@@ -121,7 +121,7 @@ export interface OpenTypeCFF1Font
  * legacy version.
  */
 export interface OpenTypeCFF2Font
-	extends Omit<NullFont, RequiredOpenTypeCFF2TableTag>,
+	extends Omit<SFNTFont, RequiredOpenTypeCFF2TableTag>,
 		StrictTables<RequiredOpenTypeCFF2TableTag> {
 	/** Discriminator for the different outline types. */
 	readonly outlines: 'PostScript';
@@ -139,7 +139,7 @@ export type OpenTypePostScriptFont = OpenTypeCFF1Font | OpenTypeCFF2Font;
 /**
  * The final Discriminated Union representing any upcast, structurally
  * conformant OpenType font. You will usually get an object implementing
- * the interface with {@link NullFont.asOpenTypeFont}.
+ * the interface with {@link SFNTFont.asOpenTypeFont}.
  *
  * You can discriminate the different types in your code like this:
  *

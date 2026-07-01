@@ -1,7 +1,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { beforeAll, describe, expect, it } from 'vitest';
-import type { SFNTFont } from '../src/sfnt-font.js';
+import type { TrueTypeFont } from '../src/true-type-font.js';
 import fontkit from './helpers.js';
 
 const datadir = path.resolve(import.meta.dirname, './data');
@@ -13,7 +13,7 @@ describe('variations', () => {
 		const hasSkiaFont = fs.existsSync(
 			'/System/Library/Fonts/Supplemental/Skia.ttf',
 		);
-		let font: SFNTFont;
+		let font: TrueTypeFont;
 
 		beforeAll(() => {
 			font = fontkit.openSync('/System/Library/Fonts/Supplemental/Skia.ttf');
@@ -50,7 +50,7 @@ describe('variations', () => {
 
 		it.skipIf(!hasSkiaFont)('should get a variation by name', () => {
 			const variation = font.getVariation('Bold');
-			expect(variation.constructor.name).toBe('SFNTFont');
+			expect(variation.constructor.name).toBe('TrueTypeFont');
 
 			const glyph = variation.getGlyph(68)!; // D
 			expect(glyph.path.toSVG()).toBe(
@@ -60,7 +60,7 @@ describe('variations', () => {
 
 		it.skipIf(!hasSkiaFont)('should get a variation by settings', () => {
 			const variation = font.getVariation({ wght: 0.5 });
-			expect(variation.constructor.name).toBe('SFNTFont');
+			expect(variation.constructor.name).toBe('TrueTypeFont');
 
 			const glyph = variation.getGlyph(68)!; // D
 			expect(glyph.path.toSVG()).toBe(

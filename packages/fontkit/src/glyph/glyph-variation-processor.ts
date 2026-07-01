@@ -1,4 +1,4 @@
-import type { SFNTFont } from '../sfnt-font.js';
+import type { TrueTypeFont } from '../true-type-font.js';
 import type { OpenTypeVariation } from '../tables/variations.js';
 import type { Point } from './ttf-glyph.js';
 
@@ -46,17 +46,17 @@ interface MetricVariationTable {
  * Freetype project for figuring much of this out.
  *
  * FIXME! This class cache blend vectors and calculates normalised coordinates
- * and remembers them. That can easily be integrated into the SFNTFont class.
+ * and remembers them. That can easily be integrated into the TrueTypeFont class.
  */
 export class GlyphVariationProcessor {
-	private font: SFNTFont;
+	private font: TrueTypeFont;
 	public _normalizedCoords: number[];
 	private blendVectors = new Map<
 		OpenTypeVariation.ItemVariationData,
 		number[]
 	>();
 
-	constructor(font: SFNTFont, coords: number[]) {
+	constructor(font: TrueTypeFont, coords: number[]) {
 		this.font = font;
 		this._normalizedCoords = this.normalizeCoords(coords);
 	}

@@ -5,7 +5,7 @@ import r, { type EncodeStream } from '@pdf-lib/restructure';
 import { describe, expect, it } from 'vitest';
 import { CFFFont } from '../src/cff/cff-font.js';
 import { CFFGlyph } from '../src/glyph/cff-glyph.js';
-import type { SFNTFont } from '../src/sfnt-font.js';
+import type { TrueTypeFont } from '../src/true-type-font.js';
 import type { Subset } from '../src/subset/subset.js';
 import fontkit from './helpers.js';
 
@@ -21,11 +21,11 @@ async function readSubsetStream(stream: EncodeStream): Promise<Buffer> {
 	return Buffer.concat(chunks);
 }
 
-async function getSubsetFont(subset: Subset): Promise<SFNTFont> {
+async function getSubsetFont(subset: Subset): Promise<TrueTypeFont> {
 	const stream = subset.encodeStream();
 	const buf = await readSubsetStream(stream);
 
-	return fontkit.create(buf) as SFNTFont;
+	return fontkit.create(buf) as TrueTypeFont;
 }
 
 describe('font subsetting', () => {
@@ -109,7 +109,7 @@ describe('font subsetting', () => {
 
 			const stream = new r.DecodeStream(buf);
 			const cff = new CFFFont(stream);
-			const glyph = new CFFGlyph(1, [], { stream, 'CFF ': cff } as SFNTFont);
+			const glyph = new CFFGlyph(1, [], { stream, 'CFF ': cff } as TrueTypeFont);
 
 			expect(glyph.path.toSVG()).toBe(
 				font.glyphsForString('h')[0]!.path.toSVG(),
@@ -134,7 +134,7 @@ describe('font subsetting', () => {
 
 			const stream = new r.DecodeStream(buf);
 			const cff = new CFFFont(stream);
-			const glyph = new CFFGlyph(1, [], { stream, 'CFF ': cff } as SFNTFont);
+			const glyph = new CFFGlyph(1, [], { stream, 'CFF ': cff } as TrueTypeFont);
 
 			expect(glyph.path.toSVG()).toBe(f.glyphsForString('갈')[0]!.path.toSVG());
 

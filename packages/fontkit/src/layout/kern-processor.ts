@@ -1,5 +1,5 @@
 import type { Glyph } from '../glyph/glyph.js';
-import type { SFNTFont } from '../sfnt-font.js';
+import type { TrueTypeFont } from '../true-type-font.js';
 import type { kernTable } from '../tables/kern.js';
 import { binarySearch } from '../utils.js';
 import type { GlyphPosition } from './glyph-position.js';
@@ -7,7 +7,7 @@ import type { GlyphPosition } from './glyph-position.js';
 export class KernProcessor {
 	private readonly kern: kernTable.kern;
 
-	constructor(private readonly font: SFNTFont) {
+	constructor(private readonly font: TrueTypeFont) {
 		this.kern = font.kern;
 	}
 

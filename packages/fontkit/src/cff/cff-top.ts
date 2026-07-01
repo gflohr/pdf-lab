@@ -271,8 +271,8 @@ const cffTopDict = new CFFDict([
 	[18, 'Private', new CFFPrivateOp(), null],
 	[[12, 20], 'SyntheticBase', 'number', null],
 	[[12, 21], 'PostScript', 'sid', null],
-	[[12, 22], 'BaseFontName', 'sid', null],
-	[[12, 23], 'BaseFontBlend', 'delta', null],
+	[[12, 22], 'SFNTFontName', 'sid', null],
+	[[12, 23], 'SFNTFontBlend', 'delta', null],
 
 	// CID font specific
 	[[12, 31], 'CIDFontVersion', 'number', 0],

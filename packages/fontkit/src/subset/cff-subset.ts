@@ -5,7 +5,7 @@ import type { CFFIndexRecord } from '../cff/cff-index.js';
 import { standardStrings } from '../cff/cff-standard-strings.js';
 import { type CFFTopData, cffTop } from '../cff/cff-top.js';
 import { CFFGlyph } from '../glyph/cff-glyph.js';
-import type { SFNTFont } from '../sfnt-font.js';
+import type { TrueTypeFont } from '../true-type-font.js';
 import { Subset } from './subset.js';
 
 export class CFFSubset extends Subset {
@@ -14,7 +14,7 @@ export class CFFSubset extends Subset {
 	private gsubrs?: Uint8Array[];
 	private strings?: string[];
 
-	constructor(protected font: SFNTFont) {
+	constructor(protected font: TrueTypeFont) {
 		super(font);
 
 		this.cff = this.font['CFF '];
@@ -185,7 +185,7 @@ export class CFFSubset extends Subset {
 			'FamilyName',
 			'Weight',
 			'PostScript',
-			'BaseFontName',
+			'SFNTFontName',
 			'FontName',
 		]) {
 			topDict[key] = this.addString(

@@ -2,9 +2,9 @@
 
 import type { DecodeStream } from '@pdf-lib/restructure';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { BaseFontDirectory } from '../src/null-font.js';
+import type { SFNTFontDirectory } from '../src/sfnt-font.js';
 import { requiredOpenTypeTables } from '../src/open-type-font.js';
-import { SFNTFont } from '../src/sfnt-font.js';
+import { TrueTypeFont } from '../src/true-type-font.js';
 import type {
 	SFNTDirectoryEntry,
 	SFNTTableMap,
@@ -26,18 +26,18 @@ vi.mock('./src/tables/index.js', () => ({
 	},
 }));
 
-describe('SFNTFont Capabilities & Table Resolution', () => {
-	let font: SFNTFont;
+describe('TrueTypeFont Capabilities & Table Resolution', () => {
+	let font: TrueTypeFont;
 
 	beforeEach(() => {
-		font = Object.create(SFNTFont.prototype);
+		font = Object.create(TrueTypeFont.prototype);
 
 		font['tables'] = {} as SFNTTableMap;
 		font.directory = {
 			tag: 'true',
 			numTables: 0,
 			tables: {},
-		} as BaseFontDirectory;
+		} as SFNTFontDirectory;
 
 		// Mock out internal decode method.
 		font['decodeTable'] = vi.fn(
@@ -116,13 +116,13 @@ describe('SFNTFont Capabilities & Table Resolution', () => {
 		});
 	});
 
-	describe('SFNTFont Constructor - Outline Detection', () => {
+	describe('TrueTypeFont Constructor - Outline Detection', () => {
 		let mockStream: DecodeStream;
 
 		beforeEach(() => {
 			mockStream = { pos: 0 } as DecodeStream;
 
-			SFNTFont.prototype['decodeDirectory'] = vi.fn().mockReturnValue({
+			TrueTypeFont.prototype['decodeDirectory'] = vi.fn().mockReturnValue({
 				tables: {},
 			});
 		});
@@ -134,13 +134,13 @@ describe('SFNTFont Capabilities & Table Resolution', () => {
 				tablesMap[tag] = { tag, length: 100, offset: 0 };
 			}
 
-			vi.mocked(SFNTFont.prototype['decodeDirectory']).mockReturnValueOnce({
+			vi.mocked(TrueTypeFont.prototype['decodeDirectory']).mockReturnValueOnce({
 				tag: 'true',
 				numTables: tags.length,
 				tables: tablesMap,
 			} as any);
 
-			return new SFNTFont(mockStream);
+			return new TrueTypeFont(mockStream);
 		};
 
 		it('should set outlines to "" if the core 8 OpenType tables are not complete', () => {
@@ -212,15 +212,15 @@ describe('SFNTFont Capabilities & Table Resolution', () => {
 	});
 
 	describe('asOpenType()', () => {
-		let font: SFNTFont;
+		let font: TrueTypeFont;
 
 		beforeEach(() => {
 			// Create an isolated prototype instance to bypass the constructor
-			font = Object.create(SFNTFont.prototype);
+			font = Object.create(TrueTypeFont.prototype);
 
 			font['existingTableTags'] = new Set<string>();
 			font['tables'] = {} as SFNTTableMap;
-			font.directory = { tables: {} } as BaseFontDirectory;
+			font.directory = { tables: {} } as SFNTFontDirectory;
 
 			font['getTable'] = vi.fn().mockReturnValue({});
 

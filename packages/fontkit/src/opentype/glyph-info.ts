@@ -1,5 +1,5 @@
 import unicode from '@pdf-lib/unicode-properties';
-import type { SFNTFont } from '../sfnt-font.js';
+import type { TrueTypeFont } from '../true-type-font.js';
 import type { OpenType } from '../tables/opentype.js';
 import { OTProcessor } from './ot-processor.js';
 import type { IndicInfo } from './shapers/indic-shaper.js';
@@ -8,7 +8,7 @@ import type { USEInfo } from './shapers/universal-shaper.js';
 export type ShaperInfo = IndicInfo | USEInfo;
 
 export class GlyphInfo<ShaperInfoT = null> {
-	public _font: SFNTFont;
+	public _font: TrueTypeFont;
 	// The constructor calls the setter for this member. It is therefore
 	// always initialised.
 	private _id!: number;
@@ -27,7 +27,7 @@ export class GlyphInfo<ShaperInfoT = null> {
 	public markAttachmentType?: number;
 
 	constructor(
-		font: SFNTFont,
+		font: TrueTypeFont,
 		id: number,
 		public codePoints: number[] = [],
 		features?: OpenType.FeatureTag[] | OpenType.Features,

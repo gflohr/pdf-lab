@@ -1,5 +1,5 @@
 import type { Glyph } from '../glyph/glyph.js';
-import type { SFNTFont } from '../sfnt-font.js';
+import type { TrueTypeFont } from '../true-type-font.js';
 import type { AAT } from '../tables/aat.js';
 import type { morxTable } from '../tables/morx.js';
 import { AATLookupTable } from './aat-lookup-table.js';
@@ -54,7 +54,7 @@ export class AATMorxProcessor {
 	private lastGlyph?: number | null;
 	private markedIndex?: number | null;
 
-	constructor(private readonly font: SFNTFont) {
+	constructor(private readonly font: TrueTypeFont) {
 		this.aatStateMachineCache = new Map();
 		this.processIndicRearragement = this.processIndicRearragement.bind(this);
 		this.processContextualSubstitution =

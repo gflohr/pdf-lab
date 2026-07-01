@@ -1,7 +1,7 @@
 import type { GlyphPosition } from '../layout/glyph-position.js';
 import type { GlyphRun } from '../layout/glyph-run.js';
 import type { OpenTypeTag } from '../layout/script.js';
-import type { SFNTFont } from '../sfnt-font.js';
+import type { TrueTypeFont } from '../true-type-font.js';
 import type { OpenType } from '../tables/opentype.js';
 import { GlyphInfo } from './glyph-info.js';
 import { GPOSProcessor } from './gpos-processor.js';
@@ -11,7 +11,7 @@ import * as Shapers from './shapers/index.js';
 import { ShapingPlan } from './shaping-plan.js';
 
 export class OTLayoutEngine<T> {
-	private font: SFNTFont;
+	private font: TrueTypeFont;
 	private glyphInfos: GlyphInfo<T>[] | null;
 	private plan: ShapingPlan<T> | null;
 	// FIXME! Rename that to gsubProcessor!
@@ -21,7 +21,7 @@ export class OTLayoutEngine<T> {
 	private fallbackPosition: boolean;
 	private shaper: typeof DefaultShaper | undefined | null;
 
-	constructor(font: SFNTFont) {
+	constructor(font: TrueTypeFont) {
 		this.font = font;
 		this.glyphInfos = null;
 		this.plan = null;
