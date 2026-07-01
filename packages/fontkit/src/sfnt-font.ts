@@ -612,7 +612,7 @@ export class SFNTFont<TDirectory extends BaseFontDirectory = BaseFontDirectory>
 		return this._namedVariations;
 	}
 
-	public getVariation(settings: string | VariationCoordinates): Font {
+	public getVariation(settings: string | VariationCoordinates): SFNTFont {
 		if (
 			!(
 				this.directory.tables.fvar &&
@@ -658,7 +658,7 @@ export class SFNTFont<TDirectory extends BaseFontDirectory = BaseFontDirectory>
 		const font = new SFNTFont<TDirectory>(stream, coords);
 		font.tables = this.tables;
 
-		return font as unknown as Font;
+		return font;
 	}
 
 	private computeVariationProcessor(): GlyphVariationProcessor | null {
@@ -690,7 +690,7 @@ export class SFNTFont<TDirectory extends BaseFontDirectory = BaseFontDirectory>
 		return this._variationProcessor;
 	}
 
-	public getFont(name: string): Font {
+	public getFont(name: string): SFNTFont {
 		return this.getVariation(name);
 	}
 

@@ -2,6 +2,7 @@ import type { CFFFont } from './cff/cff-font.js';
 import type { BoundingBox } from './glyph/bounding-box.js';
 import type { Glyph } from './glyph/glyph.js';
 import type { GlyphRun } from './layout/glyph-run.js';
+import { SFNTFont } from './sfnt-font.js';
 import type { Subset } from './subset/subset.js';
 import type { OpenType } from './tables/opentype.js';
 
@@ -148,4 +149,12 @@ export interface Font {
 	 * An alias for the font's `CFF ` table.
 	 */
 	cff?: CFFFont | null;
+
+	/**
+	 * Get a font variation of that name.
+	 *
+	 * @param postScriptName Postscript name of the variation
+	 * @returns the found if found, null otherwise
+	 */
+	getFont(postScriptName: string): SFNTFont | null;
 }
