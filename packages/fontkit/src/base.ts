@@ -27,7 +27,28 @@ export interface FontContainer {
 const formats: FontContainer[] = [];
 
 /**
- * The main entry point into the library.
+ * The legacy factory entry point into the library.
+ *
+ * Available both as a default import and as the named import `fontkit`.
+ *
+ * ### Why Deprecated?
+ *
+ * * The `fontkit.create` factory relies on runtime structural probing to determine
+ * whether a byte stream is an {@link SFNTFont}, a {@link TrueTypeCollection},
+ * or a {@link DFont}. This approach introduces two critical drawbacks:
+ *
+ * 1. **Ambiguity:** It forces a vague union return type, requiring consumers to write manual
+ * type guards downstream.
+ * 2. **Security & Validation:** Loading raw, unverified data from untrusted sources is strongly
+ * discouraged. Data integrity checks should happen *before* the parser layer, meaning the
+ * container format is already known.
+ *
+ * For robust, typesafe applications, instantiate the specific format container classes
+ * directly instead of relying on this dynamic factory helper.
+ *
+ * @deprecated Instantiate one of the class constructors {@link TrueTypeFont},
+ * {@link WOFFFont}, {@link WOFF2Font}, {@link TrueTypeCollection}, or
+ * {@link DFont} directly.
  */
 export const fontkit = {
 	/**
@@ -39,6 +60,8 @@ export const fontkit = {
 	 * Register a new font format.
 	 *
 	 * @param format
+	 *
+	 * @hidden
 	 */
 	registerFormat: (format: FontContainer) => {
 		formats.push(format);
