@@ -2,9 +2,9 @@ import unicode from '@pdf-lib/unicode-properties';
 import type { Font } from '../font.js';
 import type { SFNTFont } from '../sfnt-font.js';
 import type { MetricsTable } from '../tables/metrics.js';
-import type BoundingBox from './bounding-box.js';
-import Path from './path.js';
-import StandardNames from './standard-names.js';
+import type { BoundingBox } from './bounding-box.js';
+import { Path } from './path.js';
+import { standardNames } from './standard-names.js';
 
 /**
  * Represents the layout metrics for a glyph along a single layout axis
@@ -64,6 +64,7 @@ export interface GlyphLayoutMetrics {
 
 /**
  * The minimum vector context shape fontkit expects for rendering.
+ * @internal
  */
 export interface FontkitRenderingContext {
 	fill(): void;
@@ -90,7 +91,7 @@ export interface FontkitRenderingContext {
  * There are several subclasses of the base Glyph class internally that may be returned depending
  * on the font format, but they all inherit from this class.
  */
-export default class Glyph {
+export class Glyph {
 	public readonly id: number;
 	public readonly codePoints: readonly number[];
 	protected readonly _font: SFNTFont;
@@ -114,7 +115,7 @@ export default class Glyph {
 	 * @param codePoints the array of Unicode code points.
 	 * @param font
 	 */
-	constructor(id: number, codePoints: readonly number[], font: Font) {
+	constructor(id: number, codePoints: readonly number[], font: SFNTFont) {
 		this.id = id;
 
 		this.codePoints = [...codePoints];
@@ -284,7 +285,7 @@ export default class Glyph {
 
 		switch (post.version) {
 			case 1:
-				return StandardNames[this.id] ?? null;
+				return standardNames[this.id] ?? null;
 
 			case 2: {
 				const id = post.glyphNameIndex?.[this.id];
@@ -292,11 +293,11 @@ export default class Glyph {
 					return null;
 				}
 
-				if (id < StandardNames.length) {
-					return StandardNames[id] ?? null;
+				if (id < standardNames.length) {
+					return standardNames[id] ?? null;
 				}
 
-				return post.names?.[id - StandardNames.length] ?? null;
+				return post.names?.[id - standardNames.length] ?? null;
 			}
 
 			case 2.5: {
@@ -304,7 +305,7 @@ export default class Glyph {
 				if (offset === undefined) {
 					return null;
 				}
-				return StandardNames[this.id + offset] ?? null;
+				return standardNames[this.id + offset] ?? null;
 			}
 
 			case 4: {

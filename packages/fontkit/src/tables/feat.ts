@@ -76,6 +76,7 @@ const featStructFields = {
 	reserved2: new r.Reserved(r.uint32),
 	featureNames: new r.Array(featureName, 'featureNameCount'),
 };
-export default new r.Struct<typeof featStructFields, featTable.feat>(
+/** @internal */
+export const feat = new r.Struct<typeof featStructFields, featTable.feat>(
 	featStructFields,
 );

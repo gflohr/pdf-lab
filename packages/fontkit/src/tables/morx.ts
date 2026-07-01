@@ -1,5 +1,4 @@
 import r, { type FieldT, type PointerT } from '@pdf-lib/restructure';
-import AATLookupTable from '../aat/aat-lookup-table.js';
 import {
 	type AAT,
 	AATUnboundedArray,
@@ -202,4 +201,5 @@ const morxFields = {
 	nChains: r.uint32,
 	chains: new r.Array(morxChain, 'nChains'),
 };
-export default new r.Struct<typeof morxFields, morxTable.morx>(morxFields);
+/** @internal */
+export const morx = new r.Struct<typeof morxFields, morxTable.morx>(morxFields);

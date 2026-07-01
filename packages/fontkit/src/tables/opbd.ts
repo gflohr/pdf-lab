@@ -32,6 +32,7 @@ const opticalBoundsFields = {
 	format: r.uint16,
 	lookupTable: aatLookupTable(OpticalBounds),
 };
-export default new r.Struct<typeof opticalBoundsFields, opbdTable.opbd>(
+/** @internal */
+export const opbd = new r.Struct<typeof opticalBoundsFields, opbdTable.opbd>(
 	opticalBoundsFields,
 );

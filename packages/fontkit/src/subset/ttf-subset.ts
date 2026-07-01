@@ -1,12 +1,12 @@
 import type { EncodeStream } from '@pdf-lib/restructure';
-import type Path from '../glyph/path.js';
-import TTFGlyph from '../glyph/ttf-glyph.js';
-import TTFGlyphEncoder from '../glyph/ttf-glyph-encoder.js';
-import Directory, { type SFNTDirectoryEntry } from '../tables/directory.js';
+import type { Path } from '../glyph/path.js';
+import { TTFGlyph } from '../glyph/ttf-glyph.js';
+import { TTFGlyphEncoder } from '../glyph/ttf-glyph-encoder.js';
+import { directory, type SFNTDirectoryEntry } from '../tables/directory.js';
 import type { hmtxTable } from '../tables/hmtx.js';
-import Tables from '../tables/index.js';
+import { tables } from '../tables/index.js';
 import type { TrueTypeFont } from '../true-type-font.js';
-import Subset from './subset.js';
+import { Subset } from './subset.js';
 
 type Glyf = Uint8Array[];
 interface Loca {
@@ -18,7 +18,7 @@ interface Hmtx {
 	bearings: number[];
 }
 
-export default class TTFSubset extends Subset {
+export class TTFSubset extends Subset {
 	private readonly glyphEncoder: TTFGlyphEncoder;
 	private offset?: number;
 	private glyf?: Glyf;
@@ -34,7 +34,7 @@ export default class TTFSubset extends Subset {
 		const glyph = this.getGlyph(gid);
 		const glyf = glyph.decode();
 
-		// Get the offset to the glyph from the loca table.
+		// Get the offset to the glyph } from the loca table.
 		const curOffset = this.font.loca.offsets[gid];
 		const nextOffset = this.font.loca.offsets[gid + 1];
 
@@ -110,7 +110,7 @@ export default class TTFSubset extends Subset {
 		maxp.numGlyphs = this.glyf.length;
 
 		this.loca.offsets.push(this.offset);
-		(Tables.loca.preEncode as () => void).call(this.loca);
+		(tables.loca.preEncode as () => void).call(this.loca);
 
 		const head = structuredClone(this.font.head) as typeof this.font.head & {
 			indexToLocFormat: number;
@@ -145,7 +145,7 @@ export default class TTFSubset extends Subset {
 		//     ]
 
 		// TODO: subset prep, cvt, fpgm?
-		Directory.encode(stream, {
+		directory.encode(stream, {
 			tables: {
 				head,
 				hhea,

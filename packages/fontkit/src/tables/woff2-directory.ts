@@ -171,7 +171,7 @@ interface WOFF2DirectoryContext extends Omit<WOFF2Directory, 'tables'> {
 /* Binary Layout Definitions                                                  */
 /* ========================================================================== */
 
-const WOFF2DirectoryEntryFields = {
+const woff2DirectoryEntryFields = {
 	flags: r.uint8,
 	customTag: new r.Optional(new r.String(4), (t) => (t.flags & 0x3f) === 0x3f),
 	tag: (t: WOFF2TableEntryBinary) => t.customTag || knownTags[t.flags & 0x3f],
@@ -184,10 +184,10 @@ const WOFF2DirectoryEntryFields = {
 	transformLength: new r.Optional(Base128, (t) => t.transformed),
 };
 
-const WOFF2DirectoryEntryStruct = new r.Struct<
-	typeof WOFF2DirectoryEntryFields,
+const woff2DirectoryEntryStruct = new r.Struct<
+	typeof woff2DirectoryEntryFields,
 	WOFF2TableEntryBinary
->(WOFF2DirectoryEntryFields);
+>(woff2DirectoryEntryFields);
 
 const fields = {
 	tag: new r.String(4),
@@ -204,10 +204,10 @@ const fields = {
 	metaOrigLength: r.uint32,
 	privOffset: r.uint32,
 	privLength: r.uint32,
-	tables: new r.Array(WOFF2DirectoryEntryStruct, 'numTables'),
+	tables: new r.Array(woff2DirectoryEntryStruct, 'numTables'),
 };
 
-const WOFF2DirectoryStruct = new r.Struct<typeof fields, WOFF2Directory>(
+export const woff2DirectoryStruct = new r.Struct<typeof fields, WOFF2Directory>(
 	fields,
 );
 
@@ -215,7 +215,7 @@ const WOFF2DirectoryStruct = new r.Struct<typeof fields, WOFF2Directory>(
 /* Restructure Lifecycle Hooks                                                */
 /* ========================================================================== */
 
-WOFF2DirectoryStruct.process = function (this: WOFF2DirectoryContext): void {
+woff2DirectoryStruct.process = function (this: WOFF2DirectoryContext): void {
 	const mappedTables: Record<string, WOFF2DirectoryEntry> = {};
 
 	for (let i = 0; i < this.tables.length; i++) {
@@ -225,5 +225,3 @@ WOFF2DirectoryStruct.process = function (this: WOFF2DirectoryContext): void {
 
 	this.tables = mappedTables as any;
 };
-
-export default WOFF2DirectoryStruct;

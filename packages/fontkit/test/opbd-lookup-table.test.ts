@@ -1,6 +1,6 @@
 import r from '@pdf-lib/restructure';
 import { describe, expect, it } from 'vitest'; // or jest
-import opbdStruct from '../src/tables/opbd.js';
+import { opbd } from '../src/tables/opbd.js';
 
 describe('opbd (Optical Bounds) Table parsing', () => {
 	it('should successfully parse an AAT LookupTable Format 8 structure', () => {
@@ -45,9 +45,7 @@ describe('opbd (Optical Bounds) Table parsing', () => {
 		]);
 
 		// Decode the raw mock binary using restructure
-		const result = opbdStruct.decode(
-			new r.DecodeStream(Buffer.from(mockOpbdData)),
-		);
+		const result = opbd.decode(new r.DecodeStream(Buffer.from(mockOpbdData)));
 
 		// Verify the parent header
 		expect(result.version).toBe(1.0);

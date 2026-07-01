@@ -1,9 +1,9 @@
-import BoundingBox from '../glyph/bounding-box.js';
-import type Glyph from '../glyph/glyph.js';
+import { BoundingBox } from '../glyph/bounding-box.js';
+import type { Glyph } from '../glyph/glyph.js';
 import type { UnicodeScript } from '../layout/script.js';
 import * as Script from '../layout/script.js';
 import type { OpenType } from '../tables/opentype.js';
-import type GlyphPosition from './glyph-position.js';
+import type { GlyphPosition } from './glyph-position.js';
 
 /** The shaping direction, either left-to-right, or right-to-left. */
 export type BidiDirection = 'ltr' | 'rtl';
@@ -12,7 +12,7 @@ export type BidiDirection = 'ltr' | 'rtl';
  * Represents a run of Glyph and GlyphPosition objects.
  * Returned by the font layout method.
  */
-export default class GlyphRun {
+export class GlyphRun {
 	private _positions: GlyphPosition[] | null;
 
 	public readonly features: OpenType.Features;

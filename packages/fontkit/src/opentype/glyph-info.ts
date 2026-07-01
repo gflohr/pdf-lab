@@ -1,13 +1,13 @@
 import unicode from '@pdf-lib/unicode-properties';
 import type { SFNTFont } from '../sfnt-font.js';
 import type { OpenType } from '../tables/opentype.js';
-import OTProcessor from './ot-processor.js';
+import { OTProcessor } from './ot-processor.js';
 import type { IndicInfo } from './shapers/indic-shaper.js';
-import type { USEInfo } from './shapers/universal-shapers.js';
+import type { USEInfo } from './shapers/universal-shaper.js';
 
 export type ShaperInfo = IndicInfo | USEInfo;
 
-export default class GlyphInfo<ShaperInfoT = null> {
+export class GlyphInfo<ShaperInfoT = null> {
 	public _font: SFNTFont;
 	// The constructor calls the setter for this member. It is therefore
 	// always initialised.

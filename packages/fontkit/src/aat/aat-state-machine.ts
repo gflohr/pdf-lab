@@ -1,7 +1,6 @@
-import type Glyph from '../glyph/glyph.js';
+import type { Glyph } from '../glyph/glyph.js';
 import type { AAT } from '../tables/aat.js';
-import type { morxTable } from '../tables/morx.js';
-import AATLookupTable from './aat-lookup-table.js';
+import { AATLookupTable } from './aat-lookup-table.js';
 
 const START_OF_TEXT_STATE = 0;
 
@@ -20,7 +19,7 @@ interface TraverseOpts {
 	enter: (glyph: number, entry: AAT.StateEntry<Record<string, any>>) => void;
 	exit: (glyph: number, entry: AAT.StateEntry<Record<string, any>>) => void;
 }
-export default class AATStateMachine {
+export class AATStateMachine {
 	private readonly lookupTable: AATLookupTable<number>;
 
 	constructor(private readonly stateTable: AAT.StateHeader) {

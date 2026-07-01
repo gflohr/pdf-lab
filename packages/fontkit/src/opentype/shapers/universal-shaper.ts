@@ -3,10 +3,9 @@ import StateMachine from 'dfa';
 import pako from 'pako';
 import UnicodeTrie from 'unicode-trie';
 import type { SFNTFont } from '../../sfnt-font.js';
-import GlyphInfo from '../glyph-info.js';
-import type ShapingPlan from '../shaping-plan.js';
-import type { ShapingFunction } from '../shaping-plan.js';
-import DefaultShaper from './default-shaper.js';
+import { GlyphInfo } from '../glyph-info.js';
+import type { ShapingFunction, ShapingPlan } from '../shaping-plan.js';
+import { DefaultShaper } from './default-shaper.js';
 import base64DeflatedTrie from './trie-use.js';
 import base64DeflatedUseData from './use.js';
 
@@ -55,7 +54,7 @@ interface UniversalGlyphInfo extends GlyphInfo<USEInfo> {
  * uses Unicode data to shape a number of scripts without a dedicated shaping engine.
  * See https://www.microsoft.com/typography/OpenTypeDev/USE/intro.htm.
  */
-export default class UniversalShaper extends DefaultShaper {
+export class UniversalShaper extends DefaultShaper {
 	static zeroMarkWidths = 'BEFORE_GPOS';
 	static planFeatures<T>(plan: ShapingPlan<T>) {
 		plan.addStage(setupSyllables as unknown as ShapingFunction<T>);

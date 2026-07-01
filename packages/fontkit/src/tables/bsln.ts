@@ -80,6 +80,7 @@ const bslnStructFields = {
 	defaultBaseline: r.uint16,
 	subtable: bslnSubtable,
 };
-export default new r.Struct<typeof bslnStructFields, bslnTable.bsln>(
+/** @internal */
+export const bsln = new r.Struct<typeof bslnStructFields, bslnTable.bsln>(
 	bslnStructFields,
 );

@@ -1,5 +1,5 @@
 // FIXME! Synchronise that with the encoding table from pdf-lab-core!
-export default [
+export const standardNames = [
 	'.notdef',
 	'.null',
 	'nonmarkingreturn',

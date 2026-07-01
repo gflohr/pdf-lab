@@ -27,7 +27,7 @@ const FLOAT_ENCODE_LOOKUP = {
 	'-': 14,
 };
 
-export const CFFOperand = {
+export const cffOperand = {
 	decode: (stream: DecodeStream, value: number): number | null => {
 		if (32 <= value && value <= 246) {
 			return value - 139;

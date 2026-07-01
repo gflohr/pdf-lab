@@ -50,6 +50,7 @@ const gvarStructFields = {
 		(t) => t.glyphCount + 1,
 	),
 };
-export default new r.Struct<typeof gvarStructFields, gvarTable.gvar>(
+/** @internal */
+export const gvar = new r.Struct<typeof gvarStructFields, gvarTable.gvar>(
 	gvarStructFields,
 );

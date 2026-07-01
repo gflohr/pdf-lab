@@ -1,4 +1,4 @@
-export const StandardEncoding = [
+export const standardEncoding = [
 	'',
 	'',
 	'',
@@ -253,7 +253,7 @@ export const StandardEncoding = [
 	'germandbls',
 ];
 
-export const ExpertEncoding = [
+export const expertEncoding = [
 	'',
 	'',
 	'',

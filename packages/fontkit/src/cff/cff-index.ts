@@ -6,7 +6,7 @@ import type {
 	StringT,
 } from '@pdf-lib/restructure';
 import r from '@pdf-lib/restructure';
-import type CFFDict from './cff-dict.js';
+import type { CFFDict } from './cff-dict.js';
 import type { CFFTopData } from './cff-top.js';
 
 export interface CFFIndexRecord {
@@ -30,9 +30,8 @@ type CFFNode = CFFNodeContext & CFFTopData;
  * Handles variable-length table lookups across structural subroutines,
  * dictionaries, and string tables.
  */
-export default class CFFIndex<
-	TType extends CFFDict | StringT | FieldT<IndexItemValue>,
-> implements FieldT<IndexItemValue[]>
+export class CFFIndex<TType extends CFFDict | StringT | FieldT<IndexItemValue>>
+	implements FieldT<IndexItemValue[]>
 {
 	constructor(public type?: TType) {}
 
@@ -91,6 +90,7 @@ export default class CFFIndex<
 		}
 
 		stream.pos = startPos + start;
+
 		return ret;
 	}
 

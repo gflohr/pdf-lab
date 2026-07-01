@@ -15,6 +15,9 @@ export const requiredOpenTypeTables = [
 	'post',
 ] as const;
 
+/**
+ * Union type for the items in the {@link requiredOpentTypeTables} list.
+ */
 export type RequiredOpenTypeTableTag = (typeof requiredOpenTypeTables)[number];
 
 /**
@@ -27,6 +30,9 @@ export const requiredOpenTypeTrueTypeTables = [
 	...requiredOpenTypeTables,
 ] as const;
 
+/**
+ * Union type for the items in the {@link requiredOpenTypeTables} list.
+ */
 export type RequiredOpenTypeTrueTypeTableTag =
 	(typeof requiredOpenTypeTrueTypeTables)[number];
 
@@ -39,18 +45,25 @@ export const requiredOpenTypeCFF1Tables = [
 	...requiredOpenTypeTables,
 ] as const;
 
+/**
+ * Union type for the items in the {@link requiredOpenTypeCFF1Tables} list.
+ */
 export type RequiredOpenTypeCFF1TableTag =
 	(typeof requiredOpenTypeCFF1Tables)[number];
 
 /**
  * The list of strictly required tables for an OpenType font with PostScript
  * outlines, modern version.
+ * @see {@link requiredOpenTypeCFF1Tables} for legacy tables
  */
 export const requiredOpenTypeCFF2Tables = [
 	'CFF2',
 	...requiredOpenTypeTables,
 ] as const;
 
+/**
+ * Union type for the items in the {@link requiredOpenTypeCFF2Tables} list.
+ */
 export type RequiredOpenTypeCFF2TableTag =
 	(typeof requiredOpenTypeCFF2Tables)[number];
 
@@ -59,23 +72,8 @@ type StrictTables<T extends keyof SFNTTableMap> = {
 };
 
 /**
- * An OpenTypeNoOutlinesFont extends {@link NullFont} by marking the core 8
- * baseline tables as non-nullable, guaranteeing they are present in the font
- * dictionary.
- *
- * The required tables are:
- *
- * - cmap
- * - head
- * - hhea
- * - hmtx
- * - maxp
- * - name
- * - OS/2
- * - post
- */
-/**
- * Utility helper to mark a picked set of tables as strictly Required and Readonly.
+ * OpenType which lacks one or more of the 8 core tables.
+ * @see {@link requiredOpenTypeTables} for the list of required tables.
  */
 export interface OpenTypeNoOutlinesFont
 	extends Omit<NullFont, RequiredOpenTypeTableTag>,
@@ -87,7 +85,8 @@ export interface OpenTypeNoOutlinesFont
 }
 
 /**
- * OpenType font with verified TrueType vector geometry outline components (glyf + loca).
+ * OpenType font with verified TrueType vector geometry outline components
+ * (glyf + loca).
  */
 export interface OpenTypeTrueTypeFont
 	extends Omit<NullFont, RequiredOpenTypeTrueTypeTableTag>,

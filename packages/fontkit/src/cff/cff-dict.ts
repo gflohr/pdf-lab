@@ -5,7 +5,7 @@ import type {
 	ParsingContext,
 } from '@pdf-lib/restructure';
 import isEqual from 'deep-equal';
-import { CFFOperand } from './cff-operand.js';
+import { cffOperand } from './cff-operand.js';
 import type { CFFPrivateDictTable } from './cff-pointer.js';
 import type { CFFPrivateOp } from './cff-top.js';
 
@@ -36,6 +36,9 @@ export type CFFOpDefinition = [
 	defaultValue?: number | number[] | string[] | boolean | null,
 ];
 
+/**
+ * @internal
+ */
 export interface CFFContext {
 	parent?: CFFContext;
 	val: any;
@@ -48,7 +51,7 @@ export interface CFFContext {
 /**
  * Handles binary decoding and encoding of Compact Font Format (CFF) key-value dictionaries.
  */
-export default class CFFDict implements FieldT<Record<string, any>> {
+export class CFFDict implements FieldT<Record<string, any>> {
 	public ops: CFFOpDefinition[];
 	public fields: Record<number, CFFOpDefinition>;
 
@@ -165,7 +168,7 @@ export default class CFFDict implements FieldT<Record<string, any>> {
 
 				operands = [];
 			} else {
-				operands.push(CFFOperand.decode(stream, b));
+				operands.push(cffOperand.decode(stream, b));
 			}
 		}
 
@@ -195,7 +198,7 @@ export default class CFFDict implements FieldT<Record<string, any>> {
 
 			const operands = this.encodeOperands(field[2], null, ctx, val);
 			for (const op of operands) {
-				len += CFFOperand.size(op);
+				len += cffOperand.size(op);
 			}
 
 			const key = Array.isArray(field[0]) ? field[0] : [field[0]];
@@ -228,7 +231,7 @@ export default class CFFDict implements FieldT<Record<string, any>> {
 
 			const operands = this.encodeOperands(field[2], stream, ctx, val);
 			for (const op of operands) {
-				CFFOperand.encode(stream, op);
+				cffOperand.encode(stream, op);
 			}
 
 			const key = Array.isArray(field[0]) ? field[0] : [field[0]];

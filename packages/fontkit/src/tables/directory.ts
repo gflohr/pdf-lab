@@ -3,10 +3,11 @@ import r, {
 	type FieldT,
 	type StructT,
 } from '@pdf-lib/restructure';
-import Tables from './index.js';
+import { tables } from './index.js';
+import { table } from 'node:console';
 
 export type SFNTTableMap = {
-	[K in keyof typeof Tables]: ReturnType<(typeof Tables)[K]['decode']>;
+	[K in keyof typeof tables]: ReturnType<(typeof tables)[K]['decode']>;
 };
 
 /**
@@ -77,12 +78,12 @@ const directoryFields = {
 	tables: new r.Array(tableEntryStruct, 'numTables'),
 };
 
-const directory = new r.Struct<typeof directoryFields, SFNTDirectory>(
+const directoryStruct = new r.Struct<typeof directoryFields, SFNTDirectory>(
 	directoryFields,
 );
 
 // Restructure Lifecycle Hooks.
-directory.process = function (this: DirectoryContext): void {
+directoryStruct.process = function (this: DirectoryContext): void {
 	const mappedTables: Record<string, SFNTDirectoryEntry> = {};
 
 	for (const table of this.tables) {
@@ -94,7 +95,7 @@ directory.process = function (this: DirectoryContext): void {
 	this.tables = mappedTables as any;
 };
 
-directory.preEncode = function (this: DirectoryContext): void {
+directoryStruct.preEncode = function (this: DirectoryContext): void {
 	const encodedTableEntries: SFNTTableEntryBinary[] = [];
 	const sourceTables = this.tables as unknown as Record<
 		string,
@@ -102,11 +103,11 @@ directory.preEncode = function (this: DirectoryContext): void {
 	>;
 
 	for (const key in sourceTables) {
-		const tag = key as keyof typeof Tables;
+		const tag = key as keyof typeof tables;
 		const entry = sourceTables[tag];
 
 		if (entry) {
-			const tableDef = Tables[tag];
+			const tableDef = tables[tag] as StructT<unknown, unknown>;
 			if (!tableDef) continue;
 
 			encodedTableEntries.push({
@@ -114,10 +115,10 @@ directory.preEncode = function (this: DirectoryContext): void {
 				checkSum: 0,
 				// Direct reference mapping back to your registry
 				offset: new r.VoidPointer(
-					Tables[tag] as FieldT<unknown>,
+					tableDef,
 					entry,
 				) as unknown as number,
-				length: (Tables[tag] as StructT<any, any>).size(entry),
+				length: (tableDef).size(entry),
 			});
 		}
 	}
@@ -139,6 +140,9 @@ export interface SFNTDirectoryEncodeInput {
 	tables: Record<string, unknown>;
 }
 
-export default directory as Omit<typeof directory, 'encode'> & {
+export const directory = directoryStruct as Omit<
+	typeof directoryStruct,
+	'encode'
+> & {
 	encode(stream: EncodeStream, value: SFNTDirectoryEncodeInput): void;
 };

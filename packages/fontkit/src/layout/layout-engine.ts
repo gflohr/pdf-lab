@@ -1,15 +1,15 @@
-import AATLayoutEngine from '../aat/aat-layout-engine.js';
-import type Glyph from '../glyph/glyph.js';
-import OTLayoutEngine from '../opentype/ot-layout-engine.js';
+import { AATLayoutEngine } from '../aat/aat-layout-engine.js';
+import type { Glyph } from '../glyph/glyph.js';
+import { OTLayoutEngine } from '../opentype/ot-layout-engine.js';
 import type { SFNTFont } from '../sfnt-font.js';
 import type { OpenType } from '../tables/opentype.js';
-import GlyphPosition from './glyph-position.js';
-import GlyphRun, { type BidiDirection } from './glyph-run.js';
-import KernProcessor from './kern-processor.js';
+import { GlyphPosition } from './glyph-position.js';
+import { type BidiDirection, GlyphRun } from './glyph-run.js';
+import { KernProcessor } from './kern-processor.js';
 import * as Script from './script.js';
-import UnicodeLayoutEngine from './unicode-layout-engine.js';
+import { UnicodeLayoutEngine } from './unicode-layout-engine.js';
 
-export default class LayoutEngine {
+export class LayoutEngine {
 	private unicodeLayoutEngine: UnicodeLayoutEngine | null;
 	private kernProcessor: KernProcessor | null;
 	public readonly engine?: AATLayoutEngine | OTLayoutEngine<null>;

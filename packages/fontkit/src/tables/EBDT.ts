@@ -115,6 +115,7 @@ const bigMetricsFields = {
 	vertBearingY: r.int8,
 	vertAdvance: r.uint8,
 };
+/** @internal */
 export const bigMetrics = new r.Struct<
 	typeof bigMetricsFields,
 	EBDTTable.BigMetrics
@@ -204,6 +205,8 @@ const glyphFields = {
 		data: new r.Buffer('dataLen'),
 	},
 };
+// FIXME! Should that really be exported as glyph?
+/** @internal */
 export const glyph = new r.VersionedStruct<typeof glyphFields, EBDTTable.Glyph>(
 	'version',
 	glyphFields,

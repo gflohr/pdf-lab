@@ -42,6 +42,7 @@ const avarStructFields = {
 	axisCount: r.uint32,
 	segment: new r.Array(Segment, 'axisCount'),
 };
-export default new r.Struct<typeof avarStructFields, avarTable.avar>(
+/** @internal */
+export const avar = new r.Struct<typeof avarStructFields, avarTable.avar>(
 	avarStructFields,
 );

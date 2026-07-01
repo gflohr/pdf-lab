@@ -1,9 +1,9 @@
 import unicode, {
 	type UnicodeCombiningClassName,
 } from '@pdf-lib/unicode-properties';
-import type Glyph from '../glyph/glyph.js';
+import type { Glyph } from '../glyph/glyph.js';
 import type { SFNTFont } from '../sfnt-font.js';
-import type GlyphPosition from './glyph-position.js';
+import type { GlyphPosition } from './glyph-position.js';
 
 /**
  * This class is used when GPOS does not define 'mark' or 'mkmk' features
@@ -13,7 +13,7 @@ import type GlyphPosition from './glyph-position.js';
  * Based on code from Harfbuzz, thanks!
  * https://github.com/behdad/harfbuzz/blob/master/src/hb-ot-shape-fallback.cc
  */
-export default class UnicodeLayoutEngine {
+export class UnicodeLayoutEngine {
 	constructor(private readonly font: SFNTFont) {}
 
 	/**

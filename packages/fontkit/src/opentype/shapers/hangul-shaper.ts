@@ -1,7 +1,7 @@
 import type { SFNTFont } from '../../sfnt-font.js';
-import GlyphInfo from '../glyph-info.js';
-import type ShapingPlan from '../shaping-plan.js';
-import DefaultShaper from './default-shaper.js';
+import { GlyphInfo } from '../glyph-info.js';
+import type { ShapingPlan } from '../shaping-plan.js';
+import { DefaultShaper } from './default-shaper.js';
 
 /**
  * This is a shaper for the Hangul script, used by the Korean language.
@@ -25,7 +25,7 @@ import DefaultShaper from './default-shaper.js';
  *   - http://www.microsoft.com/typography/OpenTypeDev/hangul/intro.htm
  *   - http://ktug.org/~nomos/harfbuzz-hangul/hangulshaper.pdf
  */
-export default class HangulShaper extends DefaultShaper {
+export class HangulShaper extends DefaultShaper {
 	static zeroMarkWidths = 'NONE';
 	static planFeatures<T>(plan: ShapingPlan<T>) {
 		plan.add(['ljmo', 'vjmo', 'tjmo'], false);

@@ -206,4 +206,5 @@ const justFields = {
 	vertical: new r.Pointer(r.uint16, JustificationTable),
 };
 
-export default new r.Struct<typeof justFields, justTable.just>(justFields);
+/** @internal */
+export const just = new r.Struct<typeof justFields, justTable.just>(justFields);

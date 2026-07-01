@@ -3,7 +3,7 @@ import { getEncoding } from './encodings.js';
 import type { cmapTable } from './tables/cmap.js';
 import { binarySearch, range } from './utils.js';
 
-export default class CmapProcessor {
+export class CmapProcessor {
 	private readonly codePointsForGlyphCache: Map<number, number[]>;
 	private readonly encoding: string | null = null;
 	private readonly cmap: cmapTable.Subtable;

@@ -1,7 +1,7 @@
 /**
  * Represents a glyph bounding box.
  */
-export default class BoundingBox {
+export class BoundingBox {
 	/** The minimum X position in the bounding box. */
 	private _minX: number;
 
@@ -119,3 +119,8 @@ export default class BoundingBox {
 		return new BoundingBox(this.minX, this.minY, this.maxX, this.maxY);
 	}
 }
+
+/**
+ * Alias for {@link BoundingBox} to ensure compatibility with `@types/fontkit`.
+ */
+export type BBox = BoundingBox;

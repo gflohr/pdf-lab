@@ -1,5 +1,5 @@
 import r, { type EncodeStream, type FieldT } from '@pdf-lib/restructure';
-import type Path from './path.js';
+import type { Path } from './path.js';
 
 // Flags for simple glyphs
 const ON_CURVE = 1 << 0;
@@ -41,7 +41,7 @@ const Glyf = new r.Struct({
  *
  * FIXME! This is rather a function than a class.
  */
-export default class TTFGlyphEncoder {
+export class TTFGlyphEncoder {
 	encodeSimple(path: Path, instructions: number[] = []): Uint8Array {
 		const endPtsOfContours = [];
 		const xPoints: number[] = [];

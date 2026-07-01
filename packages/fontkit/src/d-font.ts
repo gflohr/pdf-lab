@@ -84,7 +84,7 @@ const dFontHeader = new r.Struct<typeof dfontHeaderFields, DFontHeader>(
 	dfontHeaderFields,
 );
 
-export default class DFont {
+export class DFont {
 	private readonly header: DFontHeader;
 	private readonly sfnt?: ResourceTypeEntry;
 

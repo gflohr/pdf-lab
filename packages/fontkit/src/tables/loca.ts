@@ -26,7 +26,8 @@ const locaFields = {
 		offsets: new r.Array(r.uint32),
 	},
 };
-const loca = new r.VersionedStruct<typeof locaFields, locaTable.loca>(
+/** @internal */
+export const loca = new r.VersionedStruct<typeof locaFields, locaTable.loca>(
 	'head.indexToLocFormat',
 	locaFields,
 );
@@ -51,5 +52,3 @@ loca.preEncode = function () {
 		}
 	}
 };
-
-export default loca;

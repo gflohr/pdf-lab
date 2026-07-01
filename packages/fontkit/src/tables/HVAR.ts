@@ -75,19 +75,6 @@ export namespace HVARTable {
 	}
 
 	/**
-	 * Represents a compiled Map table correlating glyph IDs to variation
-	 * indexes.
-	 */
-	export interface DeltaSetIndexMap {
-		/** Flag formatting mask dictating outer/inner index bit boundaries. */
-		entryFormat: number;
-		/** Total number of mapping index elements stored. */
-		mapCount: number;
-		/** Array containing individual variation indexing pairs. */
-		mapData: MapDataEntry[];
-	}
-
-	/**
 	 * Represents the OpenType Horizontal Metrics Variation Table (`HVAR`).
 	 *
 	 * This table supplies variation adjustments for advance widths, left side bearings,
@@ -169,4 +156,5 @@ const hvarFields = {
 	RSBMapping: new r.Pointer(r.uint32, DeltaSetIndexMap),
 };
 
-export default new r.Struct<typeof hvarFields, HVARTable.HVAR>(hvarFields);
+/** @internal */
+export const HVAR = new r.Struct<typeof hvarFields, HVARTable.HVAR>(hvarFields);

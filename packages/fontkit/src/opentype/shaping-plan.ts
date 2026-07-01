@@ -1,10 +1,10 @@
-import type GlyphPosition from '../layout/glyph-position.js';
+import type { GlyphPosition } from '../layout/glyph-position.js';
 import type { BidiDirection } from '../layout/glyph-run.js';
 import type { OpenTypeTag, UnicodeScript } from '../layout/script.js';
 import type { SFNTFont } from '../sfnt-font.js';
 import type { OpenType } from '../tables/opentype.js';
-import type GlyphInfo from './glyph-info.js';
-import type OTProcessor from './ot-processor.js';
+import type { GlyphInfo } from './glyph-info.js';
+import type { OTProcessor } from './ot-processor.js';
 import type { IndicConfig } from './shapers/indic-data.js';
 
 type FeatureShape =
@@ -29,7 +29,7 @@ type Stage<T> = OpenType.FeatureTag[] | ShapingFunction<T>;
  * can be applied globally to all glyphs, or locally to only
  * specific glyphs.
  */
-export default class ShapingPlan<T = null> {
+export class ShapingPlan<T = null> {
 	private stages: Stage<T>[];
 	private globalFeatures: OpenType.FeatureFlags;
 	public readonly allFeatures: Record<OpenType.FeatureTag, number>;

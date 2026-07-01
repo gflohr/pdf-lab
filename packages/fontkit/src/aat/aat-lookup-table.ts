@@ -1,7 +1,7 @@
 import type { AAT } from '../tables/aat.js';
 import { range } from '../utils.js';
 
-export default class AATLookupTable<T> {
+export class AATLookupTable<T> {
 	private glyphsForValueCache: Map<number, number[]>;
 
 	constructor(private readonly table: AAT.LookupTable<T>) {

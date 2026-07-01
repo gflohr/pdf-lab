@@ -3,11 +3,7 @@
 import type { DecodeStream } from '@pdf-lib/restructure';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { BaseFontDirectory } from '../src/null-font.js';
-import {
-	requiredOpenTypeCFF1Tables,
-	requiredOpenTypeCFF2Tables,
-	requiredOpenTypeTables,
-} from '../src/open-type-font.js';
+import { requiredOpenTypeTables } from '../src/open-type-font.js';
 import { SFNTFont } from '../src/sfnt-font.js';
 import type {
 	SFNTDirectoryEntry,
@@ -61,7 +57,7 @@ describe('SFNTFont Capabilities & Table Resolution', () => {
 			font.directory.tables.head = {
 				tag: 'head',
 				offset: 100,
-			}
+			};
 
 			expect(font.hasTable('head', false)).toBe(true);
 			expect(font['decodeTable']).not.toHaveBeenCalled();
@@ -72,7 +68,7 @@ describe('SFNTFont Capabilities & Table Resolution', () => {
 			font.directory.tables.foot = {
 				tag: 'foot',
 				offset: 100,
-			}
+			};
 
 			expect(font.hasTable('foot', false)).toBe(true);
 			expect(font['decodeTable']).not.toHaveBeenCalled();
@@ -83,7 +79,7 @@ describe('SFNTFont Capabilities & Table Resolution', () => {
 			font.directory.tables.head = {
 				tag: 'head',
 				offset: 100,
-			}
+			};
 
 			expect(font.hasTable('head', true)).toBe(true);
 			expect(font['decodeTable']).toHaveBeenCalledWith({
@@ -98,7 +94,7 @@ describe('SFNTFont Capabilities & Table Resolution', () => {
 			font.directory.tables.foot = {
 				tag: 'foot',
 				offset: 100,
-			}
+			};
 
 			expect(font.hasTable('foot', true)).toBe(false);
 			expect(font['decodeTable']).not.toHaveBeenCalledWith();
@@ -109,7 +105,7 @@ describe('SFNTFont Capabilities & Table Resolution', () => {
 			font.directory.tables.head = {
 				tag: 'head',
 				offset: 100,
-			}
+			};
 
 			vi.mocked(font['decodeTable']).mockImplementationOnce(() => {
 				throw new Error('Corrupt data');

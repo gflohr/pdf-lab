@@ -1,4 +1,4 @@
-import BoundingBox from './bounding-box.js';
+import { BoundingBox } from './bounding-box.js';
 
 const SVG_COMMANDS = {
 	moveTo: 'M',
@@ -21,7 +21,7 @@ export interface PathCommand {
  * to SVG path data strings, or to functions that can be applied to
  * render the path to a graphics context.
  */
-export default class Path {
+export class Path {
 	public commands: PathCommand[];
 	private _bbox: Readonly<BoundingBox> | null;
 	private _cbox: Readonly<BoundingBox> | null;

@@ -1,16 +1,16 @@
-import type GlyphPosition from '../layout/glyph-position.js';
-import type GlyphRun from '../layout/glyph-run.js';
+import type { GlyphPosition } from '../layout/glyph-position.js';
+import type { GlyphRun } from '../layout/glyph-run.js';
 import type { OpenTypeTag } from '../layout/script.js';
 import type { SFNTFont } from '../sfnt-font.js';
 import type { OpenType } from '../tables/opentype.js';
-import GlyphInfo from './glyph-info.js';
-import GPOSProcessor from './gpos-processor.js';
-import GSUBProcessor from './gsub-processor.js';
-import type DefaultShaper from './shapers/default-shaper.js';
+import { GlyphInfo } from './glyph-info.js';
+import { GPOSProcessor } from './gpos-processor.js';
+import { GSUBProcessor } from './gsub-processor.js';
+import type { DefaultShaper } from './shapers/default-shaper.js';
 import * as Shapers from './shapers/index.js';
-import ShapingPlan from './shaping-plan.js';
+import { ShapingPlan } from './shaping-plan.js';
 
-export default class OTLayoutEngine<T> {
+export class OTLayoutEngine<T> {
 	private font: SFNTFont;
 	private glyphInfos: GlyphInfo<T>[] | null;
 	private plan: ShapingPlan<T> | null;

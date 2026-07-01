@@ -103,6 +103,7 @@ const headStructFields = {
 	indexToLocFormat: r.int16, // 0 for short offsets, 1 for long
 	glyphDataFormat: r.int16, // 0 for current format
 };
-export default new r.Struct<typeof headStructFields, headTable.head>(
+/** @internal */
+export const head = new r.Struct<typeof headStructFields, headTable.head>(
 	headStructFields,
 );

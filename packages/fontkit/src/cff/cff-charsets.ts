@@ -1,4 +1,4 @@
-export const ISOAdobeCharset = [
+export const isoAdobeCharset = [
 	'.notdef',
 	'space',
 	'exclam',
@@ -230,7 +230,7 @@ export const ISOAdobeCharset = [
 	'zcaron',
 ];
 
-export const ExpertCharset = [
+export const expertCharset = [
 	'.notdef',
 	'space',
 	'exclamsmall',
@@ -399,7 +399,7 @@ export const ExpertCharset = [
 	'Ydieresissmall',
 ];
 
-export const ExpertSubsetCharset = [
+export const expertSubsetCharset = [
 	'.notdef',
 	'space',
 	'dollaroldstyle',
