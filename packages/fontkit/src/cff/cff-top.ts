@@ -303,10 +303,10 @@ export interface CFFTopDataV1 {
 	version: 1;
 	hdrSize: number;
 	offSize: number;
-	nameIndex: string;
-	topDictIndex: CFFDict;
+	nameIndex: string[];
+	topDictIndex: CFFDict[];
 	stringIndex: string[];
-	globalSubrIndex: { offset: number; length: number };
+	globalSubrIndex: { offset: number; length: number }[];
 }
 
 export interface CFFTopDataV2 {

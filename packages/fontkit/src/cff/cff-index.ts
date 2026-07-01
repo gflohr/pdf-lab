@@ -90,6 +90,7 @@ export class CFFIndex<TType extends CFFDict | StringT | FieldT<IndexItemValue>>
 		}
 
 		stream.pos = startPos + start;
+
 		return ret;
 	}
 
