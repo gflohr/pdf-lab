@@ -5,4 +5,5 @@ export namespace glyfTable {
 }
 
 // Only used for encoding.
+/** @internal */
 export const glyf = new r.Array(new r.Buffer());

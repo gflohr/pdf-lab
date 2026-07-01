@@ -26,6 +26,7 @@ const locaFields = {
 		offsets: new r.Array(r.uint32),
 	},
 };
+/** @internal */
 export const loca = new r.VersionedStruct<typeof locaFields, locaTable.loca>(
 	'head.indexToLocFormat',
 	locaFields,

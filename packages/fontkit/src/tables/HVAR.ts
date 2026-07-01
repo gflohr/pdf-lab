@@ -156,4 +156,5 @@ const hvarFields = {
 	RSBMapping: new r.Pointer(r.uint32, DeltaSetIndexMap),
 };
 
+/** @internal */
 export const HVAR = new r.Struct<typeof hvarFields, HVARTable.HVAR>(hvarFields);

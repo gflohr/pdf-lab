@@ -26,6 +26,7 @@ const hmtxStructFields = {
 	),
 };
 
+/** @internal */
 export const hmtx = new r.Struct<typeof hmtxStructFields, hmtxTable.hmtx>(
 	hmtxStructFields,
 );

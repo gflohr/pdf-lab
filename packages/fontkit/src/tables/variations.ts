@@ -223,6 +223,7 @@ const featureVariationsFields = {
 	),
 };
 
+/** @internal */
 export const featureVariations = new r.Struct<
 	typeof featureVariationsFields,
 	OpenTypeVariation.FeatureVariations

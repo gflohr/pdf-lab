@@ -264,6 +264,7 @@ const os2Fields = {
 	5: os2V5Fields,
 };
 
+/** @internal */
 export const OS2 = new r.VersionedStruct<typeof os2Fields, OS2Table.OS2>(
 	r.uint16,
 	os2Fields,

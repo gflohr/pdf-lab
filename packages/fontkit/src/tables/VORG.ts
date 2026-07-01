@@ -32,4 +32,5 @@ const VORGFields = {
 	metrics: new r.Array(VerticalOriginStruct, 'numVertOriginYMetrics'),
 };
 
+/** @internal */
 export const VORG = new r.Struct<typeof VORGFields, VORGTable.VORG>(VORGFields);

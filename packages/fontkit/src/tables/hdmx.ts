@@ -41,6 +41,7 @@ const hdmxStructFields = {
 	sizeDeviceRecord: r.uint32,
 	records: new r.Array(DeviceRecord, 'numRecords'),
 };
+/** @internal */
 export const hdmx = new r.Struct<typeof hdmxStructFields, hdmxTable.hdmx>(
 	hdmxStructFields,
 );

@@ -53,6 +53,7 @@ const dsigStructFields = {
 	signatures: new r.Array(signature, 'usNumSigs'),
 	signatureBlocks: new r.Array(signatureBlock, 'usNumSigs'),
 };
+/** @internal */
 export const DSIG = new r.Struct<typeof dsigStructFields, DSIGTable.DSIG>(
 	dsigStructFields,
 );

@@ -207,6 +207,7 @@ const fields = {
 	},
 };
 
+/** @internal */
 export const GSUB = new r.VersionedStruct<typeof fields, GSUBTable.GSUB>(
 	r.uint32,
 	fields,

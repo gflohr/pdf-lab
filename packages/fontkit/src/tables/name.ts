@@ -119,6 +119,7 @@ const nameFields = {
 
 // We explicitly cast the base generic here to pass the runtime array format checks
 // internally inside restructure, but map it gracefully to the finalized nameTable.name shape.
+/** @internal */
 export const name = new r.VersionedStruct<typeof nameFields, nameTable.name>(
 	r.uint16,
 	nameFields,

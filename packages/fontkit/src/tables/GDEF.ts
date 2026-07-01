@@ -145,6 +145,7 @@ const gdefStructFields = {
 		itemVariationStore: new r.Pointer(r.uint32, itemVariationStore),
 	},
 };
+/** @internal */
 export const GDEF = new r.VersionedStruct<
 	typeof gdefStructFields,
 	GDEFTable.GDEF

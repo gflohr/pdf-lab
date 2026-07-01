@@ -746,6 +746,7 @@ const chainingContextFields = {
 		lookupRecords: new r.Array(lookupRecord, 'lookupCount'),
 	},
 };
+/** @internal */
 export const openTypeChainingContext = new r.VersionedStruct<
 	typeof chainingContextFields,
 	OpenType.ChainingContext

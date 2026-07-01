@@ -507,9 +507,11 @@ const gposStructFields = {
 		featureVariations: new r.Pointer(r.uint32, featureVariations),
 	},
 };
+/** @internal */
 export const GPOS = new r.VersionedStruct<
 	typeof gposStructFields,
 	GPOSTable.GPOS
 >(r.uint32, gposStructFields);
 
+/** @internal */
 export { GPOSLookup };

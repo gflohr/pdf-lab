@@ -62,5 +62,5 @@ const vheaFields = {
 	numberOfMetrics: r.uint16, // Number of advance heights in the Vertical Metrics table
 };
 
-// Vertical Header Table
+/** @internal */
 export const vhea = new r.Struct<typeof vheaFields, vheaTable.vhea>(vheaFields);

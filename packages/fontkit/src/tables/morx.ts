@@ -201,4 +201,5 @@ const morxFields = {
 	nChains: r.uint32,
 	chains: new r.Array(morxChain, 'nChains'),
 };
+/** @internal */
 export const morx = new r.Struct<typeof morxFields, morxTable.morx>(morxFields);

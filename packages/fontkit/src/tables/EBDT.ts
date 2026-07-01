@@ -205,6 +205,8 @@ const glyphFields = {
 		data: new r.Buffer('dataLen'),
 	},
 };
+// FIXME! Should that really be exported as glyph?
+/** @internal */
 export const glyph = new r.VersionedStruct<typeof glyphFields, EBDTTable.Glyph>(
 	'version',
 	glyphFields,
