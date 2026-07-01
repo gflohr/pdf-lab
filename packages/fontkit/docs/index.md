@@ -4,18 +4,28 @@ layout: home
 
 hero:
   name: "@pdf-lab/fontkit"
-  text: "An advanced font engine for Node and the browser in TypeScript."
+  text: "An advanced, strongly-typed font parsing and shaping engine."
   actions:
     - theme: brand
       text: API Documentation
       link: /api
+    - theme: alt
+      text: View on GitHub
+      link: https://github.com/gflohr/pdf-lab
 
 features:
-  - title: Feature A
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature B
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature C
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+  - title: Universal Environment Support
+    details: Fully decoupled from Node.js dependencies. Runs flawlessly across
+      modern browsers, cloud workers, and server-side runtimes using native Web
+      APIs.
+    icon: 🌐
+  - title: Fully Typed in TypeScript
+    details: Migrated from legacy JavaScript to strict TypeScript. Benefit from
+      robust static analysis, autocomplete, and reliable compile-time
+      verification.
+    icon: ⚡
+  - title: Built for PDF Architecture
+    details: Engineered to support font embedding, advanced OpenType/AAT
+      shaping, and subsetting needed for strict PDF/A compliance workflows.
+    icon: 📄
 ---
-
