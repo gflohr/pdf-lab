@@ -4,6 +4,7 @@ import r, {
 	type StructT,
 } from '@pdf-lib/restructure';
 import { tables } from './index.js';
+import { table } from 'node:console';
 
 export type SFNTTableMap = {
 	[K in keyof typeof tables]: ReturnType<(typeof tables)[K]['decode']>;
@@ -106,7 +107,7 @@ directoryStruct.preEncode = function (this: DirectoryContext): void {
 		const entry = sourceTables[tag];
 
 		if (entry) {
-			const tableDef = tables[tag];
+			const tableDef = tables[tag] as StructT<unknown, unknown>;
 			if (!tableDef) continue;
 
 			encodedTableEntries.push({
@@ -114,10 +115,10 @@ directoryStruct.preEncode = function (this: DirectoryContext): void {
 				checkSum: 0,
 				// Direct reference mapping back to your registry
 				offset: new r.VoidPointer(
-					tables[tag] as FieldT<unknown>,
+					tableDef,
 					entry,
 				) as unknown as number,
-				length: (tables[tag] as StructT<any, any>).size(entry),
+				length: (tableDef).size(entry),
 			});
 		}
 	}
