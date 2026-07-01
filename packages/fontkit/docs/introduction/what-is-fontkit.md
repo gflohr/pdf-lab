@@ -5,9 +5,9 @@ Fontkit is an advanced font engine for Node and the browser.
 ## Features
 
 * Supports TrueType (`.ttf`), OpenType (`.otf`), WOFF (`.woff`), WOFF2 (`.woff2`), TrueType Collection (`.ttc`), and Datafork TrueType (`.dfont`) font files.
-* Supports mapping characters to glyphs, including support for ligatures and other advanced substitutions.
-* Supports reading glyph metrics and laying out glyphs, including support for kerning and other advanced layout features.
-* Advanced OpenType features including glyph substitution (GSUB) and positioning (GPOS)
+* Enables mapping characters to glyphs, including support for ligatures and other advanced substitutions.
+* Reads glyph metrics and lays out glyphs, including support for kerning and other advanced layout features.
+* Handles advanced OpenType features including glyph substitution (GSUB) and positioning (GPOS)
 * Apple Advanced Typography (AAT) glyph substitution features (morx table).
 * Support for getting glyph vector paths and converting them to SVG paths, or rendering them to a graphics context.
 * Supports TrueType (glyf) and PostScript (CFF/CFF2) outlines.
@@ -20,7 +20,7 @@ Fontkit is an advanced font engine for Node and the browser.
 * Fully Typed Architecture: Re-engineered from the ground up in native TypeScript, offering robust auto-completion, strict compiler checks, and inline documentation for complex internal font structures (such as layout tables and glyph collections).
 * API documentation; you are currently reading it.
 * Modern ESM Native & CJS Layouts: Shipped with strict, modern dual-package support (.js and .cjs), eliminating old bundler quirks and offering out-of-the-box support for modern frameworks (Vite, Next.js, etc.) alongside backward-compatible UMD browser targets.
-* Modernized Engineering Tooling: Replaced aging, custom hand-crafted build scripts with modern tooling (Rollup/Vite) and an overhauled, modern testing pipeline (Vitest/Jest).
+* Modernised Engineering Tooling: Replaced aging, custom hand-crafted build scripts with modern tooling (Rollup/Vite) and an overhauled, modern testing pipeline (Vitest/Jest).
 
 ## The Typescript Shift
 
@@ -30,7 +30,7 @@ specifications (like OpenType and AAT structures).
 
 By porting @pdf-lab/fontkit to strict TypeScript, the library has been turned
 internal structural contracts into a form of static analysis. This migration
-has allowed to eliminate legacy silent bugs, clearly define cross-module 
+has eliminated legacy silent bugs, clearly define cross-module 
 internal boundaries (like table registration schemes), and dramatically 
 improve the developer experience for anyone building advanced layout or PDF 
 rendering engines.
@@ -50,7 +50,7 @@ has been created.
 
 There is another popular fontkit fork
 [`@foliojs-fork/fontkit`](https://github.com/foliojs-fork/fontkit#readme)
-that included many improvements and bugfixes to the original fontkit.
+that included many improvements and bug fixes to the original fontkit.
 
 This version `@pdf-lab/fontkit` is based on the original fontkit and the
 two forks. It tries to incorporate all improvements in the other forks.
