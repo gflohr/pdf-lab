@@ -119,3 +119,8 @@ export class BoundingBox {
 		return new BoundingBox(this.minX, this.minY, this.maxX, this.maxY);
 	}
 }
+
+/**
+ * Alias for {@link BoundingBox} to ensure compatibility with `@types/fontkit`.
+ */
+export type BBox = BoundingBox;
