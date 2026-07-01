@@ -1,6 +1,6 @@
 import r, { type EncodeStream } from '@pdf-lib/restructure';
-import type { Glyph } from '../glyph/glyph';
-import type { SFNTFont } from '../sfnt-font';
+import type { Glyph } from '../glyph/glyph.js';
+import type { SFNTFont } from '../sfnt-font.js';
 
 export abstract class Subset {
 	protected readonly glyphs: number[];
