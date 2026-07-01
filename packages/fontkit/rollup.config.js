@@ -53,16 +53,17 @@ const configureExternal = (isUmd) => {
 	if (isUmd) return [];
 
 	return (id) => {
+		if (path.isAbsolute(id)) {
+			return id.includes('node_modules');
+		}
+
 		if (
 			id.startsWith('.') ||
 			id.startsWith('/') ||
 			id.startsWith('\0') ||
 			id.startsWith('src/')
-		)
+		) {
 			return false;
-
-		if (path.isAbsolute(id)) {
-			return id.includes('node_modules');
 		}
 
 		return true;
