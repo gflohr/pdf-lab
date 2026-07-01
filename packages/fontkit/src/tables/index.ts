@@ -155,6 +155,7 @@ export * from './morx.js';
 export * from './name.js';
 export * from './opbd.js';
 export * from './opentype.js';
+export * from './OS2.js';
 export * from './PCLT.js';
 export * from './post.js';
 export * from './prep.js';
