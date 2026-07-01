@@ -28,7 +28,7 @@
 		"docs:preview": "vitepress preview docs"
 	},
 	"dependencies": {
-		"pako": "^2.1.0"
+		"pako": "^3.0.0"
 	},
 	"devDependencies": {
 		"@pdf-lib/brotli": "^0.0.0",
