@@ -31,6 +31,10 @@ export default defineConfig({
 						text: 'Basic Usage',
 						link: '/introduction/basic-usage',
 					},
+					{
+						text: 'Security',
+						link: '/introduction/security',
+					},
 				],
 			},
 			{
