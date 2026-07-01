@@ -14,21 +14,21 @@ fontkit.registerFormat(DFont);
 
 export default fontkit;
 
-export * from './aat';
-export * from './cff';
+export * from './aat/index.js';
+export * from './cff/index.js';
 export * from './cmap-processor.js';
 export * from './d-font.js';
 export * from './encodings.js';
 export * from './fatal-font-error.js';
 export * from './font.js';
-export * from './glyph';
-export * from './layout';
+export * from './glyph/index.js';
+export * from './layout/index.js';
 export * from './null-font.js';
 export * from './open-type-font.js';
-export * from './opentype';
+export * from './opentype/index.js';
 export * from './sfnt-font.js';
-export * from './subset';
-export * from './tables';
+export * from './subset/index.js';
+export * from './tables/index.js';
 export * from './true-type-collection.js';
 export * from './true-type-font.js';
 export * from './utils.js';
