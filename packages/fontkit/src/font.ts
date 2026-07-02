@@ -2,9 +2,10 @@ import type { CFFFont } from './cff/cff-font.js';
 import type { BoundingBox } from './glyph/bounding-box.js';
 import type { Glyph } from './glyph/glyph.js';
 import type { GlyphRun } from './layout/glyph-run.js';
-import { TrueTypeFont } from './true-type-font.js';
+import type { SFNTFont } from './sfnt-font.js';
 import type { Subset } from './subset/subset.js';
 import type { OpenType } from './tables/opentype.js';
+import type { TrueTypeFont } from './true-type-font.js';
 
 export interface VariationAxis {
 	axisTag: string;
@@ -30,11 +31,12 @@ export type VariationCoordinates = Record<string, number>;
 export type VariationSettings = Record<string, number>;
 
 /**
- * There are several different types of font objects that are returned by
- * fontkit depending on the font format. They all inherit from the TrueTypeFont class
- * and have the same public API.
+ * This interface only exists for adding compatibility with other fontkit
+ * forks.
+ *
+ * @deprecated Use {@link SFNTFont} instead!
  */
-export interface Font {
+export interface Font extends SFNTFont {
 	// Metadata properties
 	postscriptName: string | null;
 	fullName: string | null;
@@ -80,7 +82,7 @@ export interface Font {
 	 * you should use Font.layout, which provides a much more advanced mapping
 	 * supporting AAT and OpenType shaping.
 	 */
-	glyphsForString(string: string): (Glyph | null)[];
+	glyphsForString(string: string): Glyph[];
 
 	// Glyph Metrics and Layout Methods
 
@@ -109,7 +111,7 @@ export interface Font {
 	 * code points this glyph represents for your use later, and it will be
 	 * stored in the glyph object.
 	 */
-	getGlyph(glyphId: number, codePoints?: number[]): Glyph | null;
+	getGlyph(glyphId: number, codePoints?: readonly number[]): Glyph | null;
 
 	/**
 	 * Returns a Subset object for this font.
@@ -148,7 +150,7 @@ export interface Font {
 	/**
 	 * An alias for the font's `CFF ` table.
 	 */
-	cff?: CFFFont | null;
+	cff: CFFFont | null;
 
 	/**
 	 * Get a font variation of that name.

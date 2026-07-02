@@ -1,8 +1,8 @@
 import type { GlyphPosition } from '../layout/glyph-position.js';
 import type { BidiDirection } from '../layout/glyph-run.js';
 import type { OpenTypeTag, UnicodeScript } from '../layout/script.js';
-import type { TrueTypeFont } from '../true-type-font.js';
 import type { OpenType } from '../tables/opentype.js';
+import type { TrueTypeFont } from '../true-type-font.js';
 import type { GlyphInfo } from './glyph-info.js';
 import type { OTProcessor } from './ot-processor.js';
 import type { IndicConfig } from './shapers/indic-data.js';

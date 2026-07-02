@@ -1,4 +1,5 @@
 import r, { type DecodeStream } from '@pdf-lib/restructure';
+import type { OpenTypeTrueTypeFont } from '../open-type-font.js';
 import { BoundingBox } from './bounding-box.js';
 import { Glyph, type GlyphLayoutMetrics } from './glyph.js';
 import { Path } from './path.js';
@@ -99,6 +100,8 @@ export type DecodedGlyph =
 
 /**
  * Represents a TrueType glyph.
+ *
+ * // FIXME! Rename that to TrueTypeGlyph!
  */
 export class TTFGlyph extends Glyph {
 	// Legacys Hack: Properties injected via base Glyph constructor mutations.
@@ -112,6 +115,17 @@ export class TTFGlyph extends Glyph {
 	public phantomPoints?: Point[];
 	public components?: Component[];
 
+	protected declare _font: OpenTypeTrueTypeFont;
+
+	// biome-ignore lint/complexity/noUselessConstructor: needed for property narrowing
+	constructor(
+		id: number,
+		codePoints: readonly number[],
+		font: OpenTypeTrueTypeFont,
+	) {
+		super(id, codePoints, font);
+	}
+
 	// Parses just the glyph header and returns the bounding box.
 	protected getCBox(internal: boolean): Readonly<BoundingBox> {
 		// We need to decode the glyph if variation processing is requested,
@@ -122,7 +136,7 @@ export class TTFGlyph extends Glyph {
 
 		const stream = this._font.getGlyfTableStream();
 		if (!stream) {
-			throw new Error("Malformed font! Cannot decode table 'glyh'!");
+			throw new Error("Malformed font! Cannot decode table 'glyf'!");
 		}
 		stream.pos += this._font.loca.offsets[this.id];
 		const glyph = GlyphHeader.decode(stream);

@@ -5,7 +5,10 @@ import type { Font, VariationCoordinates } from '../src/font.js';
 import { fontkit } from '../src/index.js';
 import type { TrueTypeFont } from '../src/true-type-font.js';
 
-type OpenCallback = (error: Error | unknown | null, font?: TrueTypeFont) => void;
+type OpenCallback = (
+	error: Error | unknown | null,
+	font?: TrueTypeFont,
+) => void;
 
 interface Fontkit {
 	logErrors: boolean;

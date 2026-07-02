@@ -1,11 +1,11 @@
 import type { GlyphPosition } from '../layout/glyph-position.js';
 import type { BidiDirection } from '../layout/glyph-run.js';
 import * as Script from '../layout/script.js';
-import type { TrueTypeFont } from '../true-type-font.js';
 import type { GPOSTable } from '../tables/GPOS.js';
 import type { GSUBTable } from '../tables/GSUB.js';
 import type { OpenType } from '../tables/opentype.js';
 import type { OpenTypeVariation } from '../tables/variations.js';
+import type { TrueTypeFont } from '../true-type-font.js';
 import type { GlyphInfo } from './glyph-info.js';
 import { GlyphIterator } from './glyph-iterator.js';
 

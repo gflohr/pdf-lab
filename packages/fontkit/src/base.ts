@@ -1,7 +1,7 @@
 import r, { type DecodeStream } from '@pdf-lib/restructure';
 import type { DFont } from './d-font.js';
-import type { TrueTypeFont } from './true-type-font.js';
 import type { TrueTypeCollection } from './true-type-collection.js';
+import type { TrueTypeFont } from './true-type-font.js';
 
 export interface FontContainerInstance {
 	getFont(postscriptName: string): TrueTypeFont | null;
@@ -89,7 +89,10 @@ export const fontkit = {
 	 * @param postscriptName the optional PostScript name
 	 * @returns the font or font collection
 	 */
-	create: (bytes: Uint8Array, postscriptName?: string): TrueTypeFont | DFont | TrueTypeCollection | null => {
+	create: (
+		bytes: Uint8Array,
+		postscriptName?: string,
+	): TrueTypeFont | DFont | TrueTypeCollection | null => {
 		const buffer = Buffer.from(bytes);
 		for (let i = 0; i < formats.length; i++) {
 			const format = formats[i];

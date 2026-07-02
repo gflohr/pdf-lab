@@ -1,8 +1,8 @@
 import type { GlyphPosition } from '../layout/glyph-position.js';
 import type { GlyphRun } from '../layout/glyph-run.js';
 import type { OpenTypeTag } from '../layout/script.js';
-import type { TrueTypeFont } from '../true-type-font.js';
 import type { OpenType } from '../tables/opentype.js';
+import type { TrueTypeFont } from '../true-type-font.js';
 import { GlyphInfo } from './glyph-info.js';
 import { GPOSProcessor } from './gpos-processor.js';
 import { GSUBProcessor } from './gsub-processor.js';

@@ -1,5 +1,7 @@
-import type { TrueTypeFont } from '../true-type-font.js';
+import type { fvarTable } from '../tables/fvar.js';
+import type { gvarTable } from '../tables/gvar.js';
 import type { OpenTypeVariation } from '../tables/variations.js';
+import type { TrueTypeFont } from '../true-type-font.js';
 import type { Point } from './ttf-glyph.js';
 
 const TUPLES_SHARE_POINT_NUMBERS = 0x8000;
@@ -50,6 +52,7 @@ interface MetricVariationTable {
  */
 export class GlyphVariationProcessor {
 	private font: TrueTypeFont;
+	private fvar: fvarTable.fvar;
 	public _normalizedCoords: number[];
 	private blendVectors = new Map<
 		OpenTypeVariation.ItemVariationData,
@@ -57,6 +60,15 @@ export class GlyphVariationProcessor {
 	>();
 
 	constructor(font: TrueTypeFont, coords: number[]) {
+		// Fail fast if the font isn't a variable font
+		if (!font.hasTable('fvar')) {
+			throw new Error(
+				'Cannot initialize GlyphVariationProcessor: The' +
+					' provided font is a static font and lacks' +
+					" the required 'fvar' (Font Variations) table.",
+			);
+		}
+		this.fvar = font.fvar!;
 		this.font = font;
 		this._normalizedCoords = this.normalizeCoords(coords);
 	}
@@ -65,8 +77,8 @@ export class GlyphVariationProcessor {
 		// the default mapping is linear along each axis, in two segments:
 		// from the minValue to defaultValue, and from defaultValue to maxValue.
 		const normalized = [];
-		for (let i = 0; i < this.font.fvar.axis.length; i++) {
-			const axis = this.font.fvar.axis[i];
+		for (let i = 0; i < this.fvar.axis.length; i++) {
+			const axis = this.fvar.axis[i];
 			if (coords[i] < axis.defaultValue) {
 				normalized.push(
 					(coords[i] - axis.defaultValue + Number.EPSILON) /
@@ -106,7 +118,7 @@ export class GlyphVariationProcessor {
 	}
 
 	public transformPoints(gid: number, glyphPoints: Point[]): void {
-		if (!this.font.fvar || !this.font.gvar) {
+		if (!this.fvar || !this.font.gvar) {
 			return;
 		}
 
@@ -177,6 +189,7 @@ export class GlyphVariationProcessor {
 
 			// Get the factor at which to apply this tuple
 			const factor = this.tupleFactor(
+				gvar,
 				tupleIndex,
 				tupleCoords,
 				startCoords,
@@ -290,13 +303,13 @@ export class GlyphVariationProcessor {
 	}
 
 	private tupleFactor(
+		gvar: gvarTable.gvar,
 		tupleIndex: number,
 		tupleCoords: number[],
 		startCoords?: number[],
 		endCoords?: number[],
 	) {
 		const normalized = this.normalizedCoords;
-		const { gvar } = this.font;
 		let factor = 1;
 
 		for (let i = 0; i < gvar.axisCount; i++) {

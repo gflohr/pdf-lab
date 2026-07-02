@@ -14,11 +14,11 @@ import {
 	TTFGlyph,
 } from './glyph/ttf-glyph.js';
 import { WOFF2Glyph } from './glyph/woff2-glyph.js';
-import { TrueTypeFont } from './true-type-font.js';
 import type { SFNTDirectoryEntry } from './tables/directory.js';
 import type { tables } from './tables/index.js';
 import type { WOFF2Directory } from './tables/woff2-directory.js';
 import { woff2DirectoryStruct } from './tables/woff2-directory.js';
+import { TrueTypeFont } from './true-type-font.js';
 
 /**
  * Subclass of TrueTypeFont that represents a TTF/OTF font compressed by WOFF2

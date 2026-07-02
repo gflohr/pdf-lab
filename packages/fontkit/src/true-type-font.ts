@@ -5,7 +5,6 @@ import type { CFFFont } from './cff/cff-font.js';
 import { CmapProcessor } from './cmap-processor.js';
 import { FatalFontError } from './fatal-font-error.js';
 import type {
-	Font,
 	NamedVariation,
 	NamedVariations,
 	VariationAxes,
@@ -23,7 +22,6 @@ import { TTFGlyph } from './glyph/ttf-glyph.js';
 import type { BidiDirection, GlyphRun } from './layout/glyph-run.js';
 import { LayoutEngine } from './layout/layout-engine.js';
 import type * as Script from './layout/script.js';
-import type { SFNTFontDirectory, SFNTFont } from './sfnt-font.js';
 import type { OpenTypeFont } from './open-type-font.js';
 import {
 	requiredOpenTypeCFF1Tables,
@@ -31,6 +29,7 @@ import {
 	requiredOpenTypeTables,
 	requiredOpenTypeTrueTypeTables,
 } from './open-type-font.js';
+import type { SFNTFont, SFNTFontDirectory } from './sfnt-font.js';
 import { CFFSubset } from './subset/cff-subset.js';
 import type { Subset } from './subset/subset.js';
 import { TTFSubset } from './subset/ttf-subset.js';
@@ -93,7 +92,7 @@ export type FontTableField = CoreTables & ExtensionTables;
 
 export interface TrueTypeFont<
 	TDirectory extends SFNTFontDirectory = SFNTFontDirectory,
-> extends Font,
+> extends SFNTFont,
 		FontTableField {
 	directory: TDirectory;
 }
@@ -103,8 +102,9 @@ export interface TrueTypeFont<
  * It supports TrueType, and PostScript glyphs, and several color glyph formats.
  */
 // biome-ignore lint/suspicious/noUnsafeDeclarationMerging: Merged with FontTableFields to map table layout properties dynamically via the constructor loop.
-export class TrueTypeFont<TDirectory extends SFNTFontDirectory = SFNTFontDirectory>
-	implements SFNTFont
+export class TrueTypeFont<
+	TDirectory extends SFNTFontDirectory = SFNTFontDirectory,
+> implements SFNTFont
 {
 	public stream: DecodeStream;
 	private variationCoords: number[] | null;
@@ -284,7 +284,11 @@ export class TrueTypeFont<TDirectory extends SFNTFontDirectory = SFNTFontDirecto
 	}
 
 	get postscriptName(): string | null {
-		const name = this.name.records.postscriptName;
+		if (!this.hasTable('name')) {
+			return null;
+		}
+
+		const name = this.name!.records.postscriptName;
 		if (name) {
 			const lang = Object.keys(name)[0];
 			return name[lang];
@@ -297,7 +301,11 @@ export class TrueTypeFont<TDirectory extends SFNTFontDirectory = SFNTFontDirecto
 		key: keyof nameTable.ProcessedRecords,
 		lang = 'en',
 	): string | null {
-		const record = this.name.records[key];
+		if (!this.hasTable('name')) {
+			return null;
+		}
+
+		const record = this.name!.records[key];
 		if (record) {
 			return (record as Record<string, string>)[lang];
 		}
@@ -325,58 +333,104 @@ export class TrueTypeFont<TDirectory extends SFNTFontDirectory = SFNTFontDirecto
 		return this.getName('version');
 	}
 
-	public get ascent(): number {
-		return this.hhea.ascent;
+	public get ascent(): number | undefined {
+		if (!this.hasTable('hhea')) {
+			return undefined;
+		}
+
+		return this.hhea!.ascent;
 	}
 
 	public get descent() {
-		return this.hhea.descent;
+		if (!this.hasTable('hhea')) {
+			return undefined;
+		}
+
+		return this.hhea!.descent;
 	}
 
-	public get lineGap(): number {
-		return this.hhea.lineGap;
+	public get lineGap(): number | undefined {
+		if (!this.hasTable('hhea')) {
+			return undefined;
+		}
+
+		return this.hhea!.lineGap;
 	}
 
-	public get underlinePosition(): number {
-		return this.post.underlinePosition;
+	public get underlinePosition(): number | undefined {
+		if (!this.hasTable('post')) {
+			return undefined;
+		}
+
+		return this.post!.underlinePosition;
 	}
 
-	public get underlineThickness() {
-		return this.post.underlineThickness;
+	public get underlineThickness(): number | undefined {
+		if (!this.hasTable('post')) {
+			return undefined;
+		}
+
+		return this.post!.underlineThickness;
 	}
 
-	public get italicAngle(): number {
-		return this.post.italicAngle;
+	public get italicAngle(): number | undefined {
+		if (!this.hasTable('post')) {
+			return undefined;
+		}
+
+		return this.post!.italicAngle;
 	}
 
-	public get capHeight() {
-		const os2 = this['OS/2'];
-		// The partial exposure of the OS/2 table will be fixed later.
-		return os2 ? (os2 as any).capHeight : this.ascent;
+	public get capHeight(): number | undefined {
+		if (!this.hasTable('OS/2')) {
+			return this.ascent;
+		}
+
+		const os2 = this['OS/2']!;
+		if ('capHeight' in os2) {
+			return os2.capHeight;
+		} else {
+			return this.ascent;
+		}
 	}
 
-	public get xHeight() {
-		const os2 = this['OS/2'];
-		return os2 ? (os2 as any).xHeight : 0;
+	public get xHeight(): number {
+		if (!this.hasTable('OS/2')) {
+			return 0;
+		}
+
+		const os2 = this['OS/2']!;
+		if ('xHeight' in os2) {
+			return os2.xHeight;
+		} else {
+			return 0;
+		}
 	}
 
-	public get numGlyphs(): number {
-		return this.maxp.numGlyphs;
+	public get numGlyphs(): number | undefined {
+		if (!this.hasTable('maxp')) {
+			return undefined;
+		}
+
+		return this.maxp!.numGlyphs;
 	}
 
-	public get unitsPerEm() {
-		return this.head.unitsPerEm;
+	public get unitsPerEm(): number {
+		if (!this.hasTable('head')) {
+			return 1000;
+		}
+
+		return this.head!.unitsPerEm;
 	}
 
-	public get bbox() {
+	public get bbox(): Readonly<BoundingBox> | undefined {
 		if (typeof this._bbox === 'undefined') {
+			if (!this.hasTable('head')) {
+				return undefined;
+			}
+			const head = this.head!;
 			this._bbox = Object.freeze(
-				new BoundingBox(
-					this.head.xMin,
-					this.head.yMin,
-					this.head.xMax,
-					this.head.yMax,
-				),
+				new BoundingBox(head.xMin, head.yMin, head.xMax, head.yMax),
 			);
 		}
 
@@ -384,8 +438,8 @@ export class TrueTypeFont<TDirectory extends SFNTFontDirectory = SFNTFontDirecto
 	}
 
 	private get cmapProcessor(): CmapProcessor {
-		if (typeof this._cmapProcessor === 'undefined') {
-			this._cmapProcessor = new CmapProcessor(this.cmap);
+		if (typeof this._cmapProcessor === 'undefined' && this.hasTable('cmap')) {
+			this._cmapProcessor = new CmapProcessor(this.cmap!);
 		}
 
 		return this._cmapProcessor;
@@ -402,7 +456,7 @@ export class TrueTypeFont<TDirectory extends SFNTFontDirectory = SFNTFontDirecto
 		return !!this.cmapProcessor.lookup(codePoint);
 	}
 
-	public glyphForCodePoint(codePoint: number): Glyph {
+	public glyphForCodePoint(codePoint: number): Glyph | null {
 		// FIXME! Get rid of the cast to never!
 		return this.getGlyph(this.cmapProcessor.lookup(codePoint), [
 			codePoint,
@@ -510,39 +564,35 @@ export class TrueTypeFont<TDirectory extends SFNTFontDirectory = SFNTFontDirecto
 		characters: readonly number[] = [],
 	): Glyph | null {
 		if (!this.glyphs[glyph]) {
-			if (this.directory.tables.glyf) {
-				this.glyphs[glyph] = new TTFGlyph(
-					glyph,
-					characters,
-					this as never,
-				) as Glyph;
-			} else if (this.directory.tables['CFF '] || this.directory.tables.CFF2) {
-				this.glyphs[glyph] = new CFFGlyph(
-					glyph,
-					characters,
-					this as never,
-				) as Glyph;
+			const font = this as OpenTypeFont;
+
+			if (font?.hasTable('glyf')) {
+				this.glyphs[glyph] = new TTFGlyph(glyph, characters, font) as Glyph;
+			} else if (font?.hasTable('CFF ') || font?.hasTable('CFF2')) {
+				this.glyphs[glyph] = new CFFGlyph(glyph, characters, font) as Glyph;
 			}
 		}
 
 		return this.glyphs[glyph] ?? null;
 	}
 
-	public getGlyph(glyph: number, characters: readonly number[] = []): Glyph {
+	// FIXME! The method either returns an SBIXGlyph, a COLRGlyph, a
+	// TTFGlyph, or a CFFGlyph. But the SBIXGlyph or COLRGlyph is not
+	// necessarily a bitmap. It would probably be better to have a factory
+	// method that returns the correct glyph for a particular codepoint.
+	public getGlyph(
+		glyph: number,
+		characters: readonly number[] = [],
+	): Glyph | null {
 		if (!this.glyphs[glyph]) {
-			// FIXME! Get rid of the casts!
-			if (this.directory.tables.sbix) {
-				this.glyphs[glyph] = new SBIXGlyph(
-					glyph,
-					characters,
-					this as never,
-				) as Glyph;
-			} else if (this.directory.tables.COLR && this.directory.tables.CPAL) {
-				this.glyphs[glyph] = new COLRGlyph(
-					glyph,
-					characters,
-					this as never,
-				) as Glyph;
+			const font = this as OpenTypeFont;
+
+			if (font?.hasTable('sbix')) {
+				if (font.outlines === 'TrueType') {
+					this.glyphs[glyph] = new SBIXGlyph(glyph, characters, font) as Glyph;
+				}
+			} else if (font?.hasTable('COLR') && font?.hasTable('CPAL')) {
+				this.glyphs[glyph] = new COLRGlyph(glyph, characters, font) as Glyph;
 			} else {
 				this.getBaseGlyph(glyph, characters);
 			}
@@ -615,9 +665,9 @@ export class TrueTypeFont<TDirectory extends SFNTFontDirectory = SFNTFontDirecto
 	public getVariation(settings: string | VariationCoordinates): TrueTypeFont {
 		if (
 			!(
-				this.directory.tables.fvar &&
-				((this.directory.tables.gvar && this.directory.tables.glyf) ||
-					this.directory.tables.CFF2)
+				this.hasTable('fvar') &&
+				((this.hasTable('gvar') && this.hasTable('glyf')) ||
+					this.hasTable('CFF2'))
 			)
 		) {
 			throw new Error(
@@ -640,7 +690,7 @@ export class TrueTypeFont<TDirectory extends SFNTFontDirectory = SFNTFontDirecto
 		}
 
 		// Normalise the coordinates.
-		const coords = this.fvar.axis.map((axis: FontAxis) => {
+		const coords = this.fvar!.axis.map((axis: FontAxis) => {
 			const axisTag = axis.axisTag.trim();
 			if (axisTag in resolvedSettings) {
 				return Math.max(

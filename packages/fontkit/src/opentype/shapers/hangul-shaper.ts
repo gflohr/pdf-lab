@@ -365,7 +365,11 @@ function reorderToneMark(
 	return glyphs.splice(i - len, 0, glyph);
 }
 
-function insertDottedCircle(glyphs: GlyphInfo[], i: number, font: TrueTypeFont) {
+function insertDottedCircle(
+	glyphs: GlyphInfo[],
+	i: number,
+	font: TrueTypeFont,
+) {
 	const glyph = glyphs[i];
 	const code = glyphs[i].codePoints[0];
 

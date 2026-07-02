@@ -1,3 +1,6 @@
+import type { BoundingBox } from './glyph/bounding-box.js';
+import type { Glyph } from './glyph/glyph.js';
+import type { GlyphVariationProcessor } from './glyph/glyph-variation-processor.js';
 import type { SFNTFont } from './sfnt-font.js';
 import type { SFNTTableMap } from './tables/directory.js';
 
@@ -67,17 +70,46 @@ export const requiredOpenTypeCFF2Tables = [
 export type RequiredOpenTypeCFF2TableTag =
 	(typeof requiredOpenTypeCFF2Tables)[number];
 
-type StrictTables<T extends keyof SFNTTableMap> = {
+export type StrictTables<T extends keyof SFNTTableMap> = {
 	readonly [K in T]: NonNullable<SFNTTableMap[K]>;
 };
 
 /**
- * OpenType which lacks one or more of the 8 core tables.
+ * These are propertiesthat are guaranteed to be defined, if the font has been
+ * upcast to an {@link OpenTypeFont}.
+ */
+export interface OpenTypeHeader {
+	ascent: number;
+	descent: number;
+	lineGap: number;
+	underlinePosition: number;
+	underlineThickness: number;
+	italicAngle: number;
+	capHeight: number;
+	numGlyphs: number;
+	unitsPerEm: number;
+	bbox: Readonly<BoundingBox>;
+
+	/**
+	 * The processor responsible for calculating delta adjustments to glyph
+	 * outlines along design variation axes. This is initialized when variation
+	 * coordinates are applied, and is `null` for static fonts.
+	 */
+	variationProcessor: GlyphVariationProcessor;
+}
+
+type OpenTypeHeaderKeys = keyof OpenTypeHeader;
+
+/**
+ * OpenType which has all 8 core tables but lacks one or more of the
+ * necessary outline tables.
+ *
  * @see {@link requiredOpenTypeTables} for the list of required tables.
  */
 export interface OpenTypeNoOutlinesFont
-	extends Omit<SFNTFont, RequiredOpenTypeTableTag>,
-		StrictTables<RequiredOpenTypeTableTag> {
+	extends Omit<SFNTFont, RequiredOpenTypeTableTag | OpenTypeHeaderKeys>,
+		StrictTables<RequiredOpenTypeTableTag>,
+		OpenTypeHeader {
 	/** Discriminator for the different outline types. */
 	readonly outlines: 'none';
 
@@ -89,12 +121,19 @@ export interface OpenTypeNoOutlinesFont
  * (glyf + loca).
  */
 export interface OpenTypeTrueTypeFont
-	extends Omit<SFNTFont, RequiredOpenTypeTrueTypeTableTag>,
-		StrictTables<RequiredOpenTypeTrueTypeTableTag> {
+	extends Omit<SFNTFont, RequiredOpenTypeTrueTypeTableTag | OpenTypeHeaderKeys>,
+		StrictTables<RequiredOpenTypeTrueTypeTableTag>,
+		OpenTypeHeader {
+	/** Discriminator for the qualification as `OpenTypeFont`. */
+	readonly hasOpenTypeTables: true;
+
 	/** Discriminator for the different outline types. */
 	readonly outlines: 'TrueType';
 
 	readonly outlineVersion: 1;
+
+	getGlyph(glyph: number, characters?: readonly number[]): Glyph;
+	getBaseGlyph(glyph: number, characters?: readonly number[]): Glyph;
 }
 
 /**
@@ -102,8 +141,9 @@ export interface OpenTypeTrueTypeFont
  * legacy version.
  */
 export interface OpenTypeCFF1Font
-	extends Omit<SFNTFont, RequiredOpenTypeCFF1TableTag>,
-		StrictTables<RequiredOpenTypeCFF1TableTag> {
+	extends Omit<SFNTFont, RequiredOpenTypeCFF1TableTag | OpenTypeHeaderKeys>,
+		StrictTables<RequiredOpenTypeCFF1TableTag>,
+		OpenTypeHeader {
 	/** Discriminator for the different outline types. */
 	readonly outlines: 'PostScript';
 
@@ -114,6 +154,9 @@ export interface OpenTypeCFF1Font
 	 * Alias for the structural {@link OpenTypePostScriptFont#CFF } table.
 	 */
 	readonly cff: NonNullable<SFNTTableMap['CFF ']>;
+
+	getGlyph(glyph: number, characters?: readonly number[]): Glyph;
+	getBaseGlyph(glyph: number, characters?: readonly number[]): Glyph;
 }
 
 /**
@@ -121,13 +164,17 @@ export interface OpenTypeCFF1Font
  * legacy version.
  */
 export interface OpenTypeCFF2Font
-	extends Omit<SFNTFont, RequiredOpenTypeCFF2TableTag>,
-		StrictTables<RequiredOpenTypeCFF2TableTag> {
+	extends Omit<SFNTFont, RequiredOpenTypeCFF2TableTag | OpenTypeHeaderKeys>,
+		StrictTables<RequiredOpenTypeCFF2TableTag>,
+		OpenTypeHeader {
 	/** Discriminator for the different outline types. */
 	readonly outlines: 'PostScript';
 
 	/** Discriminator for CFF versions */
 	readonly outlineVersion: 2;
+
+	getGlyph(glyph: number, characters?: readonly number[]): Glyph;
+	getBaseGlyph(glyph: number, characters?: readonly number[]): Glyph;
 }
 
 /**

@@ -136,7 +136,10 @@ function setupSyllables(_font: TrueTypeFont, glyphs: UniversalGlyphInfo[]) {
 	}
 }
 
-function clearSubstitutionFlags(_font: TrueTypeFont, glyphs: UniversalGlyphInfo[]) {
+function clearSubstitutionFlags(
+	_font: TrueTypeFont,
+	glyphs: UniversalGlyphInfo[],
+) {
 	for (const glyph of glyphs) {
 		glyph.substituted = false;
 	}

@@ -1,7 +1,9 @@
 import unicode from '@pdf-lib/unicode-properties';
-import type { Font } from '../font.js';
-import type { TrueTypeFont } from '../true-type-font.js';
+import type { OpenTypeFont } from '../open-type-font.js';
+import { SFNTFont } from '../sfnt-font.js';
 import type { MetricsTable } from '../tables/metrics.js';
+import type { TrueTypeFont } from '../true-type-font.js';
+import type { TrueTypeSubsetFont } from '../true-type-subset-font.js';
 import type { BoundingBox } from './bounding-box.js';
 import { Path } from './path.js';
 import { standardNames } from './standard-names.js';
@@ -94,7 +96,8 @@ export interface FontkitRenderingContext {
 export class Glyph {
 	public readonly id: number;
 	public readonly codePoints: readonly number[];
-	protected readonly _font: TrueTypeFont;
+	// FIXME! Rename that to just font!
+	protected readonly _font: TrueTypeSubsetFont;
 	// FIXME! Make these two property private and private getters.
 	public readonly isMark: boolean;
 	public readonly isLigature: boolean;
@@ -113,13 +116,17 @@ export class Glyph {
 	 *
 	 * @param id the glyph id in the font.
 	 * @param codePoints the array of Unicode code points.
-	 * @param font
+	 * @param font the font containing the glyph
 	 */
-	constructor(id: number, codePoints: readonly number[], font: TrueTypeFont) {
+	constructor(
+		id: number,
+		codePoints: readonly number[],
+		font: TrueTypeSubsetFont,
+	) {
 		this.id = id;
 
 		this.codePoints = [...codePoints];
-		this._font = font as unknown as TrueTypeFont;
+		this._font = font;
 
 		// TODO: get this info from GDEF if available
 		this.isMark =
@@ -173,20 +180,29 @@ export class Glyph {
 		} else {
 			const localCbox = cbox === undefined || cbox === null ? this.cbox : cbox;
 
-			const os2 = this._font['OS/2'];
-
-			if (os2 && os2.version !== 0) {
+			if (this._font.hasTable('OS/2') && this._font['OS/2']!.version !== 0) {
+				const os2 = this._font['OS/2']!;
 				advanceHeight = Math.abs(os2.typoAscender - os2.typoDescender);
 				topBearing = os2.typoAscender - localCbox.maxY;
-			} else {
-				const { hhea } = this._font;
+			} else if (this._font.hasTable('hhea')) {
+				const hhea = this._font.hhea!;
 				advanceHeight = Math.abs(hhea.ascent - hhea.descent);
 				topBearing = hhea.ascent - localCbox.maxY;
+			} else {
+				const unitsPerEm = this._font.unitsPerEm;
+				// Fall back to the height of the glyph's visual box itself,
+				// or the fallback grid if the box is flat/empty.
+				const boxHeight = localCbox.maxY - localCbox.minY;
+				advanceHeight = boxHeight > 0 ? boxHeight : unitsPerEm;
+
+				// Align the top bearing tightly to the glyph's highest visual point
+				topBearing = localCbox.maxY;
 			}
 		}
 
-		if (this._font.variationProcessor && this._font.HVAR) {
-			advanceWidth += this._font.variationProcessor.getAdvanceAdjustment(
+		if ((this._font as TrueTypeFont).variationProcessor && this._font.HVAR) {
+			const font = this._font as TrueTypeFont;
+			advanceWidth += font.variationProcessor!.getAdvanceAdjustment(
 				this.id,
 				this._font.HVAR,
 			);

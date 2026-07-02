@@ -2,13 +2,13 @@
 
 import type { DecodeStream } from '@pdf-lib/restructure';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { SFNTFontDirectory } from '../src/sfnt-font.js';
 import { requiredOpenTypeTables } from '../src/open-type-font.js';
-import { TrueTypeFont } from '../src/true-type-font.js';
+import type { SFNTFontDirectory } from '../src/sfnt-font.js';
 import type {
 	SFNTDirectoryEntry,
 	SFNTTableMap,
 } from '../src/tables/directory.js';
+import { TrueTypeFont } from '../src/true-type-font.js';
 
 vi.mock('./src/tables/index.js', () => ({
 	tables: {

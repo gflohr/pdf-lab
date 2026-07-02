@@ -62,7 +62,11 @@ export interface SFNTFontDirectory {
 
 /**
  * Baseline interface representing an unvalidated SFNT-based layout.
- * Every table property is considered nullable or unparsed by default.
+ * Every table property is considered nullable by default. As a consequence,
+ * many properties are possibly `undefined`. You can avoid that by upcasting
+ * the font object with {@link SFNTFont.asOpenTypeFont} to an
+ * {@link OpenTypeFont}, which guarantees the presence of the 8 core tables,
+ * and 0-2 outline tables.
  */
 export interface SFNTFont<
 	TDirectory extends SFNTFontDirectory = SFNTFontDirectory,
@@ -395,39 +399,39 @@ export interface SFNTFont<
 	/**
 	 * The font’s [ascender](https://en.wikipedia.org/wiki/Ascender_(typography)).
 	 */
-	ascent: number;
+	ascent: number | undefined;
 
 	/**
 	 * The font’s [descender](https://en.wikipedia.org/wiki/Descender).
 	 */
-	descent: number;
+	descent: number | undefined;
 
 	/**
 	 * The line gap, i.e. amount of space that should be included between lines.
 	 */
-	lineGap: number;
+	lineGap: number | undefined;
 
 	/**
 	 * The offset from the normal underline position that should be used.
 	 */
-	underlinePosition: number;
+	underlinePosition: number | undefined;
 
 	/**
 	 * The weight of the underline that should be used.
 	 */
-	underlineThickness: number;
+	underlineThickness: number | undefined;
 
 	/**
 	 * If this is an italic font, the angle the cursor should be drawn at to
 	 * match the font design.
 	 */
-	italicAngle: number;
+	italicAngle: number | undefined;
 
 	/**
 	 * The height of capital letters above the baseline.
 	 * See [here](https://en.wikipedia.org/wiki/Cap_height) for more details.
 	 */
-	capHeight: number;
+	capHeight: number | undefined;
 
 	/**
 	 * The height of lowercase letters in the font.
@@ -438,22 +442,23 @@ export interface SFNTFont<
 	/**
 	 * The total count of glyph indexes present in the font mapping.
 	 */
-	numGlyphs: number;
+	numGlyphs: number | undefined;
 
 	/**
-	 * The sise of the font's internal coordinate grid in units per em.
+	 * The size of the font's internal coordinate grid in units per em.
+	 * Defaults to 1000, if all other attempts to calculate the value fail.
 	 */
 	unitsPerEm: number;
 
 	/**
 	 * The font’s bounding box, i.e. the box that encloses all glyphs in the font.
 	 */
-	bbox: Readonly<BoundingBox>;
+	bbox: Readonly<BoundingBox> | undefined;
 
 	/**
 	 * An array of all of the unicode code points supported by the font.
 	 */
-	characterSet: number[];
+	characterSet: number[] | undefined;
 
 	/**
 	 * Returns whether there is a glyph in the font for the given unicode code point.
@@ -470,7 +475,7 @@ export interface SFNTFont<
 	 * @param codePoint - the unicode code point
 	 * @returns the corresponding glyph
 	 */
-	glyphForCodePoint(codePoint: number): Glyph;
+	glyphForCodePoint(codePoint: number): Glyph | null;
 
 	/**
 	 * Returns an array of Glyph objects for the given string.
@@ -543,7 +548,7 @@ export interface SFNTFont<
 	 * @param characters an array of code points this glyph represents
 	 * @returns the corresponding glyph
 	 */
-	getGlyph(glyph: number, characters: readonly number[]): Glyph;
+	getGlyph(glyph: number, characters?: readonly number[]): Glyph | null;
 
 	/**
 	 * Creates an empty layout subset utilizing this font structure as its

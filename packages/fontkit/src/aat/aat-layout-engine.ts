@@ -1,6 +1,6 @@
 import type { GlyphRun } from '../layout/glyph-run.js';
-import type { TrueTypeFont } from '../true-type-font.js';
 import type { OpenType } from '../tables/opentype.js';
+import type { TrueTypeFont } from '../true-type-font.js';
 import * as AATFeatureMap from './aat-feature-map.js';
 import { AATMorxProcessor } from './aat-morx-processor.js';
 

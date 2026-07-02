@@ -1,6 +1,6 @@
 import type { Glyph } from '../glyph/glyph.js';
-import type { TrueTypeFont } from '../true-type-font.js';
 import type { kernTable } from '../tables/kern.js';
+import type { TrueTypeFont } from '../true-type-font.js';
 import { binarySearch } from '../utils.js';
 import type { GlyphPosition } from './glyph-position.js';
 

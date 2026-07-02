@@ -1,4 +1,5 @@
 import type { CFFIndexRecord } from '../cff/cff-index.js';
+import type { OpenTypePostScriptFont } from '../open-type-font.js';
 import { Glyph } from './glyph.js';
 import { Path } from './path.js';
 
@@ -9,8 +10,19 @@ export class CFFGlyph extends Glyph {
 	public usedGsubrs: Record<number, boolean> = {};
 	public usedSubrs: Record<number, boolean> = {};
 
+	protected declare _font: OpenTypePostScriptFont;
+
+	// biome-ignore lint/complexity/noUselessConstructor:required for property narrowing.
+	constructor(
+		id: number,
+		codePoints: readonly number[],
+		font: OpenTypePostScriptFont,
+	) {
+		super(id, codePoints, font);
+	}
+
 	getName() {
-		if (this._font.CFF2) {
+		if (this._font.outlineVersion === 2) {
 			return super.getName();
 		}
 
@@ -30,7 +42,8 @@ export class CFFGlyph extends Glyph {
 	getPath(): Path {
 		const { stream } = this._font;
 
-		const cff = this._font.CFF2 || this._font['CFF '];
+		const cff =
+			this._font.outlineVersion === 2 ? this._font.CFF2 : this._font['CFF '];
 		const str = cff.topDict.CharStrings[this.id];
 		let end = str.offset + str.length;
 		stream.pos = str.offset;

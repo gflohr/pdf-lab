@@ -5,8 +5,8 @@ import r, { type EncodeStream } from '@pdf-lib/restructure';
 import { describe, expect, it } from 'vitest';
 import { CFFFont } from '../src/cff/cff-font.js';
 import { CFFGlyph } from '../src/glyph/cff-glyph.js';
-import type { TrueTypeFont } from '../src/true-type-font.js';
 import type { Subset } from '../src/subset/subset.js';
+import type { TrueTypeFont } from '../src/true-type-font.js';
 import fontkit from './helpers.js';
 
 const datadir = path.resolve(import.meta.dirname, './data');
@@ -109,7 +109,10 @@ describe('font subsetting', () => {
 
 			const stream = new r.DecodeStream(buf);
 			const cff = new CFFFont(stream);
-			const glyph = new CFFGlyph(1, [], { stream, 'CFF ': cff } as TrueTypeFont);
+			const glyph = new CFFGlyph(1, [], {
+				stream,
+				'CFF ': cff,
+			} as TrueTypeFont);
 
 			expect(glyph.path.toSVG()).toBe(
 				font.glyphsForString('h')[0]!.path.toSVG(),
@@ -134,7 +137,10 @@ describe('font subsetting', () => {
 
 			const stream = new r.DecodeStream(buf);
 			const cff = new CFFFont(stream);
-			const glyph = new CFFGlyph(1, [], { stream, 'CFF ': cff } as TrueTypeFont);
+			const glyph = new CFFGlyph(1, [], {
+				stream,
+				'CFF ': cff,
+			} as TrueTypeFont);
 
 			expect(glyph.path.toSVG()).toBe(f.glyphsForString('갈')[0]!.path.toSVG());
 
