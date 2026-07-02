@@ -14,11 +14,13 @@ import {
 	TTFGlyph,
 } from './glyph/ttf-glyph.js';
 import { WOFF2Glyph } from './glyph/woff2-glyph.js';
+import type { SFNTFont } from './sfnt-font.js';
 import type { SFNTDirectoryEntry } from './tables/directory.js';
 import type { tables } from './tables/index.js';
 import type { WOFF2Directory } from './tables/woff2-directory.js';
 import { woff2DirectoryStruct } from './tables/woff2-directory.js';
 import { TrueTypeFont } from './true-type-font.js';
+import { requiredTrueTypeSubsetTables, type TrueTypeSubsetFont } from './true-type-subset-font.js';
 
 /**
  * Subclass of TrueTypeFont that represents a TTF/OTF font compressed by WOFF2
@@ -149,6 +151,28 @@ export class WOFF2Font extends TrueTypeFont<WOFF2Directory> {
 		}
 
 		this.transformedGlyphs = glyphs;
+	}
+
+	public asTrueTypeSubsetFont(): TrueTypeSubsetFont {
+		if (!this.decompressed) {
+			throw new FatalFontError(
+				'Attempt to access uninitialised font table data!',
+				'unknown',
+			);
+		}
+
+		const tags = requiredTrueTypeSubsetTables;
+
+		for (let i = 0; i < tags.length; ++i) {
+			if (!this.hasTable(tags[i])) {
+				throw new FatalFontError(
+					'Attempt to access uninitialised font table data!',
+					tags[i],
+				);
+			}
+		}
+
+		return this as TrueTypeSubsetFont;
 	}
 }
 

@@ -124,9 +124,6 @@ export interface OpenTypeTrueTypeFont
 	extends Omit<SFNTFont, RequiredOpenTypeTrueTypeTableTag | OpenTypeHeaderKeys>,
 		StrictTables<RequiredOpenTypeTrueTypeTableTag>,
 		OpenTypeHeader {
-	/** Discriminator for the qualification as `OpenTypeFont`. */
-	readonly hasOpenTypeTables: true;
-
 	/** Discriminator for the different outline types. */
 	readonly outlines: 'TrueType';
 
