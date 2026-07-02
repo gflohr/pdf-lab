@@ -130,6 +130,7 @@ export class TTFGlyph extends Glyph {
 	) {
 		super(id, codePoints, font);
 
+		// This may be null, if not all core tables are present.
 		this.variationProcessor = (font as TrueTypeFont).variationProcessor;
 	}
 
