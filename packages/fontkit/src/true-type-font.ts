@@ -40,6 +40,7 @@ import { tables } from './tables/index.js';
 import type { nameTable } from './tables/name.js';
 import type { OpenType } from './tables/opentype.js';
 import type { TrueTypeSubsetFont } from './true-type-subset-font.js';
+import { AATFont, requiredAATTables } from './aat/aat-font.js';
 
 export type LayoutFeatures = OpenType.Features | AAT.Features;
 
@@ -768,6 +769,17 @@ export class TrueTypeFont<
 		return true;
 	}
 
+	private decodeTableSubset(tags: string[]): boolean {
+		for (let i = 0; i < tags.length; ++i) {
+			const tag = tags[i];
+			if (!this.getTable(this.directory.tables[tag])) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
 	public asOpenTypeFont(decode = false): OpenTypeFont | null {
 		if (this.outlines === '') return null;
 
@@ -786,14 +798,21 @@ export class TrueTypeFont<
 				tags = [...requiredOpenTypeTables];
 			}
 
-			for (let i = 0; i < tags.length; ++i) {
-				const tag = tags[i];
-				if (!this.getTable(this.directory.tables[tag])) {
-					return null;
-				}
+			if (!this.decodeTableSubset(tags)) {
+				return null;
 			}
 		}
 
 		return this as OpenTypeFont;
+	}
+
+	public asAATFont(decode = false): AATFont | null {
+		if (decode) {
+			if (!this.decodeTableSubset([...requiredAATTables])) {
+				return null;
+			}
+		}
+
+		return this as AATFont;
 	}
 }

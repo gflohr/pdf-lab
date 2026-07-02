@@ -50,6 +50,7 @@ import type { VDMXTable } from './tables/VDMX.js';
 import type { VORGTable } from './tables/VORG.js';
 import type { vheaTable } from './tables/vhea.js';
 import type { vmtxTable } from './tables/vmtx.js';
+import { AATFont } from './aat/aat-font.js';
 
 /**
  * A universal base interface for any font directory (SFNT, WOFF, WOFF2).
@@ -99,6 +100,17 @@ export interface SFNTFont<
 	 * @returns the font with an update
 	 */
 	asOpenTypeFont(decode?: boolean): OpenTypeFont | null;
+
+	/**
+	 * Attempts to view this font as an AAT font.
+	 *
+	 * If the argument `decode` is true, all required tables are attempted to be
+	 * decoded. That will throw an exception on failure.
+	 *
+	 * @param decode - also decode tables
+	 * @returns the font with an update
+	 */
+	asAATFont(decode?: boolean): AATFont | null;
 
 	/**
 	 * Character to Glyph Index Mapping Table. Maps characters to internal
