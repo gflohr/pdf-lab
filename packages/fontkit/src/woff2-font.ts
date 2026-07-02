@@ -20,7 +20,10 @@ import type { tables } from './tables/index.js';
 import type { WOFF2Directory } from './tables/woff2-directory.js';
 import { woff2DirectoryStruct } from './tables/woff2-directory.js';
 import { TrueTypeFont } from './true-type-font.js';
-import { requiredTrueTypeSubsetTables, type TrueTypeSubsetFont } from './true-type-subset-font.js';
+import {
+	requiredTrueTypeSubsetTables,
+	type TrueTypeSubsetFont,
+} from './true-type-subset-font.js';
 
 /**
  * Subclass of TrueTypeFont that represents a TTF/OTF font compressed by WOFF2

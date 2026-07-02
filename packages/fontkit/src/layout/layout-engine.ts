@@ -20,9 +20,9 @@ export class LayoutEngine {
 
 		// Choose an advanced layout engine. We try the AAT morx table first since more
 		// scripts are currently supported because the shaping logic is built into the font.
-		if (this.font.morx) {
+		if (this.font.hasTable('morx')) {
 			this.engine = new AATLayoutEngine(this.font);
-		} else if (this.font.GSUB || this.font.GPOS) {
+		} else if (this.font.hasTable('GSUB') || this.font.hasTable('GPOS')) {
 			this.engine = new OTLayoutEngine<null>(this.font);
 		}
 	}
@@ -158,9 +158,15 @@ export class LayoutEngine {
 	}
 
 	private hideDefaultIgnorables(glyphs: Glyph[], positions: GlyphPosition[]) {
-		const space = this.font.glyphForCodePoint(0x20);
+		let space = this.font.glyphForCodePoint(0x20);
 		for (let i = 0; i < glyphs.length; i++) {
 			if (this.isDefaultIgnorable(glyphs[i].codePoints[0])) {
+				if (!space) {
+					space = this.font.getGlyph(0, [0x20]);
+					if (!space) {
+						throw new Error('font lacks the .notdef glyph!');
+					}
+				}
 				glyphs[i] = space;
 				positions[i].xAdvance = 0;
 				positions[i].yAdvance = 0;
