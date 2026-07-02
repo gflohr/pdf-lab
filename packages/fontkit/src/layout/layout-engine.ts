@@ -1,3 +1,4 @@
+import { AATFont } from '../aat/aat-font.js';
 import { AATLayoutEngine } from '../aat/aat-layout-engine.js';
 import type { Glyph } from '../glyph/glyph.js';
 import { OTLayoutEngine } from '../opentype/ot-layout-engine.js';
@@ -20,8 +21,9 @@ export class LayoutEngine {
 
 		// Choose an advanced layout engine. We try the AAT morx table first since more
 		// scripts are currently supported because the shaping logic is built into the font.
-		if (this.font.hasTable('morx')) {
-			this.engine = new AATLayoutEngine(this.font);
+		const aatFont = this.font.asAATFont();
+		if (aatFont) {
+			this.engine = new AATLayoutEngine(aatFont);
 		} else if (this.font.hasTable('GSUB') || this.font.hasTable('GPOS')) {
 			this.engine = new OTLayoutEngine<null>(this.font);
 		}

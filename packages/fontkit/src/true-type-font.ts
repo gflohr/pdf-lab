@@ -807,6 +807,10 @@ export class TrueTypeFont<
 	}
 
 	public asAATFont(decode = false): AATFont | null {
+		if (requiredAATTables.find((tag) => !this.hasTable(tag))) {
+			return null;
+		}
+
 		if (decode) {
 			if (!this.decodeTableSubset([...requiredAATTables])) {
 				return null;
