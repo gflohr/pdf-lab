@@ -1,5 +1,6 @@
 import r, { type DecodeStream } from '@pdf-lib/restructure';
 import type { OpenTypeTrueTypeFont } from '../open-type-font.js';
+import type { TrueTypeSubsetFont } from '../true-type-subset-font.js';
 import { BoundingBox } from './bounding-box.js';
 import { Glyph, type GlyphLayoutMetrics } from './glyph.js';
 import { Path } from './path.js';
@@ -121,7 +122,7 @@ export class TTFGlyph extends Glyph {
 	constructor(
 		id: number,
 		codePoints: readonly number[],
-		font: OpenTypeTrueTypeFont,
+		font: TrueTypeSubsetFont,
 	) {
 		super(id, codePoints, font);
 	}

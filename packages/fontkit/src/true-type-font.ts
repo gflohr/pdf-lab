@@ -39,6 +39,7 @@ import { directory } from './tables/directory.js';
 import { tables } from './tables/index.js';
 import type { nameTable } from './tables/name.js';
 import type { OpenType } from './tables/opentype.js';
+import type { TrueTypeSubsetFont } from './true-type-subset-font.js';
 
 export type LayoutFeatures = OpenType.Features | AAT.Features;
 
@@ -464,7 +465,7 @@ export class TrueTypeFont<
 	}
 
 	public glyphsForString(str: string): Glyph[] {
-		const glyphs = [];
+		const glyphs: Glyph[] = [];
 		const len = str.length;
 		let idx = 0;
 		let last = -1;
@@ -497,16 +498,19 @@ export class TrueTypeFont<
 
 			if (state === 0 && nextState === 1) {
 				// Variation selector following normal codepoint.
-				glyphs.push(
-					// FIXME! Get rid of the cast!
-					this.getGlyph(this.cmapProcessor.lookup(last, code), [
-						last,
-						code,
-					] as never),
-				);
+				const glyph = this.getGlyph(this.cmapProcessor.lookup(last, code), [
+					last,
+					code,
+				]);
+				if (glyph) {
+					glyphs.push(glyph);
+				}
 			} else if (state === 0 && nextState === 0) {
 				// Normal codepoint following normal codepoint.
-				glyphs.push(this.glyphForCodePoint(last));
+				const glyph = this.glyphForCodePoint(last);
+				if (glyph) {
+					glyphs.push(glyph);
+				}
 			}
 
 			last = code;
@@ -564,12 +568,17 @@ export class TrueTypeFont<
 		characters: readonly number[] = [],
 	): Glyph | null {
 		if (!this.glyphs[glyph]) {
-			const font = this as OpenTypeFont;
-
-			if (font?.hasTable('glyf')) {
-				this.glyphs[glyph] = new TTFGlyph(glyph, characters, font) as Glyph;
-			} else if (font?.hasTable('CFF ') || font?.hasTable('CFF2')) {
-				this.glyphs[glyph] = new CFFGlyph(glyph, characters, font) as Glyph;
+			if (this.hasTable('glyf')) {
+				this.glyphs[glyph] = new TTFGlyph(
+					glyph,
+					characters,
+					this as TrueTypeSubsetFont,
+				) as Glyph;
+			} else {
+				const font = this.asOpenTypeFont();
+				if (font?.outlines === 'PostScript') {
+					this.glyphs[glyph] = new CFFGlyph(glyph, characters, font) as Glyph;
+				}
 			}
 		}
 

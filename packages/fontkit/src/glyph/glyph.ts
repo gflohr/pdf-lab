@@ -97,7 +97,7 @@ export class Glyph {
 	public readonly id: number;
 	public readonly codePoints: readonly number[];
 	// FIXME! Rename that to just font!
-	protected readonly _font: TrueTypeSubsetFont;
+	protected readonly _font: TrueTypeSubsetFont | OpenTypeFont;
 	// FIXME! Make these two property private and private getters.
 	public readonly isMark: boolean;
 	public readonly isLigature: boolean;
@@ -121,7 +121,7 @@ export class Glyph {
 	constructor(
 		id: number,
 		codePoints: readonly number[],
-		font: TrueTypeSubsetFont,
+		font: TrueTypeSubsetFont | OpenTypeFont,
 	) {
 		this.id = id;
 
@@ -195,7 +195,8 @@ export class Glyph {
 				const boxHeight = localCbox.maxY - localCbox.minY;
 				advanceHeight = boxHeight > 0 ? boxHeight : unitsPerEm;
 
-				// Align the top bearing tightly to the glyph's highest visual point
+				// Align the top bearing tightly to the glyph's highest visual
+				// point.
 				topBearing = localCbox.maxY;
 			}
 		}

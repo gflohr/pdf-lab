@@ -539,7 +539,7 @@ export interface SFNTFont<
 	 * Matches an overarching composite base target index parsing complex
 	 * structures.
 	 */
-	getBaseGlyph(glyph: number, characters: readonly number[]): Glyph | null;
+	getBaseGlyph(glyph: number, characters?: readonly number[]): Glyph | null;
 
 	/**
 	 * Returns a glyph object for the given glyph id.
