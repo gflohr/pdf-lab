@@ -39,7 +39,7 @@ import { directory } from './tables/directory.js';
 import { tables } from './tables/index.js';
 import type { nameTable } from './tables/name.js';
 import type { OpenType } from './tables/opentype.js';
-import type { TrueTypeSubsetFont } from './true-type-subset-font.js';
+import { requiredTrueTypeSubsetTables, type TrueTypeSubsetFont } from './true-type-subset-font.js';
 import { AATFont, requiredAATTables } from './aat/aat-font.js';
 
 export type LayoutFeatures = OpenType.Features | AAT.Features;
@@ -569,7 +569,8 @@ export class TrueTypeFont<
 		characters: readonly number[] = [],
 	): Glyph | null {
 		if (!this.glyphs[glyph]) {
-			if (this.hasTable('glyf')) {
+			const ttFont = this.asTrueTypeSubsetFont();
+			if (ttFont) {
 				this.glyphs[glyph] = new TTFGlyph(
 					glyph,
 					characters,
@@ -818,5 +819,19 @@ export class TrueTypeFont<
 		}
 
 		return this as AATFont;
+	}
+
+	public asTrueTypeSubsetFont(decode = false): TrueTypeSubsetFont | null {
+		if (requiredTrueTypeSubsetTables.find((tag) => !this.hasTable(tag))) {
+			return null;
+		}
+
+		if (decode) {
+			if (!this.decodeTableSubset([...requiredTrueTypeSubsetTables])) {
+				return null;
+			}
+		}
+
+		return this as TrueTypeSubsetFont;
 	}
 }

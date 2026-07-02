@@ -51,6 +51,7 @@ import type { VORGTable } from './tables/VORG.js';
 import type { vheaTable } from './tables/vhea.js';
 import type { vmtxTable } from './tables/vmtx.js';
 import { AATFont } from './aat/aat-font.js';
+import { TrueTypeSubsetFont } from './true-type-subset-font.js';
 
 /**
  * A universal base interface for any font directory (SFNT, WOFF, WOFF2).
@@ -102,7 +103,7 @@ export interface SFNTFont<
 	asOpenTypeFont(decode?: boolean): OpenTypeFont | null;
 
 	/**
-	 * Attempts to view this font as an AAT font.
+	 * Attempts to view this font as an {@line AATFont}.
 	 *
 	 * If the argument `decode` is true, all required tables are attempted to be
 	 * decoded. That will throw an exception on failure.
@@ -111,6 +112,17 @@ export interface SFNTFont<
 	 * @returns the font with an update
 	 */
 	asAATFont(decode?: boolean): AATFont | null;
+
+	/**
+	 * Attempts to view this font as an {@link TrueTypeSubsetFont} font.
+	 *
+	 * If the argument `decode` is true, all required tables are attempted to be
+	 * decoded. That will throw an exception on failure.
+	 *
+	 * @param decode - also decode tables
+	 * @returns the font with an update
+	 */
+	asTrueTypeSubsetFont(decode?: boolean): TrueTypeSubsetFont | null;
 
 	/**
 	 * Character to Glyph Index Mapping Table. Maps characters to internal

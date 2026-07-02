@@ -156,7 +156,7 @@ export class WOFF2Font extends TrueTypeFont<WOFF2Directory> {
 		this.transformedGlyphs = glyphs;
 	}
 
-	public asTrueTypeSubsetFont(): TrueTypeSubsetFont {
+	public asTrueTypeSubsetFont(decode = false): TrueTypeSubsetFont | null {
 		if (!this.decompressed) {
 			throw new FatalFontError(
 				'Attempt to access uninitialised font table data!',
@@ -164,18 +164,7 @@ export class WOFF2Font extends TrueTypeFont<WOFF2Directory> {
 			);
 		}
 
-		const tags = requiredTrueTypeSubsetTables;
-
-		for (let i = 0; i < tags.length; ++i) {
-			if (!this.hasTable(tags[i])) {
-				throw new FatalFontError(
-					'Attempt to access uninitialised font table data!',
-					tags[i],
-				);
-			}
-		}
-
-		return this as TrueTypeSubsetFont;
+		return super.asTrueTypeSubsetFont(decode);
 	}
 }
 
