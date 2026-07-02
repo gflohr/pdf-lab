@@ -1,6 +1,24 @@
+import type { StrictTables } from '../open-type-font';
 import type { SFNTFont } from '../sfnt-font';
 import type { morxTable } from '../tables';
 
+/**
+ * Minimal operational capability needed Apple Advanced Typography (AAT).
+ */
+export const requiredAATTables = ['morx'] as const;
+
+/**
+ * Union type for the items in the {@link requiredAATTables} list.
+ */
+export type RequiredAATTableTag =
+	(typeof requiredAATTables)[number];
+
+/**
+ * TrueType font with verified AAT capabilities.
+ *
+ * @see {@link RequiredAATTableTag}
+ * @see {@link requiredAATTabes}
+ */
 /**
  * Represents an SFNT font containing Apple Advanced Typography (AAT) layout
  * extensions.
@@ -9,13 +27,6 @@ import type { morxTable } from '../tables';
  * {@link morxTable.morx | morx}) to handle glyph substitution, contextual
  * tracking, and text reordering, primarily on Apple platforms.
  */
-export interface AATFont extends SFNTFont {
-	/**
-	 * The Extended Glyph Metamorphosis (`morx`) table.
-	 *
-	 * Responsible for processing contextual glyph substitutions,
-	 * transformations, and positioning instructions via operational layout
-	 * state tables.
-	 */
-	morx: morxTable.morx;
-}
+export interface AATFont
+	extends Omit<SFNTFont, RequiredAATTableTag>,
+		StrictTables<RequiredAATTableTag> {}
