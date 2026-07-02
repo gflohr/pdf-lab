@@ -564,6 +564,7 @@ export class TrueTypeFont<
 		return this.layoutEngine.getAvailableFeatures(script, language);
 	}
 
+	/** @internal */
 	public getBaseGlyph(
 		glyph: number,
 		characters: readonly number[] = [],
@@ -591,6 +592,10 @@ export class TrueTypeFont<
 	// TTFGlyph, or a CFFGlyph. But the SBIXGlyph or COLRGlyph is not
 	// necessarily a bitmap. It would probably be better to have a factory
 	// method that returns the correct glyph for a particular codepoint.
+	//
+	// Otherwise, getGlyph()/getBaseGlyph() could be simplified by simply
+	// checking just once in the constructor what the appropriate Glyph
+	// class for this particular font is.
 	public getGlyph(
 		glyph: number,
 		characters: readonly number[] = [],
@@ -598,10 +603,8 @@ export class TrueTypeFont<
 		if (!this.glyphs[glyph]) {
 			const font = this as OpenTypeFont;
 
-			if (font?.hasTable('sbix')) {
-				if (font.outlines === 'TrueType') {
-					this.glyphs[glyph] = new SBIXGlyph(glyph, characters, font) as Glyph;
-				}
+			if (font?.hasTable('sbix') && font?.hasTable('hmtx') && font.outlines === 'TrueType') {
+				this.glyphs[glyph] = new SBIXGlyph(glyph, characters, font) as Glyph;
 			} else if (font?.hasTable('COLR') && font?.hasTable('CPAL')) {
 				this.glyphs[glyph] = new COLRGlyph(glyph, characters, font) as Glyph;
 			} else {
@@ -610,6 +613,29 @@ export class TrueTypeFont<
 		}
 
 		return this.glyphs[glyph] ?? null;
+	}
+
+	/**
+	 * Like {@link getGlyph} but falls back to the fallback glyph `.notdef`
+	 * if the glyph cannot be resolved, because of missing tables.
+	 *
+	 * @param glyph the glyph id
+	 * @param characters an optional sequence of codepoints
+	 */
+	public safeGetGlyph(
+		glyph: number,
+		characters: readonly number[] = [],
+	): Glyph {
+		const resolved = this.getGlyph(glyph, characters);
+
+		if (!resolved) {
+			throw new Error('No Glyph object can be created, because this ' +
+				'does not have any usable combination of font tables for ' +
+				'achieving this!'
+			);
+		}
+
+		return resolved;
 	}
 
 	public createSubset(): Subset {

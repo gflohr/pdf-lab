@@ -18,7 +18,6 @@ export class OTLayoutEngine<T> {
 	private GSUBProcessor: GSUBProcessor<T> | null;
 	// FIXME! Rename that to gposProcessor!
 	private GPOSProcessor: GPOSProcessor<T> | null;
-	private fallbackPosition: boolean;
 	private shaper: typeof DefaultShaper | undefined | null;
 
 	constructor(font: TrueTypeFont) {
@@ -27,7 +26,6 @@ export class OTLayoutEngine<T> {
 		this.plan = null;
 		this.GSUBProcessor = null;
 		this.GPOSProcessor = null;
-		this.fallbackPosition = true;
 
 		if (font.GSUB) {
 			this.GSUBProcessor = new GSUBProcessor(font, font.GSUB);
@@ -38,6 +36,7 @@ export class OTLayoutEngine<T> {
 		}
 	}
 
+	/** @internal */
 	setup(glyphRun: GlyphRun) {
 		// Map glyphs to GlyphInfo objects so data can be passed between
 		// GSUB and GPOS without mutating the real (shared) Glyph objects.
@@ -85,7 +84,7 @@ export class OTLayoutEngine<T> {
 		if (this.GSUBProcessor) {
 			this.plan!.process(this.GSUBProcessor, this.glyphInfos!);
 
-			// Map glyph infos back to normal Glyph objects
+			// Map glyph infos back to normal Glyph objects.
 			glyphRun.glyphs = this.glyphInfos!.map((glyphInfo) =>
 				this.font.getGlyph(glyphInfo.id, glyphInfo.codePoints),
 			);

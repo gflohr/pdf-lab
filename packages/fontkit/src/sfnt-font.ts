@@ -560,13 +560,9 @@ export interface SFNTFont<
 	): OpenType.FeatureTag[];
 
 	/**
-	 * Matches an overarching composite base target index parsing complex
-	 * structures.
-	 */
-	getBaseGlyph(glyph: number, characters?: readonly number[]): Glyph | null;
-
-	/**
-	 * Returns a glyph object for the given glyph id.
+	 * Returns a glyph object for the given glyph id. You can pass the array of
+	 * code points this glyph represents for your use later, and it will be
+	 * stored in the glyph object.
 	 *
 	 * @param glyph the glyph id
 	 * @param characters an array of code points this glyph represents

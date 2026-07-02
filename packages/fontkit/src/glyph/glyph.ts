@@ -86,14 +86,16 @@ export interface FontkitRenderingContext {
 }
 
 /**
- * Glyph objects represent a glyph in the font. They have various properties for accessing metrics and
- * the actual vector path the glyph represents, and methods for rendering the glyph to a graphics context.
+ * Glyph objects represent a glyph in the font. They have various properties
+ * for accessing metrics and the actual vector path the glyph represents, and
+ * methods for rendering the glyph to a graphics context.
  *
- * You do not create glyph objects directly. They are created by various methods on the font object.
- * There are several subclasses of the base Glyph class internally that may be returned depending
- * on the font format, but they all inherit from this class.
+ * You do not create glyph objects directly. They are created by various
+ * methods on the font object. There are several subclasses of the base Glyph
+ * class internally that may be returned depending on the font format, but
+ * they all inherit from this class.
  */
-export class Glyph {
+export abstract class Glyph {
 	public readonly id: number;
 	public readonly codePoints: readonly number[];
 	// FIXME! Rename that to just font!
