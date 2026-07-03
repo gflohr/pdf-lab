@@ -10,7 +10,7 @@ import type { DefaultShaper } from './shapers/default-shaper.js';
 import * as Shapers from './shapers/index.js';
 import { ShapingPlan } from './shaping-plan.js';
 
-export class OTLayoutEngine<T> {
+export class OpenTypeLayoutEngine<T> {
 	private font: TrueTypeFont;
 	private glyphInfos: GlyphInfo<T>[] | null;
 	private plan: ShapingPlan<T> | null;

@@ -2,9 +2,9 @@ import type { GlyphPosition } from '../layout/glyph-position.js';
 import type { GPOSTable } from '../tables/GPOS.js';
 import type { OpenType } from '../tables/open-type.js';
 import type { GlyphInfo } from './glyph-info.js';
-import { OTProcessor } from './ot-processor.js';
+import { OpenTypeProcessor } from './open-type-processor.js';
 
-export class GPOSProcessor<T> extends OTProcessor<T> {
+export class GPOSProcessor<T> extends OpenTypeProcessor<T> {
 	private applyPositionValue(
 		sequenceIndex: number,
 		value: GPOSTable.DecodedValueRecord,

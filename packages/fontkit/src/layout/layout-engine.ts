@@ -1,7 +1,6 @@
-import { AATFont } from '../aat/aat-font.js';
 import { AATLayoutEngine } from '../aat/aat-layout-engine.js';
 import type { Glyph } from '../glyph/glyph.js';
-import { OTLayoutEngine } from '../open-type/ot-layout-engine.js';
+import { OpenTypeLayoutEngine } from '../open-type/open-type-layout-engine.js';
 import type { OpenType } from '../tables/open-type.js';
 import type { TrueTypeFont } from '../true-type-font.js';
 import { GlyphPosition } from './glyph-position.js';
@@ -13,7 +12,7 @@ import { UnicodeLayoutEngine } from './unicode-layout-engine.js';
 export class LayoutEngine {
 	private unicodeLayoutEngine: UnicodeLayoutEngine | null;
 	private kernProcessor: KernProcessor | null;
-	public readonly engine?: AATLayoutEngine | OTLayoutEngine<null>;
+	public readonly engine?: AATLayoutEngine | OpenTypeLayoutEngine<null>;
 
 	constructor(private readonly font: TrueTypeFont) {
 		this.unicodeLayoutEngine = null;
@@ -25,7 +24,7 @@ export class LayoutEngine {
 		if (aatFont) {
 			this.engine = new AATLayoutEngine(aatFont);
 		} else if (this.font.hasTable('GSUB') || this.font.hasTable('GPOS')) {
-			this.engine = new OTLayoutEngine<null>(this.font);
+			this.engine = new OpenTypeLayoutEngine<null>(this.font);
 		}
 	}
 
@@ -92,8 +91,8 @@ export class LayoutEngine {
 		}
 
 		// Setup the advanced layout engine
-		if ((this.engine as OTLayoutEngine<null>)?.setup) {
-			(this.engine as OTLayoutEngine<null>)?.setup(glyphRun);
+		if ((this.engine as OpenTypeLayoutEngine<null>)?.setup) {
+			(this.engine as OpenTypeLayoutEngine<null>)?.setup(glyphRun);
 		}
 
 		// Substitute and position the glyphs
@@ -103,8 +102,8 @@ export class LayoutEngine {
 		this.hideDefaultIgnorables(glyphRun.glyphs, glyphRun.positions);
 
 		// Let the layout engine clean up any state it might have
-		if ((this.engine as OTLayoutEngine<null>)?.cleanup) {
-			(this.engine as OTLayoutEngine<null>).cleanup();
+		if ((this.engine as OpenTypeLayoutEngine<null>)?.cleanup) {
+			(this.engine as OpenTypeLayoutEngine<null>).cleanup();
 		}
 
 		return glyphRun;
@@ -125,8 +124,8 @@ export class LayoutEngine {
 		let positioned = null;
 
 		// Call the advanced layout engine. Returns the features applied.
-		if ((this.engine as OTLayoutEngine<null>)?.position) {
-			positioned = (this.engine as OTLayoutEngine<null>).position(glyphRun);
+		if ((this.engine as OpenTypeLayoutEngine<null>)?.position) {
+			positioned = (this.engine as OpenTypeLayoutEngine<null>).position(glyphRun);
 		}
 
 		// if there is no GPOS table, use unicode properties to position marks.

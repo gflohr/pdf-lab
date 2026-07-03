@@ -16,7 +16,7 @@ type MatcherFunction<T> = (
 	glyph: GlyphInfo<T>,
 ) => boolean;
 
-export class OTProcessor<T> {
+export class OpenTypeProcessor<T> {
 	protected font: TrueTypeFont;
 	private table: GPOSTable.GPOS | GSUBTable.GSUB;
 	private script: OpenType.Script | null;
