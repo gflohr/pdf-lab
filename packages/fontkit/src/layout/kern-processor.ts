@@ -1,15 +1,10 @@
 import type { Glyph } from '../glyph/glyph.js';
 import type { kernTable } from '../tables/kern.js';
-import type { TrueTypeFont } from '../true-type-font.js';
 import { binarySearch } from '../utils.js';
 import type { GlyphPosition } from './glyph-position.js';
 
 export class KernProcessor {
-	private readonly kern: kernTable.kern;
-
-	constructor(private readonly font: TrueTypeFont) {
-		this.kern = font.kern;
-	}
+	constructor(private readonly kern: kernTable.kern) {}
 
 	public process(glyphs: Glyph[], positions: GlyphPosition[]) {
 		for (let glyphIndex = 0; glyphIndex < glyphs.length - 1; glyphIndex++) {

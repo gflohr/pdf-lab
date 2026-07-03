@@ -151,7 +151,7 @@ export class LayoutEngine {
 			this.font.kern
 		) {
 			if (!this.kernProcessor) {
-				this.kernProcessor = new KernProcessor(this.font);
+				this.kernProcessor = new KernProcessor(this.font.kern);
 			}
 
 			this.kernProcessor.process(glyphRun.glyphs, glyphRun.positions);
