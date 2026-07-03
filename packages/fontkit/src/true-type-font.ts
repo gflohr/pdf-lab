@@ -644,7 +644,12 @@ export class TrueTypeFont<
 			return new CFFSubset(this);
 		}
 
-		return new TTFSubset(this);
+		const otFont = this.asOpenTypeFont();
+		if (otFont?.outlines === 'TrueType') {
+			return new TTFSubset(otFont);
+		} else {
+			throw new Error('Cannot createa subset, because of missing font tables');
+		}
 	}
 
 	private computeVariationAxes() {

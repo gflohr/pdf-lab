@@ -118,7 +118,7 @@ export interface OpenTypeNoOutlinesFont
 
 /**
  * OpenType font with verified TrueType vector geometry outline components
- * (glyf + loca).
+ * (glyf + loca + hmtx).
  */
 export interface OpenTypeTrueTypeFont
 	extends Omit<SFNTFont, RequiredOpenTypeTrueTypeTableTag | OpenTypeHeaderKeys>,

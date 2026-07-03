@@ -17,10 +17,12 @@ export class CFFSubset extends Subset {
 	constructor(protected font: TrueTypeFont) {
 		super(font);
 
-		this.cff = this.font['CFF '];
-		if (!this.cff) {
+		const cff = this.font['CFF '];
+		if (!cff) {
 			throw new Error('Not a CFF Font');
 		}
+
+		this.cff = cff;
 	}
 
 	private subsetCharstrings(): void {
