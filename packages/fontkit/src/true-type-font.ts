@@ -33,7 +33,7 @@ import {
 import type { SFNTFont, SFNTFontDirectory } from './sfnt-font.js';
 import { CFFSubset } from './subset/cff-subset.js';
 import type { Subset } from './subset/subset.js';
-import { TTFSubset } from './subset/ttf-subset.js';
+import { TrueTypeSubset } from './subset/true-type-subset.js';
 import type { AAT } from './tables/aat.js';
 import type { SFNTDirectoryEntry, SFNTTableMap } from './tables/directory.js';
 import { directory } from './tables/directory.js';
@@ -646,7 +646,7 @@ export class TrueTypeFont<
 
 		const otFont = this.asOpenTypeFont();
 		if (otFont?.outlines === 'TrueType') {
-			return new TTFSubset(otFont);
+			return new TrueTypeSubset(otFont);
 		} else {
 			throw new Error('Cannot createa subset, because of missing font tables');
 		}

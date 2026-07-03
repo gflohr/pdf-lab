@@ -19,7 +19,7 @@ interface Hmtx {
 	bearings: number[];
 }
 
-export class TTFSubset extends Subset {
+export class TrueTypeSubset extends Subset {
 	private readonly glyphEncoder: TTFGlyphEncoder;
 	private offset?: number;
 	private glyf?: Glyf;

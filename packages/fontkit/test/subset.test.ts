@@ -32,9 +32,9 @@ describe('font subsetting', () => {
 	describe('truetype subsetting', () => {
 		const font = fontkit.openSync(`${datadir}/OpenSans/OpenSans-Regular.ttf`);
 
-		it('should create a TTFSubset instance', () => {
+		it('should create a TrueTypeSubset instance', () => {
 			const subset = font.createSubset();
-			assert.equal(subset.constructor.name, 'TTFSubset');
+			assert.equal(subset.constructor.name, 'TrueTypeSubset');
 		});
 
 		it('should produce a subset', async () => {
