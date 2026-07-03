@@ -15,7 +15,7 @@ import {
 	openTypeFeatureList,
 	openTypeLookupList,
 	openTypeScriptList,
-} from './opentype.js';
+} from './open-type.js';
 import { featureVariations, type OpenTypeVariation } from './variations.js';
 
 const ValueFormat = new r.Bitfield(r.uint16, [

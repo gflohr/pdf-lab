@@ -3,7 +3,7 @@ import type { BidiDirection } from '../layout/glyph-run.js';
 import * as Script from '../layout/script.js';
 import type { GPOSTable } from '../tables/GPOS.js';
 import type { GSUBTable } from '../tables/GSUB.js';
-import type { OpenType } from '../tables/opentype.js';
+import type { OpenType } from '../tables/open-type.js';
 import type { OpenTypeVariation } from '../tables/variations.js';
 import type { TrueTypeFont } from '../true-type-font.js';
 import type { GlyphInfo } from './glyph-info.js';

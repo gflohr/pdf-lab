@@ -4,7 +4,7 @@ import type { Glyph } from './glyph/glyph.js';
 import type { GlyphRun } from './layout/glyph-run.js';
 import type { SFNTFont } from './sfnt-font.js';
 import type { Subset } from './subset/subset.js';
-import type { OpenType } from './tables/opentype.js';
+import type { OpenType } from './tables/open-type.js';
 import type { TrueTypeFont } from './true-type-font.js';
 
 export interface VariationAxis {

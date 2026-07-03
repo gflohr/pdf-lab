@@ -6,7 +6,7 @@ import r, {
 export namespace OpenType {
 	/**
 	 * A map of OpenType features as described in OpenType's spec:
-	 * https://docs.microsoft.com/en-gb/typography/opentype/spec/featurelist.
+	 * https://docs.microsoft.com/en-gb/typography/open-type/spec/featurelist.
 	 */
 	export interface Features {
 		aalt?: boolean;

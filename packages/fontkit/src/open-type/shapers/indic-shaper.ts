@@ -4,7 +4,7 @@ import StateMachine from 'dfa';
 import pako from 'pako';
 import UnicodeTrie from 'unicode-trie';
 import * as Script from '../../layout/script.js';
-import type { OpenType } from '../../tables/opentype.js';
+import type { OpenType } from '../../tables/open-type.js';
 import type { TrueTypeFont } from '../../true-type-font.js';
 import { GlyphInfo } from '../glyph-info.js';
 import type { ShapingFunction, ShapingPlan } from '../shaping-plan.js';

@@ -1,8 +1,8 @@
 import { AATFont } from '../aat/aat-font.js';
 import { AATLayoutEngine } from '../aat/aat-layout-engine.js';
 import type { Glyph } from '../glyph/glyph.js';
-import { OTLayoutEngine } from '../opentype/ot-layout-engine.js';
-import type { OpenType } from '../tables/opentype.js';
+import { OTLayoutEngine } from '../open-type/ot-layout-engine.js';
+import type { OpenType } from '../tables/open-type.js';
 import type { TrueTypeFont } from '../true-type-font.js';
 import { GlyphPosition } from './glyph-position.js';
 import { type BidiDirection, GlyphRun } from './glyph-run.js';

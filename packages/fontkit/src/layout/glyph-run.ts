@@ -2,7 +2,7 @@ import { BoundingBox } from '../glyph/bounding-box.js';
 import type { Glyph } from '../glyph/glyph.js';
 import type { UnicodeScript } from '../layout/script.js';
 import * as Script from '../layout/script.js';
-import type { OpenType } from '../tables/opentype.js';
+import type { OpenType } from '../tables/open-type.js';
 import type { GlyphPosition } from './glyph-position.js';
 
 /** The shaping direction, either left-to-right, or right-to-left. */

@@ -1,5 +1,5 @@
 import type { AAT } from '../tables/aat';
-import type { OpenType } from '../tables/opentype';
+import type { OpenType } from '../tables/open-type';
 
 type FeatureDefinition = {
 	/** The official AAT feature type numeric identifier code. */

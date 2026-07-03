@@ -25,7 +25,7 @@ export * from './font.js';
 export * from './glyph/index.js';
 export * from './layout/index.js';
 export * from './open-type-font.js';
-export * from './opentype/index.js';
+export * from './open-type/index.js';
 export * from './sfnt-font.js';
 export * from './subset/index.js';
 export * from './tables/index.js';

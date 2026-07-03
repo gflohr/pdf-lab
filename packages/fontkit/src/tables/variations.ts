@@ -1,5 +1,5 @@
 import r from '@pdf-lib/restructure';
-import { type OpenType, openTypeFeature } from './opentype.js';
+import { type OpenType, openTypeFeature } from './open-type.js';
 
 export namespace OpenTypeVariation {
 	export interface RegionAxisCoordinates {

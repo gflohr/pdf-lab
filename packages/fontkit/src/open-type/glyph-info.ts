@@ -1,5 +1,5 @@
 import unicode from '@pdf-lib/unicode-properties';
-import type { OpenType } from '../tables/opentype.js';
+import type { OpenType } from '../tables/open-type.js';
 import type { TrueTypeFont } from '../true-type-font.js';
 import { OTProcessor } from './ot-processor.js';
 import type { IndicInfo } from './shapers/indic-shaper.js';

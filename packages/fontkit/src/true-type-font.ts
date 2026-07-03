@@ -39,7 +39,7 @@ import type { SFNTDirectoryEntry, SFNTTableMap } from './tables/directory.js';
 import { directory } from './tables/directory.js';
 import { tables } from './tables/index.js';
 import type { nameTable } from './tables/name.js';
-import type { OpenType } from './tables/opentype.js';
+import type { OpenType } from './tables/open-type.js';
 import {
 	requiredTrueTypeSubsetTables,
 	type TrueTypeSubsetFont,

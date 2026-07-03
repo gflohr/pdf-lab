@@ -6,7 +6,7 @@ import compileModule from 'dfa/compile.js';
 import pako from 'pako';
 import UnicodeTrieBuilder from 'unicode-trie/builder.js';
 
-import { CATEGORIES, POSITIONS } from '../src/opentype/shapers/indic-data.js';
+import { CATEGORIES, POSITIONS } from '../src/open-type/shapers/indic-data.js';
 
 const compile = compileModule.default;
 
@@ -273,7 +273,7 @@ const shaperDirectory = path.resolve(
 	import.meta.dirname,
 	'..',
 	'src',
-	'opentype',
+	'open-type',
 	'shapers',
 );
 

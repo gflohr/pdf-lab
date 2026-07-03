@@ -42,7 +42,7 @@ import type { morxTable } from './tables/morx.js';
 import type { nameTable } from './tables/name.js';
 import type { OS2Table } from './tables/OS2.js';
 import type { opbdTable } from './tables/opbd.js';
-import type { OpenType } from './tables/opentype.js';
+import type { OpenType } from './tables/open-type.js';
 import type { PCLTTable } from './tables/PCLT.js';
 import type { postTable } from './tables/post.js';
 import type { prepTable } from './tables/prep.js';
