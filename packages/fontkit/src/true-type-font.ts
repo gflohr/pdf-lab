@@ -1,5 +1,6 @@
 import type { DecodeStream, FieldT } from '@pdf-lib/restructure';
 import r from '@pdf-lib/restructure';
+import { type AATFont, requiredAATTables } from './aat/aat-font.js';
 import { fontkit } from './base.js';
 import type { CFFFont } from './cff/cff-font.js';
 import { CmapProcessor } from './cmap-processor.js';
@@ -39,8 +40,10 @@ import { directory } from './tables/directory.js';
 import { tables } from './tables/index.js';
 import type { nameTable } from './tables/name.js';
 import type { OpenType } from './tables/opentype.js';
-import { requiredTrueTypeSubsetTables, type TrueTypeSubsetFont } from './true-type-subset-font.js';
-import { AATFont, requiredAATTables } from './aat/aat-font.js';
+import {
+	requiredTrueTypeSubsetTables,
+	type TrueTypeSubsetFont,
+} from './true-type-subset-font.js';
 
 export type LayoutFeatures = OpenType.Features | AAT.Features;
 
@@ -603,7 +606,11 @@ export class TrueTypeFont<
 		if (!this.glyphs[glyph]) {
 			const font = this as OpenTypeFont;
 
-			if (font?.hasTable('sbix') && font?.hasTable('hmtx') && font.outlines === 'TrueType') {
+			if (
+				font?.hasTable('sbix') &&
+				font?.hasTable('hmtx') &&
+				font.outlines === 'TrueType'
+			) {
 				this.glyphs[glyph] = new SBIXGlyph(glyph, characters, font) as Glyph;
 			} else if (font?.hasTable('COLR') && font?.hasTable('CPAL')) {
 				this.glyphs[glyph] = new COLRGlyph(glyph, characters, font) as Glyph;
@@ -615,13 +622,6 @@ export class TrueTypeFont<
 		return this.glyphs[glyph] ?? null;
 	}
 
-	/**
-	 * Like {@link getGlyph} but falls back to the fallback glyph `.notdef`
-	 * if the glyph cannot be resolved, because of missing tables.
-	 *
-	 * @param glyph the glyph id
-	 * @param characters an optional sequence of codepoints
-	 */
 	public safeGetGlyph(
 		glyph: number,
 		characters: readonly number[] = [],
@@ -629,9 +629,10 @@ export class TrueTypeFont<
 		const resolved = this.getGlyph(glyph, characters);
 
 		if (!resolved) {
-			throw new Error('No Glyph object can be created, because this ' +
-				'does not have any usable combination of font tables for ' +
-				'achieving this!'
+			throw new Error(
+				'No Glyph object can be created, because this ' +
+					'does not have any usable combination of font tables for ' +
+					'achieving this!',
 			);
 		}
 

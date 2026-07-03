@@ -1,4 +1,5 @@
 import type * as r from '@pdf-lib/restructure';
+import type { AATFont } from './aat/aat-font.js';
 import type { CFFFont } from './cff/cff-font.js';
 import type { BoundingBox } from './glyph/bounding-box.js';
 import type { Glyph } from './glyph/glyph.js';
@@ -50,8 +51,7 @@ import type { VDMXTable } from './tables/VDMX.js';
 import type { VORGTable } from './tables/VORG.js';
 import type { vheaTable } from './tables/vhea.js';
 import type { vmtxTable } from './tables/vmtx.js';
-import { AATFont } from './aat/aat-font.js';
-import { TrueTypeSubsetFont } from './true-type-subset-font.js';
+import type { TrueTypeSubsetFont } from './true-type-subset-font.js';
 
 /**
  * A universal base interface for any font directory (SFNT, WOFF, WOFF2).
@@ -569,6 +569,18 @@ export interface SFNTFont<
 	 * @returns the corresponding glyph
 	 */
 	getGlyph(glyph: number, characters?: readonly number[]): Glyph | null;
+
+	/**
+	 * Like {@link getGlyph} but falls back to the fallback glyph `.notdef`
+	 * if the glyph cannot be resolved, because of missing tables.
+	 *
+	 * @param glyph the glyph id
+	 * @param characters an optional sequence of codepoints
+	 */
+	safeGetGlyph(glyph: number, characters: readonly number[]): Glyph;
+
+	/** @internal */
+	getBaseGlyph(glyph: number, characters?: readonly number[]): Glyph | null;
 
 	/**
 	 * Creates an empty layout subset utilizing this font structure as its

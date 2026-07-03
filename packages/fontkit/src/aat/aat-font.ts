@@ -1,8 +1,11 @@
-import { Glyph } from '../glyph';
+import type { Glyph } from '../glyph';
 import type { StrictTables } from '../open-type-font';
 import type { SFNTFont } from '../sfnt-font';
 import type { morxTable } from '../tables';
-import { requiredTrueTypeSubsetTables, TrueTypeSubsetFont } from '../true-type-subset-font';
+import {
+	requiredTrueTypeSubsetTables,
+	type TrueTypeSubsetFont,
+} from '../true-type-subset-font';
 
 /**
  * Minimal operational capability needed Apple Advanced Typography (AAT).
@@ -15,8 +18,7 @@ export const requiredAATTables = [
 /**
  * Union type for the items in the {@link requiredAATTables} list.
  */
-export type RequiredAATTableTag =
-	(typeof requiredAATTables)[number];
+export type RequiredAATTableTag = (typeof requiredAATTables)[number];
 
 /**
  * TrueType font with verified AAT capabilities.

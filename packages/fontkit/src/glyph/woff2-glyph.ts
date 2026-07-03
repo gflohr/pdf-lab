@@ -1,4 +1,7 @@
-import { requiredTrueTypeSubsetTables, TrueTypeSubsetFont } from '../true-type-subset-font.js';
+import {
+	requiredTrueTypeSubsetTables,
+	TrueTypeSubsetFont,
+} from '../true-type-subset-font.js';
 import type { WOFF2Font } from '../woff2-font.js';
 import { type DecodedGlyph, TTFGlyph } from './ttf-glyph.js';
 
@@ -11,9 +14,9 @@ export class WOFF2Glyph extends TTFGlyph {
 		if (!font) {
 			throw new Error(
 				`Fontkit Initialization Error: Cannot construct WOFF2Glyph ` +
-				`for ID ${id}. The underlying WOFF2Font is missing required ` +
-				`TrueType subset tables ` +
-				`(${requiredTrueTypeSubsetTables.join(', ')}).`
+					`for ID ${id}. The underlying WOFF2Font is missing required ` +
+					`TrueType subset tables ` +
+					`(${requiredTrueTypeSubsetTables.join(', ')}).`,
 			);
 		}
 		super(id, codePoints, font);

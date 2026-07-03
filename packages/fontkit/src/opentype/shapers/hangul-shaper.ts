@@ -216,7 +216,12 @@ function getGlyph(
 	code: number,
 	features: Record<string, boolean>,
 ): GlyphInfo {
-	return new GlyphInfo(font, font.glyphForCodePoint(code).id, [code], features);
+	return new GlyphInfo(
+		font,
+		font.glyphForCodePoint(code)?.id ?? 0,
+		[code],
+		features,
+	);
 }
 
 function decompose(glyphs: GlyphInfo[], i: number, font: TrueTypeFont): number {
@@ -352,9 +357,11 @@ function reorderToneMark(
 ): GlyphInfo[] | undefined {
 	const glyph = glyphs[i];
 	const code = glyphs[i].codePoints[0];
+	const g = font.glyphForCodePoint(code);
 
-	// Move tone mark to the beginning of the previous syllable, unless it is zero width
-	if (font.glyphForCodePoint(code).advanceWidth === 0) {
+	// Move tone mark to the beginning of the previous syllable, unless it is
+	// zero width.
+	if (!g || g.advanceWidth === 0) {
 		return;
 	}
 
@@ -373,11 +380,16 @@ function insertDottedCircle(
 	const glyph = glyphs[i];
 	const code = glyphs[i].codePoints[0];
 
+	const currentGlyph = font.glyphForCodePoint(code);
+
+	const isZeroWidth = currentGlyph ? currentGlyph.advanceWidth === 0 : false;
+
 	if (font.hasGlyphForCodePoint(DOTTED_CIRCLE)) {
 		const dottedCircle = getGlyph(font, DOTTED_CIRCLE, glyph.features);
 
-		// If the tone mark is zero width, insert the dotted circle before, otherwise after
-		const idx = font.glyphForCodePoint(code).advanceWidth === 0 ? i : i + 1;
+		// If the tone mark is zero width, insert the dotted circle before,
+		// otherwise after.
+		const idx = isZeroWidth ? i : i + 1;
 		glyphs.splice(idx, 0, dottedCircle);
 		i++;
 	}

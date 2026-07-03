@@ -93,6 +93,18 @@ export class UniversalShaper extends DefaultShaper {
 			if (decompositions[codepoint]) {
 				const decomposed = decompositions[codepoint].map((c: number) => {
 					const g = plan.font.glyphForCodePoint(c);
+
+					if (!g) {
+						throw new Error(
+							'Fontkit UniversalShaper Fatal: Script ' +
+								'decomposition failed. The font lacks a ' +
+								'glyph for component character ' +
+								`U+${c.toString(16).toUpperCase()} ` +
+								'required to split composite codepoint ' +
+								`U+${codepoint.toString(16).toUpperCase()}.`,
+						);
+					}
+
 					return new GlyphInfo<USEInfo>(
 						plan.font,
 						g.id,
@@ -164,7 +176,14 @@ function recordPref(_font: TrueTypeFont, glyphs: UniversalGlyphInfo[]) {
 }
 
 function reorder(font: TrueTypeFont, glyphs: UniversalGlyphInfo[]) {
-	const dottedCircle = font.glyphForCodePoint(0x25cc).id;
+	const dottedCircle = font.glyphForCodePoint(0x25cc)?.id;
+	if (!dottedCircle) {
+		throw new Error(
+			`Fontkit UniversalShaper Exception: Cannot shape complex script. ` +
+				'The font is missing the mandatory Dotted Circle placeholder ' +
+				'character (U+25CC).',
+		);
+	}
 
 	for (
 		let start = 0, end = nextSyllable(glyphs, 0);

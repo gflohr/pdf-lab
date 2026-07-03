@@ -80,17 +80,19 @@ export class OTLayoutEngine<T> {
 		}
 	}
 
+	/** @internal */
 	substitute(glyphRun: GlyphRun) {
 		if (this.GSUBProcessor) {
 			this.plan!.process(this.GSUBProcessor, this.glyphInfos!);
 
 			// Map glyph infos back to normal Glyph objects.
 			glyphRun.glyphs = this.glyphInfos!.map((glyphInfo) =>
-				this.font.getGlyph(glyphInfo.id, glyphInfo.codePoints),
+				this.font.safeGetGlyph(glyphInfo.id, glyphInfo.codePoints),
 			);
 		}
 	}
 
+	/** @internal */
 	position(glyphRun: GlyphRun) {
 		if (this.shaper!.zeroMarkWidths === 'BEFORE_GPOS') {
 			this.zeroMarkAdvances(glyphRun.positions);
@@ -117,6 +119,7 @@ export class OTLayoutEngine<T> {
 		return this.GPOSProcessor?.features;
 	}
 
+	/** @internal */
 	zeroMarkAdvances(positions: GlyphPosition[]) {
 		for (let i = 0; i < this.glyphInfos!.length; i++) {
 			if (this.glyphInfos![i].isMark) {
@@ -126,6 +129,7 @@ export class OTLayoutEngine<T> {
 		}
 	}
 
+	/** @internal */
 	cleanup() {
 		this.glyphInfos = null;
 		this.plan = null;

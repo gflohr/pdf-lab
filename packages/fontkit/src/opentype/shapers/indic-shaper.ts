@@ -126,6 +126,18 @@ export class IndicShaper extends DefaultShaper {
 			if (d) {
 				const decomposed = d.map((c) => {
 					const g = plan.font.glyphForCodePoint(c);
+
+					if (!g) {
+						throw new Error(
+							'Fontkit IndicShaper Fatal: Script ' +
+								'decomposition failed. The font lacks a ' +
+								'glyph for component character ' +
+								`U+${c.toString(16).toUpperCase()} ` +
+								'required to split composite codepoint ' +
+								`U+${codepoint.toString(16).toUpperCase()}.`,
+						);
+					}
+
 					return new GlyphInfo<IndicInfo>(
 						plan.font,
 						g.id,
@@ -259,8 +271,15 @@ function initialReordering(
 	const indicConfig = plan.indicConfig!;
 	const features = (font.layoutEngine.engine as any).GSUBProcessor.features;
 
-	const dottedCircle = font.glyphForCodePoint(0x25cc).id;
-	const virama = font.glyphForCodePoint(indicConfig!.virama).id;
+	const dottedCircle = font.glyphForCodePoint(0x25cc)?.id;
+	if (!dottedCircle) {
+		throw new Error(
+			`Fontkit IndicShaper Exception: Cannot shape complex script. ` +
+				'The font is missing the mandatory Dotted Circle placeholder ' +
+				'character (U+25CC).',
+		);
+	}
+	const virama = font.glyphForCodePoint(indicConfig!.virama)?.id;
 
 	if (virama) {
 		const info = new GlyphInfo<IndicInfo>(font, virama, [indicConfig.virama]);
