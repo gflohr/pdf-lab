@@ -21,7 +21,7 @@ export class CFFGlyph extends Glyph {
 		super(id, codePoints, font);
 	}
 
-	getName() {
+	protected getName() {
 		if (this._font.outlineVersion === 2) {
 			return super.getName();
 		}
@@ -29,7 +29,7 @@ export class CFFGlyph extends Glyph {
 		return this._font['CFF '].getGlyphName(this.id);
 	}
 
-	bias(s: CFFIndexRecord[]): number {
+	private bias(s: CFFIndexRecord[]): number {
 		if (s.length < 1240) {
 			return 107;
 		} else if (s.length < 33900) {
@@ -39,7 +39,7 @@ export class CFFGlyph extends Glyph {
 		}
 	}
 
-	getPath(): Path {
+	protected getPath(): Path {
 		const { stream } = this._font;
 
 		const cff =

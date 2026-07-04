@@ -82,7 +82,7 @@ export class TrueTypeSubset extends Subset {
 		return this.glyf!.length - 1;
 	}
 
-	encode(stream: EncodeStream) {
+	public encode(stream: EncodeStream) {
 		// tables required by PDF spec:
 		//   head, hhea, loca, maxp, cvt , prep, glyf, hmtx, fpgm
 		//

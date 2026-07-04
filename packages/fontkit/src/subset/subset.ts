@@ -15,7 +15,7 @@ export abstract class Subset {
 		this.includeGlyph(0);
 	}
 
-	includeGlyph(glyph: number | Glyph): number {
+	public includeGlyph(glyph: number | Glyph): number {
 		if (typeof glyph === 'object') {
 			glyph = glyph.id;
 		}
@@ -30,7 +30,7 @@ export abstract class Subset {
 
 	abstract encode(stream: EncodeStream): void;
 
-	encodeStream(): EncodeStream {
+	public encodeStream(): EncodeStream {
 		const s = new r.EncodeStream();
 
 		process.nextTick(() => {

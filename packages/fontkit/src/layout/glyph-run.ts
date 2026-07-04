@@ -81,7 +81,7 @@ export class GlyphRun {
 	/**
 	 * The total advance width of the run.
 	 */
-	get advanceWidth(): number {
+	public get advanceWidth(): number {
 		if (!this.positions) {
 			throw new Error('GlyphRun.advanceWidth called without positions!');
 		}
@@ -96,7 +96,7 @@ export class GlyphRun {
 	/**
 	 * The total advance height of the run.
 	 */
-	get advanceHeight(): number {
+	public get advanceHeight(): number {
 		let height = 0;
 		for (const position of this.positions) {
 			height += position.yAdvance;
@@ -108,7 +108,7 @@ export class GlyphRun {
 	/**
 	 * The bounding box containing all glyphs in the run.
 	 */
-	get bbox(): BoundingBox {
+	public get bbox(): BoundingBox {
 		const bbox = new BoundingBox();
 
 		let x = 0;

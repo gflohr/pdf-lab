@@ -75,7 +75,7 @@ export class ShapingPlan<T = null> {
 	/**
 	 * Add features to the last stage
 	 */
-	add(arg: FeatureShape, global = true) {
+	public add(arg: FeatureShape, global = true) {
 		if (this.stages.length === 0) {
 			this.stages.push([]);
 		}
@@ -97,7 +97,7 @@ export class ShapingPlan<T = null> {
 	/**
 	 * Add a new stage
 	 */
-	addStage(arg: FeatureShape | ShapingFunction<T>, global?: boolean) {
+	public addStage(arg: FeatureShape | ShapingFunction<T>, global?: boolean) {
 		const isGlobal = global !== undefined ? global : true;
 
 		if (typeof arg === 'function') {
@@ -108,7 +108,7 @@ export class ShapingPlan<T = null> {
 		}
 	}
 
-	setFeatureOverrides(features: OpenType.FeatureTag[] | OpenType.FeatureFlags) {
+	public setFeatureOverrides(features: OpenType.FeatureTag[] | OpenType.FeatureFlags) {
 		if (Array.isArray(features)) {
 			this.add(features);
 		} else if (features != null && typeof features === 'object') {
@@ -133,7 +133,7 @@ export class ShapingPlan<T = null> {
 	/**
 	 * Assigns the global features to the given glyphs
 	 */
-	assignGlobalFeatures(glyphs: GlyphInfo<T>[]) {
+	public assignGlobalFeatures(glyphs: GlyphInfo<T>[]) {
 		for (const glyph of glyphs) {
 			for (const feature of Object.keys(this.globalFeatures)) {
 				(glyph.features as Record<string, boolean>)[feature] = true;
@@ -144,7 +144,7 @@ export class ShapingPlan<T = null> {
 	/**
 	 * Executes the planned stages using the given OTProcessor
 	 */
-	process(
+	public process(
 		processor: OpenTypeProcessor<T>,
 		glyphs: GlyphInfo<T>[],
 		positions?: GlyphPosition[],

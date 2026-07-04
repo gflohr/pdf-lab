@@ -395,7 +395,7 @@ export class GPOSProcessor<T> extends OpenTypeProcessor<T> {
 		}
 	}
 
-	fixMarkAttachment() {
+	private fixMarkAttachment() {
 		for (let i = 0; i < this.glyphs.length; i++) {
 			const glyph = this.glyphs[i];
 			const j = glyph.markAttachment;

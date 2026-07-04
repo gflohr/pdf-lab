@@ -3,6 +3,7 @@ import type { AATFont } from './aat/aat-font.js';
 import type { CFFFont } from './cff/cff-font.js';
 import type { BoundingBox } from './glyph/bounding-box.js';
 import type { Glyph } from './glyph/glyph.js';
+import type { GlyphVariationProcessor } from './glyph/glyph-variation-processor.js';
 import type { BidiDirection, GlyphRun } from './layout/glyph-run.js';
 import type { LayoutEngine } from './layout/layout-engine.js';
 import type * as Script from './layout/script.js';
@@ -52,7 +53,6 @@ import type { VORGTable } from './tables/VORG.js';
 import type { vheaTable } from './tables/vhea.js';
 import type { vmtxTable } from './tables/vmtx.js';
 import type { TrueTypeSubsetFont } from './true-type-subset-font.js';
-import { GlyphVariationProcessor } from './glyph/glyph-variation-processor.js';
 
 /**
  * A universal base interface for any font directory (SFNT, WOFF, WOFF2).

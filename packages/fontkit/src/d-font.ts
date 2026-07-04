@@ -125,7 +125,7 @@ export class DFont {
 		}
 	}
 
-	getFont(name: string): TrueTypeFont | null {
+	public getFont(name: string): TrueTypeFont | null {
 		if (!this.sfnt) {
 			return null;
 		}
@@ -140,7 +140,7 @@ export class DFont {
 		return null;
 	}
 
-	get fonts(): TrueTypeFont[] {
+	public get fonts(): TrueTypeFont[] {
 		return this.sfnt
 			? this.sfnt.refList.map((ref) => this.decodeFont(ref))
 			: [];

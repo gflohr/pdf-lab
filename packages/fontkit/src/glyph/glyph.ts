@@ -1,6 +1,5 @@
 import unicode from '@pdf-lib/unicode-properties';
 import type { OpenTypeFont } from '../open-type-font.js';
-import { SFNTFont } from '../sfnt-font.js';
 import type { MetricsTable } from '../tables/metrics.js';
 import type { TrueTypeFont } from '../true-type-font.js';
 import type { TrueTypeSubsetFont } from '../true-type-subset-font.js';
@@ -148,7 +147,7 @@ export abstract class Glyph {
 		return this.path.bbox;
 	}
 
-	private _getTableMetrics(table: MetricsTable): GlyphAxisMetrics {
+	private getTableMetrics(table: MetricsTable): GlyphAxisMetrics {
 		if (this.id < table.metrics.length) {
 			return table.metrics.get(this.id);
 		}
@@ -162,12 +161,13 @@ export abstract class Glyph {
 		return res;
 	}
 
+	/** @internal */
 	public getMetrics(cbox?: Readonly<BoundingBox>): GlyphLayoutMetrics {
 		if (this._metrics) {
 			return this._metrics;
 		}
 
-		let { advance: advanceWidth, bearing: leftBearing } = this._getTableMetrics(
+		let { advance: advanceWidth, bearing: leftBearing } = this.getTableMetrics(
 			this._font.hmtx,
 		);
 
@@ -176,7 +176,7 @@ export abstract class Glyph {
 
 		// For vertical metrics, use vmtx if available, or fall back to global data
 		if (this._font.vmtx) {
-			const metrics = this._getTableMetrics(this._font.vmtx);
+			const metrics = this.getTableMetrics(this._font.vmtx);
 			advanceHeight = metrics.advance;
 			topBearing = metrics.bearing;
 		} else {
