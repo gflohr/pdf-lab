@@ -58,7 +58,7 @@ describe('TrueTypeFont Capabilities & Table Resolution', () => {
 				offset: 100,
 			};
 
-			expect(font.hasTable('head', false)).toBe(true);
+			expect(font.hasTable('head')).toBe(true);
 			expect(font['decodeTable']).not.toHaveBeenCalled();
 		});
 
@@ -69,49 +69,8 @@ describe('TrueTypeFont Capabilities & Table Resolution', () => {
 				offset: 100,
 			};
 
-			expect(font.hasTable('foot', false)).toBe(true);
+			expect(font.hasTable('foot')).toBe(true);
 			expect(font['decodeTable']).not.toHaveBeenCalled();
-		});
-
-		it('should trigger eager decoding and return true if decode is true and parsing succeeds', () => {
-			++font.directory.numTables;
-			font.directory.tables.head = {
-				tag: 'head',
-				offset: 100,
-			};
-
-			expect(font.hasTable('head', true)).toBe(true);
-			expect(font['decodeTable']).toHaveBeenCalledWith({
-				tag: 'head',
-				offset: 100,
-			});
-			expect(font['tables']['head']).toEqual({ tag: 'head', mockParsed: true });
-		});
-
-		it('should not trigger eager decoding for an unknown table and return false if decode is true', () => {
-			++font.directory.numTables;
-			font.directory.tables.foot = {
-				tag: 'foot',
-				offset: 100,
-			};
-
-			expect(font.hasTable('foot', true)).toBe(false);
-			expect(font['decodeTable']).not.toHaveBeenCalledWith();
-		});
-
-		it('should trap standard decoding errors and throw, when decode is true', () => {
-			++font.directory.numTables;
-			font.directory.tables.head = {
-				tag: 'head',
-				offset: 100,
-			};
-
-			vi.mocked(font['decodeTable']).mockImplementationOnce(() => {
-				throw new Error('Corrupt data');
-			});
-
-			expect(font.hasTable('head', true)).toBeFalsy();
-			expect(font['tables']['head']).toBeNull();
 		});
 	});
 

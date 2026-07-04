@@ -182,11 +182,11 @@ export abstract class Glyph {
 		} else {
 			const localCbox = cbox === undefined || cbox === null ? this.cbox : cbox;
 
-			if (this._font.hasTable('OS/2') && this._font['OS/2']!.version !== 0) {
+			if (this._font['OS/2'] && this._font['OS/2']!.version !== 0) {
 				const os2 = this._font['OS/2']!;
 				advanceHeight = Math.abs(os2.typoAscender - os2.typoDescender);
 				topBearing = os2.typoAscender - localCbox.maxY;
-			} else if (this._font.hasTable('hhea')) {
+			} else if (this._font.hhea) {
 				const hhea = this._font.hhea!;
 				advanceHeight = Math.abs(hhea.ascent - hhea.descent);
 				topBearing = hhea.ascent - localCbox.maxY;

@@ -278,11 +278,11 @@ export class TrueTypeFont<
 	}
 
 	get postscriptName(): string | null {
-		if (!this.hasTable('name')) {
+		if (!this.name) {
 			return null;
 		}
 
-		const name = this.name!.records.postscriptName;
+		const name = this.name.records.postscriptName;
 		if (name) {
 			const lang = Object.keys(name)[0];
 			return name[lang];
@@ -295,11 +295,11 @@ export class TrueTypeFont<
 		key: keyof nameTable.ProcessedRecords,
 		lang = 'en',
 	): string | null {
-		if (!this.hasTable('name')) {
+		if (!this.name) {
 			return null;
 		}
 
-		const record = this.name!.records[key];
+		const record = this.name.records[key];
 		if (record) {
 			return (record as Record<string, string>)[lang];
 		}
@@ -328,59 +328,59 @@ export class TrueTypeFont<
 	}
 
 	public get ascent(): number | undefined {
-		if (!this.hasTable('hhea')) {
+		if (!this.hhea) {
 			return undefined;
 		}
 
-		return this.hhea!.ascent;
+		return this.hhea.ascent;
 	}
 
 	public get descent() {
-		if (!this.hasTable('hhea')) {
+		if (!this.hhea) {
 			return undefined;
 		}
 
-		return this.hhea!.descent;
+		return this.hhea.descent;
 	}
 
 	public get lineGap(): number | undefined {
-		if (!this.hasTable('hhea')) {
+		if (!this.hhea) {
 			return undefined;
 		}
 
-		return this.hhea!.lineGap;
+		return this.hhea.lineGap;
 	}
 
 	public get underlinePosition(): number | undefined {
-		if (!this.hasTable('post')) {
+		if (!this.post) {
 			return undefined;
 		}
 
-		return this.post!.underlinePosition;
+		return this.post.underlinePosition;
 	}
 
 	public get underlineThickness(): number | undefined {
-		if (!this.hasTable('post')) {
+		if (!this.post) {
 			return undefined;
 		}
 
-		return this.post!.underlineThickness;
+		return this.post.underlineThickness;
 	}
 
 	public get italicAngle(): number | undefined {
-		if (!this.hasTable('post')) {
+		if (!this.post) {
 			return undefined;
 		}
 
-		return this.post!.italicAngle;
+		return this.post.italicAngle;
 	}
 
 	public get capHeight(): number | undefined {
-		if (!this.hasTable('OS/2')) {
+		if (!this['OS/2']) {
 			return this.ascent;
 		}
 
-		const os2 = this['OS/2']!;
+		const os2 = this['OS/2'];
 		if ('capHeight' in os2) {
 			return os2.capHeight;
 		} else {
@@ -389,11 +389,11 @@ export class TrueTypeFont<
 	}
 
 	public get xHeight(): number {
-		if (!this.hasTable('OS/2')) {
+		if (!this['OS/2']) {
 			return 0;
 		}
 
-		const os2 = this['OS/2']!;
+		const os2 = this['OS/2'];
 		if ('xHeight' in os2) {
 			return os2.xHeight;
 		} else {
@@ -402,27 +402,27 @@ export class TrueTypeFont<
 	}
 
 	public get numGlyphs(): number | undefined {
-		if (!this.hasTable('maxp')) {
+		if (!this.maxp) {
 			return undefined;
 		}
 
-		return this.maxp!.numGlyphs;
+		return this.maxp.numGlyphs;
 	}
 
 	public get unitsPerEm(): number {
-		if (!this.hasTable('head')) {
+		if (!this.head) {
 			return 1000;
 		}
 
-		return this.head!.unitsPerEm;
+		return this.head.unitsPerEm;
 	}
 
 	public get bbox(): Readonly<BoundingBox> | undefined {
 		if (typeof this._bbox === 'undefined') {
-			if (!this.hasTable('head')) {
+			if (!this.head) {
 				return undefined;
 			}
-			const head = this.head!;
+			const head = this.head;
 			this._bbox = Object.freeze(
 				new BoundingBox(head.xMin, head.yMin, head.xMax, head.yMax),
 			);
@@ -432,8 +432,8 @@ export class TrueTypeFont<
 	}
 
 	private get cmapProcessor(): CmapProcessor {
-		if (typeof this._cmapProcessor === 'undefined' && this.hasTable('cmap')) {
-			this._cmapProcessor = new CmapProcessor(this.cmap!);
+		if (typeof this._cmapProcessor === 'undefined' && this.cmap) {
+			this._cmapProcessor = new CmapProcessor(this.cmap);
 		}
 
 		return this._cmapProcessor;
@@ -596,12 +596,11 @@ export class TrueTypeFont<
 			const font = this as OpenTypeFont;
 
 			if (
-				font?.hasTable('sbix') &&
-				font?.hasTable('hmtx') &&
+				font?.sbix &&
 				font.outlines === 'TrueType'
 			) {
 				this.glyphs[glyph] = new SBIXGlyph(glyph, characters, font) as Glyph;
-			} else if (font?.hasTable('COLR') && font?.hasTable('CPAL')) {
+			} else if (font?.COLR && font?.CPAL) {
 				this.glyphs[glyph] = new COLRGlyph(glyph, characters, font) as Glyph;
 			} else {
 				this.getBaseGlyph(glyph, characters);

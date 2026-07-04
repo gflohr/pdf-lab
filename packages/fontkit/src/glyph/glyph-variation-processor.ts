@@ -61,7 +61,7 @@ export class GlyphVariationProcessor {
 
 	constructor(font: TrueTypeFont, coords: number[]) {
 		// Fail fast if the font isn't a variable font
-		if (!font.hasTable('fvar')) {
+		if (!font.fvar) {
 			throw new Error(
 				'Cannot initialize GlyphVariationProcessor: The' +
 					' provided font is a static font and lacks' +

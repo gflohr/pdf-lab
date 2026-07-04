@@ -23,7 +23,7 @@ export class LayoutEngine {
 		const aatFont = this.font.asAATFont();
 		if (aatFont) {
 			this.engine = new AATLayoutEngine(aatFont);
-		} else if (this.font.hasTable('GSUB') || this.font.hasTable('GPOS')) {
+		} else if (this.font.GSUB || this.font.GPOS) {
 			this.engine = new OpenTypeLayoutEngine<null>(this.font);
 		}
 	}
