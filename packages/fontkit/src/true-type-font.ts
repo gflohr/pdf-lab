@@ -555,7 +555,7 @@ export class TrueTypeFont<
 	}
 
 	public codePointsForGlyph(gid: number): number[] {
-		return this.cmapProcessor.codePointsForGlyph(gid);
+		return this.cmapProcessor?.codePointsForGlyph(gid) ?? [];
 	}
 
 	public get availableFeatures(): OpenType.FeatureTag[] {
