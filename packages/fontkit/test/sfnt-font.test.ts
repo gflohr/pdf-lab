@@ -39,7 +39,6 @@ describe('TrueTypeFont Capabilities & Table Resolution', () => {
 			tables: {},
 		} as SFNTFontDirectory;
 
-		// Mock out internal decode method.
 		font['decodeTable'] = vi.fn(
 			(entry: SFNTDirectoryEntry) =>
 				({ tag: entry.tag, mockParsed: true }) as any,
@@ -128,7 +127,6 @@ describe('TrueTypeFont Capabilities & Table Resolution', () => {
 		});
 
 		const createFontWithTables = (tags: string[]) => {
-			// Setup the directory entry return map for the constructor to loop over
 			const tablesMap: Record<string, any> = {};
 			for (const tag of tags) {
 				tablesMap[tag] = { tag, length: 100, offset: 0 };
@@ -144,7 +142,6 @@ describe('TrueTypeFont Capabilities & Table Resolution', () => {
 		};
 
 		it('should set outlines to "" if the core 8 OpenType tables are not complete', () => {
-			// Missing 'post'
 			const incompleteTags = [
 				'cmap',
 				'head',
@@ -215,7 +212,6 @@ describe('TrueTypeFont Capabilities & Table Resolution', () => {
 		let font: TrueTypeFont;
 
 		beforeEach(() => {
-			// Create an isolated prototype instance to bypass the constructor
 			font = Object.create(TrueTypeFont.prototype);
 
 			font['existingTableTags'] = new Set<string>();
@@ -230,24 +226,11 @@ describe('TrueTypeFont Capabilities & Table Resolution', () => {
 			}
 		});
 
-		describe('Without Decoding: asOpenTypeFont(false) / asOpenTypeFont()', () => {
-			it('should successfully upcast the font view without parsing raw table structures', () => {
-				font.outlines = 'TrueType';
-
-				const result = font.asOpenTypeFont(false);
-
-				expect(result).toBe(font);
-
-				// Ensure the lazy evaluation loop was skipped completely!
-				expect(font['getTable']).not.toHaveBeenCalled();
-			});
-		});
-
-		describe('With eager decoding: asOpenTypeFont(true)', () => {
+		describe('With decoding: asOpenTypeFont()', () => {
 			it('should force immediate decoding on the core tables when layout evaluates to outlines: "none"', () => {
 				font['outlines'] = 'none';
 
-				font.asOpenTypeFont(true);
+				font.asOpenTypeFont();
 
 				const numFonts = requiredOpenTypeTables.length;
 
@@ -265,7 +248,7 @@ describe('TrueTypeFont Capabilities & Table Resolution', () => {
 				font['existingTableTags'].add('loca');
 				font.directory.tables['loca'] = { tag: 'loca' } as SFNTDirectoryEntry;
 
-				font.asOpenTypeFont(true);
+				font.asOpenTypeFont();
 
 				const numTables = requiredOpenTypeTrueTypeTables.length;
 				expect(font['getTable']).toHaveBeenCalledTimes(numTables);
@@ -274,35 +257,33 @@ describe('TrueTypeFont Capabilities & Table Resolution', () => {
 				);
 			});
 
-			it('should decode the 8 core tables PLUS CFF when outlines are CFF version 1', () => {
+			it('should decode the core tables PLUS CFF when outlines are CFF version 1', () => {
 				font.outlines = 'PostScript';
 				font.outlineVersion = 1;
 
-				// Inject the structural PostScript dependencies into our mock maps
 				font['existingTableTags'].add('CFF ');
 				font.directory.tables['CFF '] = { tag: 'CFF ' } as SFNTDirectoryEntry;
 
-				font.asOpenTypeFont(true);
+				font.asOpenTypeFont();
 
-				// 8 core tables + 1 outline table = 9 table resolution calls total
-				expect(font['getTable']).toHaveBeenCalledTimes(9);
+				const numTables = requiredOpenTypeTables.length + 1;
+				expect(font['getTable']).toHaveBeenCalledTimes(numTables);
 				expect(font['getTable']).toHaveBeenCalledWith(
 					font.directory.tables['CFF '],
 				);
 			});
 
-			it('should decode the 8 core tables PLUS CFF2 when outlines are CFF version 2', () => {
+			it('should decode the core tables PLUS CFF2 when outlines are CFF version 2', () => {
 				font.outlines = 'PostScript';
 				font.outlineVersion = 2;
 
-				// Inject the structural PostScript dependencies into our mock maps
 				font['existingTableTags'].add('CFF2');
 				font.directory.tables['CFF2'] = { tag: 'CFF2' } as SFNTDirectoryEntry;
 
-				font.asOpenTypeFont(true);
+				font.asOpenTypeFont();
 
-				// 8 core tables + 1 outline table = 9 table resolution calls total
-				expect(font['getTable']).toHaveBeenCalledTimes(9);
+				const numTables = requiredOpenTypeTrueTypeTables.length;
+				expect(font['getTable']).toHaveBeenCalledTimes(numTables);
 				expect(font['getTable']).toHaveBeenCalledWith(
 					font.directory.tables['CFF2'],
 				);

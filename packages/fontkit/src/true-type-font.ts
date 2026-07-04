@@ -802,55 +802,49 @@ export class TrueTypeFont<
 		return true;
 	}
 
-	public asOpenTypeFont(decode = false): OpenTypeFont | null {
+	public asOpenTypeFont(): OpenTypeFont | null {
 		if (this.outlines === '') return null;
 
-		if (decode) {
-			let tags: string[];
+		let tags: string[];
 
-			if (this.outlines === 'TrueType') {
-				tags = [...requiredOpenTypeTrueTypeTables];
-			} else if (this.outlines === 'PostScript') {
-				if (this.outlineVersion === 1) {
-					tags = [...requiredOpenTypeCFF1Tables];
-				} else {
-					tags = [...requiredOpenTypeCFF2Tables];
-				}
+		if (this.outlines === 'TrueType') {
+			tags = [...requiredOpenTypeTrueTypeTables];
+		} else if (this.outlines === 'PostScript') {
+			if (this.outlineVersion === 1) {
+				tags = [...requiredOpenTypeCFF1Tables];
 			} else {
-				tags = [...requiredOpenTypeTables];
+				tags = [...requiredOpenTypeCFF2Tables];
 			}
+		} else {
+			tags = [...requiredOpenTypeTables];
+		}
 
-			if (!this.decodeTableSubset(tags)) {
-				return null;
-			}
+		if (!this.decodeTableSubset(tags)) {
+			return null;
 		}
 
 		return this as OpenTypeFont;
 	}
 
-	public asAATFont(decode = false): AATFont | null {
+	public asAATFont(): AATFont | null {
 		if (requiredAATTables.find((tag) => !this.hasTable(tag))) {
 			return null;
 		}
 
-		if (decode) {
-			if (!this.decodeTableSubset([...requiredAATTables])) {
-				return null;
-			}
+		if (!this.decodeTableSubset([...requiredAATTables])) {
+			return null;
 		}
 
 		return this as AATFont;
 	}
 
-	public asTrueTypeSubsetFont(decode = false): TrueTypeSubsetFont | null {
+	public asTrueTypeSubsetFont(): TrueTypeSubsetFont | null {
 		if (requiredTrueTypeSubsetTables.find((tag) => !this.hasTable(tag))) {
 			return null;
 		}
 
-		if (decode) {
-			if (!this.decodeTableSubset([...requiredTrueTypeSubsetTables])) {
-				return null;
-			}
+		if (!this.decodeTableSubset([...requiredTrueTypeSubsetTables])) {
+			return null;
 		}
 
 		return this as TrueTypeSubsetFont;
