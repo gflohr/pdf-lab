@@ -557,7 +557,7 @@ export interface SFNTFont<
 	 * @param glyph the glyph id
 	 * @param characters an optional sequence of codepoints
 	 */
-	safeGetGlyph(glyph: number, characters: readonly number[]): Glyph;
+	safeGetGlyph(glyph: number, characters?: readonly number[]): Glyph;
 
 	/** @internal */
 	getBaseGlyph(glyph: number, characters?: readonly number[]): Glyph | null;
