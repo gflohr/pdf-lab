@@ -52,6 +52,7 @@ import type { VORGTable } from './tables/VORG.js';
 import type { vheaTable } from './tables/vhea.js';
 import type { vmtxTable } from './tables/vmtx.js';
 import type { TrueTypeSubsetFont } from './true-type-subset-font.js';
+import { GlyphVariationProcessor } from './glyph/glyph-variation-processor.js';
 
 /**
  * A universal base interface for any font directory (SFNT, WOFF, WOFF2).
@@ -583,4 +584,11 @@ export interface SFNTFont<
 	 * definitions.
 	 */
 	getGlyfTableStream(): r.DecodeStream | null;
+
+	/**
+	 * The processor responsible for calculating delta adjustments to glyph
+	 * outlines along design variation axes. This is initialized when variation
+	 * coordinates are applied, and is `null` for static fonts.
+	 */
+	variationProcessor: GlyphVariationProcessor | null;
 }
