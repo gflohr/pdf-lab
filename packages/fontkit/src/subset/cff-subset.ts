@@ -207,7 +207,7 @@ export class CFFSubset extends Subset {
 		const top = {
 			version: 1,
 			hdrSize: this.cff.hdrSize,
-			offSize: this.cff.length,
+			offSize: 4,
 			header: this.cff.header,
 			nameIndex: [this.cff.postscriptName],
 			topDictIndex: [topDict],
