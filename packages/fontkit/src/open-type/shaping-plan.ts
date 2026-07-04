@@ -108,7 +108,9 @@ export class ShapingPlan<T = null> {
 		}
 	}
 
-	public setFeatureOverrides(features: OpenType.FeatureTag[] | OpenType.FeatureFlags) {
+	public setFeatureOverrides(
+		features: OpenType.FeatureTag[] | OpenType.FeatureFlags,
+	) {
 		if (Array.isArray(features)) {
 			this.add(features);
 		} else if (features != null && typeof features === 'object') {

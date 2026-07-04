@@ -1,33 +1,14 @@
 import assert from 'node:assert';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import r, { type EncodeStream } from '@pdf-lib/restructure';
+import r from '@pdf-lib/restructure';
 import { describe, expect, it } from 'vitest';
 import { CFFFont } from '../src/cff/cff-font.js';
 import { CFFGlyph } from '../src/glyph/cff-glyph.js';
 import type { OpenTypePostScriptFont } from '../src/open-type-font.js';
-import type { Subset } from '../src/subset/subset.js';
-import type { TrueTypeFont } from '../src/true-type-font.js';
-import fontkit from './helpers.js';
+import fontkit, { getSubsetFont, readSubsetStream } from './helpers.js';
 
 const datadir = path.resolve(import.meta.dirname, './data');
-
-async function readSubsetStream(stream: EncodeStream): Promise<Buffer> {
-	const chunks: Buffer[] = [];
-
-	for await (const chunk of stream as unknown as AsyncIterable<Uint8Array>) {
-		chunks.push(Buffer.from(chunk));
-	}
-
-	return Buffer.concat(chunks);
-}
-
-async function getSubsetFont(subset: Subset): Promise<TrueTypeFont> {
-	const stream = subset.encodeStream();
-	const buf = await readSubsetStream(stream);
-
-	return fontkit.create(buf) as TrueTypeFont;
-}
 
 describe('font subsetting', () => {
 	describe('truetype subsetting', () => {

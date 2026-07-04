@@ -1,8 +1,10 @@
 /* istanbul ignore file */
 import { readFileSync } from 'node:fs';
 import * as fs from 'node:fs/promises';
+import type { EncodeStream } from '@pdf-lib/restructure';
 import type { Font, VariationCoordinates } from '../src/font.js';
 import { fontkit } from '../src/index.js';
+import type { Subset } from '../src/subset/index.js';
 import type { TrueTypeFont } from '../src/true-type-font.js';
 
 type OpenCallback = (
@@ -49,3 +51,20 @@ typedFontkit.open = async (
 };
 
 export default typedFontkit;
+
+export async function readSubsetStream(stream: EncodeStream): Promise<Buffer> {
+	const chunks: Buffer[] = [];
+
+	for await (const chunk of stream as unknown as AsyncIterable<Uint8Array>) {
+		chunks.push(Buffer.from(chunk));
+	}
+
+	return Buffer.concat(chunks);
+}
+
+export async function getSubsetFont(subset: Subset): Promise<TrueTypeFont> {
+	const stream = subset.encodeStream();
+	const buf = await readSubsetStream(stream);
+
+	return fontkit.create(buf) as TrueTypeFont;
+}
