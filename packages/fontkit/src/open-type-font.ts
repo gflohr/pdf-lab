@@ -88,13 +88,6 @@ export interface OpenTypeHeader {
 	numGlyphs: number;
 	unitsPerEm: number;
 	bbox: Readonly<BoundingBox>;
-
-	/**
-	 * The processor responsible for calculating delta adjustments to glyph
-	 * outlines along design variation axes. This is initialized when variation
-	 * coordinates are applied, and is `null` for static fonts.
-	 */
-	variationProcessor: GlyphVariationProcessor;
 }
 
 type OpenTypeHeaderKeys = keyof OpenTypeHeader;
