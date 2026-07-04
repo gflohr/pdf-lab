@@ -1,10 +1,10 @@
 import r, { type DecodeStream, type FieldT } from '@pdf-lib/restructure';
 import inflate from 'tiny-inflate';
-import { SFNTFont } from './sfnt-font.js';
 import type { WOFFDirectory } from './tables/woff-directory.js';
 import { woffDirectoryStruct } from './tables/woff-directory.js';
+import { TrueTypeFont } from './true-type-font.js';
 
-export class WOFFFont extends SFNTFont<WOFFDirectory> {
+export class WOFFFont extends TrueTypeFont<WOFFDirectory> {
 	static probe(buffer: Buffer) {
 		return buffer.toString('ascii', 0, 4) === 'wOFF';
 	}

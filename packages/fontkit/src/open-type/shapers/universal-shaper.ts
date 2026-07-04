@@ -2,7 +2,7 @@ import * as base64 from 'base64-arraybuffer';
 import StateMachine from 'dfa';
 import pako from 'pako';
 import UnicodeTrie from 'unicode-trie';
-import type { SFNTFont } from '../../sfnt-font.js';
+import type { TrueTypeFont } from '../../true-type-font.js';
 import { GlyphInfo } from '../glyph-info.js';
 import type { ShapingFunction, ShapingPlan } from '../shaping-plan.js';
 import { DefaultShaper } from './default-shaper.js';
@@ -93,6 +93,18 @@ export class UniversalShaper extends DefaultShaper {
 			if (decompositions[codepoint]) {
 				const decomposed = decompositions[codepoint].map((c: number) => {
 					const g = plan.font.glyphForCodePoint(c);
+
+					if (!g) {
+						throw new Error(
+							'Fontkit UniversalShaper Fatal: Script ' +
+								'decomposition failed. The font lacks a ' +
+								'glyph for component character ' +
+								`U+${c.toString(16).toUpperCase()} ` +
+								'required to split composite codepoint ' +
+								`U+${codepoint.toString(16).toUpperCase()}.`,
+						);
+					}
+
 					return new GlyphInfo<USEInfo>(
 						plan.font,
 						g.id,
@@ -111,7 +123,7 @@ function useCategory(glyph: UniversalGlyphInfo): number {
 	return trie.get(glyph.codePoints[0]);
 }
 
-function setupSyllables(_font: SFNTFont, glyphs: UniversalGlyphInfo[]) {
+function setupSyllables(_font: TrueTypeFont, glyphs: UniversalGlyphInfo[]) {
 	let syllable = 0;
 	for (const [start, end, tags] of stateMachine.match(
 		glyphs.map(useCategory),
@@ -136,13 +148,16 @@ function setupSyllables(_font: SFNTFont, glyphs: UniversalGlyphInfo[]) {
 	}
 }
 
-function clearSubstitutionFlags(_font: SFNTFont, glyphs: UniversalGlyphInfo[]) {
+function clearSubstitutionFlags(
+	_font: TrueTypeFont,
+	glyphs: UniversalGlyphInfo[],
+) {
 	for (const glyph of glyphs) {
 		glyph.substituted = false;
 	}
 }
 
-function recordRphf(_font: SFNTFont, glyphs: UniversalGlyphInfo[]) {
+function recordRphf(_font: TrueTypeFont, glyphs: UniversalGlyphInfo[]) {
 	for (const glyph of glyphs) {
 		if (glyph.substituted && glyph.features.rphf) {
 			// Mark a substituted repha.
@@ -151,7 +166,7 @@ function recordRphf(_font: SFNTFont, glyphs: UniversalGlyphInfo[]) {
 	}
 }
 
-function recordPref(_font: SFNTFont, glyphs: UniversalGlyphInfo[]) {
+function recordPref(_font: TrueTypeFont, glyphs: UniversalGlyphInfo[]) {
 	for (const glyph of glyphs) {
 		if (glyph.substituted) {
 			// Mark a substituted pref as VPre, as they behave the same way.
@@ -160,8 +175,15 @@ function recordPref(_font: SFNTFont, glyphs: UniversalGlyphInfo[]) {
 	}
 }
 
-function reorder(font: SFNTFont, glyphs: UniversalGlyphInfo[]) {
-	const dottedCircle = font.glyphForCodePoint(0x25cc).id;
+function reorder(font: TrueTypeFont, glyphs: UniversalGlyphInfo[]) {
+	const dottedCircle = font.glyphForCodePoint(0x25cc)?.id;
+	if (!dottedCircle) {
+		throw new Error(
+			`Fontkit UniversalShaper Exception: Cannot shape complex script. ` +
+				'The font is missing the mandatory Dotted Circle placeholder ' +
+				'character (U+25CC).',
+		);
+	}
 
 	for (
 		let start = 0, end = nextSyllable(glyphs, 0);

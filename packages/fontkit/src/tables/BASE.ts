@@ -1,5 +1,5 @@
 import r from '@pdf-lib/restructure';
-import { type OpenType, openTypeDevice } from './opentype.js';
+import { type OpenType, openTypeDevice } from './open-type.js';
 import { itemVariationStore, type OpenTypeVariation } from './variations.js';
 
 export namespace BASETable {

@@ -5,7 +5,6 @@ import r, {
 	type Length,
 	type ParsingContext,
 } from '@pdf-lib/restructure';
-import { FatalFontError } from './fatal-font-error.js';
 import type { Glyph } from './glyph/glyph.js';
 import {
 	type DecodedCompositeGlyph,
@@ -14,17 +13,22 @@ import {
 	TTFGlyph,
 } from './glyph/ttf-glyph.js';
 import { WOFF2Glyph } from './glyph/woff2-glyph.js';
-import { SFNTFont } from './sfnt-font.js';
+import type { SFNTFont } from './sfnt-font.js';
 import type { SFNTDirectoryEntry } from './tables/directory.js';
 import type { tables } from './tables/index.js';
 import type { WOFF2Directory } from './tables/woff2-directory.js';
 import { woff2DirectoryStruct } from './tables/woff2-directory.js';
+import { TrueTypeFont } from './true-type-font.js';
+import {
+	requiredTrueTypeSubsetTables,
+	type TrueTypeSubsetFont,
+} from './true-type-subset-font.js';
 
 /**
  * Subclass of TrueTypeFont that represents a TTF/OTF font compressed by WOFF2
  * See spec here: http://www.w3.org/TR/WOFF2/
  */
-export class WOFF2Font extends SFNTFont<WOFF2Directory> {
+export class WOFF2Font extends TrueTypeFont<WOFF2Directory> {
 	private dataPos?: number;
 	// FIXME: DO NOT initialize this inline (e.g., `= false`).
 	//
@@ -72,11 +76,10 @@ export class WOFF2Font extends SFNTFont<WOFF2Directory> {
 
 	protected decodeTable<K extends keyof typeof tables>(
 		table: SFNTDirectoryEntry,
-	): ReturnType<(typeof tables)[K]['decode']> {
+	): ReturnType<(typeof tables)[K]['decode']> | null {
 		if (!this.decompressed) {
-			throw new FatalFontError(
-				'Attempt to access uninitialised font table data!',
-				table.tag,
+			throw new Error(
+				`Attempt to access uninitialised font table data '${table.tag}'!`,
 			);
 		}
 
@@ -149,6 +152,14 @@ export class WOFF2Font extends SFNTFont<WOFF2Directory> {
 		}
 
 		this.transformedGlyphs = glyphs;
+	}
+
+	public asTrueTypeSubsetFont(): TrueTypeSubsetFont | null {
+		if (!this.decompressed) {
+			throw new Error('Attempt to access uninitialised font table data!');
+		}
+
+		return super.asTrueTypeSubsetFont();
 	}
 }
 

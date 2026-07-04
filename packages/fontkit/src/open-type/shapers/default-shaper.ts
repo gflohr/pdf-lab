@@ -1,6 +1,6 @@
 import unicode from '@pdf-lib/unicode-properties';
 import type { BidiDirection } from '../../layout/glyph-run.js';
-import type { OpenType } from '../../tables/opentype.js';
+import type { OpenType } from '../../tables/open-type.js';
 import type { GlyphInfo } from '../glyph-info.js';
 import type { ShapingPlan } from '../shaping-plan.js';
 

@@ -1,6 +1,6 @@
 import r, { type FieldT } from '@pdf-lib/restructure';
 import { GPOSLookup } from './GPOS.js';
-import { type OpenType, openTypeLookupList } from './opentype.js';
+import { type OpenType, openTypeLookupList } from './open-type.js';
 
 export namespace JSTFTable {
 	export interface Priority {

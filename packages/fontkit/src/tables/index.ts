@@ -154,7 +154,7 @@ export * from './metrics.js';
 export * from './morx.js';
 export * from './name.js';
 export * from './opbd.js';
-export * from './opentype.js';
+export * from './open-type.js';
 export * from './OS2.js';
 export * from './PCLT.js';
 export * from './post.js';

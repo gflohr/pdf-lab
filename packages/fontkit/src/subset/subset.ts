@@ -1,12 +1,12 @@
 import r, { type EncodeStream } from '@pdf-lib/restructure';
 import type { Glyph } from '../glyph/glyph.js';
-import type { SFNTFont } from '../sfnt-font.js';
+import type { SFNTFont, SFNTFontDirectory } from '../sfnt-font.js';
 
 export abstract class Subset {
 	protected readonly glyphs: number[];
 	private readonly mapping: Record<number, number>;
 
-	constructor(protected readonly font: SFNTFont) {
+	constructor(protected readonly font: SFNTFont<SFNTFontDirectory>) {
 		this.font = font;
 		this.glyphs = [];
 		this.mapping = {};

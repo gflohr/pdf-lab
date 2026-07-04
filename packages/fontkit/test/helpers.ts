@@ -3,9 +3,12 @@ import { readFileSync } from 'node:fs';
 import * as fs from 'node:fs/promises';
 import type { Font, VariationCoordinates } from '../src/font.js';
 import { fontkit } from '../src/index.js';
-import type { SFNTFont } from '../src/sfnt-font.js';
+import type { TrueTypeFont } from '../src/true-type-font.js';
 
-type OpenCallback = (error: Error | unknown | null, font?: SFNTFont) => void;
+type OpenCallback = (
+	error: Error | unknown | null,
+	font?: TrueTypeFont,
+) => void;
 
 interface Fontkit {
 	logErrors: boolean;
@@ -17,12 +20,12 @@ interface Fontkit {
 	openSync(
 		filename: string,
 		settings?: string | VariationCoordinates,
-	): SFNTFont;
+	): TrueTypeFont;
 
 	open(
 		filename: string,
 		postscriptName?: string | null | OpenCallback,
-	): Promise<SFNTFont>;
+	): Promise<TrueTypeFont>;
 }
 
 const typedFontkit = fontkit as Fontkit;
@@ -30,19 +33,19 @@ const typedFontkit = fontkit as Fontkit;
 typedFontkit.openSync = (
 	filename: string,
 	postscriptName?: string,
-): SFNTFont => {
+): TrueTypeFont => {
 	const buffer = readFileSync(filename);
 
-	return fontkit.create(buffer, postscriptName) as SFNTFont;
+	return fontkit.create(buffer, postscriptName) as TrueTypeFont;
 };
 
 typedFontkit.open = async (
 	filename: string,
 	postScriptName?: string | null | OpenCallback,
-): Promise<SFNTFont> => {
+): Promise<TrueTypeFont> => {
 	const fontBytes = await fs.readFile(filename);
 
-	return fontkit.create(fontBytes, postScriptName as string) as SFNTFont;
+	return fontkit.create(fontBytes, postScriptName as string) as TrueTypeFont;
 };
 
 export default typedFontkit;

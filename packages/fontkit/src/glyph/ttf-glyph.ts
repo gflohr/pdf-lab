@@ -1,6 +1,10 @@
 import r, { type DecodeStream } from '@pdf-lib/restructure';
+import type { OpenTypeTrueTypeFont } from '../open-type-font.js';
+import type { TrueTypeFont } from '../true-type-font.js';
+import type { TrueTypeSubsetFont } from '../true-type-subset-font.js';
 import { BoundingBox } from './bounding-box.js';
 import { Glyph, type GlyphLayoutMetrics } from './glyph.js';
+import type { GlyphVariationProcessor } from './index.js';
 import { Path } from './path.js';
 
 // The header for both simple and composite glyphs.
@@ -99,6 +103,8 @@ export type DecodedGlyph =
 
 /**
  * Represents a TrueType glyph.
+ *
+ * // FIXME! Rename that to TrueTypeGlyph!
  */
 export class TTFGlyph extends Glyph {
 	// Legacys Hack: Properties injected via base Glyph constructor mutations.
@@ -112,17 +118,33 @@ export class TTFGlyph extends Glyph {
 	public phantomPoints?: Point[];
 	public components?: Component[];
 
+	protected declare _font: TrueTypeSubsetFont;
+
+	private variationProcessor: GlyphVariationProcessor | null;
+
+	// biome-ignore lint/complexity/noUselessConstructor: needed for property narrowing
+	constructor(
+		id: number,
+		codePoints: readonly number[],
+		font: TrueTypeSubsetFont,
+	) {
+		super(id, codePoints, font);
+
+		// This may be null, if not all core tables are present.
+		this.variationProcessor = (font as TrueTypeFont).variationProcessor;
+	}
+
 	// Parses just the glyph header and returns the bounding box.
 	protected getCBox(internal: boolean): Readonly<BoundingBox> {
 		// We need to decode the glyph if variation processing is requested,
 		// so it's easier just to recompute the path's cbox after decoding.
-		if (this._font.variationProcessor && !internal) {
+		if (this.variationProcessor && !internal) {
 			return this.path.cbox;
 		}
 
 		const stream = this._font.getGlyfTableStream();
 		if (!stream) {
-			throw new Error("Malformed font! Cannot decode table 'glyh'!");
+			throw new Error("Malformed font! Cannot decode table 'glyf'!");
 		}
 		stream.pos += this._font.loca.offsets[this.id];
 		const glyph = GlyphHeader.decode(stream);
@@ -251,11 +273,11 @@ export class TTFGlyph extends Glyph {
 			);
 		}
 
-		if (this._font.variationProcessor) {
+		if (this.variationProcessor) {
 			const points = glyph.points.slice();
 			points.push(...this.getPhantomPoints(glyph));
 
-			this._font.variationProcessor.transformPoints(this.id, points);
+			this.variationProcessor.transformPoints(this.id, points);
 			glyph.phantomPoints = points.slice(-4);
 		}
 	}
@@ -311,7 +333,7 @@ export class TTFGlyph extends Glyph {
 			glyph.components.push(component);
 		}
 
-		if (this._font.variationProcessor) {
+		if (this.variationProcessor) {
 			const points = [];
 			for (let j = 0; j < glyph.components.length; j++) {
 				const component = glyph.components[j];
@@ -320,7 +342,7 @@ export class TTFGlyph extends Glyph {
 
 			points.push(...this.getPhantomPoints(glyph));
 
-			this._font.variationProcessor.transformPoints(this.id, points);
+			this.variationProcessor.transformPoints(this.id, points);
 			glyph.phantomPoints = points.splice(-4, 4);
 
 			for (let i = 0; i < points.length; i++) {
@@ -417,7 +439,7 @@ export class TTFGlyph extends Glyph {
 		const cbox = this.getCBox(true);
 		super.getMetrics(cbox);
 
-		if (this._font.variationProcessor && !this._font.HVAR) {
+		if (this.variationProcessor && !this._font.HVAR) {
 			// No HVAR table, decode the glyph. This triggers recomputation of metrics.
 			// FIXME! The getter is invoked because of the side-effect only!
 			this.path;

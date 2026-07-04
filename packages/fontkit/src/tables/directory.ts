@@ -1,13 +1,8 @@
-import r, {
-	type EncodeStream,
-	type FieldT,
-	type StructT,
-} from '@pdf-lib/restructure';
+import r, { type EncodeStream, type StructT } from '@pdf-lib/restructure';
 import { tables } from './index.js';
-import { table } from 'node:console';
 
 export type SFNTTableMap = {
-	[K in keyof typeof tables]: ReturnType<(typeof tables)[K]['decode']>;
+	[K in keyof typeof tables]: ReturnType<(typeof tables)[K]['decode']> | null;
 };
 
 /**
@@ -114,11 +109,8 @@ directoryStruct.preEncode = function (this: DirectoryContext): void {
 				tag,
 				checkSum: 0,
 				// Direct reference mapping back to your registry
-				offset: new r.VoidPointer(
-					tableDef,
-					entry,
-				) as unknown as number,
-				length: (tableDef).size(entry),
+				offset: new r.VoidPointer(tableDef, entry) as unknown as number,
+				length: tableDef.size(entry),
 			});
 		}
 	}

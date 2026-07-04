@@ -1,14 +1,14 @@
 import type { GlyphRun } from '../layout/glyph-run.js';
-import type { SFNTFont } from '../sfnt-font.js';
-import type { OpenType } from '../tables/opentype.js';
+import type { OpenType } from '../tables/open-type.js';
 import * as AATFeatureMap from './aat-feature-map.js';
+import type { AATFont } from './aat-font.js';
 import { AATMorxProcessor } from './aat-morx-processor.js';
 
 export class AATLayoutEngine {
 	private readonly morxProcessor: AATMorxProcessor;
 	public fallbackPosition: boolean;
 
-	constructor(private readonly font: SFNTFont) {
+	constructor(private readonly font: AATFont) {
 		this.font = font;
 		this.morxProcessor = new AATMorxProcessor(font);
 		this.fallbackPosition = false;

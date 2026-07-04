@@ -2,13 +2,16 @@
 
 import type { DecodeStream } from '@pdf-lib/restructure';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { BaseFontDirectory } from '../src/null-font.js';
-import { requiredOpenTypeTables } from '../src/open-type-font.js';
-import { SFNTFont } from '../src/sfnt-font.js';
+import {
+	requiredOpenTypeTables,
+	requiredOpenTypeTrueTypeTables,
+} from '../src/open-type-font.js';
+import type { SFNTFontDirectory } from '../src/sfnt-font.js';
 import type {
 	SFNTDirectoryEntry,
 	SFNTTableMap,
 } from '../src/tables/directory.js';
+import { TrueTypeFont } from '../src/true-type-font.js';
 
 vi.mock('./src/tables/index.js', () => ({
 	tables: {
@@ -26,20 +29,19 @@ vi.mock('./src/tables/index.js', () => ({
 	},
 }));
 
-describe('SFNTFont Capabilities & Table Resolution', () => {
-	let font: SFNTFont;
+describe('TrueTypeFont Capabilities & Table Resolution', () => {
+	let font: TrueTypeFont;
 
 	beforeEach(() => {
-		font = Object.create(SFNTFont.prototype);
+		font = Object.create(TrueTypeFont.prototype);
 
 		font['tables'] = {} as SFNTTableMap;
 		font.directory = {
 			tag: 'true',
 			numTables: 0,
 			tables: {},
-		} as BaseFontDirectory;
+		} as SFNTFontDirectory;
 
-		// Mock out internal decode method.
 		font['decodeTable'] = vi.fn(
 			(entry: SFNTDirectoryEntry) =>
 				({ tag: entry.tag, mockParsed: true }) as any,
@@ -59,7 +61,7 @@ describe('SFNTFont Capabilities & Table Resolution', () => {
 				offset: 100,
 			};
 
-			expect(font.hasTable('head', false)).toBe(true);
+			expect(font.hasTable('head')).toBe(true);
 			expect(font['decodeTable']).not.toHaveBeenCalled();
 		});
 
@@ -70,81 +72,38 @@ describe('SFNTFont Capabilities & Table Resolution', () => {
 				offset: 100,
 			};
 
-			expect(font.hasTable('foot', false)).toBe(true);
+			expect(font.hasTable('foot')).toBe(true);
 			expect(font['decodeTable']).not.toHaveBeenCalled();
-		});
-
-		it('should trigger eager decoding and return true if decode is true and parsing succeeds', () => {
-			++font.directory.numTables;
-			font.directory.tables.head = {
-				tag: 'head',
-				offset: 100,
-			};
-
-			expect(font.hasTable('head', true)).toBe(true);
-			expect(font['decodeTable']).toHaveBeenCalledWith({
-				tag: 'head',
-				offset: 100,
-			});
-			expect(font['tables']['head']).toEqual({ tag: 'head', mockParsed: true });
-		});
-
-		it('should not trigger eager decoding for an unknown table and return false if decode is true', () => {
-			++font.directory.numTables;
-			font.directory.tables.foot = {
-				tag: 'foot',
-				offset: 100,
-			};
-
-			expect(font.hasTable('foot', true)).toBe(false);
-			expect(font['decodeTable']).not.toHaveBeenCalledWith();
-		});
-
-		it('should trap standard decoding errors and throw, when decode is true', () => {
-			++font.directory.numTables;
-			font.directory.tables.head = {
-				tag: 'head',
-				offset: 100,
-			};
-
-			vi.mocked(font['decodeTable']).mockImplementationOnce(() => {
-				throw new Error('Corrupt data');
-			});
-
-			expect(font.hasTable('head', true)).toBeFalsy();
-			expect(font['tables']['head']).toBeNull();
 		});
 	});
 
-	describe('SFNTFont Constructor - Outline Detection', () => {
+	describe('TrueTypeFont Constructor - Outline Detection', () => {
 		let mockStream: DecodeStream;
 
 		beforeEach(() => {
 			mockStream = { pos: 0 } as DecodeStream;
 
-			SFNTFont.prototype['decodeDirectory'] = vi.fn().mockReturnValue({
+			TrueTypeFont.prototype['decodeDirectory'] = vi.fn().mockReturnValue({
 				tables: {},
 			});
 		});
 
 		const createFontWithTables = (tags: string[]) => {
-			// Setup the directory entry return map for the constructor to loop over
 			const tablesMap: Record<string, any> = {};
 			for (const tag of tags) {
 				tablesMap[tag] = { tag, length: 100, offset: 0 };
 			}
 
-			vi.mocked(SFNTFont.prototype['decodeDirectory']).mockReturnValueOnce({
+			vi.mocked(TrueTypeFont.prototype['decodeDirectory']).mockReturnValueOnce({
 				tag: 'true',
 				numTables: tags.length,
 				tables: tablesMap,
 			} as any);
 
-			return new SFNTFont(mockStream);
+			return new TrueTypeFont(mockStream);
 		};
 
 		it('should set outlines to "" if the core 8 OpenType tables are not complete', () => {
-			// Missing 'post'
 			const incompleteTags = [
 				'cmap',
 				'head',
@@ -212,15 +171,14 @@ describe('SFNTFont Capabilities & Table Resolution', () => {
 	});
 
 	describe('asOpenType()', () => {
-		let font: SFNTFont;
+		let font: TrueTypeFont;
 
 		beforeEach(() => {
-			// Create an isolated prototype instance to bypass the constructor
-			font = Object.create(SFNTFont.prototype);
+			font = Object.create(TrueTypeFont.prototype);
 
 			font['existingTableTags'] = new Set<string>();
 			font['tables'] = {} as SFNTTableMap;
-			font.directory = { tables: {} } as BaseFontDirectory;
+			font.directory = { tables: {} } as SFNTFontDirectory;
 
 			font['getTable'] = vi.fn().mockReturnValue({});
 
@@ -230,26 +188,15 @@ describe('SFNTFont Capabilities & Table Resolution', () => {
 			}
 		});
 
-		describe('Without Decoding: asOpenTypeFont(false) / asOpenTypeFont()', () => {
-			it('should successfully upcast the font view without parsing raw table structures', () => {
-				font.outlines = 'TrueType';
-
-				const result = font.asOpenTypeFont(false);
-
-				expect(result).toBe(font);
-
-				// Ensure the lazy evaluation loop was skipped completely!
-				expect(font['getTable']).not.toHaveBeenCalled();
-			});
-		});
-
-		describe('With eager decoding: asOpenTypeFont(true)', () => {
-			it('should force immediate decoding on the 8 core tables when layout evaluates to outlines: "none"', () => {
+		describe('With decoding: asOpenTypeFont()', () => {
+			it('should force immediate decoding on the core tables when layout evaluates to outlines: "none"', () => {
 				font['outlines'] = 'none';
 
-				font.asOpenTypeFont(true);
+				font.asOpenTypeFont();
 
-				expect(font['getTable']).toHaveBeenCalledTimes(8);
+				const numFonts = requiredOpenTypeTables.length;
+
+				expect(font['getTable']).toHaveBeenCalledTimes(numFonts);
 				for (const tag of requiredOpenTypeTables) {
 					expect(font['getTable']).toHaveBeenCalledWith(
 						font.directory.tables[tag],
@@ -257,55 +204,48 @@ describe('SFNTFont Capabilities & Table Resolution', () => {
 				}
 			});
 
-			it('should decode the 8 core tables PLUS glyf and loca when outlines are "TrueType"', () => {
+			it('should decode the core tables PLUS loca when outlines are "TrueType"', () => {
 				font['outlines'] = 'TrueType';
 
-				font['existingTableTags'].add('glyf').add('loca');
-				font.directory.tables['glyf'] = { tag: 'glyf' } as SFNTDirectoryEntry;
+				font['existingTableTags'].add('loca');
 				font.directory.tables['loca'] = { tag: 'loca' } as SFNTDirectoryEntry;
 
-				font.asOpenTypeFont(true);
+				font.asOpenTypeFont();
 
-				// 8 core tables + 2 outline tables = 10 table resolution calls
-				// total.
-				expect(font['getTable']).toHaveBeenCalledTimes(10);
-				expect(font['getTable']).toHaveBeenCalledWith(
-					font.directory.tables['glyf'],
-				);
+				const numTables = requiredOpenTypeTrueTypeTables.length;
+				expect(font['getTable']).toHaveBeenCalledTimes(numTables);
 				expect(font['getTable']).toHaveBeenCalledWith(
 					font.directory.tables['loca'],
 				);
 			});
 
-			it('should decode the 8 core tables PLUS CFF when outlines are CFF version 1', () => {
+			it('should decode the core tables PLUS CFF when outlines are CFF version 1', () => {
 				font.outlines = 'PostScript';
 				font.outlineVersion = 1;
 
-				// Inject the structural PostScript dependencies into our mock maps
 				font['existingTableTags'].add('CFF ');
 				font.directory.tables['CFF '] = { tag: 'CFF ' } as SFNTDirectoryEntry;
 
-				font.asOpenTypeFont(true);
+				font.asOpenTypeFont();
 
-				// 8 core tables + 1 outline table = 9 table resolution calls total
-				expect(font['getTable']).toHaveBeenCalledTimes(9);
+				const numTables = requiredOpenTypeTables.length + 1;
+				expect(font['getTable']).toHaveBeenCalledTimes(numTables);
 				expect(font['getTable']).toHaveBeenCalledWith(
 					font.directory.tables['CFF '],
 				);
 			});
 
-			it('should decode the 8 core tables PLUS CFF2 when outlines are CFF version 2', () => {
+			it('should decode the core tables PLUS CFF2 when outlines are CFF version 2', () => {
 				font.outlines = 'PostScript';
 				font.outlineVersion = 2;
 
-				// Inject the structural PostScript dependencies into our mock maps
 				font['existingTableTags'].add('CFF2');
 				font.directory.tables['CFF2'] = { tag: 'CFF2' } as SFNTDirectoryEntry;
 
-				font.asOpenTypeFont(true);
+				font.asOpenTypeFont();
 
-				// 8 core tables + 1 outline table = 9 table resolution calls total
-				expect(font['getTable']).toHaveBeenCalledTimes(9);
+				const numTables = requiredOpenTypeTrueTypeTables.length;
+				expect(font['getTable']).toHaveBeenCalledTimes(numTables);
 				expect(font['getTable']).toHaveBeenCalledWith(
 					font.directory.tables['CFF2'],
 				);
@@ -320,7 +260,7 @@ describe('SFNTFont Capabilities & Table Resolution', () => {
 					return {} as any;
 				});
 
-				expect(() => font.asOpenTypeFont(true)).toThrow(
+				expect(() => font.asOpenTypeFont()).toThrow(
 					'Malformed table array stream',
 				);
 			});

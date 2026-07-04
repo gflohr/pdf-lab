@@ -156,7 +156,7 @@ export interface WOFF2Directory {
 	metaOrigLength: number;
 	privOffset: number;
 	privLength: number;
-	/** Satisfies the BaseFontDirectory requirement */
+	/** Satisfies the SFNTFontDirectory requirement */
 	tables: Record<string, WOFF2DirectoryEntry>;
 }
 

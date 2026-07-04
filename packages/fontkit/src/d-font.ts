@@ -1,5 +1,4 @@
 import r, { type DecodeStream } from '@pdf-lib/restructure';
-import type { SFNTFont } from './sfnt-font.js';
 import { TrueTypeFont } from './true-type-font.js';
 
 const DFontName = new r.String(r.uint8);
@@ -126,7 +125,7 @@ export class DFont {
 		}
 	}
 
-	getFont(name: string): SFNTFont | null {
+	getFont(name: string): TrueTypeFont | null {
 		if (!this.sfnt) {
 			return null;
 		}
@@ -141,7 +140,7 @@ export class DFont {
 		return null;
 	}
 
-	get fonts(): SFNTFont[] {
+	get fonts(): TrueTypeFont[] {
 		return this.sfnt
 			? this.sfnt.refList.map((ref) => this.decodeFont(ref))
 			: [];

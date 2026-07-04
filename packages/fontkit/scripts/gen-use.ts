@@ -324,7 +324,7 @@ const shaperDirecotory = path.resolve(
 	import.meta.dirname,
 	'..',
 	'src',
-	'opentype',
+	'open-type',
 	'shapers',
 );
 

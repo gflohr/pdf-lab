@@ -3,7 +3,7 @@ import * as base64 from 'base64-arraybuffer';
 import type { CodepointEntry } from 'codepoints';
 import pako from 'pako';
 import UnicodeTrie from 'unicode-trie';
-import type { OpenType } from '../../tables/opentype.js';
+import type { OpenType } from '../../tables/open-type.js';
 import type { GlyphInfo } from '../glyph-info.js';
 import type { ShapingPlan } from '../shaping-plan.js';
 import { DefaultShaper } from './default-shaper.js';

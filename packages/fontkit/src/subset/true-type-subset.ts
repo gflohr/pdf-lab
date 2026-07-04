@@ -2,6 +2,7 @@ import type { EncodeStream } from '@pdf-lib/restructure';
 import type { Path } from '../glyph/path.js';
 import { TTFGlyph } from '../glyph/ttf-glyph.js';
 import { TTFGlyphEncoder } from '../glyph/ttf-glyph-encoder.js';
+import type { OpenTypeTrueTypeFont } from '../open-type-font.js';
 import { directory, type SFNTDirectoryEntry } from '../tables/directory.js';
 import type { hmtxTable } from '../tables/hmtx.js';
 import { tables } from '../tables/index.js';
@@ -18,15 +19,16 @@ interface Hmtx {
 	bearings: number[];
 }
 
-export class TTFSubset extends Subset {
+export class TrueTypeSubset extends Subset {
 	private readonly glyphEncoder: TTFGlyphEncoder;
 	private offset?: number;
 	private glyf?: Glyf;
 	private loca?: Loca;
 	private hmtx?: Hmtx;
+	protected declare font: OpenTypeTrueTypeFont;
 
-	constructor(font: TrueTypeFont) {
-		super(font);
+	constructor(font: OpenTypeTrueTypeFont) {
+		super(font as TrueTypeFont);
 		this.glyphEncoder = new TTFGlyphEncoder();
 	}
 

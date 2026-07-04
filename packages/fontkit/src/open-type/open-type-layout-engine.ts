@@ -1,8 +1,8 @@
 import type { GlyphPosition } from '../layout/glyph-position.js';
 import type { GlyphRun } from '../layout/glyph-run.js';
 import type { OpenTypeTag } from '../layout/script.js';
-import type { SFNTFont } from '../sfnt-font.js';
-import type { OpenType } from '../tables/opentype.js';
+import type { OpenType } from '../tables/open-type.js';
+import type { TrueTypeFont } from '../true-type-font.js';
 import { GlyphInfo } from './glyph-info.js';
 import { GPOSProcessor } from './gpos-processor.js';
 import { GSUBProcessor } from './gsub-processor.js';
@@ -10,24 +10,22 @@ import type { DefaultShaper } from './shapers/default-shaper.js';
 import * as Shapers from './shapers/index.js';
 import { ShapingPlan } from './shaping-plan.js';
 
-export class OTLayoutEngine<T> {
-	private font: SFNTFont;
+export class OpenTypeLayoutEngine<T> {
+	private font: TrueTypeFont;
 	private glyphInfos: GlyphInfo<T>[] | null;
 	private plan: ShapingPlan<T> | null;
 	// FIXME! Rename that to gsubProcessor!
 	private GSUBProcessor: GSUBProcessor<T> | null;
 	// FIXME! Rename that to gposProcessor!
 	private GPOSProcessor: GPOSProcessor<T> | null;
-	private fallbackPosition: boolean;
 	private shaper: typeof DefaultShaper | undefined | null;
 
-	constructor(font: SFNTFont) {
+	constructor(font: TrueTypeFont) {
 		this.font = font;
 		this.glyphInfos = null;
 		this.plan = null;
 		this.GSUBProcessor = null;
 		this.GPOSProcessor = null;
-		this.fallbackPosition = true;
 
 		if (font.GSUB) {
 			this.GSUBProcessor = new GSUBProcessor(font, font.GSUB);
@@ -38,6 +36,7 @@ export class OTLayoutEngine<T> {
 		}
 	}
 
+	/** @internal */
 	setup(glyphRun: GlyphRun) {
 		// Map glyphs to GlyphInfo objects so data can be passed between
 		// GSUB and GPOS without mutating the real (shared) Glyph objects.
@@ -81,17 +80,19 @@ export class OTLayoutEngine<T> {
 		}
 	}
 
+	/** @internal */
 	substitute(glyphRun: GlyphRun) {
 		if (this.GSUBProcessor) {
 			this.plan!.process(this.GSUBProcessor, this.glyphInfos!);
 
-			// Map glyph infos back to normal Glyph objects
+			// Map glyph infos back to normal Glyph objects.
 			glyphRun.glyphs = this.glyphInfos!.map((glyphInfo) =>
-				this.font.getGlyph(glyphInfo.id, glyphInfo.codePoints),
+				this.font.safeGetGlyph(glyphInfo.id, glyphInfo.codePoints),
 			);
 		}
 	}
 
+	/** @internal */
 	position(glyphRun: GlyphRun) {
 		if (this.shaper!.zeroMarkWidths === 'BEFORE_GPOS') {
 			this.zeroMarkAdvances(glyphRun.positions);
@@ -118,6 +119,7 @@ export class OTLayoutEngine<T> {
 		return this.GPOSProcessor?.features;
 	}
 
+	/** @internal */
 	zeroMarkAdvances(positions: GlyphPosition[]) {
 		for (let i = 0; i < this.glyphInfos!.length; i++) {
 			if (this.glyphInfos![i].isMark) {
@@ -127,6 +129,7 @@ export class OTLayoutEngine<T> {
 		}
 	}
 
+	/** @internal */
 	cleanup() {
 		this.glyphInfos = null;
 		this.plan = null;

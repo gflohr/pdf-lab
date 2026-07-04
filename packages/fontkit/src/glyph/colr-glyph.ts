@@ -40,6 +40,19 @@ export class COLRGlyph extends Glyph {
 	 */
 	get layers(): COLRLayer[] {
 		const cpal = this._font.CPAL;
+
+		// If the color palette table is missing, fall back directly to the
+		// standard monochrome base glyph representation in flat black.
+		if (!cpal) {
+			const g = this._font.getBaseGlyph(this.id);
+			if (!g) {
+				return [];
+			}
+
+			const color: Color = { red: 0, green: 0, blue: 0, alpha: 255 };
+			return [new COLRLayer(g, color)];
+		}
+
 		const colr = this._font.COLR!;
 		let low = 0;
 		let high = colr.baseGlyphRecord.length - 1;
@@ -62,6 +75,9 @@ export class COLRGlyph extends Glyph {
 
 		if (baseLayer === undefined) {
 			const g = this._font.getBaseGlyph(this.id);
+			if (!g) {
+				return [];
+			}
 			const color: Color = {
 				red: 0,
 				green: 0,
@@ -69,10 +85,10 @@ export class COLRGlyph extends Glyph {
 				alpha: 255,
 			};
 
-			return [new COLRLayer(g!, color)];
+			return [new COLRLayer(g, color)];
 		}
 
-		const layers = [];
+		const layers: COLRLayer[] = [];
 		for (
 			let i = baseLayer.firstLayerIndex;
 			i < baseLayer.firstLayerIndex + baseLayer.numLayers;
@@ -81,7 +97,9 @@ export class COLRGlyph extends Glyph {
 			const rec = colr.layerRecords[i];
 			const color = cpal.colorRecords[rec.paletteIndex];
 			const g = this._font.getBaseGlyph(rec.gid);
-			layers.push(new COLRLayer(g!, color));
+			if (g) {
+				layers.push(new COLRLayer(g, color));
+			}
 		}
 
 		return layers;
