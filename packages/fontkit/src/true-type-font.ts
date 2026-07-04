@@ -431,33 +431,46 @@ export class TrueTypeFont<
 		return this._bbox;
 	}
 
-	private get cmapProcessor(): CmapProcessor {
-		if (typeof this._cmapProcessor === 'undefined' && this.cmap) {
-			this._cmapProcessor = new CmapProcessor(this.cmap);
+	private get cmapProcessor(): CmapProcessor | null {
+		if (typeof this._cmapProcessor === 'undefined') {
+			if (this.cmap) {
+				this._cmapProcessor = new CmapProcessor(this.cmap);
+			} else {
+				return null;
+			}
 		}
 
 		return this._cmapProcessor;
 	}
 
 	public get characterSet(): number[] {
-		if (typeof this._characterSet === 'undefined')
-			this._characterSet = this.cmapProcessor.getCharacterSet();
+		if (typeof this._characterSet === 'undefined') {
+			// Without a cmap table, we have no idea.
+			this._characterSet = this.cmapProcessor?.getCharacterSet() || [];
+		}
 
 		return this._characterSet;
 	}
 
 	public hasGlyphForCodePoint(codePoint: number): boolean {
-		return !!this.cmapProcessor.lookup(codePoint);
+		return this.cmapProcessor ? !!this.cmapProcessor.lookup(codePoint) : false;
 	}
 
 	public glyphForCodePoint(codePoint: number): Glyph | null {
-		// FIXME! Get rid of the cast to never!
-		return this.getGlyph(this.cmapProcessor.lookup(codePoint), [
-			codePoint,
-		] as never);
+		if (!this.cmapProcessor) {
+			return null;
+		}
+
+		return this.getGlyph(this.cmapProcessor.lookup(codePoint), [codePoint]);
 	}
 
 	public glyphsForString(str: string): Glyph[] {
+		// Fast fail: if the font has no character mapping table,
+		// it cannot map any character sequence to a glyph.
+		if (!this.cmapProcessor) {
+			return [];
+		}
+
 		const glyphs: Glyph[] = [];
 		const len = str.length;
 		let idx = 0;
