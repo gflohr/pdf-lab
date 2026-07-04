@@ -78,9 +78,7 @@ export interface SFNTFont<
 	 *
 	 * @param tag the table name like `cmap`, `OS/2`, or `hmtx`
 	 */
-	hasTable<K extends string = string>(
-		tag: K | keyof SFNTTableMap,
-	): boolean;
+	hasTable<K extends string = string>(tag: K | keyof SFNTTableMap): boolean;
 
 	/**
 	 * Attempts to view this font instance as a strict OpenType font

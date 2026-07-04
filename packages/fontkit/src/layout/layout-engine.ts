@@ -125,7 +125,9 @@ export class LayoutEngine {
 
 		// Call the advanced layout engine. Returns the features applied.
 		if ((this.engine as OpenTypeLayoutEngine<null>)?.position) {
-			positioned = (this.engine as OpenTypeLayoutEngine<null>).position(glyphRun);
+			positioned = (this.engine as OpenTypeLayoutEngine<null>).position(
+				glyphRun,
+			);
 		}
 
 		// if there is no GPOS table, use unicode properties to position marks.

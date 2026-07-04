@@ -2,7 +2,10 @@
 
 import type { DecodeStream } from '@pdf-lib/restructure';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { requiredOpenTypeTables, requiredOpenTypeTrueTypeTables } from '../src/open-type-font.js';
+import {
+	requiredOpenTypeTables,
+	requiredOpenTypeTrueTypeTables,
+} from '../src/open-type-font.js';
 import type { SFNTFontDirectory } from '../src/sfnt-font.js';
 import type {
 	SFNTDirectoryEntry,

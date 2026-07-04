@@ -73,7 +73,10 @@ export class GlyphInfo<ShaperInfoT = null> {
 		const GDEF = this._font.GDEF;
 		if (GDEF?.glyphClassDef) {
 			// TODO: clean this up
-			const classID = OpenTypeProcessor.prototype.getClassID(id, GDEF.glyphClassDef);
+			const classID = OpenTypeProcessor.prototype.getClassID(
+				id,
+				GDEF.glyphClassDef,
+			);
 			this.isBase = classID === 1;
 			this.isLigature = classID === 2;
 			this.isMark = classID === 3;

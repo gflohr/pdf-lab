@@ -156,9 +156,7 @@ export class WOFF2Font extends TrueTypeFont<WOFF2Directory> {
 
 	public asTrueTypeSubsetFont(): TrueTypeSubsetFont | null {
 		if (!this.decompressed) {
-			throw new Error(
-				'Attempt to access uninitialised font table data!',
-			);
+			throw new Error('Attempt to access uninitialised font table data!');
 		}
 
 		return super.asTrueTypeSubsetFont();

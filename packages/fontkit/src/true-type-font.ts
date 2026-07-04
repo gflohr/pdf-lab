@@ -595,10 +595,7 @@ export class TrueTypeFont<
 		if (!this.glyphs[glyph]) {
 			const font = this as OpenTypeFont;
 
-			if (
-				font?.sbix &&
-				font.outlines === 'TrueType'
-			) {
+			if (font?.sbix && font.outlines === 'TrueType') {
 				this.glyphs[glyph] = new SBIXGlyph(glyph, characters, font) as Glyph;
 			} else if (font?.COLR && font?.CPAL) {
 				this.glyphs[glyph] = new COLRGlyph(glyph, characters, font) as Glyph;
