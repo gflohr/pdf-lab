@@ -1,6 +1,6 @@
-import type { Glyph } from './glyph';
-import type { StrictTables } from './open-type-font';
-import type { SFNTFont } from './sfnt-font';
+import type { Glyph } from './glyph/index.js';
+import type { StrictTables } from './open-type-font.js';
+import type { SFNTFont } from './sfnt-font.js';
 
 /**
  * Minimal operational capability needed to instantiate and run a TTFGlyph.
