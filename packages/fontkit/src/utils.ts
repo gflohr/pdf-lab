@@ -7,6 +7,8 @@
  *   (search left)
  * - 0 if the current item equals the searched item
  *
+ * @internal
+ *
  * @template [T] The type of the elements in the array
  * @param arr the array to search
  * @param cmp a comparison function
@@ -37,6 +39,9 @@ export function binarySearch<T = unknown>(
 /**
  * Create a range of consecutive integers, starting with `index` (inclusive)
  * and ending with `end` (exclusive).
+ *
+ * @internal
+ *
  * @param index the start index
  * @param end the end index
  * @returns an array of consecutive integers

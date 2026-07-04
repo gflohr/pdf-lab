@@ -13,16 +13,12 @@ import {
 	TTFGlyph,
 } from './glyph/ttf-glyph.js';
 import { WOFF2Glyph } from './glyph/woff2-glyph.js';
-import type { SFNTFont } from './sfnt-font.js';
 import type { SFNTDirectoryEntry } from './tables/directory.js';
 import type { tables } from './tables/index.js';
 import type { WOFF2Directory } from './tables/woff2-directory.js';
 import { woff2DirectoryStruct } from './tables/woff2-directory.js';
 import { TrueTypeFont } from './true-type-font.js';
-import {
-	requiredTrueTypeSubsetTables,
-	type TrueTypeSubsetFont,
-} from './true-type-subset-font.js';
+import type { TrueTypeSubsetFont } from './true-type-subset-font.js';
 
 /**
  * Subclass of TrueTypeFont that represents a TTF/OTF font compressed by WOFF2
@@ -165,15 +161,15 @@ export class WOFF2Font extends TrueTypeFont<WOFF2Directory> {
 
 // Special class that accepts a length and returns a sub-stream for that data
 class Substream extends DecodeStream {
-	_buf: BufferT;
+	private buf: BufferT;
 
 	constructor(readonly length: Length) {
 		super(length);
-		this._buf = new r.Buffer(this.length);
+		this.buf = new r.Buffer(this.length);
 	}
 
 	decode(stream: DecodeStream, parent?: ParsingContext): DecodeStream {
-		return new r.DecodeStream(this._buf.decode(stream, parent));
+		return new r.DecodeStream(this.buf.decode(stream, parent));
 	}
 }
 
