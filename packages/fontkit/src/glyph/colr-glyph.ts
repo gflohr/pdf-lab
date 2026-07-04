@@ -22,7 +22,7 @@ class COLRLayer {
  * of which  is another vector glyph.
  */
 export class COLRGlyph extends Glyph {
-	getBBox(): BoundingBox {
+	protected getBBox(): BoundingBox {
 		const bbox = new BoundingBox();
 		for (let i = 0; i < this.layers.length; i++) {
 			const layer = this.layers[i];
@@ -38,7 +38,7 @@ export class COLRGlyph extends Glyph {
 	 * Returns an array of objects containing the glyph and color for
 	 * each layer in the composite color glyph.
 	 */
-	get layers(): COLRLayer[] {
+	private get layers(): COLRLayer[] {
 		const cpal = this._font.CPAL;
 
 		// If the color palette table is missing, fall back directly to the
@@ -105,7 +105,7 @@ export class COLRGlyph extends Glyph {
 		return layers;
 	}
 
-	render(ctx: FontkitRenderingContext, size: number) {
+	public render(ctx: FontkitRenderingContext, size: number) {
 		for (const { glyph, color } of this.layers) {
 			ctx.fillColor(
 				[color.red, color.green, color.blue],
