@@ -298,7 +298,7 @@ describe('TrueTypeFont Capabilities & Table Resolution', () => {
 					return {} as any;
 				});
 
-				expect(() => font.asOpenTypeFont(true)).toThrow(
+				expect(() => font.asOpenTypeFont()).toThrow(
 					'Malformed table array stream',
 				);
 			});

@@ -5,6 +5,7 @@ import r, { type EncodeStream } from '@pdf-lib/restructure';
 import { describe, expect, it } from 'vitest';
 import { CFFFont } from '../src/cff/cff-font.js';
 import { CFFGlyph } from '../src/glyph/cff-glyph.js';
+import type { OpenTypePostScriptFont } from '../src/open-type-font.js';
 import type { Subset } from '../src/subset/subset.js';
 import type { TrueTypeFont } from '../src/true-type-font.js';
 import fontkit from './helpers.js';
@@ -110,9 +111,10 @@ describe('font subsetting', () => {
 			const stream = new r.DecodeStream(buf);
 			const cff = new CFFFont(stream);
 			const glyph = new CFFGlyph(1, [], {
+				outlines: 'PostScript',
 				stream,
 				'CFF ': cff,
-			} as TrueTypeFont);
+			} as OpenTypePostScriptFont);
 
 			expect(glyph.path.toSVG()).toBe(
 				font.glyphsForString('h')[0]!.path.toSVG(),
@@ -138,9 +140,10 @@ describe('font subsetting', () => {
 			const stream = new r.DecodeStream(buf);
 			const cff = new CFFFont(stream);
 			const glyph = new CFFGlyph(1, [], {
+				outlines: 'PostScript',
 				stream,
 				'CFF ': cff,
-			} as TrueTypeFont);
+			} as OpenTypePostScriptFont);
 
 			expect(glyph.path.toSVG()).toBe(f.glyphsForString('갈')[0]!.path.toSVG());
 
