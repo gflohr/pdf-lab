@@ -21,12 +21,6 @@ export const requiredAATTables = [
 export type RequiredAATTableTag = (typeof requiredAATTables)[number];
 
 /**
- * TrueType font with verified AAT capabilities.
- *
- * @see {@link RequiredAATTableTag}
- * @see {@link requiredAATTabes}
- */
-/**
  * Represents an SFNT font containing Apple Advanced Typography (AAT) layout
  * extensions.
  *
