@@ -91,7 +91,7 @@ export interface SFNTFont<
 	asOpenTypeFont(): OpenTypeFont | null;
 
 	/**
-	 * Attempts to view this font as an {@line AATFont}.
+	 * Attempts to view this font as an {@link AATFont}.
 	 *
 	 * @returns the font with an update
 	 */
@@ -205,7 +205,7 @@ export interface SFNTFont<
 
 	/**
 	 * Embedded Bitmap Data Table. Stores bitmap images for specific point
-	 * sises.
+	 * sizes.
 	 */
 	EBLC: EBLCTable.EBLC | null;
 
@@ -366,7 +366,7 @@ export interface SFNTFont<
 
 	/**
 	 * Optical Bounds Table. Sets bounding limits to align glyphs based on
-	 * visual center points.
+	 * visual centre points.
 	 * */
 	opbd: opbdTable.opbd | null;
 
