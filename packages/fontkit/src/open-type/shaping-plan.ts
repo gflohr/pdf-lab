@@ -4,7 +4,7 @@ import type { OpenTypeTag, UnicodeScript } from '../layout/script.js';
 import type { OpenType } from '../tables/open-type.js';
 import type { TrueTypeFont } from '../true-type-font.js';
 import type { GlyphInfo } from './glyph-info.js';
-import type { OTProcessor } from './ot-processor.js';
+import type { OpenTypeProcessor } from './open-type-processor.js';
 import type { IndicConfig } from './shapers/indic-data.js';
 
 type FeatureShape =
@@ -145,7 +145,7 @@ export class ShapingPlan<T = null> {
 	 * Executes the planned stages using the given OTProcessor
 	 */
 	process(
-		processor: OTProcessor<T>,
+		processor: OpenTypeProcessor<T>,
 		glyphs: GlyphInfo<T>[],
 		positions?: GlyphPosition[],
 	) {
