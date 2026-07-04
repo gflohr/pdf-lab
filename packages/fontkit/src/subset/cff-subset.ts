@@ -165,7 +165,7 @@ export class CFFSubset extends Subset {
 		return standardStrings.length + this.strings.length - 1;
 	}
 
-	encode(stream: EncodeStream) {
+	public encode(stream: EncodeStream) {
 		this.subsetCharstrings();
 
 		const charset = {
