@@ -81,7 +81,7 @@ export class TTFGlyphEncoder {
 					flag |= ON_CURVE;
 				}
 
-				flag = this._encodePoint(
+				flag = this.encodePoint(
 					x,
 					lastX,
 					xPoints,
@@ -89,7 +89,7 @@ export class TTFGlyphEncoder {
 					X_SHORT_VECTOR,
 					SAME_X,
 				);
-				flag = this._encodePoint(
+				flag = this.encodePoint(
 					y,
 					lastY,
 					yPoints,
@@ -161,7 +161,7 @@ export class TTFGlyphEncoder {
 		return stream.buffer;
 	}
 
-	_encodePoint(
+	private encodePoint(
 		value: number,
 		last: number,
 		points: number[],

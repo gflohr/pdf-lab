@@ -122,7 +122,6 @@ export class TTFGlyph extends Glyph {
 
 	private variationProcessor: GlyphVariationProcessor | null;
 
-	// biome-ignore lint/complexity/noUselessConstructor: needed for property narrowing
 	constructor(
 		id: number,
 		codePoints: readonly number[],
@@ -185,8 +184,12 @@ export class TTFGlyph extends Glyph {
 		return val;
 	}
 
-	// Decodes the glyph data into points for simple glyphs,
-	// or components for composite glyphs
+	/**
+	 * Decodes the glyph data into points for simple glyphs,
+	 * or components for composite glyphs.
+	 *
+	 * @internal
+	 */
 	public decode(): DecodedGlyph | null {
 		const glyphPos = this._font.loca.offsets[this.id];
 		const nextPos = this._font.loca.offsets[this.id + 1];
@@ -431,6 +434,7 @@ export class TTFGlyph extends Glyph {
 		return contours;
 	}
 
+	/** @internal */
 	public getMetrics(): GlyphLayoutMetrics {
 		if (this._metrics) {
 			return this._metrics;
