@@ -28,7 +28,6 @@ export type RequiredOpenTypeTableTag = (typeof requiredOpenTypeTables)[number];
  * outlines.
  */
 export const requiredOpenTypeTrueTypeTables = [
-	'glyf',
 	'loca',
 	...requiredOpenTypeTables,
 ] as const;

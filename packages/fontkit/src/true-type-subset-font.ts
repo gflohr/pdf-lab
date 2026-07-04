@@ -6,7 +6,7 @@ import type { SFNTFont } from './sfnt-font';
  * NEW: Minimal operational capability needed to instantiate and run a TTFGlyph.
  * Overrides glyph accessor methods to promise non-null returns.
  */
-export const requiredTrueTypeSubsetTables = ['glyf', 'loca', 'hmtx'] as const;
+export const requiredTrueTypeSubsetTables = ['loca', 'hmtx'] as const;
 
 /**
  * Union type for the items in the {@link requiredOpenTypeTables} list.

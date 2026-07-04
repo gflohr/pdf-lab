@@ -76,16 +76,10 @@ export interface SFNTFont<
 	/**
 	 * Tests whether a certain table is present in the font file.
 	 *
-	 * If you pass a truthy value, as the second parameter, it is also
-	 * attempted to load the table. Otherwise, the table will still be lazily
-	 * loaded, when it is accessed for the first time.
-	 *
 	 * @param tag the table name like `cmap`, `OS/2`, or `hmtx`
-	 * @param decode specify whether the table should be decoded.
 	 */
 	hasTable<K extends string = string>(
 		tag: K | keyof SFNTTableMap,
-		decode?: boolean,
 	): boolean;
 
 	/**
@@ -94,21 +88,13 @@ export interface SFNTFont<
 	 *
 	 * See {@link OpenTypeFont} for usage instructions!
 	 *
-	 * If the argument `decode` is true, all tables are attempted to be
-	 * decoded. That will throw an exception on failure.
-	 *
-	 * @param decode - also decode tables
 	 * @returns the font with an update
 	 */
-	asOpenTypeFont(decode?: boolean): OpenTypeFont | null;
+	asOpenTypeFont(): OpenTypeFont | null;
 
 	/**
 	 * Attempts to view this font as an {@line AATFont}.
 	 *
-	 * If the argument `decode` is true, all required tables are attempted to be
-	 * decoded. That will throw an exception on failure.
-	 *
-	 * @param decode - also decode tables
 	 * @returns the font with an update
 	 */
 	asAATFont(decode?: boolean): AATFont | null;
@@ -116,10 +102,6 @@ export interface SFNTFont<
 	/**
 	 * Attempts to view this font as an {@link TrueTypeSubsetFont} font.
 	 *
-	 * If the argument `decode` is true, all required tables are attempted to be
-	 * decoded. That will throw an exception on failure.
-	 *
-	 * @param decode - also decode tables
 	 * @returns the font with an update
 	 */
 	asTrueTypeSubsetFont(decode?: boolean): TrueTypeSubsetFont | null;

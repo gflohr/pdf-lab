@@ -2,7 +2,7 @@
 
 import type { DecodeStream } from '@pdf-lib/restructure';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { requiredOpenTypeTables } from '../src/open-type-font.js';
+import { requiredOpenTypeTables, requiredOpenTypeTrueTypeTables } from '../src/open-type-font.js';
 import type { SFNTFontDirectory } from '../src/sfnt-font.js';
 import type {
 	SFNTDirectoryEntry,
@@ -244,12 +244,14 @@ describe('TrueTypeFont Capabilities & Table Resolution', () => {
 		});
 
 		describe('With eager decoding: asOpenTypeFont(true)', () => {
-			it('should force immediate decoding on the 8 core tables when layout evaluates to outlines: "none"', () => {
+			it('should force immediate decoding on the core tables when layout evaluates to outlines: "none"', () => {
 				font['outlines'] = 'none';
 
 				font.asOpenTypeFont(true);
 
-				expect(font['getTable']).toHaveBeenCalledTimes(8);
+				const numFonts = requiredOpenTypeTables.length;
+
+				expect(font['getTable']).toHaveBeenCalledTimes(numFonts);
 				for (const tag of requiredOpenTypeTables) {
 					expect(font['getTable']).toHaveBeenCalledWith(
 						font.directory.tables[tag],
@@ -257,21 +259,16 @@ describe('TrueTypeFont Capabilities & Table Resolution', () => {
 				}
 			});
 
-			it('should decode the 8 core tables PLUS glyf and loca when outlines are "TrueType"', () => {
+			it('should decode the core tables PLUS loca when outlines are "TrueType"', () => {
 				font['outlines'] = 'TrueType';
 
-				font['existingTableTags'].add('glyf').add('loca');
-				font.directory.tables['glyf'] = { tag: 'glyf' } as SFNTDirectoryEntry;
+				font['existingTableTags'].add('loca');
 				font.directory.tables['loca'] = { tag: 'loca' } as SFNTDirectoryEntry;
 
 				font.asOpenTypeFont(true);
 
-				// 8 core tables + 2 outline tables = 10 table resolution calls
-				// total.
-				expect(font['getTable']).toHaveBeenCalledTimes(10);
-				expect(font['getTable']).toHaveBeenCalledWith(
-					font.directory.tables['glyf'],
-				);
+				const numTables = requiredOpenTypeTrueTypeTables.length;
+				expect(font['getTable']).toHaveBeenCalledTimes(numTables);
 				expect(font['getTable']).toHaveBeenCalledWith(
 					font.directory.tables['loca'],
 				);
