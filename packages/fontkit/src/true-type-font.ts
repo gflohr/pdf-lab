@@ -4,7 +4,6 @@ import { type AATFont, requiredAATTables } from './aat/aat-font.js';
 import { fontkit } from './base.js';
 import type { CFFFont } from './cff/cff-font.js';
 import { CmapProcessor } from './cmap-processor.js';
-import { FatalFontError } from './fatal-font-error.js';
 import type {
 	NamedVariation,
 	NamedVariations,
@@ -59,6 +58,10 @@ export interface FontAxis {
  * The names of the 8 baseline tables strictly required for an OpenType
  * font program file to be considered valid according to the structural
  * specification.
+ *
+ * FIXME! This list contains the required tables as per OpenType specification.
+ * Instead, it should be checked which tables are really required by the
+ * library, in every context, where an {@link OpenTypeFont} is processed.
  */
 export const coreTableKeys = [
 	'cmap',
@@ -224,10 +227,6 @@ export class TrueTypeFont<
 						console.error(e);
 					}
 				}
-
-				if (e instanceof FatalFontError) {
-					throw e;
-				}
 			}
 		}
 
@@ -258,34 +257,24 @@ export class TrueTypeFont<
 
 	protected decodeTable<K extends keyof typeof tables>(
 		table: SFNTDirectoryEntry,
-	): ReturnType<(typeof tables)[K]['decode']> {
+	): ReturnType<(typeof tables)[K]['decode']> | null {
 		const pos = this.stream.pos;
 		const stream = this.getTableStream(table.tag);
 
 		if (table.tag in tables && stream) {
-			try {
-				const tag = table.tag as K;
-				const result = tables[tag].decode(
-					stream,
-					this as unknown as FieldT<unknown>,
-					table.length,
-				);
+			const tag = table.tag as K;
+			const result = tables[tag].decode(
+				stream,
+				this as unknown as FieldT<unknown>,
+				table.length,
+			);
 
-				return result as ReturnType<(typeof tables)[K]['decode']>;
-			} catch (e) {
-				throw new FatalFontError(
-					`Corrupt table '${table.tag}': ${e}`,
-					table.tag,
-				);
-			} finally {
-				this.stream.pos = pos;
-			}
+			this.stream.pos = pos;
+
+			return result as ReturnType<(typeof tables)[K]['decode']>;
+		} else {
+			return null;
 		}
-
-		throw new FatalFontError(
-			`Unsupported font table tag: ${table.tag}`,
-			table.tag,
-		);
 	}
 
 	get postscriptName(): string | null {

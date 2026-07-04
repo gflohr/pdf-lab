@@ -20,7 +20,6 @@ export * from './cff/index.js';
 export * from './cmap-processor.js';
 export * from './d-font.js';
 export * from './encodings.js';
-export * from './fatal-font-error.js';
 export * from './font.js';
 export * from './glyph/index.js';
 export * from './layout/index.js';

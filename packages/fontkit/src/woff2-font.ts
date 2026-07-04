@@ -5,7 +5,6 @@ import r, {
 	type Length,
 	type ParsingContext,
 } from '@pdf-lib/restructure';
-import { FatalFontError } from './fatal-font-error.js';
 import type { Glyph } from './glyph/glyph.js';
 import {
 	type DecodedCompositeGlyph,
@@ -77,11 +76,10 @@ export class WOFF2Font extends TrueTypeFont<WOFF2Directory> {
 
 	protected decodeTable<K extends keyof typeof tables>(
 		table: SFNTDirectoryEntry,
-	): ReturnType<(typeof tables)[K]['decode']> {
+	): ReturnType<(typeof tables)[K]['decode']> | null {
 		if (!this.decompressed) {
-			throw new FatalFontError(
-				'Attempt to access uninitialised font table data!',
-				table.tag,
+			throw new Error(
+				`Attempt to access uninitialised font table data '${table.tag}'!`,
 			);
 		}
 
@@ -156,15 +154,14 @@ export class WOFF2Font extends TrueTypeFont<WOFF2Directory> {
 		this.transformedGlyphs = glyphs;
 	}
 
-	public asTrueTypeSubsetFont(decode = false): TrueTypeSubsetFont | null {
+	public asTrueTypeSubsetFont(): TrueTypeSubsetFont | null {
 		if (!this.decompressed) {
-			throw new FatalFontError(
+			throw new Error(
 				'Attempt to access uninitialised font table data!',
-				'unknown',
 			);
 		}
 
-		return super.asTrueTypeSubsetFont(decode);
+		return super.asTrueTypeSubsetFont();
 	}
 }
 
