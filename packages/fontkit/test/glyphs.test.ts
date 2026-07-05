@@ -109,6 +109,64 @@ describe('glyphs', () => {
 		});
 	});
 
+	describe('CFF glyphs (CID font)', () => {
+		const font = fontkit.openSync(
+			`${import.meta.dirname}/data/NotoSansCJK/NotoSansCJKkr-Regular.otf`,
+		);
+
+		it('should get a CFFGlyph', () => {
+			const glyph = font.getGlyph(27)!;
+			expect(glyph).not.toBeNull();
+
+			return expect(glyph.constructor.name).toBe('CFFGlyph');
+		});
+
+		it('should get a path for the glyph', () => {
+			const glyph = font.getGlyph(27)!;
+			expect(glyph).not.toBeNull();
+
+			return expect(
+				glyph.path.toSVG()).toBe(
+				'M139 390C175 390 205 419 205 459C205 501 175 530 139 530C103 530 73 501 73 459C73 419 103 390 139 390ZM139 -13C175 -13 205 15 205 56C205 97 175 127 139 127C103 127 73 97 73 56C73 15 103 -13 139 -13Z',
+			);
+		});
+
+		it('should get the glyph cbox', () => {
+			const glyph = font.getGlyph(27)!;
+			expect(glyph).not.toBeNull();
+
+			return expect(glyph.cbox).toStrictEqual(new BoundingBox(73, -13, 205, 530));
+		});
+
+		it('should get the glyph bbox', () => {
+			const glyph = font.getGlyph(27)!;
+			expect(glyph).not.toBeNull();
+
+			return expect(glyph.bbox).toStrictEqual(new BoundingBox(73, -13, 205, 530));
+		});
+
+		it('should get the correct fd index', () => {
+			const cff = font['CFF ']!;
+			expect(cff).not.toBeNull();
+
+			// FDSelect ranges
+			// {first: 0, fd: 5 }
+			// {first: 1, fd: 15 }
+			// {first: 17, fd: 17 }
+			// {first: 27, fd: 15 }
+			// {first: 102, fd: 3 }
+			expect(cff.fdForGlyph(0)).toBe(5);
+			expect(cff.fdForGlyph(1)).toBe(15);
+			expect(cff.fdForGlyph(10)).toBe(15);
+			expect(cff.fdForGlyph(16)).toBe(15);
+			expect(cff.fdForGlyph(17)).toBe(17);
+			expect(cff.fdForGlyph(26)).toBe(17);
+			expect(cff.fdForGlyph(27)).toBe(15);
+			expect(cff.fdForGlyph(28)).toBe(15);
+			expect(cff.fdForGlyph(102)).toBe(3);
+		});
+	});
+
 	describe('SBIX glyphs', () => {
 		const font = fontkit.openSync(`${datadir}/ss-emoji/ss-emoji-apple.ttf`);
 
