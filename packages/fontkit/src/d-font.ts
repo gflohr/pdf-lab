@@ -1,4 +1,4 @@
-import r, { type DecodeStream } from '@pdf-lib/restructure';
+import r, { DecodeStream } from '@pdf-lib/restructure';
 import { TrueTypeFont } from './true-type-font.js';
 
 const DFontName = new r.String(r.uint8);
@@ -84,6 +84,7 @@ const dFontHeader = new r.Struct<typeof dfontHeaderFields, DFontHeader>(
 );
 
 export class DFont {
+	private readonly stream: DecodeStream;
 	private readonly header: DFontHeader;
 	private readonly sfnt?: ResourceTypeEntry;
 
@@ -106,7 +107,13 @@ export class DFont {
 		return false;
 	}
 
-	constructor(private readonly stream: DecodeStream) {
+	constructor(streamOrBuffer: Uint8Array | DecodeStream) {
+		if (streamOrBuffer instanceof Uint8Array) {
+			this.stream = new DecodeStream(streamOrBuffer);
+		} else {
+			this.stream = streamOrBuffer;
+		}
+
 		this.header = dFontHeader.decode(this.stream);
 
 		for (const type of this.header.map.typeList.types) {

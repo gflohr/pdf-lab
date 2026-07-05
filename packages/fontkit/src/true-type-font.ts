@@ -1,4 +1,4 @@
-import type { DecodeStream, FieldT } from '@pdf-lib/restructure';
+import { DecodeStream, FieldT } from '@pdf-lib/restructure';
 import r from '@pdf-lib/restructure';
 import { type AATFont, requiredAATTables } from './aat/aat-font.js';
 import { fontkit } from './base.js';
@@ -147,8 +147,12 @@ export class TrueTypeFont<
 		);
 	}
 
-	constructor(stream: DecodeStream, variationCoords: number[] | null = null) {
-		this.stream = stream;
+	constructor(streamOrBuffer: Uint8Array | DecodeStream, variationCoords: number[] | null = null) {
+		if (streamOrBuffer instanceof Uint8Array) {
+			this.stream = new DecodeStream(streamOrBuffer);
+		} else {
+			this.stream = streamOrBuffer;
+		}
 		this.variationCoords = variationCoords;
 
 		this.directoryPos = this.stream.pos;

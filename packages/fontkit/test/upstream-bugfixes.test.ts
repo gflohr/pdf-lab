@@ -1,8 +1,7 @@
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
-import r from '@pdf-lib/restructure';
 import { describe, expect, it } from 'vitest';
-import { Glyph, TrueTypeFont } from '../src';
+import { TrueTypeFont } from '../src';
 import { readSubsetStream } from './helpers.js';
 
 describe('bugfixes from foliojs/fontkit', () => {
@@ -15,8 +14,7 @@ describe('bugfixes from foliojs/fontkit', () => {
 				'SourceSansPro-Regular.otf',
 			);
 			const fontBytes = await fs.readFile(fontPath);
-			const inputStream = new r.DecodeStream(fontBytes);
-			const font = new TrueTypeFont(inputStream);
+			const font = new TrueTypeFont(fontBytes);
 
 			const subset = font.createSubset();
 			expect(subset.constructor.name).toBe('CFFSubset');

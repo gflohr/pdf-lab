@@ -36,8 +36,8 @@ export class WOFF2Font extends TrueTypeFont<WOFF2Directory> {
 		return buffer.toString('ascii', 0, 4) === 'wOF2';
 	}
 
-	constructor(stream: DecodeStream, variationCoords: number[] | null = null) {
-		super(stream, variationCoords);
+	constructor(streamOrBuffer: Uint8Array | DecodeStream, variationCoords: number[] | null = null) {
+		super(streamOrBuffer, variationCoords);
 		this.decompress();
 		this.decompressed = true;
 	}

@@ -1,4 +1,4 @@
-import r, { type DecodeStream } from '@pdf-lib/restructure';
+import r, { DecodeStream } from '@pdf-lib/restructure';
 import { TrueTypeFont } from './true-type-font.js';
 
 export namespace TTCTable {
@@ -49,13 +49,18 @@ export class TrueTypeCollection {
 		return buffer.toString('ascii', 0, 4) === 'ttcf';
 	}
 
-	constructor(stream: DecodeStream) {
-		this.stream = stream;
-		if (stream.readString(4) !== 'ttcf') {
+	constructor(streamOrBuffer: Uint8Array | DecodeStream) {
+		if (streamOrBuffer instanceof Uint8Array) {
+			this.stream = new DecodeStream(streamOrBuffer);
+		} else {
+			this.stream = streamOrBuffer;
+		}
+
+		if (this.stream.readString(4) !== 'ttcf') {
 			throw new Error('Not a TrueType collection');
 		}
 
-		this.header = TTCHeader.decode(stream);
+		this.header = TTCHeader.decode(this.stream);
 	}
 
 	public getFont(name: string): TrueTypeFont | null {
