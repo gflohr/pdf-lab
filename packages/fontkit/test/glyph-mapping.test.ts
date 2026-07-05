@@ -20,8 +20,9 @@ describe('character to glyph mapping', () => {
 
 		it('should get a glyph for a character code', () => {
 			const glyph = font.glyphForCodePoint('a'.charCodeAt(0));
-			expect(glyph.id).toBe(68);
-			expect(glyph.codePoints).toStrictEqual([97]);
+			expect(glyph).not.toBe(null);
+			expect(glyph!.id).toBe(68);
+			expect(glyph!.codePoints).toStrictEqual([97]);
 		});
 
 		it('should map a string to glyphs', () => {
@@ -145,6 +146,23 @@ describe('character to glyph mapping', () => {
 			]);
 		});
 
+		it('should allow for disabling of default AAT morx features', () => {
+			const { glyphs } = font.layout('ffi 1⁄2', { liga: false });
+			expect(glyphs.length).toBe(7);
+			expect(glyphs.map((g) => g.id)).toStrictEqual([
+				73, 73, 76, 3, 20, 645, 21,
+			]);
+			return expect(glyphs.map((g) => g.codePoints)).toStrictEqual([
+				[102],
+				[102],
+				[105],
+				[32],
+				[49],
+				[8260],
+				[50],
+			]);
+		});
+
 		it('should apply user specified features', () => {
 			const { glyphs } = font.layout('ffi 1⁄2', ['numr']);
 			expect(glyphs.length).toBe(3);
@@ -157,7 +175,7 @@ describe('character to glyph mapping', () => {
 		});
 
 		it('should handle rtl direction', () => {
-			const { glyphs } = font.layout('ffi', [], null, null, 'rtl');
+			const { glyphs } = font.layout('ffi', [], undefined, undefined, 'rtl');
 			expect(glyphs.length).toBe(3);
 			expect(glyphs.map((g) => g.id)).toStrictEqual([76, 73, 73]);
 			expect(glyphs.map((g) => g.codePoints)).toStrictEqual([

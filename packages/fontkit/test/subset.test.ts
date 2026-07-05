@@ -5,10 +5,10 @@ import r from '@pdf-lib/restructure';
 import { describe, expect, it } from 'vitest';
 import { CFFFont } from '../src/cff/cff-font.js';
 import { CFFGlyph } from '../src/glyph/cff-glyph.js';
+import { Glyph } from '../src/glyph/index.js';
 import type { OpenTypePostScriptFont } from '../src/open-type-font.js';
 import { TrueTypeFont } from '../src/true-type-font.js';
 import fontkit, { getSubsetFont, readSubsetStream } from './helpers.js';
-import { Glyph } from '../src/glyph/index.js';
 
 const datadir = path.resolve(import.meta.dirname, './data');
 
