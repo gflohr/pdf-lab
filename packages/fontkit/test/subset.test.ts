@@ -6,7 +6,9 @@ import { describe, expect, it } from 'vitest';
 import { CFFFont } from '../src/cff/cff-font.js';
 import { CFFGlyph } from '../src/glyph/cff-glyph.js';
 import type { OpenTypePostScriptFont } from '../src/open-type-font.js';
+import { TrueTypeFont } from '../src/true-type-font.js';
 import fontkit, { getSubsetFont, readSubsetStream } from './helpers.js';
+import { Glyph } from '../src/glyph/index.js';
 
 const datadir = path.resolve(import.meta.dirname, './data');
 
@@ -64,6 +66,32 @@ describe('font subsetting', () => {
 			expect(f.getGlyph(1)!.path.toSVG()).toBe(
 				font.glyphsForString('é')[0]!.path.toSVG(),
 			);
+		});
+
+		it('should handle fonts with long index to location format (indexToLocFormat = 1)', async () => {
+			fontkit.logErrors = true;
+			const bytes = fs.readFileSync(
+				`${import.meta.dirname}/data/FiraSans/FiraSans-Regular.ttf`,
+			);
+			const font = new TrueTypeFont(bytes);
+			const subset = font.createSubset();
+			for (const glyph of font.glyphsForString('abcd')) {
+				subset.includeGlyph(glyph);
+			}
+
+			const f = await getSubsetFont(subset);
+			expect(f.numGlyphs).toBe(5);
+
+			let subsetShape = f.getGlyph(1)?.path.toSVG();
+			expect(subsetShape).toBeDefined();
+			let fontShape = font.glyphsForString('a')?.[0]?.path.toSVG();
+			expect(subsetShape).toBe(fontShape);
+
+			// Must test also second glyph which has an odd loca index.
+			subsetShape = f.getGlyph(2)?.path.toSVG();
+			expect(subsetShape).toBeDefined();
+			fontShape = font.glyphsForString('b')?.[0]?.path.toSVG();
+			expect(subsetShape).toBe(fontShape);
 		});
 	});
 

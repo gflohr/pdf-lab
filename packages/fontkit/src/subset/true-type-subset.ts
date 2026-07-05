@@ -93,6 +93,7 @@ export class TrueTypeSubset extends Subset {
 		this.offset = 0;
 		this.loca = {
 			offsets: [],
+			version: this.font.loca.version,
 		};
 
 		this.hmtx = {
@@ -112,7 +113,6 @@ export class TrueTypeSubset extends Subset {
 		maxp.numGlyphs = this.glyf.length;
 
 		this.loca.offsets.push(this.offset);
-		(tables.loca.preEncode as () => void).call(this.loca);
 
 		const head = structuredClone(this.font.head) as typeof this.font.head & {
 			indexToLocFormat: number;
