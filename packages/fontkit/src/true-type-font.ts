@@ -119,7 +119,7 @@ export class TrueTypeFont<
 	private tables: SFNTTableMap = {} as SFNTTableMap;
 	protected glyphs: Record<number, Glyph> = {};
 	public directory: TDirectory;
-	private defaultLanguage: string;
+	public defaultLanguage: string | null;
 
 	// Those variables are lazily instantiated by their respctive getters, and
 	// then frozen.
@@ -158,11 +158,11 @@ export class TrueTypeFont<
 		}
 		this.variationCoords = variationCoords;
 
-		this.defaultLanguage = 'en';
 		this.directoryPos = this.stream.pos;
 		this.tables = {} as SFNTTableMap;
 		this.glyphs = {};
 		this.directory = this.decodeDirectory();
+		this.defaultLanguage = null;
 
 		const existingTableTags = new Set<string>();
 
@@ -287,6 +287,10 @@ export class TrueTypeFont<
 
 	get postscriptName(): string | null {
 		return this.getName('postscriptName');
+	}
+
+	public setDefaultLanguage(lang: string | null = null): void {
+		this.defaultLanguage = lang;
 	}
 
 	protected getName(

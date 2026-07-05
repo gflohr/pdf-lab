@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 import type * as r from '@pdf-lib/restructure';
 import type { AATFont } from './aat/aat-font.js';
 import type { CFFFont } from './cff/cff-font.js';
@@ -591,4 +592,23 @@ export interface SFNTFont<
 	 * coordinates are applied, and is `null` for static fonts.
 	 */
 	variationProcessor: GlyphVariationProcessor | null;
+
+	/**
+	 * The default language for strings to get from the font with getName().
+	 *
+	 * @see {@link postscriptName}
+	 * @see {@link fullName}
+	 * @see {@link familyName}
+	 * @see {@link subFamilyName}
+	 * @see {@link copyright}
+	 * @see {@link version}
+	 */
+	defaultLanguage: string | null;
+
+	/**
+	 * Set the default language.
+	 *
+	 * @see {@link defaultLanguage}
+	 */
+	setDefaultLanguage(lang: string | null): void;
 }

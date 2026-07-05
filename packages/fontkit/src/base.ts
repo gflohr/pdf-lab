@@ -60,6 +60,10 @@ export const fontkit = {
 	 */
 	defaultLanguage: 'en',
 
+	setDefaultLanguage: (lang = 'en') => {
+		fontkit.defaultLanguage = lang;
+	},
+
 	/**
 	 * Register a new font format.
 	 *
@@ -94,7 +98,7 @@ export const fontkit = {
 	 * @returns the font or font collection
 	 *
 	 * @deprecated Instantiate one of the class constructors {@link TrueTypeFont},
-	*/
+	 */
 	create: (
 		bytes: Uint8Array,
 		postscriptName?: string,
