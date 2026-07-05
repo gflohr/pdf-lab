@@ -2,6 +2,8 @@ import r, { type EncodeStream } from '@pdf-lib/restructure';
 import type { Glyph } from '../glyph/glyph.js';
 import type { SFNTFont, SFNTFontDirectory } from '../sfnt-font.js';
 
+const resolved = Promise.resolve();
+
 export abstract class Subset {
 	protected readonly glyphs: number[];
 	private readonly mapping: Record<number, number>;
@@ -33,7 +35,7 @@ export abstract class Subset {
 	public encodeStream(): EncodeStream {
 		const s = new r.EncodeStream();
 
-		process.nextTick(() => {
+		resolved.then(() => {
 			this.encode(s);
 
 			return s.end();
