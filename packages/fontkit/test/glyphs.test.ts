@@ -2,6 +2,7 @@ import * as path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { BoundingBox } from '../src/glyph/bounding-box.js';
 import fontkit from './helpers.js';
+import { COLRGlyph, SBIXGlyph } from '../dist/index.js';
 
 const datadir = path.resolve(import.meta.dirname, './data');
 
@@ -12,67 +13,68 @@ describe('glyphs', () => {
 
 		it('should get a TTFGlyph', () => {
 			const glyph = font.getGlyph(39); // D
-			expect(glyph.constructor.name).toBe('TTFGlyph');
+			expect(glyph?.constructor.name).toBe('TTFGlyph');
 		});
 
 		it('should get a path for the glyph', () => {
 			const glyph = font.getGlyph(39);
-			expect(glyph.path.toSVG()).toBe(
+			expect(glyph?.path.toSVG()).toBe(
 				'M1368 745Q1368 383 1171.5 191.5Q975 0 606 0L201 0L201 1462L649 1462Q990 1462 1179 1273Q1368 1084 1368 745ZM1188 739Q1188 1025 1044.5 1170Q901 1315 618 1315L371 1315L371 147L578 147Q882 147 1035 296.5Q1188 446 1188 739Z',
 			);
 		});
 
 		it('should get a composite glyph', () => {
 			const glyph = font.getGlyph(171); // é
-			expect(glyph.path.toSVG()).toBe(
+			expect(glyph?.path.toSVG()).toBe(
 				'M639 -20Q396 -20 255.5 128Q115 276 115 539Q115 804 245.5 960Q376 1116 596 1116Q802 1116 922 980.5Q1042 845 1042 623L1042 518L287 518Q292 325 384.5 225Q477 125 645 125Q822 125 995 199L995 51Q907 13 828.5 -3.5Q750 -20 639 -20ZM594 977Q462 977 383.5 891Q305 805 291 653L864 653Q864 810 794 893.5Q724 977 594 977ZM471 1266Q519 1328 574.5 1416Q630 1504 662 1569L864 1569L864 1548Q820 1483 733 1388Q646 1293 582 1241L471 1241Z',
 			);
 		});
 
 		it('should resolve composite glyphs recursively', () => {
 			const r = mada.layout('ي');
-			expect(r.glyphs[0]!.path.toSVG()).toBe(
+			expect(r.glyphs[0]?.path.toSVG()).toBe(
 				'M-140 0Q-140 -22 -125 -37Q-110 -52 -88 -52Q-66 -52 -51 -37Q-36 -22 -36 0Q-36 22 -51 37Q-66 52 -88 52Q-110 52 -125 37Q-140 22 -140 0ZM36 0Q36 -22 51 -37Q66 -52 88 -52Q110 -52 125 -37Q140 -22 140 0Q140 22 125 37Q110 52 88 52Q66 52 51 37Q36 22 36 0Z',
 			);
 		});
 
 		it('should transform points of a composite glyph', () => {
 			const r = mada.layout('فا');
-			expect(r.glyphs[0]!.path.toSVG()).toBe(
+			expect(r.glyphs[0]?.path.toSVG()).toBe(
 				'M155 624L155 84Q150 90 145.5 94.5Q141 99 136 105L292 105L292 0L156 0Q128 0 103.5 13.5Q79 27 64.5 50.5Q50 74 50 104L50 624ZM282 105L312 105L312 0L282 0Z',
 			);
 		});
 
 		it('should be able to get a scaled path at a given font size', () => {
 			const glyph = font.getGlyph(39);
-			expect(glyph.getScaledPath(1000).toSVG()).toBe(
+			expect(glyph?.getScaledPath(1000).toSVG()).toBe(
 				'M667.97 363.77Q667.97 187.01 572.02 93.51Q476.07 0 295.9 0L98.14 0L98.14 713.87L316.89 713.87Q483.4 713.87 575.68 621.58Q667.97 529.3 667.97 363.77ZM580.08 360.84Q580.08 500.49 510.01 571.29Q439.94 642.09 301.76 642.09L181.15 642.09L181.15 71.78L282.23 71.78Q430.66 71.78 505.37 144.78Q580.08 217.77 580.08 360.84Z',
 			);
 		});
 
 		it('should get the glyph cbox', () => {
 			const glyph = font.getGlyph(39);
-			expect(glyph.cbox).toStrictEqual(new BoundingBox(201, 0, 1368, 1462));
+			expect(glyph?.cbox).toStrictEqual(new BoundingBox(201, 0, 1368, 1462));
 		});
 
 		it('should get the glyph bbox', () => {
 			const glyph = font.getGlyph(39);
-			expect(glyph.bbox).toStrictEqual(new BoundingBox(201, 0, 1368, 1462));
+			expect(glyph?.bbox).toStrictEqual(new BoundingBox(201, 0, 1368, 1462));
 		});
 
 		it('should get correct bbox for runs containing blanks', () => {
 			const r = font.layout('abc ef');
-			expect(r.bbox).toStrictEqual(new BoundingBox(94, -20, 5832, 1567));
+			expect(r.bbox)?.toStrictEqual(new BoundingBox(94, -20, 5832, 1567));
 		});
 
 		it('should get the advance width', () => {
-			const glyph = font.getGlyph(39);
+			const glyph = font.getGlyph(39)!;
+			expect(glyph).not.toBeNull();
 			expect(glyph.advanceWidth | 0).toBe(1493);
 		});
 
 		it('should get the glyph name', () => {
 			const glyph = font.getGlyph(171);
-			expect(glyph.name).toBe('eacute');
+			expect(glyph?.name).toBe('eacute');
 		});
 	});
 
@@ -83,29 +85,29 @@ describe('glyphs', () => {
 
 		it('should get a CFFGlyph', () => {
 			const glyph = font.getGlyph(5); // D
-			expect(glyph.constructor.name).toBe('CFFGlyph');
+			expect(glyph?.constructor.name).toBe('CFFGlyph');
 		});
 
 		it('should get a path for the glyph', () => {
 			const glyph = font.getGlyph(5);
-			expect(glyph.path.toSVG()).toBe(
+			expect(glyph?.path.toSVG()).toBe(
 				'M90 0L258 0C456 0 564 122 564 331C564 539 456 656 254 656L90 656ZM173 68L173 588L248 588C401 588 478 496 478 331C478 165 401 68 248 68Z',
 			);
 		});
 
 		it('should get the glyph cbox', () => {
 			const glyph = font.getGlyph(5);
-			expect(glyph.cbox).toStrictEqual(new BoundingBox(90, 0, 564, 656));
+			expect(glyph?.cbox).toStrictEqual(new BoundingBox(90, 0, 564, 656));
 		});
 
 		it('should get the glyph bbox', () => {
 			const glyph = font.getGlyph(5);
-			expect(glyph.bbox).toStrictEqual(new BoundingBox(90, 0, 564, 656));
+			expect(glyph?.bbox).toStrictEqual(new BoundingBox(90, 0, 564, 656));
 		});
 
 		it('should get the glyph name', () => {
 			const glyph = font.getGlyph(5);
-			expect(glyph.name).toBe('D');
+			expect(glyph?.name).toBe('D');
 		});
 	});
 
@@ -181,8 +183,13 @@ describe('glyphs', () => {
 		});
 
 		it('should get an image', () => {
-			const glyph = font.glyphsForString('😜')[0]!;
-			const image = glyph.getImageForSize(32)!;
+			const glyph = font.glyphsForString('😜')[0];
+
+			expect(glyph?.constructor.name).toBe('SBIXGlyph');
+
+			const sbixGlyph = glyph! as unknown as SBIXGlyph;
+
+			const image = sbixGlyph.getImageForSize(32)!;
 			expect(image).not.toBeNull();
 			expect(image).toStrictEqual({
 				originX: 0,
@@ -194,6 +201,7 @@ describe('glyphs', () => {
 
 		it('should get the glyph name', () => {
 			const glyph = font.glyphsForString('😜')[0]!;
+			expect(glyph).not.toBeNull();
 			expect(glyph.name).toBe('stuckouttonguewinkingeye');
 		});
 	});
@@ -202,15 +210,18 @@ describe('glyphs', () => {
 		const font = fontkit.openSync(`${datadir}/ss-emoji/ss-emoji-microsoft.ttf`);
 
 		it('should get an SBIXGlyph', () => {
-			const glyph = font.glyphsForString('😜')[0]!;
-			expect(glyph.constructor.name).toBe('COLRGlyph');
+			const glyph = font.glyphsForString('😜')[0];
+			expect(glyph?.constructor.name).toBe('COLRGlyph');
 		});
 
 		it('should get layers', () => {
-			const glyph = font.glyphsForString('😜')[0]!;
+			const glyph = font.glyphsForString('😜')[0];
 			// This should not be toStrictEqual(), because the glyphs do not
 			// use plain objects COLRLayers.
-			expect(glyph.layers).toEqual([
+			expect(glyph?.constructor.name).toBe('COLRGlyph');
+
+			// biome-ignore lint/complexity/useLiteralKeys: private access for testing.
+			expect((glyph as unknown as COLRGlyph)['layers']).toEqual([
 				{
 					glyph: font.getGlyph(247),
 					color: { red: 252, green: 194, blue: 0, alpha: 255 },
