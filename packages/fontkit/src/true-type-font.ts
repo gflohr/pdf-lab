@@ -1,5 +1,4 @@
-import { DecodeStream, FieldT } from '@pdf-lib/restructure';
-import r from '@pdf-lib/restructure';
+import r, { DecodeStream, type FieldT } from '@pdf-lib/restructure';
 import { type AATFont, requiredAATTables } from './aat/aat-font.js';
 import { fontkit } from './base.js';
 import type { CFFFont } from './cff/cff-font.js';
@@ -120,6 +119,7 @@ export class TrueTypeFont<
 	private tables: SFNTTableMap = {} as SFNTTableMap;
 	protected glyphs: Record<number, Glyph> = {};
 	public directory: TDirectory;
+	private defaultLanguage: string;
 
 	// Those variables are lazily instantiated by their respctive getters, and
 	// then frozen.
@@ -147,7 +147,10 @@ export class TrueTypeFont<
 		);
 	}
 
-	constructor(streamOrBuffer: Uint8Array | DecodeStream, variationCoords: number[] | null = null) {
+	constructor(
+		streamOrBuffer: Uint8Array | DecodeStream,
+		variationCoords: number[] | null = null,
+	) {
 		if (streamOrBuffer instanceof Uint8Array) {
 			this.stream = new DecodeStream(streamOrBuffer);
 		} else {
@@ -155,6 +158,7 @@ export class TrueTypeFont<
 		}
 		this.variationCoords = variationCoords;
 
+		this.defaultLanguage = 'en';
 		this.directoryPos = this.stream.pos;
 		this.tables = {} as SFNTTableMap;
 		this.glyphs = {};
@@ -282,30 +286,31 @@ export class TrueTypeFont<
 	}
 
 	get postscriptName(): string | null {
-		if (!this.name) {
-			return null;
-		}
-
-		const name = this.name.records.postscriptName;
-		if (name) {
-			const lang = Object.keys(name)[0];
-			return name[lang];
-		}
-
-		return null;
+		return this.getName('postscriptName');
 	}
 
 	protected getName(
 		key: keyof nameTable.ProcessedRecords,
-		lang = 'en',
+		lang = this.defaultLanguage || fontkit.defaultLanguage,
 	): string | null {
 		if (!this.name) {
 			return null;
 		}
 
-		const record = this.name.records[key];
-		if (record) {
-			return (record as Record<string, string>)[lang];
+		const maybeRecord = this.name.records[key];
+		if (maybeRecord) {
+			const record = maybeRecord;
+
+			const firstKey = Object.keys(record)[0] as keyof typeof record;
+
+			return (
+				record[lang as keyof typeof record] ||
+				record[this.defaultLanguage as keyof typeof record] ||
+				record[fontkit.defaultLanguage as keyof typeof record] ||
+				record['en' as keyof typeof record] ||
+				(firstKey ? record[firstKey] : null) ||
+				null
+			);
 		}
 
 		return null;

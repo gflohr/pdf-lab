@@ -46,7 +46,6 @@ const formats: FontContainer[] = [];
  * For robust, typesafe applications, instantiate the specific format container classes
  * directly instead of relying on this dynamic factory helper.
  *
- * @deprecated Instantiate one of the class constructors {@link TrueTypeFont},
  * {@link WOFFFont}, {@link WOFF2Font}, {@link TrueTypeCollection}, or
  * {@link DFont} directly.
  */
@@ -55,6 +54,11 @@ export const fontkit = {
 	 * Set to `true` for verbose error logging.
 	 */
 	logErrors: false,
+
+	/**
+	 * The default language to use.
+	 */
+	defaultLanguage: 'en',
 
 	/**
 	 * Register a new font format.
@@ -88,7 +92,9 @@ export const fontkit = {
 	 * @param bytes the raw font byte
 	 * @param postscriptName the optional PostScript name
 	 * @returns the font or font collection
-	 */
+	 *
+	 * @deprecated Instantiate one of the class constructors {@link TrueTypeFont},
+	*/
 	create: (
 		bytes: Uint8Array,
 		postscriptName?: string,
