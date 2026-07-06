@@ -1,7 +1,4 @@
-import r, {
-	type ParsingContext,
-	type RestructureLazyArray,
-} from 'restructure';
+import r, { type ParsingContext, type RestructureLazyArray } from 'restructure';
 
 export namespace kernTable {
 	export interface Pair {

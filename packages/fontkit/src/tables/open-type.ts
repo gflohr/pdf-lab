@@ -1,7 +1,4 @@
-import r, {
-	type FieldT,
-	type RestructureLazyArray,
-} from 'restructure';
+import r, { type FieldT, type RestructureLazyArray } from 'restructure';
 
 export namespace OpenType {
 	/**

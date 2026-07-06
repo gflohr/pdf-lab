@@ -285,7 +285,7 @@ export class TrueTypeFont<
 		}
 	}
 
-	get postscriptName(): string | null {
+	get postscriptName(): string | Uint8Array | null {
 		return this.getName('postscriptName');
 	}
 

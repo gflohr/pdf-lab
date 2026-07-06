@@ -374,8 +374,11 @@ export interface SFNTFont<
 
 	/**
 	 * The unique PostScript name for this font or `null` if not present.
+	 *
+	 * Some broken fonts have PostScript names that cannot be decoded into
+	 * a string. They are exposed as `Uint8Array`.
 	 */
-	postscriptName: string | null;
+	postscriptName: string | Uint8Array | null;
 
 	/**
 	 * The font's full name, e.g. "Helvetica Bold", or `null` if not present.

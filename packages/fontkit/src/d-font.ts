@@ -132,14 +132,19 @@ export class DFont {
 		}
 	}
 
-	public getFont(name: string): TrueTypeFont | null {
+	public getFont(name: string | Uint8Array): TrueTypeFont | null {
 		if (!this.sfnt) {
 			return null;
 		}
 
 		for (const ref of this.sfnt.refList) {
 			const font = this.decodeFont(ref);
-			if (font.postscriptName === name) {
+			if (
+				font.postscriptName === name ||
+				(font.postscriptName instanceof Uint8Array &&
+					name instanceof Uint8Array &&
+					font.postscriptName.every((v, i) => name[i] === v))
+			) {
 				return font;
 			}
 		}

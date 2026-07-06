@@ -63,12 +63,17 @@ export class TrueTypeCollection {
 		this.header = TTCHeader.decode(this.stream);
 	}
 
-	public getFont(name: string): TrueTypeFont | null {
+	public getFont(name: string | Uint8Array): TrueTypeFont | null {
 		for (const offset of this.header.offsets) {
 			const stream = new r.DecodeStream(this.stream.buffer);
 			stream.pos = offset;
 			const font = new TrueTypeFont(stream);
-			if (font.postscriptName === name) {
+			if (
+				font.postscriptName === name ||
+				(font.postscriptName instanceof Uint8Array &&
+					name instanceof Uint8Array &&
+					font.postscriptName.every((v, i) => name[i] === v))
+			) {
 				return font;
 			}
 		}

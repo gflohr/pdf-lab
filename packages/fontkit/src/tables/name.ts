@@ -83,7 +83,11 @@ const nameRecordFields = {
 			'length',
 			(t) => getEncoding(t.platformID, t.encodingID, t.languageID) as string,
 		),
-		{ type: 'parent', relativeTo: ctx => ctx.parent.stringOffset, allowNull: false },
+		{
+			type: 'parent',
+			relativeTo: (ctx) => ctx.parent.stringOffset,
+			allowNull: false,
+		},
 	),
 };
 const NameRecord = new r.Struct<typeof nameRecordFields, nameTable.NameRecord>(
@@ -94,7 +98,7 @@ const langTagRecordFields = {
 	length: r.uint16,
 	tag: new r.Pointer(r.uint16, new r.String('length', 'utf16be'), {
 		type: 'parent',
-		relativeTo: ctx => ctx.stringOffset,
+		relativeTo: (ctx) => ctx.stringOffset,
 	}),
 };
 const LangTagRecord = new r.Struct<

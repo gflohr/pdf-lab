@@ -44,7 +44,7 @@ const gvarStructFields = {
 	offsetToData: r.uint32,
 	offsets: new r.Array(
 		new r.Pointer(Offset, 'void', {
-			relativeTo: ctx => ctx.offsetToData,
+			relativeTo: (ctx) => ctx.offsetToData,
 			allowNull: false,
 		}),
 		(t) => t.glyphCount + 1,

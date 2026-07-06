@@ -190,7 +190,7 @@ const justificationTableFields = {
 	widthDeltaClusters: aatLookupTable(
 		new r.Pointer(r.uint16, WidthDeltaCluster, {
 			type: 'parent',
-			relativeTo: ctx => ctx.wdcOffset,
+			relativeTo: (ctx) => ctx.wdcOffset,
 		}),
 	),
 };
