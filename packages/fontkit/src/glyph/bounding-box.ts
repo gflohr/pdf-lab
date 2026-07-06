@@ -123,4 +123,4 @@ export class BoundingBox {
 /**
  * Alias for {@link BoundingBox} to ensure compatibility with `@types/fontkit`.
  */
-export class BBox extends BoundingBox {};
+export class BBox extends BoundingBox {}
