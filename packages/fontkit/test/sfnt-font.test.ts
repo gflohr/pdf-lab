@@ -1,6 +1,6 @@
 /** biome-ignore-all lint/complexity/useLiteralKeys: private access for testing */
 
-import type { DecodeStream } from '@pdf-lib/restructure';
+import type { DecodeStream } from 'restructure';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
 	requiredOpenTypeTables,

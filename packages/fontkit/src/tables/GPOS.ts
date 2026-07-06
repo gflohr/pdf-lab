@@ -4,7 +4,7 @@ import r, {
 	type PointerT,
 	type RestructureLazyArray,
 	type StructT,
-} from '@pdf-lib/restructure';
+} from 'restructure';
 import {
 	type OpenType,
 	openTypeChainingContext,
@@ -29,6 +29,10 @@ const ValueFormat = new r.Bitfield(r.uint16, [
 	'yAdvDevice',
 ]);
 
+interface DeviceContext {
+	rel: string;
+}
+
 const types = {
 	xPlacement: r.int16,
 	yPlacement: r.int16,
@@ -36,19 +40,19 @@ const types = {
 	yAdvance: r.int16,
 	xPlaDevice: new r.Pointer(r.uint16, openTypeDevice, {
 		type: 'global',
-		relativeTo: 'rel',
+		relativeTo: (ctx: DeviceContext) => ctx.rel,
 	}),
 	yPlaDevice: new r.Pointer(r.uint16, openTypeDevice, {
 		type: 'global',
-		relativeTo: 'rel',
+		relativeTo: (ctx: DeviceContext) => ctx.rel,
 	}),
 	xAdvDevice: new r.Pointer(r.uint16, openTypeDevice, {
 		type: 'global',
-		relativeTo: 'rel',
+		relativeTo: (ctx: DeviceContext) => ctx.rel,
 	}),
 	yAdvDevice: new r.Pointer(r.uint16, openTypeDevice, {
 		type: 'global',
-		relativeTo: 'rel',
+		relativeTo: (ctx: DeviceContext) => ctx.rel,
 	}),
 };
 

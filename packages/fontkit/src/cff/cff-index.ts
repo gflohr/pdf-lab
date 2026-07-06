@@ -4,8 +4,8 @@ import type {
 	FieldT,
 	NumberT,
 	StringT,
-} from '@pdf-lib/restructure';
-import r from '@pdf-lib/restructure';
+} from 'restructure';
+import r from 'restructure';
 import type { CFFDict } from './cff-dict.js';
 import type { CFFTopData } from './cff-top.js';
 

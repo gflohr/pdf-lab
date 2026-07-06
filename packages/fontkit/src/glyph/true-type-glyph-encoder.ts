@@ -1,4 +1,4 @@
-import r, { type EncodeStream, type FieldT } from '@pdf-lib/restructure';
+import r, { type EncodeStream, type FieldT } from 'restructure';
 import type { Path } from './path.js';
 
 // Flags for simple glyphs

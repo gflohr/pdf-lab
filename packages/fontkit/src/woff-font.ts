@@ -1,4 +1,4 @@
-import r, { type DecodeStream, type FieldT } from '@pdf-lib/restructure';
+import r, { type DecodeStream, type FieldT } from 'restructure';
 import inflate from 'tiny-inflate';
 import type { WOFFDirectory } from './tables/woff-directory.js';
 import { woffDirectoryStruct } from './tables/woff-directory.js';

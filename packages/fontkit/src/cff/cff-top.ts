@@ -4,9 +4,9 @@ import type {
 	FieldT,
 	InferField,
 	ParsingContext,
-} from '@pdf-lib/restructure';
-import r from '@pdf-lib/restructure';
-import { resolveLength } from '@pdf-lib/restructure/src/utils.js';
+} from 'restructure';
+import r from 'restructure';
+import { resolveLength } from 'restructure/src/utils.js';
 import { itemVariationStore } from '../tables/variations.js';
 import {
 	expertCharset,

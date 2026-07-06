@@ -1,4 +1,4 @@
-import r from '@pdf-lib/restructure';
+import r from 'restructure';
 import { type AAT, aatLookupTable } from './aat.js';
 
 export namespace opbdTable {

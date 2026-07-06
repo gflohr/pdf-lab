@@ -1,4 +1,4 @@
-import r, { DecodeStream } from '@pdf-lib/restructure';
+import r, { DecodeStream } from 'restructure';
 import { TrueTypeFont } from './true-type-font.js';
 
 export namespace TTCTable {

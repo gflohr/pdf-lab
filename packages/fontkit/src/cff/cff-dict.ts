@@ -1,10 +1,10 @@
+import isEqual from 'deep-equal';
 import type {
 	DecodeStream,
 	EncodeStream,
 	FieldT,
 	ParsingContext,
-} from '@pdf-lib/restructure';
-import isEqual from 'deep-equal';
+} from 'restructure';
 import { cffOperand } from './cff-operand.js';
 import type { CFFPrivateDictTable } from './cff-pointer.js';
 import type { CFFPrivateOp } from './cff-top.js';

@@ -1,4 +1,4 @@
-import r from '@pdf-lib/restructure';
+import r from 'restructure';
 
 export namespace DSIGTable {
 	export interface Signature {

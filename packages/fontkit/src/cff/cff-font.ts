@@ -1,4 +1,4 @@
-import type { DecodeStream } from '@pdf-lib/restructure';
+import type { DecodeStream } from 'restructure';
 import type { CFFDict } from './cff-dict.js';
 import type { CFFIndexRecord } from './cff-index.js';
 import type { CFFPrivateDictTable } from './cff-pointer.js';

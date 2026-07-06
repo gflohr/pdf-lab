@@ -1,4 +1,4 @@
-import type { EncodeStream } from '@pdf-lib/restructure';
+import type { EncodeStream } from 'restructure';
 import type { CFFDict } from '../cff/cff-dict.js';
 import type { CFFFont } from '../cff/cff-font.js';
 import type { CFFIndexRecord } from '../cff/cff-index.js';

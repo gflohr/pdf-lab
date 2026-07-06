@@ -1,4 +1,4 @@
-import r, { type EncodeStream, type StructT } from '@pdf-lib/restructure';
+import r, { type EncodeStream, type StructT } from 'restructure';
 import { tables } from './index.js';
 
 export type SFNTTableMap = {

@@ -1,4 +1,4 @@
-import r, { type DecodeStream } from '@pdf-lib/restructure';
+import r, { type DecodeStream } from 'restructure';
 import type { WOFFDirectoryEntry } from './woff-directory.js';
 
 const Base128 = {

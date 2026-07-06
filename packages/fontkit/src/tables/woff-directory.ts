@@ -1,4 +1,4 @@
-import r from '@pdf-lib/restructure';
+import r from 'restructure';
 
 /**
  * Tier 1: Pure Binary Representation (Matches file bytes exactly)

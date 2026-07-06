@@ -1,4 +1,4 @@
-import r from '@pdf-lib/restructure';
+import r from 'restructure';
 import { type AAT, aatLookupTable, aatStateTable1 } from './aat.js';
 
 export namespace justTable {
@@ -190,7 +190,7 @@ const justificationTableFields = {
 	widthDeltaClusters: aatLookupTable(
 		new r.Pointer(r.uint16, WidthDeltaCluster, {
 			type: 'parent',
-			relativeTo: 'wdcOffset',
+			relativeTo: ctx => ctx.wdcOffset,
 		}),
 	),
 };

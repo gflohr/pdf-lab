@@ -1,4 +1,4 @@
-import r from '@pdf-lib/restructure';
+import r from 'restructure';
 
 /**
  * The set of instructions executed whenever the point size or font

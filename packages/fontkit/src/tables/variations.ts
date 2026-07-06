@@ -1,4 +1,4 @@
-import r from '@pdf-lib/restructure';
+import r from 'restructure';
 import { type OpenType, openTypeFeature } from './open-type.js';
 
 export namespace OpenTypeVariation {

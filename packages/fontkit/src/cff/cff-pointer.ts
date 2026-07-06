@@ -7,8 +7,8 @@ import type {
 	FieldT,
 	InferField,
 	PointerTOptions,
-} from '@pdf-lib/restructure';
-import r from '@pdf-lib/restructure';
+} from 'restructure';
+import r from 'restructure';
 import type { CFFIndexRecord } from './cff-index.js';
 
 export interface CFFPrivateDictTable {

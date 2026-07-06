@@ -1,7 +1,7 @@
 import r, {
 	type FieldT,
 	type RestructureLazyArray,
-} from '@pdf-lib/restructure';
+} from 'restructure';
 
 export namespace OpenType {
 	/**

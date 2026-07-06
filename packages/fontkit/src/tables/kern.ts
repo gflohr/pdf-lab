@@ -1,7 +1,7 @@
 import r, {
 	type ParsingContext,
 	type RestructureLazyArray,
-} from '@pdf-lib/restructure';
+} from 'restructure';
 
 export namespace kernTable {
 	export interface Pair {

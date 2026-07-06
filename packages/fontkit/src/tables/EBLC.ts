@@ -1,4 +1,4 @@
-import r from '@pdf-lib/restructure';
+import r from 'restructure';
 import { bigMetrics, type EBDTTable } from './EBDT.js';
 
 export namespace EBLCTable {

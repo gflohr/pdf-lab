@@ -1,4 +1,4 @@
-import type { EncodeStream } from '@pdf-lib/restructure';
+import type { EncodeStream } from 'restructure';
 import type { Path } from '../glyph/path.js';
 import { TrueTypeGlyph } from '../glyph/true-type-glyph.js';
 import { TrueTypeGlyphEncoder } from '../glyph/true-type-glyph-encoder.js';

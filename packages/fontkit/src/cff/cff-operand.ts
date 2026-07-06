@@ -1,4 +1,4 @@
-import type { DecodeStream, EncodeStream } from '@pdf-lib/restructure';
+import type { DecodeStream, EncodeStream } from 'restructure';
 import { Ptr } from './cff-pointer.js';
 
 const FLOAT_EOF = 0xf;

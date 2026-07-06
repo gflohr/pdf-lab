@@ -12,7 +12,7 @@ import r, {
 	type InferField,
 	type ParsingContext,
 	type StructT,
-} from '@pdf-lib/restructure';
+} from 'restructure';
 
 export namespace AAT {
 	/**

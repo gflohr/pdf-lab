@@ -1,4 +1,4 @@
-import r, { DecodeStream, type FieldT } from '@pdf-lib/restructure';
+import r, { DecodeStream, type FieldT } from 'restructure';
 import { type AATFont, requiredAATTables } from './aat/aat-font.js';
 import { fontkit } from './base.js';
 import type { CFFFont } from './cff/cff-font.js';

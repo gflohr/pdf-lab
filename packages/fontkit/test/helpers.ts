@@ -1,7 +1,7 @@
 /* istanbul ignore file */
 import { readFileSync } from 'node:fs';
 import * as fs from 'node:fs/promises';
-import type { EncodeStream } from '@pdf-lib/restructure';
+import type { EncodeStream } from 'restructure';
 import type { Font, VariationCoordinates } from '../src/font.js';
 import { fontkit } from '../src/index.js';
 import type { Subset } from '../src/subset/index.js';

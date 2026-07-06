@@ -1,4 +1,4 @@
-import r, { type EncodeStream } from '@pdf-lib/restructure';
+import r, { type EncodeStream } from 'restructure';
 import type { Glyph } from '../glyph/glyph.js';
 import type { SFNTFont, SFNTFontDirectory } from '../sfnt-font.js';
 

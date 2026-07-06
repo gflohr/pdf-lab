@@ -1,4 +1,4 @@
-import r, { type FieldT } from '@pdf-lib/restructure';
+import r, { type FieldT } from 'restructure';
 import { GPOSLookup } from './GPOS.js';
 import { type OpenType, openTypeLookupList } from './open-type.js';
 

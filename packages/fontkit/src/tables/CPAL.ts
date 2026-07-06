@@ -1,4 +1,4 @@
-import r from '@pdf-lib/restructure';
+import r from 'restructure';
 
 export namespace CPALTable {
 	export interface ColorRecord {

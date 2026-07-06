@@ -4,7 +4,7 @@ import r, {
 	DecodeStream,
 	type Length,
 	type ParsingContext,
-} from '@pdf-lib/restructure';
+} from 'restructure';
 import type { Glyph } from './glyph/glyph.js';
 import {
 	type DecodedCompositeGlyph,

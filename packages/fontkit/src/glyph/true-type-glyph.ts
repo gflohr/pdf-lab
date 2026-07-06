@@ -1,4 +1,4 @@
-import r, { type DecodeStream } from '@pdf-lib/restructure';
+import r, { type DecodeStream } from 'restructure';
 import type { OpenTypeTrueTypeFont } from '../open-type-font.js';
 import type { TrueTypeFont } from '../true-type-font.js';
 import type { TrueTypeSubsetFont } from '../true-type-subset-font.js';

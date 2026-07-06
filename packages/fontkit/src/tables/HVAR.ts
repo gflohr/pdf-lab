@@ -2,8 +2,8 @@ import r, {
 	type DecodeStream,
 	type FieldT,
 	type Length,
-} from '@pdf-lib/restructure';
-import { resolveLength } from '@pdf-lib/restructure/src/utils.js';
+} from 'restructure';
+import { resolveLength } from 'restructure/src/utils.js';
 import { itemVariationStore, type OpenTypeVariation } from './variations.js';
 
 // TODO: add this to restructure

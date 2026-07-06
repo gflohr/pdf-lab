@@ -1,4 +1,4 @@
-import r, { type RestructureLazyArray } from '@pdf-lib/restructure';
+import r, { type RestructureLazyArray } from 'restructure';
 
 export namespace cmapTable {
 	export interface Subheader {

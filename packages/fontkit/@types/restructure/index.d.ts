@@ -1,6 +1,6 @@
 /** biome-ignore-all lint/suspicious/noExplicitAny: this file models a highly dynamic runtime parsing DSL. */
 
-// This is an attempt to provide types for `@pdf-lib/restructure` the way
+// This is an attempt to provide types for `restructure` the way
 // the library is used inside of this project. It is very well possible that
 // legitimate usage of `restructure` is not reflected here. Do not suspect
 // a bug in this case but rather extend the typing.
@@ -8,7 +8,7 @@
 // FIXME! In its current state, this is a little bit of a mess because it has
 // grown by fixing typing errors in the tables code, as they occurred. It is
 // probably possible to get rid of a lot of the explicit any types.
-declare module '@pdf-lib/restructure' {
+declare module 'restructure' {
 	export type ParsingContext = any;
 	export type LengthResolver<T = any> = (t: T) => number;
 	export type Length = number | string | LengthResolver<any> | NumberT;
@@ -242,7 +242,7 @@ declare module '@pdf-lib/restructure' {
 		allowNull?: boolean;
 		nullValue?: number;
 		lazy?: boolean;
-		relativeTo?: string;
+		relativeTo?: (ctx: any) => string;
 	}
 
 	export class PointerT<TField extends FieldT<any>>
@@ -373,8 +373,8 @@ declare module '@pdf-lib/restructure' {
 	export default r;
 }
 
-declare module '@pdf-lib/restructure/src/utils.js' {
-	import type { DecodeStream, Length } from '@pdf-lib/restructure';
+declare module 'restructure/src/utils.js' {
+	import type { DecodeStream, Length } from 'restructure';
 
 	/**
 	 * Resolves a static number, string-pointer, or functional resolver down to

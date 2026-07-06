@@ -1,4 +1,4 @@
-import r from '@pdf-lib/restructure';
+import r from 'restructure';
 import type { GlyphAxisMetrics } from '../glyph/glyph.js';
 import type { MetricsTable } from './metrics.js';
 

@@ -1,4 +1,4 @@
-import r, { type DecodeStream, type FieldT } from '@pdf-lib/restructure';
+import r, { type DecodeStream, type FieldT } from 'restructure';
 
 export namespace gvarTable {
 	export interface gvar {
@@ -44,7 +44,7 @@ const gvarStructFields = {
 	offsetToData: r.uint32,
 	offsets: new r.Array(
 		new r.Pointer(Offset, 'void', {
-			relativeTo: 'offsetToData',
+			relativeTo: ctx => ctx.offsetToData,
 			allowNull: false,
 		}),
 		(t) => t.glyphCount + 1,
