@@ -5,7 +5,6 @@ import r from 'restructure';
 import { describe, expect, it } from 'vitest';
 import { CFFFont } from '../src/cff/cff-font.js';
 import { CFFGlyph } from '../src/glyph/cff-glyph.js';
-import { Glyph } from '../src/glyph/index.js';
 import type { OpenTypePostScriptFont } from '../src/open-type-font.js';
 import { TrueTypeFont } from '../src/true-type-font.js';
 import fontkit, { getSubsetFont, readSubsetStream } from './helpers.js';
@@ -159,6 +158,34 @@ describe('font subsetting', () => {
 			expect(cff.topDict.FDArray.length).toBe(2);
 
 			expect(cff.topDict.FDSelect.fds).toEqual([0, 1, 1]);
+		});
+
+		it('should produce a subset with Asian punctuation correctly', async () => {
+			const bytes = fs.readFileSync(`${datadir}/NotoSansCJK/NotoSansCJKkr-Regular.otf`);
+			const koreanFont = new TrueTypeFont(bytes);
+			const subset = koreanFont.createSubset();
+			const iterable = koreanFont.glyphsForString('a。d');
+
+			expect(iterable.length).toBe(3);
+			for (const glyph of iterable) {
+				subset.includeGlyph(glyph);
+			}
+
+			const buf = await readSubsetStream(subset.encodeStream());
+			const stream = new r.DecodeStream(buf);
+
+			expect(koreanFont.cff).not.toBeNull();
+
+			const cff = new CFFFont(stream);
+
+			let glyph = new CFFGlyph(1, [], { stream, 'CFF ': cff } as OpenTypePostScriptFont);
+			expect(glyph.path.toSVG()).toBe(koreanFont.glyphsForString('a')[0]!.path.toSVG());
+
+			glyph = new CFFGlyph(2, [], { stream, 'CFF ': cff } as OpenTypePostScriptFont);
+			expect(glyph.path.toSVG()).toBe(koreanFont.glyphsForString('。')[0]!.path.toSVG());
+
+			glyph = new CFFGlyph(3, [], { stream, 'CFF ': cff } as OpenTypePostScriptFont);
+			expect(glyph.path.toSVG()).toBe(koreanFont.glyphsForString('d')[0]!.path.toSVG());
 		});
 	});
 });
