@@ -242,6 +242,8 @@ const fontDict = new CFFDict([
 	// key, name, type(s), default
 	[18, 'Private', new CFFPrivateOp(), null],
 	[[12, 38], 'FontName', 'sid', null],
+	[[12, 7], 'FontMatrix', 'array', [0.001, 0, 0, 0.001, 0, 0]],
+	[[12, 5], 'PaintType', 'number', 0],
 ]);
 
 const cffTopDict = new CFFDict([
