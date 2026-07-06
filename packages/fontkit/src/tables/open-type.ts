@@ -267,8 +267,13 @@ export namespace OpenType {
 		script: Script;
 	}
 
+	export interface FeatureParams {
+		version: number;
+		nameID: number;
+	};
+
 	export interface Feature {
-		featureParams: number;
+		featureParams: FeatureParams;
 		lookupCount: number;
 		lookupListIndexes: number[];
 	}
@@ -500,8 +505,14 @@ const scriptRecord = new r.Struct<
 
 export const openTypeScriptList = new r.Array(scriptRecord, r.uint16);
 
+const featureParamsFields = {
+	version: r.uint16, // should be set to 0 according to OT spec.
+	nameID: r.uint16, // OT spec: UI Name ID or uiLabelNameId.
+}
+const featureParams = new r.Struct<typeof featureParamsFields, OpenType.FeatureParams>(featureParamsFields);
+
 const featureFields = {
-	featureParams: r.uint16,
+	featureParams: new r.Pointer(r.uint16, featureParams),
 	lookupCount: r.uint16,
 	lookupListIndexes: new r.Array(r.uint16, 'lookupCount'),
 };
