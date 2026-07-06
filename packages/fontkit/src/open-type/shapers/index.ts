@@ -69,7 +69,7 @@ const SHAPERS: Record<string, typeof DefaultShaper> = {
 	saur: UniversalShaper, // Saurashtra
 	shrd: UniversalShaper, // Sharada
 	sidd: UniversalShaper, // Siddham
-	sinh: UniversalShaper, // Sinhala
+	sinh: IndicShaper, // Sinhala
 	sund: UniversalShaper, // Sundanese
 	sylo: UniversalShaper, // Syloti Nagri
 	tglg: UniversalShaper, // Tagalog
