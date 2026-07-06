@@ -3,10 +3,10 @@ import * as path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import type { COLRGlyph, SBIXGlyph } from '../dist/index.js';
 import { BoundingBox } from '../src/glyph/bounding-box.js';
-import { TrueTypeFont } from '../src/true-type-font.js';
-import fontkit from './helpers.js';
+import type { Path } from '../src/index.js';
 import { WOFFFont } from '../src/woff-font.js';
 import { WOFF2Font } from '../src/woff2-font.js';
+import fontkit from './helpers.js';
 
 const datadir = path.resolve(import.meta.dirname, './data');
 
@@ -20,10 +20,36 @@ describe('glyphs', () => {
 			expect(glyph?.constructor.name).toBe('TrueTypeGlyph');
 		});
 
-		it('should get a path for the glyph', () => {
+		it('should get a path for the glyph as SVG', () => {
 			const glyph = font.getGlyph(39);
 			expect(glyph?.path.toSVG()).toBe(
 				'M1368 745Q1368 383 1171.5 191.5Q975 0 606 0L201 0L201 1462L649 1462Q990 1462 1179 1273Q1368 1084 1368 745ZM1188 739Q1188 1025 1044.5 1170Q901 1315 618 1315L371 1315L371 147L578 147Q882 147 1035 296.5Q1188 446 1188 739Z',
+			);
+		});
+
+		it('should get a path for the glyph as function', () => {
+			const glyph = font.getGlyph(39);
+			const results: string[] = [];
+			const ctx = {
+				moveTo: (...args: number[]) =>
+					results.push(`moveTo(${args.join(', ')});`),
+				lineTo: (...args: number[]) =>
+					results.push(`lineTo(${args.join(', ')});`),
+				quadraticCurveTo: (...args: number[]) =>
+					results.push(`quadraticCurveTo(${args.join(', ')});`),
+				bezierCurveTo: (...args: number[]) =>
+					results.push(`bezierCurveTo(${args.join(', ')});`),
+				closePath: (...args: number[]) =>
+					results.push(`closePath(${args.join(', ')});`),
+			};
+
+			const fn = glyph?.path.toFunction();
+			expect(fn).toBeDefined();
+
+			fn!(ctx as unknown as Path);
+
+			return expect(results.join('\n')).toBe(
+				'moveTo(1368, 745);\nquadraticCurveTo(1368, 383, 1171.5, 191.5);\nquadraticCurveTo(975, 0, 606, 0);\nlineTo(201, 0);\nlineTo(201, 1462);\nlineTo(649, 1462);\nquadraticCurveTo(990, 1462, 1179, 1273);\nquadraticCurveTo(1368, 1084, 1368, 745);\nclosePath();\nmoveTo(1188, 739);\nquadraticCurveTo(1188, 1025, 1044.5, 1170);\nquadraticCurveTo(901, 1315, 618, 1315);\nlineTo(371, 1315);\nlineTo(371, 147);\nlineTo(578, 147);\nquadraticCurveTo(882, 147, 1035, 296.5);\nquadraticCurveTo(1188, 446, 1188, 739);\nclosePath();',
 			);
 		});
 
@@ -92,10 +118,36 @@ describe('glyphs', () => {
 			expect(glyph?.constructor.name).toBe('CFFGlyph');
 		});
 
-		it('should get a path for the glyph', () => {
+		it('should get a path for the glyph as SVG', () => {
 			const glyph = font.getGlyph(5);
 			expect(glyph?.path.toSVG()).toBe(
 				'M90 0L258 0C456 0 564 122 564 331C564 539 456 656 254 656L90 656ZM173 68L173 588L248 588C401 588 478 496 478 331C478 165 401 68 248 68Z',
+			);
+		});
+
+		it('should get a path for the glyph as a function', () => {
+			const glyph = font.getGlyph(5);
+			const results: string[] = [];
+			const ctx = {
+				moveTo: (...args: number[]) =>
+					results.push(`moveTo(${args.join(', ')});`),
+				lineTo: (...args: number[]) =>
+					results.push(`lineTo(${args.join(', ')});`),
+				quadraticCurveTo: (...args: number[]) =>
+					results.push(`quadraticCurveTo(${args.join(', ')});`),
+				bezierCurveTo: (...args: number[]) =>
+					results.push(`bezierCurveTo(${args.join(', ')});`),
+				closePath: (...args: number[]) =>
+					results.push(`closePath(${args.join(', ')});`),
+			};
+
+			const fn = glyph?.path.toFunction();
+			expect(fn).toBeDefined();
+
+			fn!(ctx as unknown as Path);
+
+			return expect(results.join('\n')).toBe(
+				'moveTo(90, 0);\nlineTo(258, 0);\nbezierCurveTo(456, 0, 564, 122, 564, 331);\nbezierCurveTo(564, 539, 456, 656, 254, 656);\nlineTo(90, 656);\nclosePath();\nmoveTo(173, 68);\nlineTo(173, 588);\nlineTo(248, 588);\nbezierCurveTo(401, 588, 478, 496, 478, 331);\nbezierCurveTo(478, 165, 401, 68, 248, 68);\nclosePath();',
 			);
 		});
 
@@ -277,7 +329,7 @@ describe('glyphs', () => {
 
 		it('should get a quadratic path for the glyph', () => {
 			expect(glyph?.path.toSVG()).toBe(
-				'M90 0L90 656L254 656Q406 656 485 571.5Q564 487 564 331Q564 174 485.5 87Q407 0 258 0ZM173 68L248 68Q363 68 420.5 137.5Q478 207 478 331Q478 455 420.5 521.5Q363 588 248 588L173 588Z'
+				'M90 0L90 656L254 656Q406 656 485 571.5Q564 487 564 331Q564 174 485.5 87Q407 0 258 0ZM173 68L248 68Q363 68 420.5 137.5Q478 207 478 331Q478 455 420.5 521.5Q363 588 248 588L173 588Z',
 			);
 		});
 	});
