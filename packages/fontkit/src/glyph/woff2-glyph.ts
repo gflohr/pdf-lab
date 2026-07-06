@@ -1,11 +1,11 @@
 import { requiredTrueTypeSubsetTables } from '../true-type-subset-font.js';
 import type { WOFF2Font } from '../woff2-font.js';
-import { type DecodedGlyph, TTFGlyph } from './ttf-glyph.js';
+import { type DecodedGlyph, TrueTypeGlyph } from './true-type-glyph.js';
 
 /**
  * Represents a TrueType glyph in the WOFF2 format, which compresses glyphs differently.
  */
-export class WOFF2Glyph extends TTFGlyph {
+export class WOFF2Glyph extends TrueTypeGlyph {
 	constructor(id: number, codePoints: readonly number[], _font: WOFF2Font) {
 		const font = _font.asTrueTypeSubsetFont();
 		if (!font) {

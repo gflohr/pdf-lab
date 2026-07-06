@@ -1,7 +1,7 @@
 import r from '@pdf-lib/restructure';
 import type { sbixTable } from '../tables/sbix.js';
 import type { FontkitRenderingContext } from './glyph.js';
-import { TTFGlyph } from './ttf-glyph.js';
+import { TrueTypeGlyph } from './true-type-glyph.js';
 
 export interface SBIXImageType {
 	originX: number;
@@ -20,7 +20,7 @@ const SBIXImage = new r.Struct<typeof sbixFields, SBIXImageType>(sbixFields);
 /**
  * Represents a color (e.g. emoji) glyph in Apple's SBIX format.
  */
-export class SBIXGlyph extends TTFGlyph {
+export class SBIXGlyph extends TrueTypeGlyph {
 	/**
 	 * Returns an object representing a glyph image at the given point size.
 	 * The object has a data property with a Buffer containing the actual image data,

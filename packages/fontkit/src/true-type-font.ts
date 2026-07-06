@@ -17,7 +17,7 @@ import { COLRGlyph } from './glyph/colr-glyph.js';
 import type { Glyph } from './glyph/glyph.js';
 import { GlyphVariationProcessor } from './glyph/glyph-variation-processor.js';
 import { SBIXGlyph } from './glyph/sbix-glyph.js';
-import { TTFGlyph } from './glyph/ttf-glyph.js';
+import { TrueTypeGlyph } from './glyph/true-type-glyph.js';
 import type { BidiDirection, GlyphRun } from './layout/glyph-run.js';
 import { LayoutEngine } from './layout/layout-engine.js';
 import type * as Script from './layout/script.js';
@@ -590,7 +590,7 @@ export class TrueTypeFont<
 		if (!this.glyphs[glyph]) {
 			const ttFont = this.asTrueTypeSubsetFont();
 			if (ttFont) {
-				this.glyphs[glyph] = new TTFGlyph(
+				this.glyphs[glyph] = new TrueTypeGlyph(
 					glyph,
 					characters,
 					this as TrueTypeSubsetFont,
@@ -607,7 +607,7 @@ export class TrueTypeFont<
 	}
 
 	// FIXME! The method either returns an SBIXGlyph, a COLRGlyph, a
-	// TTFGlyph, or a CFFGlyph. But the SBIXGlyph or COLRGlyph is not
+	// TrueTypeGlyph, or a CFFGlyph. But the SBIXGlyph or COLRGlyph is not
 	// necessarily a bitmap. It would probably be better to have a factory
 	// method that returns the correct glyph for a particular codepoint.
 	//

@@ -10,8 +10,8 @@ import {
 	type DecodedCompositeGlyph,
 	type DecodedGlyph,
 	Point,
-	TTFGlyph,
-} from './glyph/ttf-glyph.js';
+	TrueTypeGlyph,
+} from './glyph/true-type-glyph.js';
 import { WOFF2Glyph } from './glyph/woff2-glyph.js';
 import type { SFNTDirectoryEntry } from './tables/directory.js';
 import type { tables } from './tables/index.js';
@@ -137,7 +137,7 @@ export class WOFF2Font extends TrueTypeFont<WOFF2Directory> {
 				read255UInt16(table.glyphs);
 			} else if (nContours < 0) {
 				// composite glyph
-				const haveInstructions = TTFGlyph.prototype.decodeComposite.call(
+				const haveInstructions = TrueTypeGlyph.prototype.decodeComposite.call(
 					{ _font: this },
 					glyph as DecodedCompositeGlyph,
 					table.composites,

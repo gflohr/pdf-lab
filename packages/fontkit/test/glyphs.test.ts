@@ -15,9 +15,9 @@ describe('glyphs', () => {
 		const font = fontkit.openSync(`${datadir}/OpenSans/OpenSans-Regular.ttf`);
 		const mada = fontkit.openSync(`${datadir}/Mada/Mada-VF.ttf`);
 
-		it('should get a TTFGlyph', () => {
+		it('should get a TrueTypeGlyph', () => {
 			const glyph = font.getGlyph(39); // D
-			expect(glyph?.constructor.name).toBe('TTFGlyph');
+			expect(glyph?.constructor.name).toBe('TrueTypeGlyph');
 		});
 
 		it('should get a path for the glyph', () => {
@@ -272,7 +272,7 @@ describe('glyphs', () => {
 		});
 
 		it('should get a TrueTypeGlyph', () => {
-			expect(glyph?.constructor.name).toBe('TTFGlyph');
+			expect(glyph?.constructor.name).toBe('TrueTypeGlyph');
 		});
 
 		it('should get a quadratic path for the glyph', () => {

@@ -2,7 +2,7 @@ import type { fvarTable } from '../tables/fvar.js';
 import type { gvarTable } from '../tables/gvar.js';
 import type { OpenTypeVariation } from '../tables/variations.js';
 import type { TrueTypeFont } from '../true-type-font.js';
-import type { Point } from './ttf-glyph.js';
+import type { Point } from './true-type-glyph.js';
 
 const TUPLES_SHARE_POINT_NUMBERS = 0x8000;
 const TUPLE_COUNT_MASK = 0x0fff;

@@ -1,7 +1,7 @@
 import type { EncodeStream } from '@pdf-lib/restructure';
 import type { Path } from '../glyph/path.js';
-import { TTFGlyph } from '../glyph/ttf-glyph.js';
-import { TTFGlyphEncoder } from '../glyph/ttf-glyph-encoder.js';
+import { TrueTypeGlyph } from '../glyph/true-type-glyph.js';
+import { TrueTypeGlyphEncoder } from '../glyph/true-type-glyph-encoder.js';
 import type { OpenTypeTrueTypeFont } from '../open-type-font.js';
 import { directory, type SFNTDirectoryEntry } from '../tables/directory.js';
 import type { hmtxTable } from '../tables/hmtx.js';
@@ -20,7 +20,7 @@ interface Hmtx {
 }
 
 export class TrueTypeSubset extends Subset {
-	private readonly glyphEncoder: TTFGlyphEncoder;
+	private readonly glyphEncoder: TrueTypeGlyphEncoder;
 	private offset?: number;
 	private glyf?: Glyf;
 	private loca?: Loca;
@@ -29,7 +29,7 @@ export class TrueTypeSubset extends Subset {
 
 	constructor(font: OpenTypeTrueTypeFont) {
 		super(font as TrueTypeFont);
-		this.glyphEncoder = new TTFGlyphEncoder();
+		this.glyphEncoder = new TrueTypeGlyphEncoder();
 	}
 
 	private addGlyph(gid: number): number {
@@ -167,10 +167,10 @@ export class TrueTypeSubset extends Subset {
 		});
 	}
 
-	private getGlyph(gid: number): TTFGlyph {
+	private getGlyph(gid: number): TrueTypeGlyph {
 		const glyph = this.font.getGlyph(gid);
 
-		if (!(glyph instanceof TTFGlyph)) {
+		if (!(glyph instanceof TrueTypeGlyph)) {
 			throw new Error(
 				'TrueType font subset cannot contain glyphs that are not TrueType glyphs',
 			);

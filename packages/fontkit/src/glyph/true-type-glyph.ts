@@ -25,7 +25,7 @@ const fields = {
 const GlyphHeader = new r.Struct<typeof fields, GlyphHeaderData>(fields);
 
 // Flags for simple glyphs.
-// FIXME! This repeats the same variables in ttf-glyph-encoder.ts!
+// FIXME! This repeats the same variables in true-type-glyph-encoder.ts!
 const ON_CURVE = 1 << 0;
 const X_SHORT_VECTOR = 1 << 1;
 const Y_SHORT_VECTOR = 1 << 2;
@@ -106,7 +106,7 @@ export type DecodedGlyph =
  *
  * // FIXME! Rename that to TrueTypeGlyph!
  */
-export class TTFGlyph extends Glyph {
+export class TrueTypeGlyph extends Glyph {
 	// Legacys Hack: Properties injected via base Glyph constructor mutations.
 	public numberOfContours!: number;
 	public xMin!: number;
@@ -388,7 +388,7 @@ export class TTFGlyph extends Glyph {
 			// resolve composite glyphs
 			for (const component of glyph.components!) {
 				const contours = (
-					this._font.getGlyph(component.glyphID) as unknown as TTFGlyph
+					this._font.getGlyph(component.glyphID) as unknown as TrueTypeGlyph
 				).getContours();
 				for (let i = 0; i < contours.length; i++) {
 					const contour = contours[i];
@@ -519,3 +519,8 @@ export class TTFGlyph extends Glyph {
 		return path;
 	}
 }
+
+/**
+ * Alias for {@link TrueTypeGlyph} to be compatible with upstream fontkit.
+ */
+export class TTFGlyph extends TrueTypeGlyph {}
