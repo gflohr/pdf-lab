@@ -22,7 +22,7 @@ export class WOFFFont extends TrueTypeFont<WOFFDirectory> {
 
 			if (table.compLength < table.length) {
 				this.stream.pos += 2; // skip deflate header
-				const outBuffer = new Buffer(table.length);
+				const outBuffer = Buffer.alloc(table.length);
 				const buf = inflate(
 					this.stream.readBuffer(table.compLength - 2),
 					outBuffer,
