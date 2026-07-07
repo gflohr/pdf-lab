@@ -1,7 +1,7 @@
-import unicode from '@pdf-lib/unicode-properties';
 import * as base64 from 'base64-arraybuffer';
 import StateMachine from 'dfa';
 import pako from 'pako';
+import unicode from 'unicode-properties';
 import UnicodeTrie from 'unicode-trie';
 import * as Script from '../../layout/script.js';
 import type { OpenType } from '../../tables/open-type.js';

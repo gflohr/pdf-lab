@@ -1,6 +1,4 @@
-import unicode, {
-	type UnicodeCombiningClassName,
-} from '@pdf-lib/unicode-properties';
+import unicode, { type UnicodeCombiningClassName } from 'unicode-properties';
 import type { Glyph } from '../glyph/glyph.js';
 import type { TrueTypeFont } from '../true-type-font.js';
 import type { GlyphPosition } from './glyph-position.js';

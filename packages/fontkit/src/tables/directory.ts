@@ -2,7 +2,9 @@ import * as r from 'restructure';
 import { tables as allTables } from './index.js';
 
 export type SFNTTableMap = {
-	[K in keyof typeof allTables]: ReturnType<(typeof allTables)[K]['decode']> | null;
+	[K in keyof typeof allTables]: ReturnType<
+		(typeof allTables)[K]['decode']
+	> | null;
 };
 
 /**

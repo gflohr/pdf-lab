@@ -1,4 +1,4 @@
-import unicode from '@pdf-lib/unicode-properties';
+import unicode from 'unicode-properties';
 import type { OpenType } from '../tables/open-type.js';
 import type { TrueTypeFont } from '../true-type-font.js';
 import { OpenTypeProcessor } from './open-type-processor.js';

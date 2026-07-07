@@ -1,7 +1,7 @@
-import unicode from '@pdf-lib/unicode-properties';
 import * as base64 from 'base64-arraybuffer';
 import type { CodepointEntry } from 'codepoints';
 import pako from 'pako';
+import unicode from 'unicode-properties';
 import UnicodeTrie from 'unicode-trie';
 import type { OpenType } from '../../tables/open-type.js';
 import type { GlyphInfo } from '../glyph-info.js';
