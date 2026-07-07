@@ -47,7 +47,6 @@ export class TrueTypeSubset extends Subset {
 		stream.pos += curOffset;
 
 		let buffer = stream.readBuffer(nextOffset - curOffset);
-
 		// If it is a compound glyph, include its components.
 		if (glyf && glyf.numberOfContours < 0) {
 			buffer = new Uint8Array(buffer);

@@ -1,8 +1,8 @@
 import * as r from 'restructure';
-import { tables } from './index.js';
+import { tables as allTables } from './index.js';
 
 export type SFNTTableMap = {
-	[K in keyof typeof tables]: ReturnType<(typeof tables)[K]['decode']> | null;
+	[K in keyof typeof allTables]: ReturnType<(typeof allTables)[K]['decode']> | null;
 };
 
 /**
@@ -98,26 +98,26 @@ directoryStruct.preEncode = function (this: DirectoryContext): void {
 	>;
 
 	for (const key in sourceTables) {
-		const tag = key as keyof typeof tables;
-		const entry = sourceTables[tag];
+		if (!Array.isArray(this.tables)) {
+			const tables = [];
+			for (let tag in this.tables) {
+				const table = this.tables[tag];
+				if (table) {
+					tables.push({
+						tag,
+						checkSum: 0,
+						offset: new r.VoidPointer(allTables[tag], table),
+						length: allTables[tag].size(table),
+					});
+				}
+			}
 
-		if (entry) {
-			const tableDef = tables[tag] as r.StructT<unknown, unknown>;
-			if (!tableDef) continue;
-
-			encodedTableEntries.push({
-				tag,
-				checkSum: 0,
-				// Direct reference mapping back to your registry
-				offset: new r.VoidPointer(tableDef, entry) as unknown as number,
-				length: tableDef.size(entry),
-			});
+			this.tables = tables;
 		}
 	}
 
 	this.tag = 'true';
-	this.numTables = encodedTableEntries.length;
-	this.tables = encodedTableEntries as any;
+	this.numTables = this.tables.length;
 
 	// Recalculate optimal binary search parameters
 	const maxExponentFor2 = Math.floor(Math.log(this.numTables) / Math.LN2);

@@ -150,7 +150,6 @@ export class TrueTypeGlyphEncoder {
 		const size = Glyf.size(glyf);
 		const tail = 4 - (size % 4);
 
-		debugger;
 		const stream = new r.EncodeStream(size + tail);
 		Glyf.encode(stream, glyf);
 
