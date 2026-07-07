@@ -91,29 +91,21 @@ directoryStruct.process = function (this: DirectoryContext): void {
 };
 
 directoryStruct.preEncode = function (this: DirectoryContext): void {
-	const encodedTableEntries: SFNTTableEntryBinary[] = [];
-	const sourceTables = this.tables as unknown as Record<
-		string,
-		SFNTDirectoryEntry
-	>;
-
-	for (const key in sourceTables) {
-		if (!Array.isArray(this.tables)) {
-			const tables = [];
-			for (let tag in this.tables) {
-				const table = this.tables[tag];
-				if (table) {
-					tables.push({
-						tag,
-						checkSum: 0,
-						offset: new r.VoidPointer(allTables[tag], table),
-						length: allTables[tag].size(table),
-					});
-				}
+	if (!Array.isArray(this.tables)) {
+		const tables = [];
+		for (const tag in this.tables) {
+			const table = this.tables[tag];
+			if (table) {
+				tables.push({
+					tag,
+					checkSum: 0,
+					offset: new r.VoidPointer(allTables[tag], table),
+					length: allTables[tag].size(table),
+				});
 			}
-
-			this.tables = tables;
 		}
+
+		this.tables = tables;
 	}
 
 	this.tag = 'true';

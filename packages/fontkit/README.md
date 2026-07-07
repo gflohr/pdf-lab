@@ -170,9 +170,6 @@ Listed below are changes that have been made in this fork:
 
 Also see
 * https://github.com/Hopding/unicode-properties
-* https://github.com/Hopding/brotli.js
-* https://github.com/Hopding/restructure
-* https://github.com/Hopding/png-ts
 
 ### `fontkit`
 

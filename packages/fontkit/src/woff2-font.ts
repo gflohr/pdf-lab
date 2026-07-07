@@ -1,4 +1,4 @@
-import brotli from '@pdf-lib/brotli/decompress.js';
+import brotli from 'brotli/decompress.js';
 import * as r from 'restructure';
 import type { Glyph } from './glyph/glyph.js';
 import {
@@ -61,7 +61,7 @@ export class WOFF2Font extends TrueTypeFont<WOFF2Directory> {
 				entry.transformLength != null ? entry.transformLength : entry.length;
 		}
 
-		const decompressed = brotli(buffer, decompressedSize);
+		const decompressed = brotli(buffer as Buffer, decompressedSize);
 		if (!decompressed) {
 			throw new Error('Error decoding compressed data in WOFF2');
 		}

@@ -117,9 +117,9 @@ importers:
 
   packages/fontkit:
     dependencies:
-      '@pdf-lib/brotli':
-        specifier: ^0.0.0
-        version: 0.0.0
+      brotli:
+        specifier: ^1.3.3
+        version: 1.3.3
       deep-equal:
         specifier: ^2.2.3
         version: 2.2.3
@@ -151,6 +151,9 @@ importers:
       '@rollup/plugin-terser':
         specifier: ^1.0.0
         version: 1.0.0(rollup@4.62.2)
+      '@types/brotli':
+        specifier: ^1.3.5
+        version: 1.3.5
       '@types/deep-equal':
         specifier: ^1.0.4
         version: 1.0.4
@@ -1060,9 +1063,6 @@ packages:
   '@oxc-project/types@0.127.0':
     resolution: {integrity: sha512-aIYXQBo4lCbO4z0R3FHeucQHpF46l2LbMdxRvqvuRuW2OxdnSkcng5B8+K12spgLDj93rtN3+J2Vac/TIO+ciQ==}
 
-  '@pdf-lib/brotli@0.0.0':
-    resolution: {integrity: sha512-hUQg09XRVvWglv395r36psY6ysNDOfIRTgVMfsA0/ZXwCk/b0bxjQj/QfpwPWQ/NUkQiiyEDTBoS5Rm0amUbhQ==}
-
   '@pdf-lib/fontkit@1.1.1':
     resolution: {integrity: sha512-KjMd7grNapIWS/Dm0gvfHEilSyAmeLvrEGVcqLGi0VYebuqqzTbgF29efCx7tvx+IEbG3zQciRSWl3GkUSvjZg==}
 
@@ -1532,6 +1532,9 @@ packages:
 
   '@tybys/wasm-util@0.10.3':
     resolution: {integrity: sha512-F3fo1MYrRJYL3zER0OUOmkutjr1Vp23m7OsSgp7nq4SP6OqX6C/56XFIPAl5bt3zaBRjmW7SGz3u/6LwFpYcOg==}
+
+  '@types/brotli@1.3.5':
+    resolution: {integrity: sha512-9xoNr+bcxT236/7ZgcWw/6Pb2RRetE13p4bFy1xYSckKwyOiRfmInay8baUWZgH7/284Wl6IPe7+nOI9+OQg/A==}
 
   '@types/chai@5.2.3':
     resolution: {integrity: sha512-Mw558oeA9fFbv65/y4mHtXDs9bPnFMZAL/jxdPFUpOHHIXX91mcgEHbS5Lahr+pwZFR8A7GQleRWeI6cGFC2UA==}
@@ -4566,10 +4569,6 @@ snapshots:
 
   '@oxc-project/types@0.127.0': {}
 
-  '@pdf-lib/brotli@0.0.0':
-    dependencies:
-      base64-js: 1.5.1
-
   '@pdf-lib/fontkit@1.1.1':
     dependencies:
       pako: 1.0.11
@@ -4919,6 +4918,10 @@ snapshots:
     dependencies:
       tslib: 2.8.1
     optional: true
+
+  '@types/brotli@1.3.5':
+    dependencies:
+      '@types/node': 26.0.0
 
   '@types/chai@5.2.3':
     dependencies:

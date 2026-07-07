@@ -58,7 +58,7 @@ declare module 'restructure' {
 		buffer: Uint8Array;
 		pos: number;
 
-		constructor(buffer?: number);
+		constructor(buffer: Uint8Array);
 
 		fill(val: number, length: number): void;
 		end(): void;
