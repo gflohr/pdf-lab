@@ -8,7 +8,7 @@ import type {
 	InferField,
 	PointerTOptions,
 } from 'restructure';
-import r from 'restructure';
+import * as r from 'restructure';
 import type { CFFIndexRecord } from './cff-index.js';
 
 export interface CFFPrivateDictTable {

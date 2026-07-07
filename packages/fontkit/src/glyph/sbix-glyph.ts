@@ -1,4 +1,4 @@
-import r from 'restructure';
+import * as r from 'restructure';
 import type { sbixTable } from '../tables/sbix.js';
 import type { FontkitRenderingContext } from './glyph.js';
 import { TrueTypeGlyph } from './true-type-glyph.js';

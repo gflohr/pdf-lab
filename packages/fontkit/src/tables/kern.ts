@@ -1,4 +1,4 @@
-import r, { type ParsingContext, type RestructureLazyArray } from 'restructure';
+import * as r from 'restructure';
 
 export namespace kernTable {
 	export interface Pair {
@@ -17,7 +17,7 @@ export namespace kernTable {
 	export interface Kern2Array {
 		off: number;
 		len: number;
-		values: RestructureLazyArray<number>;
+		values: r.RestructureLazyArray<number>;
 	}
 
 	export interface SubtableV0 {
@@ -162,9 +162,7 @@ interface LeftTableConfig {
 	max: number;
 }
 
-interface KernRootContext extends ParsingContext {
-	// Add any root properties if needed later
-}
+interface KernRootContext extends r.ParsingContext {}
 
 interface KernSubTableContext {
 	parent: KernRootContext;
@@ -172,7 +170,7 @@ interface KernSubTableContext {
 	leftTable: LeftTableConfig;
 }
 
-export interface Kern2ArrayContext extends ParsingContext {
+export interface Kern2ArrayContext extends r.ParsingContext {
 	parent: KernSubTableContext;
 	off: number;
 }

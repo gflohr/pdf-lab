@@ -1,4 +1,4 @@
-import r, { type FieldT, type PointerT } from 'restructure';
+import * as r from 'restructure';
 import {
 	type AAT,
 	AATUnboundedArray,

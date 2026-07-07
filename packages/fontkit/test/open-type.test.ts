@@ -3,7 +3,9 @@ import { describe, expect, it } from 'vitest';
 import { TrueTypeFont } from '../src/true-type-font.js';
 
 describe('opentype', async () => {
-	const fontBytes = await fs.readFile(`${import.meta.dirname}/data/SourceSansPro/SourceSansPro-Regular.otf`);
+	const fontBytes = await fs.readFile(
+		`${import.meta.dirname}/data/SourceSansPro/SourceSansPro-Regular.otf`,
+	);
 	const font = new TrueTypeFont(fontBytes);
 
 	it('featureParams nameID of stylistic set should be 257', () => {

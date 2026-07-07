@@ -1,4 +1,4 @@
-import r, { DecodeStream, type FieldT } from 'restructure';
+import * as r from 'restructure';
 import { type AATFont, requiredAATTables } from './aat/aat-font.js';
 import { fontkit } from './base.js';
 import type { CFFFont } from './cff/cff-font.js';
@@ -42,6 +42,7 @@ import {
 	requiredTrueTypeSubsetTables,
 	type TrueTypeSubsetFont,
 } from './true-type-subset-font.js';
+import { asciiDecoder } from './utils.js';
 
 export type LayoutFeatures = OpenType.Features | AAT.Features;
 
@@ -113,7 +114,7 @@ export class TrueTypeFont<
 	TDirectory extends SFNTFontDirectory = SFNTFontDirectory,
 > implements SFNTFont
 {
-	public stream: DecodeStream;
+	public stream: r.DecodeStream;
 	private variationCoords: number[] | null;
 	private directoryPos: number;
 	private tables: SFNTTableMap = {} as SFNTTableMap;
@@ -138,8 +139,8 @@ export class TrueTypeFont<
 	// interface heritage.
 	[key: string]: any;
 
-	public static probe(buffer: Buffer): boolean {
-		const format = buffer.toString('ascii', 0, 4);
+	public static probe(buffer: Uint8Array): boolean {
+		const format = asciiDecoder.decode(buffer.slice(0, 4));
 		return (
 			format === 'true' ||
 			format === 'OTTO' ||
@@ -148,11 +149,11 @@ export class TrueTypeFont<
 	}
 
 	constructor(
-		streamOrBuffer: Uint8Array | DecodeStream,
+		streamOrBuffer: Uint8Array | r.DecodeStream,
 		variationCoords: number[] | null = null,
 	) {
 		if (streamOrBuffer instanceof Uint8Array) {
-			this.stream = new DecodeStream(streamOrBuffer);
+			this.stream = new r.DecodeStream(streamOrBuffer);
 		} else {
 			this.stream = streamOrBuffer;
 		}
@@ -243,7 +244,7 @@ export class TrueTypeFont<
 		return tables[tag] as SFNTTableMap[K];
 	}
 
-	protected getTableStream(tag: string): DecodeStream | null {
+	protected getTableStream(tag: string): r.DecodeStream | null {
 		const table = this.directory.tables[tag];
 		if (table) {
 			this.stream.pos = table.offset;
@@ -253,14 +254,14 @@ export class TrueTypeFont<
 		return null;
 	}
 
-	public getGlyfTableStream(): DecodeStream | null {
+	public getGlyfTableStream(): r.DecodeStream | null {
 		return this.getTableStream('glyf');
 	}
 
 	protected decodeDirectory(): TDirectory {
 		return directory.decode(this.stream, {
 			_startOffset: 0,
-		} as FieldT<unknown>) as unknown as TDirectory;
+		} as r.FieldT<unknown>) as unknown as TDirectory;
 	}
 
 	protected decodeTable<K extends keyof typeof tables>(
@@ -273,7 +274,7 @@ export class TrueTypeFont<
 			const tag = table.tag as K;
 			const result = tables[tag].decode(
 				stream,
-				this as unknown as FieldT<unknown>,
+				this as unknown as r.FieldT<unknown>,
 				table.length,
 			);
 

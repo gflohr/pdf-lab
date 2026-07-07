@@ -1,10 +1,5 @@
 import brotli from '@pdf-lib/brotli/decompress.js';
-import r, {
-	type BufferT,
-	DecodeStream,
-	type Length,
-	type ParsingContext,
-} from 'restructure';
+import * as r from 'restructure';
 import type { Glyph } from './glyph/glyph.js';
 import {
 	type DecodedCompositeGlyph,
@@ -19,6 +14,7 @@ import type { WOFF2Directory } from './tables/woff2-directory.js';
 import { woff2DirectoryStruct } from './tables/woff2-directory.js';
 import { TrueTypeFont } from './true-type-font.js';
 import type { TrueTypeSubsetFont } from './true-type-subset-font.js';
+import { asciiDecoder } from './utils.js';
 
 /**
  * Subclass of TrueTypeFont that represents a TTF/OTF font compressed by WOFF2
@@ -32,12 +28,12 @@ export class WOFF2Font extends TrueTypeFont<WOFF2Directory> {
 	private decompressed: boolean;
 	public transformedGlyphs?: DecodedGlyph[];
 
-	public static probe(buffer: Buffer) {
-		return buffer.toString('ascii', 0, 4) === 'wOF2';
+	public static probe(buffer: Uint8Array) {
+		return asciiDecoder.decode(buffer.slice(0, 4)) === 'wOF2';
 	}
 
 	constructor(
-		streamOrBuffer: Uint8Array | DecodeStream,
+		streamOrBuffer: Uint8Array | r.DecodeStream,
 		variationCoords: number[] | null = null,
 	) {
 		super(streamOrBuffer, variationCoords);
@@ -163,15 +159,15 @@ export class WOFF2Font extends TrueTypeFont<WOFF2Directory> {
 }
 
 // Special class that accepts a length and returns a sub-stream for that data
-class Substream extends DecodeStream {
-	private buf: BufferT;
+class Substream extends r.DecodeStream {
+	private buf: r.BufferT;
 
-	constructor(readonly length: Length) {
-		super(length);
+	constructor(readonly length: r.Length) {
+		super(new Uint8Array());
 		this.buf = new r.Buffer(this.length);
 	}
 
-	decode(stream: DecodeStream, parent?: ParsingContext): DecodeStream {
+	decode(stream: r.DecodeStream, parent?: r.ParsingContext): r.DecodeStream {
 		return new r.DecodeStream(this.buf.decode(stream, parent));
 	}
 }
@@ -207,7 +203,7 @@ const fields = {
 	compositeStreamSize: r.uint32,
 	bboxStreamSize: r.uint32,
 	instructionStreamSize: r.uint32,
-	nContours: new Substream('nContourStreamSize') as DecodeStream,
+	nContours: new Substream('nContourStreamSize') as r.DecodeStream,
 	nPoints: new Substream('nPointsStreamSize'),
 	flags: new Substream('flagStreamSize'),
 	glyphs: new Substream('glyphStreamSize'),
@@ -222,7 +218,7 @@ const ONE_MORE_BYTE_CODE2 = 254;
 const ONE_MORE_BYTE_CODE1 = 255;
 const LOWEST_U_CODE = 253;
 
-function read255UInt16(stream: DecodeStream) {
+function read255UInt16(stream: r.DecodeStream) {
 	const code = stream.readUInt8();
 
 	if (code === WORD_CODE) {
@@ -245,8 +241,8 @@ function withSign(flag: number, baseval: number): number {
 }
 
 function decodeTriplet(
-	flags: DecodeStream,
-	glyphs: DecodeStream,
+	flags: r.DecodeStream,
+	glyphs: r.DecodeStream,
 	nPoints: number,
 ) {
 	let x = 0;

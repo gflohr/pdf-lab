@@ -1,4 +1,4 @@
-import r, { type EncodeStream, type StructT } from 'restructure';
+import * as r from 'restructure';
 import { tables } from './index.js';
 
 export type SFNTTableMap = {
@@ -102,7 +102,7 @@ directoryStruct.preEncode = function (this: DirectoryContext): void {
 		const entry = sourceTables[tag];
 
 		if (entry) {
-			const tableDef = tables[tag] as StructT<unknown, unknown>;
+			const tableDef = tables[tag] as r.StructT<unknown, unknown>;
 			if (!tableDef) continue;
 
 			encodedTableEntries.push({
@@ -136,5 +136,5 @@ export const directory = directoryStruct as Omit<
 	typeof directoryStruct,
 	'encode'
 > & {
-	encode(stream: EncodeStream, value: SFNTDirectoryEncodeInput): void;
+	encode(stream: r.EncodeStream, value: SFNTDirectoryEncodeInput): void;
 };

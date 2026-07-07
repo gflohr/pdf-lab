@@ -53,3 +53,41 @@ export function range(index: number, end: number): number[] {
 	}
 	return range;
 }
+
+/** @internal */
+export const asciiDecoder = new TextDecoder('ascii');
+
+const CHARS =
+	'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+const LOOKUP = new Uint8Array(256);
+for (let i = 0; i < CHARS.length; i++) {
+	LOOKUP[CHARS.charCodeAt(i)] = i;
+}
+
+/** @internal */
+export function decodeBase64(base64: string): Uint8Array {
+	let bufferLength = base64.length * 0.75;
+
+	if (base64[base64.length - 1] === '=') {
+		bufferLength--;
+		if (base64[base64.length - 2] === '=') {
+			bufferLength--;
+		}
+	}
+
+	const bytes = new Uint8Array(bufferLength);
+	let p = 0;
+
+	for (let i = 0, len = base64.length; i < len; i += 4) {
+		const encoded1 = LOOKUP[base64.charCodeAt(i)];
+		const encoded2 = LOOKUP[base64.charCodeAt(i + 1)];
+		const encoded3 = LOOKUP[base64.charCodeAt(i + 2)];
+		const encoded4 = LOOKUP[base64.charCodeAt(i + 3)];
+
+		bytes[p++] = (encoded1 << 2) | (encoded2 >> 4);
+		bytes[p++] = ((encoded2 & 15) << 4) | (encoded3 >> 2);
+		bytes[p++] = ((encoded3 & 3) << 6) | (encoded4 & 63);
+	}
+
+	return bytes;
+}

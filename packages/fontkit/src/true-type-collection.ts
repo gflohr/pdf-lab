@@ -1,5 +1,6 @@
-import r, { DecodeStream } from 'restructure';
+import * as r from 'restructure';
 import { TrueTypeFont } from './true-type-font.js';
+import { asciiDecoder } from './utils.js';
 
 export namespace TTCTable {
 	export interface HeaderV1 {
@@ -42,16 +43,16 @@ const TTCHeader = new r.VersionedStruct<
 >(r.uint32, ttcHeaderFields);
 
 export class TrueTypeCollection {
-	private stream: DecodeStream;
+	private stream: r.DecodeStream;
 	private header: TTCTable.Header;
 
-	static probe(buffer: Buffer) {
-		return buffer.toString('ascii', 0, 4) === 'ttcf';
+	static probe(buffer: Uint8Array) {
+		return asciiDecoder.decode(buffer.slice(0, 4)) === 'ttcf';
 	}
 
-	constructor(streamOrBuffer: Uint8Array | DecodeStream) {
+	constructor(streamOrBuffer: Uint8Array | r.DecodeStream) {
 		if (streamOrBuffer instanceof Uint8Array) {
-			this.stream = new DecodeStream(streamOrBuffer);
+			this.stream = new r.DecodeStream(streamOrBuffer);
 		} else {
 			this.stream = streamOrBuffer;
 		}

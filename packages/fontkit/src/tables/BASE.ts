@@ -1,4 +1,4 @@
-import r from 'restructure';
+import * as r from 'restructure';
 import { type OpenType, openTypeDevice } from './open-type.js';
 import { itemVariationStore, type OpenTypeVariation } from './variations.js';
 

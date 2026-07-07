@@ -4,9 +4,9 @@ import type {
 	FieldT,
 	InferField,
 	ParsingContext,
+	resolveLength,
 } from 'restructure';
-import r from 'restructure';
-import { resolveLength } from 'restructure/src/utils.js';
+import * as r from 'restructure';
 import { itemVariationStore } from '../tables/variations.js';
 import {
 	expertCharset,
@@ -125,7 +125,7 @@ const cffEncoding = new PredefinedOp(
  */
 export class RangeArray extends r.Array<FieldT<RangeRecord>> {
 	override decode(stream: DecodeStream, parent?: ParsingContext) {
-		const length = resolveLength(this.length, stream, parent);
+		const length = r.resolveLength(this.length, stream, parent);
 		let count = 0;
 		const res = [];
 		while (count < length) {

@@ -1,4 +1,4 @@
-import r from 'restructure';
+import * as r from 'restructure';
 import { describe, expect, it } from 'vitest'; // or jest
 import { opbd } from '../src/tables/opbd.js';
 

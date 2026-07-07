@@ -51,20 +51,3 @@ typedFontkit.open = async (
 };
 
 export default typedFontkit;
-
-export async function readSubsetStream(stream: EncodeStream): Promise<Buffer> {
-	const chunks: Buffer[] = [];
-
-	for await (const chunk of stream as unknown as AsyncIterable<Uint8Array>) {
-		chunks.push(Buffer.from(chunk));
-	}
-
-	return Buffer.concat(chunks);
-}
-
-export async function getSubsetFont(subset: Subset): Promise<TrueTypeFont> {
-	const stream = subset.encodeStream();
-	const buf = await readSubsetStream(stream);
-
-	return fontkit.create(buf) as TrueTypeFont;
-}

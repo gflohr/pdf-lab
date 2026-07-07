@@ -26,8 +26,7 @@ describe('bugfixes from foliojs/fontkit', () => {
 				subset.includeGlyph(glyph);
 			}
 
-			const subsetStream = subset.encodeStream();
-			const buf = await readSubsetStream(subsetStream);
+			const buf = subset.encode();
 
 			// The 4th byte (index 3) is the offSize field in a CFF block.
 			expect(buf[3]).toBe(4);

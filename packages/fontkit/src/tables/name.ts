@@ -1,4 +1,4 @@
-import r from 'restructure';
+import * as r from 'restructure';
 import { getEncoding, LANGUAGES } from '../encodings.js';
 
 export namespace nameTable {
@@ -240,7 +240,7 @@ name.preEncode = function (this: any) {
 			encodingID: 1,
 			languageID: 0x409,
 			nameID,
-			length: Buffer.byteLength(val.en, 'utf16le'),
+			length: val.en.length * 2,
 			string: val.en,
 		});
 

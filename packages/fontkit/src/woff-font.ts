@@ -1,28 +1,29 @@
-import r, { type DecodeStream, type FieldT } from 'restructure';
+import * as r from 'restructure';
 import inflate from 'tiny-inflate';
 import type { WOFFDirectory } from './tables/woff-directory.js';
 import { woffDirectoryStruct } from './tables/woff-directory.js';
 import { TrueTypeFont } from './true-type-font.js';
+import { asciiDecoder } from './utils.js';
 
 export class WOFFFont extends TrueTypeFont<WOFFDirectory> {
-	static probe(buffer: Buffer) {
-		return buffer.toString('ascii', 0, 4) === 'wOFF';
+	static probe(buffer: Uint8Array) {
+		return asciiDecoder.decode(buffer.slice(0, 4)) === 'wOFF';
 	}
 
 	protected decodeDirectory(): WOFFDirectory {
 		return woffDirectoryStruct.decode(this.stream, {
 			_startOffset: 0,
-		} as FieldT<unknown>);
+		} as r.FieldT<unknown>);
 	}
 
-	protected getTableStream(tag: string): DecodeStream | null {
+	protected getTableStream(tag: string): r.DecodeStream | null {
 		const table = this.directory.tables[tag];
 		if (table) {
 			this.stream.pos = table.offset;
 
 			if (table.compLength < table.length) {
 				this.stream.pos += 2; // skip deflate header
-				const outBuffer = Buffer.alloc(table.length);
+				const outBuffer = new Uint8Array(table.length);
 				const buf = inflate(
 					this.stream.readBuffer(table.compLength - 2),
 					outBuffer,

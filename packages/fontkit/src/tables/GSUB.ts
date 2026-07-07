@@ -1,4 +1,4 @@
-import r, { type RestructureLazyArray } from 'restructure';
+import * as r from 'restructure';
 import {
 	type OpenType,
 	openTypeChainingContext,
@@ -21,7 +21,7 @@ export namespace GSUBTable {
 		version: 2;
 		coverage?: OpenType.Coverage;
 		glyphCount: number;
-		substitute: RestructureLazyArray<number>;
+		substitute: r.RestructureLazyArray<number>;
 	}
 
 	export type LookupSingle =
@@ -34,14 +34,14 @@ export namespace GSUBTable {
 		substFormat: number;
 		coverage?: OpenType.Coverage;
 		count: number;
-		sequences: RestructureLazyArray<number[]>;
+		sequences: r.RestructureLazyArray<number[]>;
 	}
 
 	export interface LookupAlternate {
 		substFormat: number;
 		coverage?: OpenType.Coverage;
 		count: number;
-		alternateSet: RestructureLazyArray<number[]>;
+		alternateSet: r.RestructureLazyArray<number[]>;
 	}
 
 	export interface LookupLigatureSet {
@@ -53,7 +53,7 @@ export namespace GSUBTable {
 		substFormat: number;
 		coverage?: OpenType.Coverage;
 		count: number;
-		ligatureSets: RestructureLazyArray<LookupLigatureSet[]>;
+		ligatureSets: r.RestructureLazyArray<LookupLigatureSet[]>;
 	}
 
 	export type LookupContext = OpenType.Context & { lookupType: 5 };

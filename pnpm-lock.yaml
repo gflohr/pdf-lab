@@ -127,8 +127,8 @@ importers:
         specifier: ^2.1.0
         version: 2.1.0
       restructure:
-        specifier: ^2.0.1
-        version: 2.0.1
+        specifier: ^3.0.2
+        version: 3.0.2
     devDependencies:
       '@pdf-lib/unicode-properties':
         specifier: ^0.0.1
@@ -181,9 +181,6 @@ importers:
       fontkit:
         specifier: ^2.0.4
         version: 2.0.4
-      iconv-lite:
-        specifier: ^0.7.2
-        version: 0.7.2
       rimraf:
         specifier: ^6.1.3
         version: 6.1.3
@@ -3134,9 +3131,6 @@ packages:
     resolution: {integrity: sha512-TyeJ1zif53BPfHootBGwPRYT1RUt6oGWsaQr8UyZW/eAm9bKoijtvruSDEmZHm92CwS9nj7/fWttqPCgzep8CA==}
     engines: {node: '>= 0.4'}
     hasBin: true
-
-  restructure@2.0.1:
-    resolution: {integrity: sha512-e0dOpjm5DseomnXx2M5lpdZ5zoHqF1+bqdMJUohoYVVQa7cBdnk7fdmeI6byNWP/kiME72EeTiSypTCVnpLiDg==}
 
   restructure@3.0.2:
     resolution: {integrity: sha512-gSfoiOEA0VPE6Tukkrr7I0RBdE0s7H1eFCDBk05l1KIQT1UIKNc5JZy6jdyW6eYH3aR3g5b3PuL77rq0hvwtAw==}
@@ -6672,8 +6666,6 @@ snapshots:
       is-core-module: 2.16.1
       path-parse: 1.0.7
       supports-preserve-symlinks-flag: 1.0.0
-
-  restructure@2.0.1: {}
 
   restructure@3.0.2: {}
 

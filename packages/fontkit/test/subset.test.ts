@@ -1,13 +1,13 @@
 import assert from 'node:assert';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import r from 'restructure';
+import * as r from 'restructure';
 import { describe, expect, it } from 'vitest';
 import { CFFFont } from '../src/cff/cff-font.js';
 import { CFFGlyph } from '../src/glyph/cff-glyph.js';
 import type { OpenTypePostScriptFont } from '../src/open-type-font.js';
 import { TrueTypeFont } from '../src/true-type-font.js';
-import fontkit, { getSubsetFont, readSubsetStream } from './helpers.js';
+import fontkit from './helpers.js';
 
 const datadir = path.resolve(import.meta.dirname, './data');
 
@@ -26,7 +26,7 @@ describe('font subsetting', () => {
 				subset.includeGlyph(glyph);
 			}
 
-			const f = await getSubsetFont(subset);
+			const f = new TrueTypeFont(subset.encode());
 
 			expect(f.numGlyphs).toBe(5);
 
@@ -48,7 +48,7 @@ describe('font subsetting', () => {
 				subset.includeGlyph(glyph);
 			}
 
-			const f = await getSubsetFont(subset);
+			const f = new TrueTypeFont(subset.encode());
 
 			expect(f.getGlyph(1)!.path.toSVG()).toBe(
 				font.glyphsForString('e')[0]!.path.toSVG(),
@@ -59,7 +59,7 @@ describe('font subsetting', () => {
 			const subset = font.createSubset();
 			subset.includeGlyph(font.glyphsForString('é')[0]!);
 
-			const f = await getSubsetFont(subset);
+			const f = new TrueTypeFont(subset.encode());
 
 			expect(f.numGlyphs).toBe(4);
 			expect(f.getGlyph(1)!.path.toSVG()).toBe(
@@ -78,7 +78,7 @@ describe('font subsetting', () => {
 				subset.includeGlyph(glyph);
 			}
 
-			const f = await getSubsetFont(subset);
+			const f = new TrueTypeFont(subset.encode());
 			expect(f.numGlyphs).toBe(5);
 
 			let subsetShape = f.getGlyph(1)?.path.toSVG();
@@ -113,8 +113,7 @@ describe('font subsetting', () => {
 				subset.includeGlyph(glyph);
 			}
 
-			const subsetStream = subset.encodeStream();
-			const buf = await readSubsetStream(subsetStream);
+			const buf = subset.encode();
 
 			const stream = new r.DecodeStream(buf);
 			const cff = new CFFFont(stream);
@@ -142,8 +141,7 @@ describe('font subsetting', () => {
 				subset.includeGlyph(glyph);
 			}
 
-			const subsetStream = subset.encodeStream();
-			const buf = await readSubsetStream(subsetStream);
+			const buf = subset.encode();
 
 			const stream = new r.DecodeStream(buf);
 			const cff = new CFFFont(stream);
@@ -161,7 +159,9 @@ describe('font subsetting', () => {
 		});
 
 		it('should produce a subset with Asian punctuation correctly', async () => {
-			const bytes = fs.readFileSync(`${datadir}/NotoSansCJK/NotoSansCJKkr-Regular.otf`);
+			const bytes = fs.readFileSync(
+				`${datadir}/NotoSansCJK/NotoSansCJKkr-Regular.otf`,
+			);
 			const koreanFont = new TrueTypeFont(bytes);
 			const subset = koreanFont.createSubset();
 			const iterable = koreanFont.glyphsForString('a。d');
@@ -171,21 +171,36 @@ describe('font subsetting', () => {
 				subset.includeGlyph(glyph);
 			}
 
-			const buf = await readSubsetStream(subset.encodeStream());
+			const buf = subset.encode();
 			const stream = new r.DecodeStream(buf);
 
 			expect(koreanFont.cff).not.toBeNull();
 
 			const cff = new CFFFont(stream);
 
-			let glyph = new CFFGlyph(1, [], { stream, 'CFF ': cff } as OpenTypePostScriptFont);
-			expect(glyph.path.toSVG()).toBe(koreanFont.glyphsForString('a')[0]!.path.toSVG());
+			let glyph = new CFFGlyph(1, [], {
+				stream,
+				'CFF ': cff,
+			} as OpenTypePostScriptFont);
+			expect(glyph.path.toSVG()).toBe(
+				koreanFont.glyphsForString('a')[0]!.path.toSVG(),
+			);
 
-			glyph = new CFFGlyph(2, [], { stream, 'CFF ': cff } as OpenTypePostScriptFont);
-			expect(glyph.path.toSVG()).toBe(koreanFont.glyphsForString('。')[0]!.path.toSVG());
+			glyph = new CFFGlyph(2, [], {
+				stream,
+				'CFF ': cff,
+			} as OpenTypePostScriptFont);
+			expect(glyph.path.toSVG()).toBe(
+				koreanFont.glyphsForString('。')[0]!.path.toSVG(),
+			);
 
-			glyph = new CFFGlyph(3, [], { stream, 'CFF ': cff } as OpenTypePostScriptFont);
-			expect(glyph.path.toSVG()).toBe(koreanFont.glyphsForString('d')[0]!.path.toSVG());
+			glyph = new CFFGlyph(3, [], {
+				stream,
+				'CFF ': cff,
+			} as OpenTypePostScriptFont);
+			expect(glyph.path.toSVG()).toBe(
+				koreanFont.glyphsForString('d')[0]!.path.toSVG(),
+			);
 		});
 	});
 });

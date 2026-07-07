@@ -1,4 +1,4 @@
-import r from 'restructure';
+import * as r from 'restructure';
 
 export namespace CPALTable {
 	export interface ColorRecord {

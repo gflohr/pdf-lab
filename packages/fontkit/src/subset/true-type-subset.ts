@@ -48,7 +48,7 @@ export class TrueTypeSubset extends Subset {
 
 		let buffer = stream.readBuffer(nextOffset - curOffset);
 
-		// if it is a compound glyph, include its components
+		// If it is a compound glyph, include its components.
 		if (glyf && glyf.numberOfContours < 0) {
 			buffer = new Uint8Array(buffer);
 			const view = new DataView(
@@ -82,7 +82,7 @@ export class TrueTypeSubset extends Subset {
 		return this.glyf!.length - 1;
 	}
 
-	public encode(stream: EncodeStream) {
+	public encode() {
 		// tables required by PDF spec:
 		//   head, hhea, loca, maxp, cvt , prep, glyf, hmtx, fpgm
 		//
@@ -147,7 +147,7 @@ export class TrueTypeSubset extends Subset {
 		//     ]
 
 		// TODO: subset prep, cvt, fpgm?
-		directory.encode(stream, {
+		return directory.toBuffer({
 			tables: {
 				head,
 				hhea,

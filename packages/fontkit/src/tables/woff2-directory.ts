@@ -1,8 +1,8 @@
-import r, { type DecodeStream } from 'restructure';
+import * as r from 'restructure';
 import type { WOFFDirectoryEntry } from './woff-directory.js';
 
 const Base128 = {
-	decode(stream: DecodeStream): number {
+	decode(stream: r.DecodeStream): number {
 		let result = 0;
 		const iterable = [0, 1, 2, 3, 4];
 		for (let j = 0; j < iterable.length; j++) {
@@ -26,6 +26,12 @@ const Base128 = {
 	},
 	encode(): never {
 		throw new Error('Base128 does not implement encoding');
+	},
+	fromBuffer(): never {
+		throw new Error('Base128 does not implement encoding from a buffer');
+	},
+	toBuffer(): never {
+		throw new Error('Base128 does not implement decoding from a buffer');
 	},
 };
 

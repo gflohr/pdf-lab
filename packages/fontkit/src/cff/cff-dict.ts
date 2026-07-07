@@ -250,4 +250,12 @@ export class CFFDict implements FieldT<Record<string, any>> {
 	}
 
 	[key: string]: unknown;
+
+	fromBuffer(_buf: Uint8Array): never {
+		throw new Error('internal');
+	}
+
+	toBuffer(): never {
+		throw new Error('internal');
+	}
 }

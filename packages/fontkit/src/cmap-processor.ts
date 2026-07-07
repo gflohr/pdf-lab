@@ -1,11 +1,10 @@
-import iconv from 'iconv-lite';
-import { getEncoding } from './encodings.js';
+import { getEncoding, getEncodingMapping } from './encodings.js';
 import type { cmapTable } from './tables/cmap.js';
 import { binarySearch, range } from './utils.js';
 
 export class CmapProcessor {
 	private readonly codePointsForGlyphCache: Map<number, number[]>;
-	private readonly encoding: string | null = null;
+	private readonly encoding: Map<number, number> | null = null;
 	private readonly cmap: cmapTable.Subtable;
 	private readonly uvs: cmapTable.SubtableV14 | null;
 	private characterSet?: number[];
@@ -14,7 +13,7 @@ export class CmapProcessor {
 		this.codePointsForGlyphCache = new Map();
 
 		// Attempt to find a Unicode cmap first
-		let encoding: string;
+		let encoding: Map<number, number>;
 		let subtable = this.findSubtable(table, [
 			// 32-bit subtables
 			[3, 10],
@@ -29,9 +28,9 @@ export class CmapProcessor {
 			[0, 0],
 		]);
 
-		// If not unicode cmap was found, and iconv-lite is installed,
-		// take the first table with a supported encoding.
-		if (!subtable && iconv) {
+		// If not unicode cmap was found, take the first table with a supported
+		// encoding.
+		if (!subtable) {
 			for (const cmap of table.tables) {
 				if (cmap.table.version === 4 || cmap.table.version === 14) continue;
 
@@ -42,9 +41,10 @@ export class CmapProcessor {
 				);
 				if (!enc) continue;
 
-				if (iconv.encodingExists(enc)) {
+				const mapping = getEncodingMapping(enc);
+				if (mapping) {
 					subtable = cmap.table;
-					encoding = enc;
+					encoding = mapping;
 					break;
 				}
 			}
@@ -53,7 +53,9 @@ export class CmapProcessor {
 		if (!subtable) {
 			throw new Error('Could not find a supported cmap table');
 		}
+
 		this.cmap = subtable;
+
 		this.encoding = encoding!;
 
 		const uvs = this.findSubtable(table, [[0, 5]]);
@@ -83,13 +85,9 @@ export class CmapProcessor {
 		// If there is no Unicode cmap in this font, we need to re-encode
 		// the codepoint in the encoding that the cmap supports.
 		if (this.encoding) {
-			const buf = iconv.encode(String.fromCodePoint(codepoint), this.encoding);
-			codepoint = 0;
-			for (let i = 0; i < buf.length; i++) {
-				codepoint = (codepoint << 8) | buf[i];
-			}
-
-			// Otherwise, try to get a Unicode variation selector for this codepoint if one is provided.
+			codepoint = this.encoding.get(codepoint) || codepoint;
+			// Otherwise, try to get a Unicode variation selector for this
+			// codepoint if one is provided.
 		} else if (variationSelector) {
 			const gid = this.getVariationSelector(codepoint, variationSelector);
 			if (gid) {

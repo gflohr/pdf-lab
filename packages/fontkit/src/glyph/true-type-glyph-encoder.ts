@@ -1,4 +1,4 @@
-import r, { type EncodeStream, type FieldT } from 'restructure';
+import * as r from 'restructure';
 import type { Path } from './path.js';
 
 // Flags for simple glyphs
@@ -14,14 +14,14 @@ const Point = {
 		return val >= 0 && val <= 255 ? 1 : 2;
 	},
 
-	encode(stream: EncodeStream, value: number) {
+	encode(stream: r.EncodeStream, value: number) {
 		if (value >= 0 && value <= 255) {
 			stream.writeUInt8(value);
 		} else {
 			stream.writeInt16BE(value);
 		}
 	},
-} as FieldT<number>;
+} as r.FieldT<number>;
 
 const Glyf = new r.Struct({
 	numberOfContours: r.int16, // if negative, this is a composite glyph
@@ -150,6 +150,7 @@ export class TrueTypeGlyphEncoder {
 		const size = Glyf.size(glyf);
 		const tail = 4 - (size % 4);
 
+		debugger;
 		const stream = new r.EncodeStream(size + tail);
 		Glyf.encode(stream, glyf);
 

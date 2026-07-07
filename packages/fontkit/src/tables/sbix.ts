@@ -1,4 +1,4 @@
-import r from 'restructure';
+import * as r from 'restructure';
 
 export namespace sbixTable {
 	export interface Flags {

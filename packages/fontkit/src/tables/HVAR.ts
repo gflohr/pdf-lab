@@ -1,16 +1,15 @@
-import r, { type DecodeStream, type FieldT, type Length } from 'restructure';
-import { resolveLength } from 'restructure/src/utils.js';
+import * as r from 'restructure';
 import { itemVariationStore, type OpenTypeVariation } from './variations.js';
 
 // TODO: add this to restructure
-export class VariableSizeNumber implements FieldT<number> {
-	private readonly _size: Length;
+export class VariableSizeNumber implements r.FieldT<number> {
+	private readonly _size: r.Length;
 
-	constructor(size: Length) {
+	constructor(size: r.Length) {
 		this._size = size;
 	}
 
-	decode(stream: DecodeStream, parent?: FieldT<unknown>): number {
+	decode(stream: r.DecodeStream, parent?: r.FieldT<unknown>): number {
 		const size = this.size(0, parent);
 
 		switch (size) {
@@ -27,12 +26,20 @@ export class VariableSizeNumber implements FieldT<number> {
 		}
 	}
 
-	size(_val?: unknown, parent?: FieldT<unknown>) {
-		return resolveLength(this._size, null, parent);
+	size(_val?: unknown, parent?: r.FieldT<unknown>) {
+		return r.resolveLength(this._size, null, parent);
 	}
 
 	encode() {
 		throw new Error('Variable size number does not support encoding!');
+	}
+
+	fromBuffer(_buf: Uint8Array): number {
+		throw new Error('Variable size number cannot be instantiated from buffer!');
+	}
+
+	toBuffer(): Uint8Array {
+		throw new Error('Variable size number cannot be encoded to a buffer!');
 	}
 }
 

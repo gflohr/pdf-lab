@@ -1,4 +1,4 @@
-import r, { type DecodeStream, type FieldT } from 'restructure';
+import * as r from 'restructure';
 
 export namespace gvarTable {
 	export interface gvar {
@@ -16,7 +16,7 @@ export namespace gvarTable {
 const shortFrac = new r.Fixed(16, 'BE', 14);
 
 const Offset = {
-	decode(stream: DecodeStream, parent: FieldT<unknown>) {
+	decode(stream: r.DecodeStream, parent: r.FieldT<unknown>) {
 		// In short format, offsets are multiplied by 2.
 		// This doesn't seem to be documented by Apple, but it
 		// is implemented this way in Freetype.
@@ -28,7 +28,7 @@ const Offset = {
 			? stream.readUInt32BE()
 			: stream.readUInt16BE() * 2;
 	},
-} as FieldT<number>;
+} as r.FieldT<number>;
 
 const gvarStructFields = {
 	version: r.uint16,

@@ -1,4 +1,4 @@
-import r, { type DecodeStream } from 'restructure';
+import * as r from 'restructure';
 import type { DFont } from './d-font.js';
 import type { TrueTypeCollection } from './true-type-collection.js';
 import type { TrueTypeFont } from './true-type-font.js';
@@ -21,7 +21,7 @@ export interface FontContainer {
 	/**
 	 * The constructor signature accepting a Restructure `DecodeStream`.
 	 */
-	new (stream: DecodeStream): FontContainerInstance;
+	new (stream: r.DecodeStream): FontContainerInstance;
 }
 
 const formats: FontContainer[] = [];

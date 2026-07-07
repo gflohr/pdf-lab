@@ -1,4 +1,4 @@
-import r, { type RestructureLazyArray } from 'restructure';
+import * as r from 'restructure';
 
 export namespace cmapTable {
 	export interface Subheader {
@@ -42,7 +42,7 @@ export namespace cmapTable {
 		 * language-independent.
 		 */
 		language: number;
-		codeMap: RestructureLazyArray<number>;
+		codeMap: r.RestructureLazyArray<number>;
 	}
 
 	/** High-byte mapping (CJK). */
@@ -53,8 +53,8 @@ export namespace cmapTable {
 		language: number;
 		subheaderKeys: number[];
 		subheaderCount: number;
-		subheaders: RestructureLazyArray<Subheader>;
-		glyphIndexArray: RestructureLazyArray<number>;
+		subheaders: r.RestructureLazyArray<Subheader>;
+		glyphIndexArray: r.RestructureLazyArray<number>;
 	}
 
 	/** Segment mapping to delta values. */
@@ -72,11 +72,11 @@ export namespace cmapTable {
 		searchRange: number;
 		entrySelector: number;
 		rangeShift: number;
-		endCode: RestructureLazyArray<number>;
-		startCode: RestructureLazyArray<number>;
-		idDelta: RestructureLazyArray<number>;
-		idRangeOffset: RestructureLazyArray<number>;
-		glyphIndexArray: RestructureLazyArray<number>;
+		endCode: r.RestructureLazyArray<number>;
+		startCode: r.RestructureLazyArray<number>;
+		idDelta: r.RestructureLazyArray<number>;
+		idRangeOffset: r.RestructureLazyArray<number>;
+		glyphIndexArray: r.RestructureLazyArray<number>;
 	}
 
 	/** Trimmed table. */
@@ -87,7 +87,7 @@ export namespace cmapTable {
 		language: number;
 		firstCode: number;
 		entryCount: number;
-		glyphIndices: RestructureLazyArray<number>;
+		glyphIndices: r.RestructureLazyArray<number>;
 	}
 
 	/** Mixed 16-bit and 32-bit coverage. */
@@ -96,9 +96,9 @@ export namespace cmapTable {
 
 		length: number;
 		language: number;
-		is32: RestructureLazyArray<number>;
+		is32: r.RestructureLazyArray<number>;
 		nGroups: number;
-		groups: RestructureLazyArray<Group>;
+		groups: r.RestructureLazyArray<Group>;
 	}
 
 	/** Trimmed Array. */
@@ -109,7 +109,7 @@ export namespace cmapTable {
 		language: number;
 		firstCode: number;
 		entryCount: number;
-		glyphIndices: RestructureLazyArray<number>;
+		glyphIndices: r.RestructureLazyArray<number>;
 	}
 
 	/** Segmented coverage. */
@@ -119,7 +119,7 @@ export namespace cmapTable {
 		length: number;
 		language: number;
 		nGroups: number;
-		groups: RestructureLazyArray<Group>;
+		groups: r.RestructureLazyArray<Group>;
 	}
 
 	/**
@@ -131,7 +131,7 @@ export namespace cmapTable {
 		length: number;
 		language: number;
 		nGroups: number;
-		groups: RestructureLazyArray<Group>;
+		groups: r.RestructureLazyArray<Group>;
 	}
 
 	/** Unicode Variation Sequences. */
@@ -140,7 +140,7 @@ export namespace cmapTable {
 
 		length: number;
 		numRecords: number;
-		varSelectors: RestructureLazyArray<VarSelectorRecord>;
+		varSelectors: r.RestructureLazyArray<VarSelectorRecord>;
 	}
 
 	export type Subtable =

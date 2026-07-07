@@ -1,4 +1,4 @@
-import r, { type FieldT, type RestructureLazyArray } from 'restructure';
+import * as r from 'restructure';
 
 export namespace OpenType {
 	/**
@@ -270,7 +270,7 @@ export namespace OpenType {
 	export interface FeatureParams {
 		version: number;
 		nameID: number;
-	};
+	}
 
 	export interface Feature {
 		featureParams: FeatureParams;
@@ -319,7 +319,7 @@ export namespace OpenType {
 		/** Pointer to the FeatureList table which maps typographical layout features. */
 		featureList: FeatureRecord[];
 		/** List of lookup execution sequence steps mapping specific structural changes. */
-		lookupList: RestructureLazyArray<LookupTable<TLookupTable>>;
+		lookupList: r.RestructureLazyArray<LookupTable<TLookupTable>>;
 	}
 
 	export interface RangeRecord {
@@ -508,8 +508,11 @@ export const openTypeScriptList = new r.Array(scriptRecord, r.uint16);
 const featureParamsFields = {
 	version: r.uint16, // should be set to 0 according to OT spec.
 	nameID: r.uint16, // OT spec: UI Name ID or uiLabelNameId.
-}
-const featureParams = new r.Struct<typeof featureParamsFields, OpenType.FeatureParams>(featureParamsFields);
+};
+const featureParams = new r.Struct<
+	typeof featureParamsFields,
+	OpenType.FeatureParams
+>(featureParamsFields);
 
 const featureFields = {
 	featureParams: new r.Pointer(r.uint16, featureParams),

@@ -1,5 +1,4 @@
-import r, { type DecodeStream } from 'restructure';
-import type { OpenTypeTrueTypeFont } from '../open-type-font.js';
+import * as r from 'restructure';
 import type { TrueTypeFont } from '../true-type-font.js';
 import type { TrueTypeSubsetFont } from '../true-type-subset-font.js';
 import { BoundingBox } from './bounding-box.js';
