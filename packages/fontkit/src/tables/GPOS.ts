@@ -61,7 +61,9 @@ export class ValueRecord implements r.FieldT<GPOSTable.DecodedValueRecord> {
 	 * Walks up the parent chain to find the structural configuration
 	 * and dynamically constructs the appropriate layout.
 	 */
-	private buildStruct(parent: any): r.StructT<GPOSTable.DecodedValueRecord, any> {
+	private buildStruct(
+		parent: any,
+	): r.StructT<GPOSTable.DecodedValueRecord, any> {
 		let struct = parent;
 
 		// Crawl up the hierarchy until we find the format dictionary and a parent
