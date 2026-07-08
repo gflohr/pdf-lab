@@ -1,11 +1,14 @@
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import type { COLRGlyph, SBIXGlyph } from '../dist/index.js';
-import { BoundingBox } from '../src/glyph/bounding-box.js';
-import type { Path } from '../src/index.js';
-import { WOFFFont } from '../src/woff-font.js';
-import { WOFF2Font } from '../src/woff2-font.js';
+import {
+	BoundingBox,
+	type COLRGlyph,
+	type Path,
+	type SBIXGlyph,
+	WOFF2Font,
+	WOFFFont,
+} from '../src/index.js';
 import fontkit from './helpers.js';
 
 const datadir = path.resolve(import.meta.dirname, './data');

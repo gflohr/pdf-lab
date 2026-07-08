@@ -1,7 +1,6 @@
 import * as fs from 'node:fs/promises';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { fontkit } from '../src/index.js';
-import { TrueTypeFont } from '../src/true-type-font';
+import { fontkit, TrueTypeFont } from '../src/index.js';
 
 // Minimal mock setup to recreate the context of the TrueTypeFont class context
 const mockFontkit = {

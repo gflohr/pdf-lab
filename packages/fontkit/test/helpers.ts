@@ -1,10 +1,8 @@
 /* istanbul ignore file */
 import { readFileSync } from 'node:fs';
 import * as fs from 'node:fs/promises';
-import type { EncodeStream } from 'restructure';
 import type { Font, VariationCoordinates } from '../src/font.js';
-import { fontkit } from '../src/index.js';
-import type { Subset } from '../src/subset/index.js';
+import { fontkit, type SFNTFont } from '../src/index.js';
 import type { TrueTypeFont } from '../src/true-type-font.js';
 
 type OpenCallback = (
@@ -17,7 +15,7 @@ interface Fontkit {
 
 	registerFormat(format: unknown): void;
 
-	create(buffer: Uint8Array, postscriptName?: string): Font;
+	create(buffer: Uint8Array, postscriptName?: string): SFNTFont;
 
 	openSync(
 		filename: string,
@@ -30,7 +28,7 @@ interface Fontkit {
 	): Promise<TrueTypeFont>;
 }
 
-const typedFontkit = fontkit as Fontkit;
+const typedFontkit = fontkit as unknown as Fontkit;
 
 typedFontkit.openSync = (
 	filename: string,

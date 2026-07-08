@@ -1,6 +1,6 @@
 import * as fs from 'node:fs/promises';
 import { describe, expect, it } from 'vitest';
-import { TrueTypeFont } from '../src/true-type-font.js';
+import { TrueTypeFont } from '../src/index.js';
 
 describe('opentype', async () => {
 	const fontBytes = await fs.readFile(

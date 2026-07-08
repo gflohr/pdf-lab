@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { BoundingBox } from '../src/glyph/bounding-box.js';
+import { BoundingBox } from '../src/index.js';
 import fontkit from './helpers.js';
 
 const datadir = path.resolve(import.meta.dirname, './data');
@@ -21,8 +21,8 @@ describe('Font metadata', () => {
 
 	it('exposes some metrics', () => {
 		expect(font.unitsPerEm).toBe(2048);
-		expect(font.ascent | 0).toBe(2189);
-		expect(font.descent | 0).toBe(-600);
+		expect(font.ascent!).toBe(2189);
+		expect(font.descent!).toBe(-600);
 		expect(font.lineGap).toBe(0);
 		expect(font.underlinePosition).toBe(-154);
 		expect(font.underlineThickness).toBe(102);

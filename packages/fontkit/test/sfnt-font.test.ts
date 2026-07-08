@@ -5,13 +5,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
 	requiredOpenTypeTables,
 	requiredOpenTypeTrueTypeTables,
-} from '../src/open-type-font.js';
-import type { SFNTFontDirectory } from '../src/sfnt-font.js';
-import type {
-	SFNTDirectoryEntry,
-	SFNTTableMap,
-} from '../src/tables/directory.js';
-import { TrueTypeFont } from '../src/true-type-font.js';
+	type SFNTDirectoryEntry,
+	type SFNTFontDirectory,
+	type SFNTTableMap,
+	TrueTypeFont,
+} from '../src/index.js';
 
 vi.mock('./src/tables/index.js', () => ({
 	tables: {
