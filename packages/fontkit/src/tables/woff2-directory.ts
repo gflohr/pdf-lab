@@ -27,11 +27,11 @@ const Base128 = {
 	encode(): never {
 		throw new Error('Base128 does not implement encoding');
 	},
-	fromBuffer(): never {
-		throw new Error('Base128 does not implement encoding from a buffer');
+	fromBuffer(_buf: Uint8Array): never {
+		throw new Error('Base128 does not support decoding from a buffer.');
 	},
-	toBuffer(): never {
-		throw new Error('Base128 does not implement decoding from a buffer');
+	toBuffer(): Uint8Array {
+		throw new Error('Base128 does not support encoding to a buffer.');
 	},
 };
 

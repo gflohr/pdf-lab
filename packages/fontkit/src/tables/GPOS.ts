@@ -113,11 +113,11 @@ export class ValueRecord implements r.FieldT<GPOSTable.DecodedValueRecord> {
 	}
 
 	fromBuffer(_buf: Uint8Array): GPOSTable.DecodedValueRecord {
-		throw new Error('ValueRecord does not decoding from a buffer.');
+		throw new Error('ValueRecord does not support decoding from a buffer.');
 	}
 
 	toBuffer(): Uint8Array {
-		throw new Error('ValueRecord does not encoding to a buffer.');
+		throw new Error('ValueRecord does not support encoding to a buffer.');
 	}
 }
 
