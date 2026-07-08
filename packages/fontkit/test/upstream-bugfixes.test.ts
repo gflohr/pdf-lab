@@ -32,8 +32,8 @@ describe('bugfixes from foliojs/fontkit', () => {
 		});
 	});
 
-	describe('upstream #282 - ReferenceError: Cannot access \'c3x\' before initialization', () => {
-        it('should not throw a ReferenceError', async () => {
+	describe("upstream #282 - ReferenceError: Cannot access 'c3x' before initialization", () => {
+		it('should not throw a ReferenceError', async () => {
 			const fontPath = path.join(
 				__dirname,
 				'data',

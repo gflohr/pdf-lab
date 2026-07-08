@@ -24,13 +24,12 @@ const fields = {
 const GlyphHeader = new r.Struct<typeof fields, GlyphHeaderData>(fields);
 
 // Flags for simple glyphs.
-// FIXME! This repeats the same variables in true-type-glyph-encoder.ts!
-const ON_CURVE = 1 << 0;
-const X_SHORT_VECTOR = 1 << 1;
-const Y_SHORT_VECTOR = 1 << 2;
-const REPEAT = 1 << 3;
-const SAME_X = 1 << 4;
-const SAME_Y = 1 << 5;
+export const ON_CURVE = 1 << 0; /** @internal */
+export const X_SHORT_VECTOR = 1 << 1; /** @internal */
+export const Y_SHORT_VECTOR = 1 << 2; /** @internal */
+export const REPEAT = 1 << 3; /** @internal */
+export const SAME_X = 1 << 4; /** @internal */
+export const SAME_Y = 1 << 5; /** @internal */
 
 // Flags for composite glyphs
 const ARG_1_AND_2_ARE_WORDS = 1 << 0;
@@ -215,7 +214,10 @@ export class TrueTypeGlyph extends Glyph {
 		return glyph;
 	}
 
-	private decodeSimple(glyph: DecodedSimpleGlyph, stream: r.DecodeStream): void {
+	private decodeSimple(
+		glyph: DecodedSimpleGlyph,
+		stream: r.DecodeStream,
+	): void {
 		// this is a simple glyph
 		glyph.points = [];
 		glyph.instructions = [];

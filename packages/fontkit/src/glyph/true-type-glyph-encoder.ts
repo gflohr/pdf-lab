@@ -1,13 +1,13 @@
 import * as r from 'restructure';
 import type { Path } from './path.js';
-
-// Flags for simple glyphs
-const ON_CURVE = 1 << 0;
-const X_SHORT_VECTOR = 1 << 1;
-const Y_SHORT_VECTOR = 1 << 2;
-const REPEAT = 1 << 3;
-const SAME_X = 1 << 4;
-const SAME_Y = 1 << 5;
+import {
+	ON_CURVE,
+	REPEAT,
+	SAME_X,
+	SAME_Y,
+	X_SHORT_VECTOR,
+	Y_SHORT_VECTOR,
+} from './true-type-glyph.js';
 
 const Point = {
 	size(val: number): 1 | 2 {

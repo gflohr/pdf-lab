@@ -52,9 +52,7 @@ interface DirectoryContext extends Omit<SFNTDirectory, 'tables'> {
 	//
 	// After the deocding, they are transformed into an object with the
 	// table tag (cmap, head, hmtx, ...) as keys.
-	tables:
-		| SFNTTableEntryBinary[]
-		| Record<string, SFNTDirectoryEntry>;
+	tables: SFNTTableEntryBinary[] | Record<string, SFNTDirectoryEntry>;
 }
 
 // Binary Layout Definitions
