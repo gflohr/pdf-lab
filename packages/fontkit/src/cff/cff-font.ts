@@ -47,6 +47,9 @@ export class CFFFont {
 		return this;
 	}
 
+	public size() { throw new Error('internal') }
+	public encode() { throw new Error('internal') }
+
 	// sid: number | null
 	string(sid: number | null) {
 		if (sid === null || this.version >= 2) {

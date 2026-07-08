@@ -48,9 +48,13 @@ export interface SFNTDirectory {
  * Context interface matching the internal state inside restructure lifecycle hooks
  */
 interface DirectoryContext extends Omit<SFNTDirectory, 'tables'> {
-	// During execution, tables transitions from the raw array to the mapped
-	// record.
-	tables: SFNTTableEntryBinary[] & Record<string, SFNTDirectoryEntry>;
+	// The tables are initially an array of binary entries.
+	//
+	// After the deocding, they are transformed into an object with the
+	// table tag (cmap, head, hmtx, ...) as keys.
+	tables:
+		| SFNTTableEntryBinary[]
+		| Record<string, SFNTDirectoryEntry>;
 }
 
 // Binary Layout Definitions
@@ -83,31 +87,33 @@ const directoryStruct = new r.Struct<typeof directoryFields, SFNTDirectory>(
 directoryStruct.process = function (this: DirectoryContext): void {
 	const mappedTables: Record<string, SFNTDirectoryEntry> = {};
 
-	for (const table of this.tables) {
+	for (const table of this.tables as SFNTTableEntryBinary[]) {
 		mappedTables[table.tag] = table;
 	}
 
 	// Safely cast away the binary array representation to the clean runtime
 	// map.
-	this.tables = mappedTables as any;
+	this.tables = mappedTables;
 };
 
 directoryStruct.preEncode = function (this: DirectoryContext): void {
 	if (!Array.isArray(this.tables)) {
 		const tables = [];
-		for (const tag in this.tables) {
+		for (const key in this.tables) {
+			const tag = key as keyof typeof allTables;
+			const tableDef = allTables[tag] as r.FieldT<unknown> | undefined;
 			const table = this.tables[tag];
-			if (table) {
+			if (table && tableDef) {
 				tables.push({
 					tag,
 					checkSum: 0,
-					offset: new r.VoidPointer(allTables[tag], table),
-					length: allTables[tag].size(table),
+					offset: new r.VoidPointer(tableDef, table),
+					length: tableDef.size(table),
 				});
 			}
 		}
 
-		this.tables = tables;
+		this.tables = tables as unknown as SFNTDirectoryEntry[];
 	}
 
 	this.tag = 'true';
