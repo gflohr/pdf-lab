@@ -16,7 +16,10 @@ import { CFFDict } from './cff-dict.js';
 import { expertEncoding, standardEncoding } from './cff-encodings.js';
 import { CFFIndex } from './cff-index.js';
 import { CFFPointer, type Ptr } from './cff-pointer.js';
-import { type CFFPrivateDictTable, cffPrivateDict } from './cff-private-dict.js';
+import {
+	type CFFPrivateDictTable,
+	cffPrivateDict,
+} from './cff-private-dict.js';
 
 interface RangeRecord {
 	first: number;

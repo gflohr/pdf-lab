@@ -6,6 +6,7 @@ import type {
 	ParsingContext,
 } from 'restructure';
 import { cffOperand } from './cff-operand.js';
+import type { CFFPointer } from './cff-pointer.js';
 import type { CFFPrivateDictTable } from './cff-private-dict.js';
 import type { CFFPrivateOp, PredefinedOp } from './cff-top.js';
 
@@ -29,6 +30,18 @@ type CFFOpType =
 	| CFFOp
 	| CFFPrivateOp
 	// FIXME! Is it really needed to add `PredefinedOp` to the union?
+	| PredefinedOp;
+
+type CFFOpEncodingType =
+	| 'delta'
+	| 'number'
+	| 'boolean'
+	| 'offset'
+	| 'sid'
+	| 'array'
+	| string[]
+	| CFFPrivateOp
+	| CFFPointer<FieldT<unknown>>
 	| PredefinedOp;
 
 export type CFFOpDefinition = [
@@ -100,7 +113,7 @@ export class CFFDict implements FieldT<Record<string, any>> {
 	}
 
 	encodeOperands(
-		type: any,
+		type: CFFOpEncodingType,
 		stream: EncodeStream | null,
 		ctx: CFFContext,
 		operands: any,
@@ -108,10 +121,14 @@ export class CFFDict implements FieldT<Record<string, any>> {
 		if (Array.isArray(type)) {
 			return operands.map(
 				(op: any, i: number) =>
-					this.encodeOperands(type[i], stream, ctx, op)[0],
+					this.encodeOperands(type[i] as CFFOpEncodingType, stream, ctx, op)[0],
 			);
-		} else if (type && typeof type.encode === 'function') {
-			return type.encode(stream, operands, ctx);
+		} else if (
+			type &&
+			typeof type === 'object' &&
+			typeof type.encode === 'function'
+		) {
+			return type.encode(stream!, operands, ctx) as unknown as any[];
 		} else if (typeof operands === 'number') {
 			return [operands];
 		} else if (typeof operands === 'boolean') {
@@ -198,7 +215,12 @@ export class CFFDict implements FieldT<Record<string, any>> {
 				continue;
 			}
 
-			const operands = this.encodeOperands(field[2], null, ctx, val);
+			const operands = this.encodeOperands(
+				field[2] as CFFOpEncodingType,
+				null,
+				ctx,
+				val,
+			);
 			for (const op of operands) {
 				len += cffOperand.size(op);
 			}
@@ -231,7 +253,12 @@ export class CFFDict implements FieldT<Record<string, any>> {
 				continue;
 			}
 
-			const operands = this.encodeOperands(field[2], stream, ctx, val);
+			const operands = this.encodeOperands(
+				field[2] as CFFOpEncodingType,
+				stream,
+				ctx,
+				val,
+			);
 			for (const op of operands) {
 				cffOperand.encode(stream, op);
 			}
