@@ -68,7 +68,6 @@ describe('font subsetting', () => {
 		});
 
 		it('should handle fonts with long index to location format (indexToLocFormat = 1)', async () => {
-			fontkit.logErrors = true;
 			const bytes = fs.readFileSync(
 				`${import.meta.dirname}/data/FiraSans/FiraSans-Regular.ttf`,
 			);
