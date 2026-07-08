@@ -410,7 +410,7 @@ describe('glyphs', () => {
 		});
 
 		it('should get a CFFGlyph', () => {
-			expect(glyph?.constructor.name, 'CFFGlyph');
+			expect(glyph?.constructor.name).toBe('CFFGlyph');
 		});
 
 		it('should get a path for the glyph', () => {
