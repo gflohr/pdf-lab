@@ -552,8 +552,8 @@ const lookupFlags = new r.Struct<
 
 // `@NO_SIDE_EFFECTS`
 export function openTypeLookupList<T>(
-	SubTable: FieldT<T>,
-): FieldT<OpenType.LookupTable<T>[]> {
+	SubTable: r.FieldT<T>,
+): r.FieldT<OpenType.LookupTable<T>[]> {
 	const lookupFields = {
 		lookupType: r.uint16,
 		flags: lookupFlags,
@@ -569,7 +569,7 @@ export function openTypeLookupList<T>(
 		lookupFields,
 	);
 
-	return new r.LazyArray<FieldT<unknown>, OpenType.LookupTable<T>[]>(
+	return new r.LazyArray<r.FieldT<unknown>, OpenType.LookupTable<T>[]>(
 		new r.Pointer(r.uint16, Lookup),
 		r.uint16,
 	);

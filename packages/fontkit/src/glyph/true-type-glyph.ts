@@ -159,7 +159,7 @@ export class TrueTypeGlyph extends Glyph {
 
 	// Parses a single glyph coordinate.
 	private parseGlyphCoord(
-		stream: DecodeStream,
+		stream: r.DecodeStream,
 		prev: number,
 		short: number,
 		same: number,
@@ -215,7 +215,7 @@ export class TrueTypeGlyph extends Glyph {
 		return glyph;
 	}
 
-	private decodeSimple(glyph: DecodedSimpleGlyph, stream: DecodeStream): void {
+	private decodeSimple(glyph: DecodedSimpleGlyph, stream: r.DecodeStream): void {
 		// this is a simple glyph
 		glyph.points = [];
 		glyph.instructions = [];
@@ -288,7 +288,7 @@ export class TrueTypeGlyph extends Glyph {
 	// in WOFF2Font by calling the prototype method.
 	public decodeComposite(
 		glyph: DecodedCompositeGlyph,
-		stream: DecodeStream,
+		stream: r.DecodeStream,
 		offset = 0,
 	): boolean {
 		glyph.points = [];
