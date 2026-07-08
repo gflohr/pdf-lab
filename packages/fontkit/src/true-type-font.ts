@@ -551,7 +551,7 @@ export class TrueTypeFont<
 	public layout(
 		str: string,
 		userFeatures?: OpenType.Features | OpenType.FeatureTag[],
-		script?: string,
+		script?: Script.UnicodeScript,
 		language?: string,
 		direction?: BidiDirection,
 	): GlyphRun {
