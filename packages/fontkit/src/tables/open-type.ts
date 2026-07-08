@@ -273,7 +273,7 @@ export namespace OpenType {
 	}
 
 	export interface Feature {
-		featureParams: FeatureParams;
+		featureParams: FeatureParams | null;
 		lookupCount: number;
 		lookupListIndexes: number[];
 	}
