@@ -1,4 +1,4 @@
-import r, { type DecodeStream } from '@pdf-lib/restructure';
+import * as r from 'restructure';
 import { TrueTypeFont } from './true-type-font.js';
 
 const DFontName = new r.String(r.uint8);
@@ -84,6 +84,7 @@ const dFontHeader = new r.Struct<typeof dfontHeaderFields, DFontHeader>(
 );
 
 export class DFont {
+	private readonly stream: r.DecodeStream;
 	private readonly header: DFontHeader;
 	private readonly sfnt?: ResourceTypeEntry;
 
@@ -106,7 +107,13 @@ export class DFont {
 		return false;
 	}
 
-	constructor(private readonly stream: DecodeStream) {
+	constructor(streamOrBuffer: Uint8Array | r.DecodeStream) {
+		if (streamOrBuffer instanceof Uint8Array) {
+			this.stream = new r.DecodeStream(streamOrBuffer);
+		} else {
+			this.stream = streamOrBuffer;
+		}
+
 		this.header = dFontHeader.decode(this.stream);
 
 		for (const type of this.header.map.typeList.types) {
@@ -125,14 +132,20 @@ export class DFont {
 		}
 	}
 
-	public getFont(name: string): TrueTypeFont | null {
+	public getFont(name: string | Uint8Array): TrueTypeFont | null {
 		if (!this.sfnt) {
 			return null;
 		}
 
 		for (const ref of this.sfnt.refList) {
 			const font = this.decodeFont(ref);
-			if (font.postscriptName === name) {
+			if (
+				font.postscriptName === name ||
+				(font.postscriptName instanceof Uint8Array &&
+					name instanceof Uint8Array &&
+					font.postscriptName.length === name.length &&
+					font.postscriptName.every((v, i) => name[i] === v))
+			) {
 				return font;
 			}
 		}

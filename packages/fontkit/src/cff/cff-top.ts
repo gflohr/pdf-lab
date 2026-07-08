@@ -4,9 +4,9 @@ import type {
 	FieldT,
 	InferField,
 	ParsingContext,
-} from '@pdf-lib/restructure';
-import r from '@pdf-lib/restructure';
-import { resolveLength } from '@pdf-lib/restructure/src/utils.js';
+	resolveLength,
+} from 'restructure';
+import * as r from 'restructure';
 import { itemVariationStore } from '../tables/variations.js';
 import {
 	expertCharset,
@@ -27,13 +27,13 @@ interface RangeRecord {
 
 // Checks if an operand is an index of a predefined value,
 // otherwise delegates to the provided type.
-class PredefinedOp {
+export class PredefinedOp {
 	constructor(
 		private readonly predefinedOps: any[],
 		private readonly type: CFFPointer<any>,
 	) {}
 
-	decode(stream: DecodeStream, parent: unknown, operands: [number]): any {
+	decode(stream: DecodeStream, parent: unknown, operands: number[]): any {
 		if (this.predefinedOps[operands[0]]) {
 			return this.predefinedOps[operands[0]];
 		}
@@ -41,13 +41,13 @@ class PredefinedOp {
 		return this.type.decode(stream, parent, operands);
 	}
 
-	size(value: any, ctx?: ParsingContext) {
+	size(value: unknown, ctx?: ParsingContext) {
 		return this.type.size(value, ctx);
 	}
 
 	encode(
 		stream: EncodeStream,
-		value: any,
+		value: unknown,
 		ctx?: ParsingContext,
 	): number | Ptr | Ptr[] {
 		const index = this.predefinedOps.indexOf(value);
@@ -125,7 +125,7 @@ const cffEncoding = new PredefinedOp(
  */
 export class RangeArray extends r.Array<FieldT<RangeRecord>> {
 	override decode(stream: DecodeStream, parent?: ParsingContext) {
-		const length = resolveLength(this.length, stream, parent);
+		const length = r.resolveLength(this.length, stream, parent);
 		let count = 0;
 		const res = [];
 		while (count < length) {
@@ -224,9 +224,12 @@ export class CFFPrivateOp {
 	}
 
 	size(dict: CFFDict, ctx?: ParsingContext): [number, number] {
-		// The original version used ptr.size(dict, ctx)[0] as the second
-		// value. But invoking size() on ptr would cause a crash, as "this"
-		// is undefined in that context.
+		// FIXME: This method has zero test coverage upstream and contains a
+		// fatal runtime bug.  Upstream returns `ptr.size(dict, ctx)[0]` as
+		// the second item of the array, which crashes because `this` is
+		// undefined. I temporarily return `0` for the key size fallback to
+		// prevent such crashes, but proper serialisation behaviour for this
+		// private dict pointer needs verification.
 		return [privateCFFDict.size(dict, ctx, false), 0];
 	}
 
@@ -242,6 +245,8 @@ const fontDict = new CFFDict([
 	// key, name, type(s), default
 	[18, 'Private', new CFFPrivateOp(), null],
 	[[12, 38], 'FontName', 'sid', null],
+	[[12, 7], 'FontMatrix', 'array', [0.001, 0, 0, 0.001, 0, 0]],
+	[[12, 5], 'PaintType', 'number', 0],
 ]);
 
 const cffTopDict = new CFFDict([

@@ -1,9 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-	type AATFeaturesInput,
-	mapAATToOT,
-	mapOTToAAT,
-} from '../src/aat/aat-feature-map.js';
+import { type AATFeaturesInput, mapAATToOT, mapOTToAAT } from '../src/index.js';
 
 describe('AAT & OpenType Feature Mappings', () => {
 	describe('Static Tables Validation', () => {

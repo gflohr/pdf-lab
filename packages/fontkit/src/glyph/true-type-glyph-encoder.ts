@@ -1,27 +1,27 @@
-import r, { type EncodeStream, type FieldT } from '@pdf-lib/restructure';
+import * as r from 'restructure';
 import type { Path } from './path.js';
-
-// Flags for simple glyphs
-const ON_CURVE = 1 << 0;
-const X_SHORT_VECTOR = 1 << 1;
-const Y_SHORT_VECTOR = 1 << 2;
-const REPEAT = 1 << 3;
-const SAME_X = 1 << 4;
-const SAME_Y = 1 << 5;
+import {
+	ON_CURVE,
+	REPEAT,
+	SAME_X,
+	SAME_Y,
+	X_SHORT_VECTOR,
+	Y_SHORT_VECTOR,
+} from './true-type-glyph.js';
 
 const Point = {
 	size(val: number): 1 | 2 {
 		return val >= 0 && val <= 255 ? 1 : 2;
 	},
 
-	encode(stream: EncodeStream, value: number) {
+	encode(stream: r.EncodeStream, value: number) {
 		if (value >= 0 && value <= 255) {
 			stream.writeUInt8(value);
 		} else {
 			stream.writeInt16BE(value);
 		}
 	},
-} as FieldT<number>;
+} as r.FieldT<number>;
 
 const Glyf = new r.Struct({
 	numberOfContours: r.int16, // if negative, this is a composite glyph
@@ -41,7 +41,7 @@ const Glyf = new r.Struct({
  *
  * FIXME! This is rather a function than a class.
  */
-export class TTFGlyphEncoder {
+export class TrueTypeGlyphEncoder {
 	encodeSimple(path: Path, instructions: number[] = []): Uint8Array {
 		const endPtsOfContours = [];
 		const xPoints: number[] = [];
@@ -150,7 +150,7 @@ export class TTFGlyphEncoder {
 		const size = Glyf.size(glyf);
 		const tail = 4 - (size % 4);
 
-		const stream = new r.EncodeStream(size + tail);
+		const stream = new r.EncodeStream(new Uint8Array(size + tail));
 		Glyf.encode(stream, glyf);
 
 		// Align to 4-byte length

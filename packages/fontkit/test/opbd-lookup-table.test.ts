@@ -1,6 +1,6 @@
-import r from '@pdf-lib/restructure';
+import * as r from 'restructure';
 import { describe, expect, it } from 'vitest'; // or jest
-import { opbd } from '../src/tables/opbd.js';
+import { opbd } from '../src/index.js';
 
 describe('opbd (Optical Bounds) Table parsing', () => {
 	it('should successfully parse an AAT LookupTable Format 8 structure', () => {

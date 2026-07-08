@@ -1,4 +1,4 @@
-import r from '@pdf-lib/restructure';
+import * as r from 'restructure';
 import { getEncoding, LANGUAGES } from '../encodings.js';
 
 export namespace nameTable {
@@ -83,7 +83,11 @@ const nameRecordFields = {
 			'length',
 			(t) => getEncoding(t.platformID, t.encodingID, t.languageID) as string,
 		),
-		{ type: 'parent', relativeTo: 'parent.stringOffset', allowNull: false },
+		{
+			type: 'parent',
+			relativeTo: (ctx) => ctx.parent.stringOffset,
+			allowNull: false,
+		},
 	),
 };
 const NameRecord = new r.Struct<typeof nameRecordFields, nameTable.NameRecord>(
@@ -94,7 +98,7 @@ const langTagRecordFields = {
 	length: r.uint16,
 	tag: new r.Pointer(r.uint16, new r.String('length', 'utf16be'), {
 		type: 'parent',
-		relativeTo: 'stringOffset',
+		relativeTo: (ctx) => ctx.stringOffset,
 	}),
 };
 const LangTagRecord = new r.Struct<
@@ -236,7 +240,7 @@ name.preEncode = function (this: any) {
 			encodingID: 1,
 			languageID: 0x409,
 			nameID,
-			length: Buffer.byteLength(val.en, 'utf16le'),
+			length: val.en.length * 2,
 			string: val.en,
 		});
 

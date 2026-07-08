@@ -1,4 +1,4 @@
-import unicode from '@pdf-lib/unicode-properties';
+import unicode from 'unicode-properties';
 import type { BidiDirection } from '../../layout/glyph-run.js';
 import type { OpenType } from '../../tables/open-type.js';
 import type { GlyphInfo } from '../glyph-info.js';

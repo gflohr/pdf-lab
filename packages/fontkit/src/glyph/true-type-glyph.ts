@@ -1,5 +1,4 @@
-import r, { type DecodeStream } from '@pdf-lib/restructure';
-import type { OpenTypeTrueTypeFont } from '../open-type-font.js';
+import * as r from 'restructure';
 import type { TrueTypeFont } from '../true-type-font.js';
 import type { TrueTypeSubsetFont } from '../true-type-subset-font.js';
 import { BoundingBox } from './bounding-box.js';
@@ -25,13 +24,12 @@ const fields = {
 const GlyphHeader = new r.Struct<typeof fields, GlyphHeaderData>(fields);
 
 // Flags for simple glyphs.
-// FIXME! This repeats the same variables in ttf-glyph-encoder.ts!
-const ON_CURVE = 1 << 0;
-const X_SHORT_VECTOR = 1 << 1;
-const Y_SHORT_VECTOR = 1 << 2;
-const REPEAT = 1 << 3;
-const SAME_X = 1 << 4;
-const SAME_Y = 1 << 5;
+export const ON_CURVE = 1 << 0; /** @internal */
+export const X_SHORT_VECTOR = 1 << 1; /** @internal */
+export const Y_SHORT_VECTOR = 1 << 2; /** @internal */
+export const REPEAT = 1 << 3; /** @internal */
+export const SAME_X = 1 << 4; /** @internal */
+export const SAME_Y = 1 << 5; /** @internal */
 
 // Flags for composite glyphs
 const ARG_1_AND_2_ARE_WORDS = 1 << 0;
@@ -106,7 +104,7 @@ export type DecodedGlyph =
  *
  * // FIXME! Rename that to TrueTypeGlyph!
  */
-export class TTFGlyph extends Glyph {
+export class TrueTypeGlyph extends Glyph {
 	// Legacys Hack: Properties injected via base Glyph constructor mutations.
 	public numberOfContours!: number;
 	public xMin!: number;
@@ -160,7 +158,7 @@ export class TTFGlyph extends Glyph {
 
 	// Parses a single glyph coordinate.
 	private parseGlyphCoord(
-		stream: DecodeStream,
+		stream: r.DecodeStream,
 		prev: number,
 		short: number,
 		same: number,
@@ -216,7 +214,10 @@ export class TTFGlyph extends Glyph {
 		return glyph;
 	}
 
-	private decodeSimple(glyph: DecodedSimpleGlyph, stream: DecodeStream): void {
+	private decodeSimple(
+		glyph: DecodedSimpleGlyph,
+		stream: r.DecodeStream,
+	): void {
 		// this is a simple glyph
 		glyph.points = [];
 		glyph.instructions = [];
@@ -289,7 +290,7 @@ export class TTFGlyph extends Glyph {
 	// in WOFF2Font by calling the prototype method.
 	public decodeComposite(
 		glyph: DecodedCompositeGlyph,
-		stream: DecodeStream,
+		stream: r.DecodeStream,
 		offset = 0,
 	): boolean {
 		glyph.points = [];
@@ -388,7 +389,7 @@ export class TTFGlyph extends Glyph {
 			// resolve composite glyphs
 			for (const component of glyph.components!) {
 				const contours = (
-					this._font.getGlyph(component.glyphID) as unknown as TTFGlyph
+					this._font.getGlyph(component.glyphID) as unknown as TrueTypeGlyph
 				).getContours();
 				for (let i = 0; i < contours.length; i++) {
 					const contour = contours[i];
@@ -519,3 +520,8 @@ export class TTFGlyph extends Glyph {
 		return path;
 	}
 }
+
+/**
+ * Alias for {@link TrueTypeGlyph} to be compatible with upstream fontkit.
+ */
+export class TTFGlyph extends TrueTypeGlyph {}

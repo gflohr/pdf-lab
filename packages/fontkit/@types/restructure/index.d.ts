@@ -1,6 +1,6 @@
 /** biome-ignore-all lint/suspicious/noExplicitAny: this file models a highly dynamic runtime parsing DSL. */
 
-// This is an attempt to provide types for `@pdf-lib/restructure` the way
+// This is an attempt to provide types for `restructure` the way
 // the library is used inside of this project. It is very well possible that
 // legitimate usage of `restructure` is not reflected here. Do not suspect
 // a bug in this case but rather extend the typing.
@@ -8,7 +8,28 @@
 // FIXME! In its current state, this is a little bit of a mess because it has
 // grown by fixing typing errors in the tables code, as they occurred. It is
 // probably possible to get rid of a lot of the explicit any types.
-declare module '@pdf-lib/restructure' {
+declare module 'restructure' {
+	/**
+	 * Resolves a static number, string-pointer, or functional resolver down to
+	 * a final byte/item count based on the current stream context.
+	 */
+	export function resolveLength(
+		length: Length,
+		stream: DecodeStream | null,
+		parent: any,
+	): number;
+
+	/**
+	 * A wrapper configuration descriptor managing compiled metadata assignment rules.
+	 */
+	export class PropertyDescriptor {
+		enumerable: boolean;
+		configurable: boolean;
+		[key: string]: any;
+
+		constructor(opts?: Record<string, any>);
+	}
+
 	export type ParsingContext = any;
 	export type LengthResolver<T = any> = (t: T) => number;
 	export type Length = number | string | LengthResolver<any> | NumberT;
@@ -17,7 +38,7 @@ declare module '@pdf-lib/restructure' {
 		pos: number;
 		length: Length;
 
-		constructor(length?: Length | Uint8Array);
+		constructor(buffer: Uint8Array);
 
 		readString(length: number, encoding?: string): string;
 		readBuffer(offset: number): Uint8Array;
@@ -37,7 +58,7 @@ declare module '@pdf-lib/restructure' {
 		buffer: Uint8Array;
 		pos: number;
 
-		constructor(buffer?: number);
+		constructor(buffer: Uint8Array);
 
 		fill(val: number, length: number): void;
 		end(): void;
@@ -63,6 +84,9 @@ declare module '@pdf-lib/restructure' {
 		decode(stream: DecodeStream, ctx?: any): T;
 
 		encode(stream: EncodeStream, val: T, ctx?: any): void;
+
+		fromBuffer(buf: Uint8Array): T;
+		toBuffer(val?: any | null): Uint8Array;
 	}
 
 	export class NumberT implements FieldT<number> {
@@ -76,6 +100,9 @@ declare module '@pdf-lib/restructure' {
 		decode(stream: DecodeStream): number;
 
 		encode(stream: EncodeStream, val: number): void;
+
+		fromBuffer(buf: Uint8Array): number;
+		toBuffer(val?: any | null): Uint8Array;
 	}
 
 	export class FixedT implements FieldT<number> {
@@ -89,6 +116,9 @@ declare module '@pdf-lib/restructure' {
 		decode(stream: DecodeStream): number;
 
 		encode(stream: EncodeStream, val: number): void;
+
+		fromBuffer(buf: Uint8Array): number;
+		toBuffer(val?: any | null): Uint8Array;
 	}
 
 	export type EncodingResolver<T = any> = (t: T) => string;
@@ -105,6 +135,9 @@ declare module '@pdf-lib/restructure' {
 		decode(stream: DecodeStream, parent?: FieldT<unknown>): string;
 
 		encode(stream: EncodeStream, value: string, parent?: FieldT<unknown>): void;
+
+		fromBuffer(buf: Uint8Array): string;
+		toBuffer(val?: any | null): Uint8Array;
 	}
 
 	export type InferField<T> =
@@ -128,6 +161,9 @@ declare module '@pdf-lib/restructure' {
 		decode(stream: DecodeStream, parent?: any): InferField<TField>[];
 
 		encode(stream: EncodeStream, value: InferField<TField>[]): void;
+
+		fromBuffer(buf: Uint8Array): InferField<TField>[];
+		toBuffer(val?: any | null): Uint8Array;
 	}
 
 	export interface RestructureLazyArray<T> extends Array<T> {
@@ -151,6 +187,9 @@ declare module '@pdf-lib/restructure' {
 		decode(stream: DecodeStream): TExplicitOut;
 
 		encode(stream: EncodeStream, value: TExplicitOut): void;
+
+		fromBuffer(buf: Uint8Array): TExplicitOut;
+		toBuffer(val?: any | null): Uint8Array;
 	}
 
 	export type TypedStruct<T> = StructT<Record<string, any>, T>;
@@ -181,6 +220,9 @@ declare module '@pdf-lib/restructure' {
 
 		process?: (this: any, stream: DecodeStream) => void;
 		preEncode?: (this: any, stream: DecodeStream) => void;
+
+		fromBuffer(buf: Uint8Array): TExplicitOut;
+		toBuffer(val?: any | null): Uint8Array;
 	}
 
 	export type InferVersionedStruct<
@@ -208,6 +250,9 @@ declare module '@pdf-lib/restructure' {
 
 		process?: (this: any, stream: DecodeStream) => void;
 		preEncode?: (this: any, stream: DecodeStream) => void;
+
+		fromBuffer(buf: Uint8Array): TExplicitOut;
+		toBuffer(val?: any | null): Uint8Array;
 	}
 
 	type BitfieldResult<T extends readonly (string | null)[]> = {
@@ -235,6 +280,9 @@ declare module '@pdf-lib/restructure' {
 			value: BitfieldResult<TFlags>,
 			ctx?: any,
 		): void;
+
+		fromBuffer(buf: Uint8Array): BitfieldResult<TFlags>;
+		toBuffer(val?: any | null): Uint8Array;
 	}
 
 	export interface PointerTOptions {
@@ -242,7 +290,7 @@ declare module '@pdf-lib/restructure' {
 		allowNull?: boolean;
 		nullValue?: number;
 		lazy?: boolean;
-		relativeTo?: string;
+		relativeTo?: (ctx: any) => string;
 	}
 
 	export class PointerT<TField extends FieldT<any>>
@@ -269,6 +317,9 @@ declare module '@pdf-lib/restructure' {
 		size(value?: unknown, ctx?: unknown): number;
 
 		encode(stream: EncodeStream, value: unknown, ctx?: unknown): void;
+
+		fromBuffer(buf: Uint8Array): number;
+		toBuffer(val?: any | null): Uint8Array;
 	}
 
 	export class VoidPointerT<T = any> {
@@ -288,6 +339,9 @@ declare module '@pdf-lib/restructure' {
 		size(value?: undefined, parent?: any): number;
 
 		encode(stream: EncodeStream, value: undefined, parent?: any): void;
+
+		fromBuffer(buf: Uint8Array): number;
+		toBuffer(val?: any | null): Uint8Array;
 	}
 
 	export class BufferT implements FieldT<Uint8Array> {
@@ -301,6 +355,9 @@ declare module '@pdf-lib/restructure' {
 		decode(stream: DecodeStream, ctx?: any): Uint8Array;
 
 		encode(stream: EncodeStream, val: Uint8Array, ctx?: any): void;
+
+		fromBuffer(buf: Uint8Array): Uint8Array;
+		toBuffer(val?: any | null): Uint8Array;
 	}
 
 	export type ConditionResolver<T = any> = (t: T) => boolean;
@@ -319,81 +376,54 @@ declare module '@pdf-lib/restructure' {
 		): InferField<TField> | undefined;
 
 		encode(stream: EncodeStream, val: number, parent?: FieldT<number>): void;
+
+		fromBuffer(buf: Uint8Array): number;
+		toBuffer(val?: any | null): Uint8Array;
 	}
 
-	export interface RestructureStatic {
-		DecodeStream: typeof DecodeStream;
-		EncodeStream: typeof EncodeStream;
+	// biome-ignore lint/suspicious/noShadowRestrictedNames: legacy
+	export const Number: typeof NumberT;
+	export const Fixed: typeof FixedT;
+	// biome-ignore lint/suspicious/noShadowRestrictedNames: legacy
+	export const String: typeof StringT;
+	// biome-ignore lint/suspicious/noShadowRestrictedNames: legacy
+	export const Array: typeof ArrayT;
+	export const LazyArray: new <
+		TField extends FieldT<unknown>,
+		TExplicitOut = RestructureLazyArray<InferField<TField>>,
+	>(
+		type: TField,
+		length?: Length,
+		lengthType?: 'count' | 'bytes',
+	) => LazyArrayT<TField, TExplicitOut>;
+	export const Struct: new <TFields, TExplicitOut>(
+		fields: TFields,
+	) => StructT<TFields, TExplicitOut>;
+	export const VersionedStruct: new <TVersions, TExplicitOut>(
+		versionField: string | FieldT<number>,
+		versions: TVersions,
+	) => VersionedStructT<TVersions, TExplicitOut>;
+	export const Bitfield: typeof BitfieldT;
+	export const Pointer: typeof PointerT;
+	export const VoidPointer: typeof VoidPointerT;
+	export const Reserved: typeof ReservedT;
+	export const Buffer: typeof BufferT;
+	export const Optional: typeof OptionalT;
 
-		Number: typeof NumberT;
-		Fixed: typeof FixedT;
-		String: typeof StringT;
-		Array: typeof ArrayT;
-		LazyArray: new <
-			TField extends FieldT<unknown>,
-			TExplicitOut = RestructureLazyArray<InferField<TField>>,
-		>(
-			type: TField,
-			length?: Length,
-			lengthType?: 'count' | 'bytes',
-		) => LazyArrayT<TField, TExplicitOut>;
-		Struct: new <TFields, TExplicitOut>(
-			fields: TFields,
-		) => StructT<TFields, TExplicitOut>;
-		VersionedStruct: new <TVersions, TExplicitOut>(
-			versionField: string | FieldT<number>,
-			versions: TVersions,
-		) => VersionedStructT<TVersions, TExplicitOut>;
-		Bitfield: typeof BitfieldT;
-		Pointer: typeof PointerT;
-		VoidPointer: typeof VoidPointerT;
-		Reserved: typeof ReservedT;
-		Buffer: typeof BufferT;
-		Optional: typeof OptionalT;
-
-		int8: NumberT;
-		uint8: NumberT;
-		int16: NumberT;
-		uint16: NumberT;
-		int24: NumberT;
-		uint24: NumberT;
-		int32: NumberT;
-		uint32: NumberT;
-		float: NumberT;
-		double: NumberT;
-		fixed16: FixedT;
-		fixed16be: FixedT;
-		fixed16le: FixedT;
-		fixed32: FixedT;
-		fixed32be: FixedT;
-		fixed32le: FixedT;
-	}
-
-	const r: RestructureStatic;
-	export default r;
-}
-
-declare module '@pdf-lib/restructure/src/utils.js' {
-	import type { DecodeStream, Length } from '@pdf-lib/restructure';
-
-	/**
-	 * Resolves a static number, string-pointer, or functional resolver down to
-	 * a final byte/item count based on the current stream context.
-	 */
-	export function resolveLength(
-		length: Length,
-		stream: DecodeStream | null,
-		parent: any,
-	): number;
-
-	/**
-	 * A wrapper configuration descriptor managing compiled metadata assignment rules.
-	 */
-	export class PropertyDescriptor {
-		enumerable: boolean;
-		configurable: boolean;
-		[key: string]: any;
-
-		constructor(opts?: Record<string, any>);
-	}
+	export const int8: NumberT;
+	export const uint8: NumberT;
+	export const int16: NumberT;
+	export const uint16: NumberT;
+	export const int24: NumberT;
+	export const uint24: NumberT;
+	export const int32: NumberT;
+	export const uint32: NumberT;
+	export const float: NumberT;
+	export const double: NumberT;
+	export const fixed16: FixedT;
+	export const fixed16be: FixedT;
+	export const fixed16le: FixedT;
+	export const fixed32: FixedT;
+	export const fixed32be: FixedT;
+	export const fixed32le: FixedT;
 }

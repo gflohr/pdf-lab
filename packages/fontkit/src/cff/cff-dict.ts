@@ -1,13 +1,13 @@
+import isEqual from 'deep-equal';
 import type {
 	DecodeStream,
 	EncodeStream,
 	FieldT,
 	ParsingContext,
-} from '@pdf-lib/restructure';
-import isEqual from 'deep-equal';
+} from 'restructure';
 import { cffOperand } from './cff-operand.js';
 import type { CFFPrivateDictTable } from './cff-pointer.js';
-import type { CFFPrivateOp } from './cff-top.js';
+import type { CFFPrivateOp, PredefinedOp } from './cff-top.js';
 
 interface CFFOp extends FieldT<unknown> {
 	decode(
@@ -27,7 +27,9 @@ type CFFOpType =
 	| string[]
 	| null
 	| CFFOp
-	| CFFPrivateOp;
+	| CFFPrivateOp
+	// FIXME! Is it really needed to add `PredefinedOp` to the union?
+	| PredefinedOp;
 
 export type CFFOpDefinition = [
 	operator: number | [number, number],
@@ -250,4 +252,12 @@ export class CFFDict implements FieldT<Record<string, any>> {
 	}
 
 	[key: string]: unknown;
+
+	fromBuffer(_buf: Uint8Array): never {
+		throw new Error('internal');
+	}
+
+	toBuffer(): never {
+		throw new Error('internal');
+	}
 }

@@ -7,8 +7,8 @@ import type {
 	FieldT,
 	InferField,
 	PointerTOptions,
-} from '@pdf-lib/restructure';
-import r from '@pdf-lib/restructure';
+} from 'restructure';
+import * as r from 'restructure';
 import type { CFFIndexRecord } from './cff-index.js';
 
 export interface CFFPrivateDictTable {
@@ -74,7 +74,7 @@ export class CFFPointer<TField extends FieldT<any>> extends r.Pointer<TField> {
 	override decode(
 		stream: DecodeStream,
 		parent?: unknown,
-		operands?: [number],
+		operands?: number[],
 	): InferField<TField> {
 		if (operands && operands.length > 0) {
 			// Hijack offsetType: instead of reading bytes, return the

@@ -76,9 +76,14 @@ export class AATMorxProcessor {
 			// enable/disable the requested features
 			for (const feature of chain.features) {
 				const f = features[feature.featureType];
-				if (f?.[feature.featureSetting]) {
-					flags &= feature.disableFlags;
-					flags |= feature.enableFlags;
+				if (f) {
+					if (f[feature.featureSetting]) {
+						flags &= feature.disableFlags;
+						flags |= feature.enableFlags;
+					} else if (f[feature.featureSetting] === false) {
+						flags |= ~feature.disableFlags;
+						flags &= ~feature.enableFlags;
+					}
 				}
 			}
 

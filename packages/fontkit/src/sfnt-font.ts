@@ -1,4 +1,5 @@
-import type * as r from '@pdf-lib/restructure';
+/* istanbul ignore file */
+import type * as r from 'restructure';
 import type { AATFont } from './aat/aat-font.js';
 import type { CFFFont } from './cff/cff-font.js';
 import type { BoundingBox } from './glyph/bounding-box.js';
@@ -373,8 +374,11 @@ export interface SFNTFont<
 
 	/**
 	 * The unique PostScript name for this font or `null` if not present.
+	 *
+	 * Some broken fonts have PostScript names that cannot be decoded into
+	 * a string. They are exposed as `Uint8Array`.
 	 */
-	postscriptName: string | null;
+	postscriptName: string | Uint8Array | null;
 
 	/**
 	 * The font's full name, e.g. "Helvetica Bold", or `null` if not present.
@@ -591,4 +595,23 @@ export interface SFNTFont<
 	 * coordinates are applied, and is `null` for static fonts.
 	 */
 	variationProcessor: GlyphVariationProcessor | null;
+
+	/**
+	 * The default language for strings to get from the font with getName().
+	 *
+	 * @see {@link postscriptName}
+	 * @see {@link fullName}
+	 * @see {@link familyName}
+	 * @see {@link subFamilyName}
+	 * @see {@link copyright}
+	 * @see {@link version}
+	 */
+	defaultLanguage: string | null;
+
+	/**
+	 * Set the default language.
+	 *
+	 * @see {@link defaultLanguage}
+	 */
+	setDefaultLanguage(lang: string | null): void;
 }

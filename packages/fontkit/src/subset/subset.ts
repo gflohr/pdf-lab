@@ -1,4 +1,3 @@
-import r, { type EncodeStream } from '@pdf-lib/restructure';
 import type { Glyph } from '../glyph/glyph.js';
 import type { SFNTFont, SFNTFontDirectory } from '../sfnt-font.js';
 
@@ -28,17 +27,8 @@ export abstract class Subset {
 		return this.mapping[glyph];
 	}
 
-	abstract encode(stream: EncodeStream): void;
-
-	public encodeStream(): EncodeStream {
-		const s = new r.EncodeStream();
-
-		process.nextTick(() => {
-			this.encode(s);
-
-			return s.end();
-		});
-
-		return s;
-	}
+	// FIXME! It probaly makes sense to support the old version, too.
+	// It defines encodeStream(), which returns an EncodeStream. And this
+	// can be used as an optional argument to encode().
+	abstract encode(): Uint8Array;
 }

@@ -5,14 +5,7 @@
  * Loose typing via 'any' is required to prevent circular resolution errors
  * inside the parser engine framework.
  */
-import r, {
-	type DecodeStream,
-	type EncodeStream,
-	type FieldT,
-	type InferField,
-	type ParsingContext,
-	type StructT,
-} from '@pdf-lib/restructure';
+import * as r from 'restructure';
 
 export namespace AAT {
 	/**
@@ -83,7 +76,7 @@ export namespace AAT {
 
 	export interface LookupTableV0<T> {
 		version: 0;
-		values: UnboundedArrayAccessor<FieldT<T>>;
+		values: UnboundedArrayAccessor<r.FieldT<T>>;
 	}
 
 	export interface LookupSegmentSingle<T> {
@@ -145,8 +138,8 @@ export namespace AAT {
 	export interface StateHeader<TLookup = number, TEntry = Record<string, any>> {
 		nClasses: number;
 		classTable: LookupTable<TLookup>;
-		stateArray: UnboundedArrayAccessor<FieldT<number[]>>;
-		entryTable: UnboundedArrayAccessor<FieldT<StateEntry<TEntry>>>;
+		stateArray: UnboundedArrayAccessor<r.FieldT<number[]>>;
+		entryTable: UnboundedArrayAccessor<r.FieldT<StateEntry<TEntry>>>;
 	}
 
 	export type StateEntry1<TEntry> = {
@@ -158,13 +151,13 @@ export namespace AAT {
 	export interface StateHeader1<TEntry = Record<string, any>> {
 		nClasses: number;
 		classTable: Omit<LookupTableV8<number>, 'count'>;
-		stateArray: UnboundedArrayAccessor<FieldT<number[][]>>;
-		entryTable: UnboundedArrayAccessor<FieldT<StateEntry1<TEntry>>>;
+		stateArray: UnboundedArrayAccessor<r.FieldT<number[][]>>;
+		entryTable: UnboundedArrayAccessor<r.FieldT<StateEntry1<TEntry>>>;
 	}
 
-	export type StateTable = StructT<Record<string, unknown>, AAT.StateHeader>;
+	export type StateTable = r.StructT<Record<string, unknown>, AAT.StateHeader>;
 
-	export type StateTable1<TEntryData> = StructT<
+	export type StateTable1<TEntryData> = r.StructT<
 		TEntryData,
 		StateHeader1<TEntryData>
 	>;
@@ -172,14 +165,14 @@ export namespace AAT {
 	export type TypeFeatures = Record<string, Record<string, boolean>>;
 }
 
-export class UnboundedArrayAccessor<TField extends FieldT<any>> {
+export class UnboundedArrayAccessor<TField extends r.FieldT<any>> {
 	private type: TField;
-	private stream: DecodeStream;
-	private parent?: ParsingContext;
+	private stream: r.DecodeStream;
+	private parent?: r.ParsingContext;
 	private base: number;
-	private _items: InferField<TField>[];
+	private _items: r.InferField<TField>[];
 
-	constructor(type: TField, stream: DecodeStream, parent?: ParsingContext) {
+	constructor(type: TField, stream: r.DecodeStream, parent?: r.ParsingContext) {
 		this.type = type;
 		this.stream = stream;
 		this.parent = parent;
@@ -189,7 +182,7 @@ export class UnboundedArrayAccessor<TField extends FieldT<any>> {
 
 	// Changing the return from 'unknown' to 'InferField<TField>' fixes
 	// downstream usage.
-	getItem(index: number): InferField<TField> {
+	getItem(index: number): r.InferField<TField> {
 		if (this._items[index] == null) {
 			const pos = this.stream.pos;
 			// Note: passing null as value to match size signature
@@ -207,7 +200,7 @@ export class UnboundedArrayAccessor<TField extends FieldT<any>> {
 }
 
 export class AATUnboundedArray<
-	TField extends FieldT<any>,
+	TField extends r.FieldT<any>,
 > extends r.Array<TField> {
 	private arrayType: TField;
 
@@ -217,7 +210,7 @@ export class AATUnboundedArray<
 	}
 
 	// We cast the output to 'any' to satisfy the base class's expectation of returning a real array array
-	decode(stream: DecodeStream, parent?: ParsingContext): any {
+	decode(stream: r.DecodeStream, parent?: r.ParsingContext): any {
 		return new UnboundedArrayAccessor(this.arrayType, stream, parent);
 	}
 }
@@ -226,33 +219,40 @@ export class AATUnboundedArray<
 /**
  * Builds an AAT lookup-table parser for the provided value field type.
  */
-export const aatLookupTable = <TField extends FieldT<any> = typeof r.uint16>(
+export const aatLookupTable = <TField extends r.FieldT<any> = typeof r.uint16>(
 	ValueType: TField = r.uint16 as unknown as TField,
 ) => {
 	// Helper class that makes internal structures invisible to pointers
-	class Shadow<TField extends FieldT<any>> implements FieldT<any> {
+	class Shadow<TField extends r.FieldT<any>> implements r.FieldT<any> {
 		private type: TField;
 
 		constructor(type: TField) {
 			this.type = type;
 		}
 
-		decode(stream: DecodeStream, ctx?: ParsingContext) {
+		decode(stream: r.DecodeStream, ctx?: r.ParsingContext) {
 			const parentContext = ctx?.parent?.parent;
 
 			return this.type.decode(stream, parentContext);
 		}
 
-		size(val?: FieldT<number>, ctx?: ParsingContext) {
+		size(val?: r.FieldT<number>, ctx?: r.ParsingContext) {
 			ctx = ctx?.parent?.parent;
 
 			return this.type.size(val, ctx);
 		}
 
-		encode(stream: EncodeStream, val: number, ctx?: ParsingContext) {
+		encode(stream: r.EncodeStream, val: number, ctx?: r.ParsingContext) {
 			ctx = ctx?.parent?.parent;
 
 			return this.type.encode(stream, val, ctx);
+		}
+
+		fromBuffer(_buf: Uint8Array) {
+			throw new Error('internal');
+		}
+		toBuffer(): Uint8Array {
+			throw new Error('internal');
 		}
 	}
 
@@ -277,7 +277,7 @@ export const aatLookupTable = <TField extends FieldT<any> = typeof r.uint16>(
 	};
 	const LookupSegmentSingle = new r.Struct<
 		typeof lookupSegmentSingleFields,
-		AAT.LookupSegmentSingle<InferField<TField>>
+		AAT.LookupSegmentSingle<r.InferField<TField>>
 	>(lookupSegmentSingleFields);
 
 	const lookupSegmentArrayFields = {
@@ -291,7 +291,7 @@ export const aatLookupTable = <TField extends FieldT<any> = typeof r.uint16>(
 	};
 	const LookupSegmentArray = new r.Struct<
 		typeof lookupSegmentArrayFields,
-		AAT.LookupSegmentArray<InferField<TField>>
+		AAT.LookupSegmentArray<r.InferField<TField>>
 	>(lookupSegmentArrayFields);
 
 	const lookupSingleFields = {
@@ -300,7 +300,7 @@ export const aatLookupTable = <TField extends FieldT<any> = typeof r.uint16>(
 	};
 	const LookupSingle = new r.Struct<
 		typeof lookupSingleFields,
-		AAT.LookupSingle<InferField<TField>>
+		AAT.LookupSingle<r.InferField<TField>>
 	>(lookupSingleFields);
 
 	const lookupTableFields = {
@@ -334,12 +334,12 @@ export const aatLookupTable = <TField extends FieldT<any> = typeof r.uint16>(
 
 	return new r.VersionedStruct<
 		typeof lookupTableFields,
-		AAT.LookupTable<InferField<TField>>
+		AAT.LookupTable<r.InferField<TField>>
 	>(r.uint16, lookupTableFields);
 };
 
 export function aatStateTable<
-	TLookupField extends FieldT<any> = typeof r.uint16,
+	TLookupField extends r.FieldT<any> = typeof r.uint16,
 	TEntryData extends Record<string, any> = Record<string, never>,
 >(
 	entryData: TEntryData = {} as TEntryData,

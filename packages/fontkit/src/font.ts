@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 import type { CFFFont } from './cff/cff-font.js';
 import type { BoundingBox } from './glyph/bounding-box.js';
 import type { Glyph } from './glyph/glyph.js';

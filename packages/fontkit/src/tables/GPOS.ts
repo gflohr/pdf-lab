@@ -1,10 +1,4 @@
-import r, {
-	type DecodeStream,
-	type FieldT,
-	type PointerT,
-	type RestructureLazyArray,
-	type StructT,
-} from '@pdf-lib/restructure';
+import * as r from 'restructure';
 import {
 	type OpenType,
 	openTypeChainingContext,
@@ -29,6 +23,10 @@ const ValueFormat = new r.Bitfield(r.uint16, [
 	'yAdvDevice',
 ]);
 
+interface DeviceContext {
+	rel: string;
+}
+
 const types = {
 	xPlacement: r.int16,
 	yPlacement: r.int16,
@@ -36,23 +34,23 @@ const types = {
 	yAdvance: r.int16,
 	xPlaDevice: new r.Pointer(r.uint16, openTypeDevice, {
 		type: 'global',
-		relativeTo: 'rel',
+		relativeTo: (ctx: DeviceContext) => ctx.rel,
 	}),
 	yPlaDevice: new r.Pointer(r.uint16, openTypeDevice, {
 		type: 'global',
-		relativeTo: 'rel',
+		relativeTo: (ctx: DeviceContext) => ctx.rel,
 	}),
 	xAdvDevice: new r.Pointer(r.uint16, openTypeDevice, {
 		type: 'global',
-		relativeTo: 'rel',
+		relativeTo: (ctx: DeviceContext) => ctx.rel,
 	}),
 	yAdvDevice: new r.Pointer(r.uint16, openTypeDevice, {
 		type: 'global',
-		relativeTo: 'rel',
+		relativeTo: (ctx: DeviceContext) => ctx.rel,
 	}),
 };
 
-export class ValueRecord implements FieldT<GPOSTable.DecodedValueRecord> {
+export class ValueRecord implements r.FieldT<GPOSTable.DecodedValueRecord> {
 	private key: string;
 
 	constructor(key: string = 'valueFormat') {
@@ -63,7 +61,9 @@ export class ValueRecord implements FieldT<GPOSTable.DecodedValueRecord> {
 	 * Walks up the parent chain to find the structural configuration
 	 * and dynamically constructs the appropriate layout.
 	 */
-	private buildStruct(parent: any): StructT<GPOSTable.DecodedValueRecord, any> {
+	private buildStruct(
+		parent: any,
+	): r.StructT<GPOSTable.DecodedValueRecord, any> {
 		let struct = parent;
 
 		// Crawl up the hierarchy until we find the format dictionary and a parent
@@ -99,7 +99,7 @@ export class ValueRecord implements FieldT<GPOSTable.DecodedValueRecord> {
 	}
 
 	// biome-ignore lint/suspicious/noExplicitAny: see above!
-	decode(stream: DecodeStream, parent?: any): any {
+	decode(stream: r.DecodeStream, parent?: any): any {
 		const res = this.buildStruct(parent).decode(stream, parent);
 		// Clean up the transient helper reference before passing data back
 		if (res) {
@@ -110,6 +110,14 @@ export class ValueRecord implements FieldT<GPOSTable.DecodedValueRecord> {
 
 	encode(): void {
 		throw new Error('ValueRecord does not implement encoding.');
+	}
+
+	fromBuffer(_buf: Uint8Array): GPOSTable.DecodedValueRecord {
+		throw new Error('ValueRecord does not support decoding from a buffer.');
+	}
+
+	toBuffer(): Uint8Array {
+		throw new Error('ValueRecord does not support encoding to a buffer.');
 	}
 }
 
@@ -165,13 +173,13 @@ export namespace GPOSTable {
 
 	// Restored conditional extraction matching your morx table implementation
 	export interface EntryExitRecord {
-		entryAnchor: typeof Anchor extends PointerT<infer T> ? T : Anchor;
-		exitAnchor: typeof Anchor extends PointerT<infer T> ? T : Anchor;
+		entryAnchor: typeof Anchor extends r.PointerT<infer T> ? T : Anchor;
+		exitAnchor: typeof Anchor extends r.PointerT<infer T> ? T : Anchor;
 	}
 
 	export interface MarkRecord {
 		class: number;
-		markAnchor: typeof Anchor extends PointerT<infer T> ? T : Anchor;
+		markAnchor: typeof Anchor extends r.PointerT<infer T> ? T : Anchor;
 	}
 
 	export interface LookupSingleV1 {
@@ -188,7 +196,7 @@ export namespace GPOSTable {
 		coverage: OpenType.Coverage | null;
 		valueFormat: typeof ValueFormat;
 		valueCount: number;
-		values: RestructureLazyArray<DecodedValueRecord>;
+		values: r.RestructureLazyArray<DecodedValueRecord>;
 	}
 
 	// Single Adjustment
@@ -204,7 +212,7 @@ export namespace GPOSTable {
 		valueFormat1: typeof ValueFormat;
 		valueFormat2: typeof ValueFormat;
 		pairSetCount: number;
-		pairSets: RestructureLazyArray<PairValueRecord[]>;
+		pairSets: r.RestructureLazyArray<PairValueRecord[]>;
 	}
 
 	export interface LookupPairV2 {
@@ -217,7 +225,7 @@ export namespace GPOSTable {
 		classDef2: OpenType.ClassDef | null;
 		class1Count: number;
 		class2Count: number;
-		classRecords: RestructureLazyArray<RestructureLazyArray<Class2Record>>;
+		classRecords: r.RestructureLazyArray<r.RestructureLazyArray<Class2Record>>;
 	}
 
 	export type LookupPair = (LookupPairV1 | LookupPairV2) & {

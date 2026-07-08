@@ -1,7 +1,4 @@
-import r, {
-	type FieldT,
-	type RestructureLazyArray,
-} from '@pdf-lib/restructure';
+import * as r from 'restructure';
 
 export namespace OpenType {
 	/**
@@ -270,8 +267,13 @@ export namespace OpenType {
 		script: Script;
 	}
 
+	export interface FeatureParams {
+		version: number;
+		nameID: number;
+	}
+
 	export interface Feature {
-		featureParams: number;
+		featureParams: FeatureParams | null;
 		lookupCount: number;
 		lookupListIndexes: number[];
 	}
@@ -317,7 +319,7 @@ export namespace OpenType {
 		/** Pointer to the FeatureList table which maps typographical layout features. */
 		featureList: FeatureRecord[];
 		/** List of lookup execution sequence steps mapping specific structural changes. */
-		lookupList: RestructureLazyArray<LookupTable<TLookupTable>>;
+		lookupList: r.RestructureLazyArray<LookupTable<TLookupTable>>;
 	}
 
 	export interface RangeRecord {
@@ -503,8 +505,17 @@ const scriptRecord = new r.Struct<
 
 export const openTypeScriptList = new r.Array(scriptRecord, r.uint16);
 
+const featureParamsFields = {
+	version: r.uint16, // should be set to 0 according to OT spec.
+	nameID: r.uint16, // OT spec: UI Name ID or uiLabelNameId.
+};
+const featureParams = new r.Struct<
+	typeof featureParamsFields,
+	OpenType.FeatureParams
+>(featureParamsFields);
+
 const featureFields = {
-	featureParams: r.uint16,
+	featureParams: new r.Pointer(r.uint16, featureParams),
 	lookupCount: r.uint16,
 	lookupListIndexes: new r.Array(r.uint16, 'lookupCount'),
 };
@@ -541,8 +552,8 @@ const lookupFlags = new r.Struct<
 
 // `@NO_SIDE_EFFECTS`
 export function openTypeLookupList<T>(
-	SubTable: FieldT<T>,
-): FieldT<OpenType.LookupTable<T>[]> {
+	SubTable: r.FieldT<T>,
+): r.FieldT<OpenType.LookupTable<T>[]> {
 	const lookupFields = {
 		lookupType: r.uint16,
 		flags: lookupFlags,
@@ -558,7 +569,7 @@ export function openTypeLookupList<T>(
 		lookupFields,
 	);
 
-	return new r.LazyArray<FieldT<unknown>, OpenType.LookupTable<T>[]>(
+	return new r.LazyArray<r.FieldT<unknown>, OpenType.LookupTable<T>[]>(
 		new r.Pointer(r.uint16, Lookup),
 		r.uint16,
 	);

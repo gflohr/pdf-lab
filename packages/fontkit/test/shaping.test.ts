@@ -1,13 +1,13 @@
 import assert from 'node:assert';
 import * as path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import type { Font } from '../src/font.js';
+import type { SFNTFont } from '../src/index.js';
 import fontkit from './helpers.js';
 
 const datadir = path.resolve(import.meta.dirname, './data');
 
 describe('shaping', () => {
-	const fontCache: Record<string, Font> = {};
+	const fontCache: Record<string, SFNTFont> = {};
 	const test = (
 		description: string,
 		font: string,
@@ -42,7 +42,7 @@ describe('shaping', () => {
 		const font = fontkit.openSync(`${datadir}/amiri/amiri-regular.ttf`);
 
 		it('should use correct script and language when features are not specified', () => {
-			const { glyphs } = font.layout('۴', 'arab', 'URD');
+			const { glyphs } = font.layout('۴', [], 'arab', 'URD');
 			return assert.deepEqual(
 				glyphs.map((g) => g.id),
 				[1940],
@@ -50,7 +50,7 @@ describe('shaping', () => {
 		});
 
 		it('should use specified left-to-right direction', () => {
-			const { glyphs } = font.layout('١٢٣', 'arab', 'ARA ', 'ltr');
+			const { glyphs } = font.layout('١٢٣', [], 'arab', 'ARA ', 'ltr');
 			return assert.deepEqual(
 				glyphs.map((g) => g.id),
 				[446, 447, 448],

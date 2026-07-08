@@ -1,4 +1,4 @@
-import r from '@pdf-lib/restructure';
+import * as r from 'restructure';
 
 export namespace OS2Table {
 	export interface OS2Header {

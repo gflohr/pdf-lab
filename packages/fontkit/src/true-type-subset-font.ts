@@ -3,7 +3,7 @@ import type { StrictTables } from './open-type-font.js';
 import type { SFNTFont } from './sfnt-font.js';
 
 /**
- * Minimal operational capability needed to instantiate and run a TTFGlyph.
+ * Minimal operational capability needed to instantiate and run a TrueTypeGlyph.
  * Overrides glyph accessor methods to promise non-null returns.
  */
 export const requiredTrueTypeSubsetTables = ['loca', 'hmtx'] as const;

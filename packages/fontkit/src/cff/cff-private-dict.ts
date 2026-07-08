@@ -1,4 +1,4 @@
-import type { DecodeStream, FieldT } from '@pdf-lib/restructure';
+import type { DecodeStream, FieldT } from 'restructure';
 import { CFFDict } from './cff-dict.js';
 import { CFFIndex } from './cff-index.js';
 import { CFFPointer } from './cff-pointer.js';

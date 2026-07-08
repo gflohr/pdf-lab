@@ -1,7 +1,7 @@
-import type { EncodeStream } from '@pdf-lib/restructure';
+import type { EncodeStream } from 'restructure';
 import type { Path } from '../glyph/path.js';
-import { TTFGlyph } from '../glyph/ttf-glyph.js';
-import { TTFGlyphEncoder } from '../glyph/ttf-glyph-encoder.js';
+import { TrueTypeGlyph } from '../glyph/true-type-glyph.js';
+import { TrueTypeGlyphEncoder } from '../glyph/true-type-glyph-encoder.js';
 import type { OpenTypeTrueTypeFont } from '../open-type-font.js';
 import { directory, type SFNTDirectoryEntry } from '../tables/directory.js';
 import type { hmtxTable } from '../tables/hmtx.js';
@@ -20,7 +20,7 @@ interface Hmtx {
 }
 
 export class TrueTypeSubset extends Subset {
-	private readonly glyphEncoder: TTFGlyphEncoder;
+	private readonly glyphEncoder: TrueTypeGlyphEncoder;
 	private offset?: number;
 	private glyf?: Glyf;
 	private loca?: Loca;
@@ -29,7 +29,7 @@ export class TrueTypeSubset extends Subset {
 
 	constructor(font: OpenTypeTrueTypeFont) {
 		super(font as TrueTypeFont);
-		this.glyphEncoder = new TTFGlyphEncoder();
+		this.glyphEncoder = new TrueTypeGlyphEncoder();
 	}
 
 	private addGlyph(gid: number): number {
@@ -47,8 +47,7 @@ export class TrueTypeSubset extends Subset {
 		stream.pos += curOffset;
 
 		let buffer = stream.readBuffer(nextOffset - curOffset);
-
-		// if it is a compound glyph, include its components
+		// If it is a compound glyph, include its components.
 		if (glyf && glyf.numberOfContours < 0) {
 			buffer = new Uint8Array(buffer);
 			const view = new DataView(
@@ -82,7 +81,7 @@ export class TrueTypeSubset extends Subset {
 		return this.glyf!.length - 1;
 	}
 
-	public encode(stream: EncodeStream) {
+	public encode() {
 		// tables required by PDF spec:
 		//   head, hhea, loca, maxp, cvt , prep, glyf, hmtx, fpgm
 		//
@@ -93,6 +92,7 @@ export class TrueTypeSubset extends Subset {
 		this.offset = 0;
 		this.loca = {
 			offsets: [],
+			version: this.font.loca.version,
 		};
 
 		this.hmtx = {
@@ -112,7 +112,6 @@ export class TrueTypeSubset extends Subset {
 		maxp.numGlyphs = this.glyf.length;
 
 		this.loca.offsets.push(this.offset);
-		(tables.loca.preEncode as () => void).call(this.loca);
 
 		const head = structuredClone(this.font.head) as typeof this.font.head & {
 			indexToLocFormat: number;
@@ -147,7 +146,7 @@ export class TrueTypeSubset extends Subset {
 		//     ]
 
 		// TODO: subset prep, cvt, fpgm?
-		directory.encode(stream, {
+		return directory.toBuffer({
 			tables: {
 				head,
 				hhea,
@@ -167,10 +166,10 @@ export class TrueTypeSubset extends Subset {
 		});
 	}
 
-	private getGlyph(gid: number): TTFGlyph {
+	private getGlyph(gid: number): TrueTypeGlyph {
 		const glyph = this.font.getGlyph(gid);
 
-		if (!(glyph instanceof TTFGlyph)) {
+		if (!(glyph instanceof TrueTypeGlyph)) {
 			throw new Error(
 				'TrueType font subset cannot contain glyphs that are not TrueType glyphs',
 			);

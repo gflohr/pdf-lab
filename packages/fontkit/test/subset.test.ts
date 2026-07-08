@@ -1,33 +1,15 @@
 import assert from 'node:assert';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import r, { type EncodeStream } from '@pdf-lib/restructure';
+import * as r from 'restructure';
 import { describe, expect, it } from 'vitest';
 import { CFFFont } from '../src/cff/cff-font.js';
 import { CFFGlyph } from '../src/glyph/cff-glyph.js';
 import type { OpenTypePostScriptFont } from '../src/open-type-font.js';
-import type { Subset } from '../src/subset/subset.js';
-import type { TrueTypeFont } from '../src/true-type-font.js';
+import { TrueTypeFont } from '../src/true-type-font.js';
 import fontkit from './helpers.js';
 
 const datadir = path.resolve(import.meta.dirname, './data');
-
-async function readSubsetStream(stream: EncodeStream): Promise<Buffer> {
-	const chunks: Buffer[] = [];
-
-	for await (const chunk of stream as unknown as AsyncIterable<Uint8Array>) {
-		chunks.push(Buffer.from(chunk));
-	}
-
-	return Buffer.concat(chunks);
-}
-
-async function getSubsetFont(subset: Subset): Promise<TrueTypeFont> {
-	const stream = subset.encodeStream();
-	const buf = await readSubsetStream(stream);
-
-	return fontkit.create(buf) as TrueTypeFont;
-}
 
 describe('font subsetting', () => {
 	describe('truetype subsetting', () => {
@@ -44,7 +26,7 @@ describe('font subsetting', () => {
 				subset.includeGlyph(glyph);
 			}
 
-			const f = await getSubsetFont(subset);
+			const f = new TrueTypeFont(subset.encode());
 
 			expect(f.numGlyphs).toBe(5);
 
@@ -66,7 +48,7 @@ describe('font subsetting', () => {
 				subset.includeGlyph(glyph);
 			}
 
-			const f = await getSubsetFont(subset);
+			const f = new TrueTypeFont(subset.encode());
 
 			expect(f.getGlyph(1)!.path.toSVG()).toBe(
 				font.glyphsForString('e')[0]!.path.toSVG(),
@@ -77,12 +59,37 @@ describe('font subsetting', () => {
 			const subset = font.createSubset();
 			subset.includeGlyph(font.glyphsForString('é')[0]!);
 
-			const f = await getSubsetFont(subset);
+			const f = new TrueTypeFont(subset.encode());
 
 			expect(f.numGlyphs).toBe(4);
 			expect(f.getGlyph(1)!.path.toSVG()).toBe(
 				font.glyphsForString('é')[0]!.path.toSVG(),
 			);
+		});
+
+		it('should handle fonts with long index to location format (indexToLocFormat = 1)', async () => {
+			const bytes = fs.readFileSync(
+				`${import.meta.dirname}/data/FiraSans/FiraSans-Regular.ttf`,
+			);
+			const font = new TrueTypeFont(bytes);
+			const subset = font.createSubset();
+			for (const glyph of font.glyphsForString('abcd')) {
+				subset.includeGlyph(glyph);
+			}
+
+			const f = new TrueTypeFont(subset.encode());
+			expect(f.numGlyphs).toBe(5);
+
+			let subsetShape = f.getGlyph(1)?.path.toSVG();
+			expect(subsetShape).toBeDefined();
+			let fontShape = font.glyphsForString('a')?.[0]?.path.toSVG();
+			expect(subsetShape).toBe(fontShape);
+
+			// Must test also second glyph which has an odd loca index.
+			subsetShape = f.getGlyph(2)?.path.toSVG();
+			expect(subsetShape).toBeDefined();
+			fontShape = font.glyphsForString('b')?.[0]?.path.toSVG();
+			expect(subsetShape).toBe(fontShape);
 		});
 	});
 
@@ -105,8 +112,7 @@ describe('font subsetting', () => {
 				subset.includeGlyph(glyph);
 			}
 
-			const subsetStream = subset.encodeStream();
-			const buf = await readSubsetStream(subsetStream);
+			const buf = subset.encode();
 
 			const stream = new r.DecodeStream(buf);
 			const cff = new CFFFont(stream);
@@ -134,8 +140,7 @@ describe('font subsetting', () => {
 				subset.includeGlyph(glyph);
 			}
 
-			const subsetStream = subset.encodeStream();
-			const buf = await readSubsetStream(subsetStream);
+			const buf = subset.encode();
 
 			const stream = new r.DecodeStream(buf);
 			const cff = new CFFFont(stream);
@@ -150,6 +155,51 @@ describe('font subsetting', () => {
 			expect(cff.topDict.FDArray.length).toBe(2);
 
 			expect(cff.topDict.FDSelect.fds).toEqual([0, 1, 1]);
+		});
+
+		it('should produce a subset with Asian punctuation correctly', async () => {
+			const bytes = fs.readFileSync(
+				`${datadir}/NotoSansCJK/NotoSansCJKkr-Regular.otf`,
+			);
+			const koreanFont = new TrueTypeFont(bytes);
+			const subset = koreanFont.createSubset();
+			const iterable = koreanFont.glyphsForString('a。d');
+
+			expect(iterable.length).toBe(3);
+			for (const glyph of iterable) {
+				subset.includeGlyph(glyph);
+			}
+
+			const buf = subset.encode();
+			const stream = new r.DecodeStream(buf);
+
+			expect(koreanFont.cff).not.toBeNull();
+
+			const cff = new CFFFont(stream);
+
+			let glyph = new CFFGlyph(1, [], {
+				stream,
+				'CFF ': cff,
+			} as OpenTypePostScriptFont);
+			expect(glyph.path.toSVG()).toBe(
+				koreanFont.glyphsForString('a')[0]!.path.toSVG(),
+			);
+
+			glyph = new CFFGlyph(2, [], {
+				stream,
+				'CFF ': cff,
+			} as OpenTypePostScriptFont);
+			expect(glyph.path.toSVG()).toBe(
+				koreanFont.glyphsForString('。')[0]!.path.toSVG(),
+			);
+
+			glyph = new CFFGlyph(3, [], {
+				stream,
+				'CFF ': cff,
+			} as OpenTypePostScriptFont);
+			expect(glyph.path.toSVG()).toBe(
+				koreanFont.glyphsForString('d')[0]!.path.toSVG(),
+			);
 		});
 	});
 });

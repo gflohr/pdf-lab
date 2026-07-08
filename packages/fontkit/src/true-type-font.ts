@@ -1,5 +1,4 @@
-import type { DecodeStream, FieldT } from '@pdf-lib/restructure';
-import r from '@pdf-lib/restructure';
+import * as r from 'restructure';
 import { type AATFont, requiredAATTables } from './aat/aat-font.js';
 import { fontkit } from './base.js';
 import type { CFFFont } from './cff/cff-font.js';
@@ -18,7 +17,7 @@ import { COLRGlyph } from './glyph/colr-glyph.js';
 import type { Glyph } from './glyph/glyph.js';
 import { GlyphVariationProcessor } from './glyph/glyph-variation-processor.js';
 import { SBIXGlyph } from './glyph/sbix-glyph.js';
-import { TTFGlyph } from './glyph/ttf-glyph.js';
+import { TrueTypeGlyph } from './glyph/true-type-glyph.js';
 import type { BidiDirection, GlyphRun } from './layout/glyph-run.js';
 import { LayoutEngine } from './layout/layout-engine.js';
 import type * as Script from './layout/script.js';
@@ -43,6 +42,7 @@ import {
 	requiredTrueTypeSubsetTables,
 	type TrueTypeSubsetFont,
 } from './true-type-subset-font.js';
+import { asciiDecoder } from './utils.js';
 
 export type LayoutFeatures = OpenType.Features | AAT.Features;
 
@@ -114,12 +114,13 @@ export class TrueTypeFont<
 	TDirectory extends SFNTFontDirectory = SFNTFontDirectory,
 > implements SFNTFont
 {
-	public stream: DecodeStream;
+	public stream: r.DecodeStream;
 	private variationCoords: number[] | null;
 	private directoryPos: number;
 	private tables: SFNTTableMap = {} as SFNTTableMap;
 	protected glyphs: Record<number, Glyph> = {};
 	public directory: TDirectory;
+	public defaultLanguage: string | null;
 
 	// Those variables are lazily instantiated by their respctive getters, and
 	// then frozen.
@@ -138,8 +139,8 @@ export class TrueTypeFont<
 	// interface heritage.
 	[key: string]: any;
 
-	public static probe(buffer: Buffer): boolean {
-		const format = buffer.toString('ascii', 0, 4);
+	public static probe(buffer: Uint8Array): boolean {
+		const format = asciiDecoder.decode(buffer.slice(0, 4));
 		return (
 			format === 'true' ||
 			format === 'OTTO' ||
@@ -147,14 +148,22 @@ export class TrueTypeFont<
 		);
 	}
 
-	constructor(stream: DecodeStream, variationCoords: number[] | null = null) {
-		this.stream = stream;
+	constructor(
+		streamOrBuffer: Uint8Array | r.DecodeStream,
+		variationCoords: number[] | null = null,
+	) {
+		if (streamOrBuffer instanceof Uint8Array) {
+			this.stream = new r.DecodeStream(streamOrBuffer);
+		} else {
+			this.stream = streamOrBuffer;
+		}
 		this.variationCoords = variationCoords;
 
 		this.directoryPos = this.stream.pos;
 		this.tables = {} as SFNTTableMap;
 		this.glyphs = {};
 		this.directory = this.decodeDirectory();
+		this.defaultLanguage = null;
 
 		const existingTableTags = new Set<string>();
 
@@ -235,7 +244,7 @@ export class TrueTypeFont<
 		return tables[tag] as SFNTTableMap[K];
 	}
 
-	protected getTableStream(tag: string): DecodeStream | null {
+	protected getTableStream(tag: string): r.DecodeStream | null {
 		const table = this.directory.tables[tag];
 		if (table) {
 			this.stream.pos = table.offset;
@@ -245,14 +254,14 @@ export class TrueTypeFont<
 		return null;
 	}
 
-	public getGlyfTableStream(): DecodeStream | null {
+	public getGlyfTableStream(): r.DecodeStream | null {
 		return this.getTableStream('glyf');
 	}
 
 	protected decodeDirectory(): TDirectory {
 		return directory.decode(this.stream, {
 			_startOffset: 0,
-		} as FieldT<unknown>) as unknown as TDirectory;
+		} as r.FieldT<unknown>) as unknown as TDirectory;
 	}
 
 	protected decodeTable<K extends keyof typeof tables>(
@@ -265,7 +274,7 @@ export class TrueTypeFont<
 			const tag = table.tag as K;
 			const result = tables[tag].decode(
 				stream,
-				this as unknown as FieldT<unknown>,
+				this as unknown as r.FieldT<unknown>,
 				table.length,
 			);
 
@@ -277,31 +286,36 @@ export class TrueTypeFont<
 		}
 	}
 
-	get postscriptName(): string | null {
-		if (!this.name) {
-			return null;
-		}
+	get postscriptName(): string | Uint8Array | null {
+		return this.getName('postscriptName');
+	}
 
-		const name = this.name.records.postscriptName;
-		if (name) {
-			const lang = Object.keys(name)[0];
-			return name[lang];
-		}
-
-		return null;
+	public setDefaultLanguage(lang: string | null = null): void {
+		this.defaultLanguage = lang;
 	}
 
 	protected getName(
 		key: keyof nameTable.ProcessedRecords,
-		lang = 'en',
+		lang = this.defaultLanguage || fontkit.defaultLanguage,
 	): string | null {
 		if (!this.name) {
 			return null;
 		}
 
-		const record = this.name.records[key];
-		if (record) {
-			return (record as Record<string, string>)[lang];
+		const maybeRecord = this.name.records[key];
+		if (maybeRecord) {
+			const record = maybeRecord;
+
+			const firstKey = Object.keys(record)[0] as keyof typeof record;
+
+			return (
+				record[lang as keyof typeof record] ||
+				record[this.defaultLanguage as keyof typeof record] ||
+				record[fontkit.defaultLanguage as keyof typeof record] ||
+				record['en' as keyof typeof record] ||
+				(firstKey ? record[firstKey] : null) ||
+				null
+			);
 		}
 
 		return null;
@@ -537,7 +551,7 @@ export class TrueTypeFont<
 	public layout(
 		str: string,
 		userFeatures?: OpenType.Features | OpenType.FeatureTag[],
-		script?: string,
+		script?: Script.UnicodeScript,
 		language?: string,
 		direction?: BidiDirection,
 	): GlyphRun {
@@ -577,7 +591,7 @@ export class TrueTypeFont<
 		if (!this.glyphs[glyph]) {
 			const ttFont = this.asTrueTypeSubsetFont();
 			if (ttFont) {
-				this.glyphs[glyph] = new TTFGlyph(
+				this.glyphs[glyph] = new TrueTypeGlyph(
 					glyph,
 					characters,
 					this as TrueTypeSubsetFont,
@@ -594,7 +608,7 @@ export class TrueTypeFont<
 	}
 
 	// FIXME! The method either returns an SBIXGlyph, a COLRGlyph, a
-	// TTFGlyph, or a CFFGlyph. But the SBIXGlyph or COLRGlyph is not
+	// TrueTypeGlyph, or a CFFGlyph. But the SBIXGlyph or COLRGlyph is not
 	// necessarily a bitmap. It would probably be better to have a factory
 	// method that returns the correct glyph for a particular codepoint.
 	//

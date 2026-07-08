@@ -1,8 +1,8 @@
-import r, { type DecodeStream } from '@pdf-lib/restructure';
+import * as r from 'restructure';
 import type { WOFFDirectoryEntry } from './woff-directory.js';
 
 const Base128 = {
-	decode(stream: DecodeStream): number {
+	decode(stream: r.DecodeStream): number {
 		let result = 0;
 		const iterable = [0, 1, 2, 3, 4];
 		for (let j = 0; j < iterable.length; j++) {
@@ -26,6 +26,12 @@ const Base128 = {
 	},
 	encode(): never {
 		throw new Error('Base128 does not implement encoding');
+	},
+	fromBuffer(_buf: Uint8Array): never {
+		throw new Error('Base128 does not support decoding from a buffer.');
+	},
+	toBuffer(): Uint8Array {
+		throw new Error('Base128 does not support encoding to a buffer.');
 	},
 };
 

@@ -1,4 +1,4 @@
-import type { EncodeStream } from '@pdf-lib/restructure';
+import type { EncodeStream } from 'restructure';
 import type { CFFDict } from '../cff/cff-dict.js';
 import type { CFFFont } from '../cff/cff-font.js';
 import type { CFFIndexRecord } from '../cff/cff-index.js';
@@ -58,7 +58,7 @@ export class CFFSubset extends Subset {
 				this.cff.stream.pos = subr.offset;
 				res.push(this.cff.stream.readBuffer(subr.length));
 			} else {
-				res.push(Buffer.from([11])); // return
+				res.push(new Uint8Array([11])); // return
 			}
 		}
 
@@ -165,7 +165,7 @@ export class CFFSubset extends Subset {
 		return standardStrings.length + this.strings.length - 1;
 	}
 
-	public encode(stream: EncodeStream) {
+	public encode() {
 		this.subsetCharstrings();
 
 		const charset = {
@@ -207,7 +207,7 @@ export class CFFSubset extends Subset {
 		const top = {
 			version: 1,
 			hdrSize: this.cff.hdrSize,
-			offSize: this.cff.length,
+			offSize: 4,
 			header: this.cff.header,
 			nameIndex: [this.cff.postscriptName],
 			topDictIndex: [topDict],
@@ -215,7 +215,7 @@ export class CFFSubset extends Subset {
 			globalSubrIndex: this.gsubrs,
 		} as unknown as CFFTopData;
 
-		cffTop.encode(stream, top);
+		return cffTop.toBuffer(top);
 	}
 
 	private getGlyph(gid: number): CFFGlyph {

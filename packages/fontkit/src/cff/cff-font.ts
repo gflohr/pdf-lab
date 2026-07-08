@@ -1,4 +1,4 @@
-import type { DecodeStream } from '@pdf-lib/restructure';
+import type { DecodeStream } from 'restructure';
 import type { CFFDict } from './cff-dict.js';
 import type { CFFIndexRecord } from './cff-index.js';
 import type { CFFPrivateDictTable } from './cff-pointer.js';
@@ -46,6 +46,11 @@ export class CFFFont {
 
 		return this;
 	}
+
+	public size() {
+		return 0;
+	}
+	public encode() {}
 
 	// sid: number | null
 	string(sid: number | null) {
@@ -141,7 +146,7 @@ export class CFFFont {
 
 						if (gid < ranges[mid].first) {
 							high = mid - 1;
-						} else if (mid < high && gid > ranges[mid + 1].first) {
+						} else if (mid < high && gid >= ranges[mid + 1].first) {
 							low = mid + 1;
 						} else {
 							return ranges[mid].fd;

@@ -1,5 +1,5 @@
 /** biome-ignore-all assist/source/organizeImports: tables are sorted by topic */
-import type { ArrayT, StructT, VersionedStructT } from '@pdf-lib/restructure';
+import type { ArrayT, StructT, VersionedStructT } from 'restructure';
 
 // AAT.
 

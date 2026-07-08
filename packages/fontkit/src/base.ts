@@ -1,4 +1,4 @@
-import r, { type DecodeStream } from '@pdf-lib/restructure';
+import * as r from 'restructure';
 import type { DFont } from './d-font.js';
 import type { TrueTypeCollection } from './true-type-collection.js';
 import type { TrueTypeFont } from './true-type-font.js';
@@ -21,7 +21,7 @@ export interface FontContainer {
 	/**
 	 * The constructor signature accepting a Restructure `DecodeStream`.
 	 */
-	new (stream: DecodeStream): FontContainerInstance;
+	new (stream: r.DecodeStream): FontContainerInstance;
 }
 
 const formats: FontContainer[] = [];
@@ -46,7 +46,6 @@ const formats: FontContainer[] = [];
  * For robust, typesafe applications, instantiate the specific format container classes
  * directly instead of relying on this dynamic factory helper.
  *
- * @deprecated Instantiate one of the class constructors {@link TrueTypeFont},
  * {@link WOFFFont}, {@link WOFF2Font}, {@link TrueTypeCollection}, or
  * {@link DFont} directly.
  */
@@ -55,6 +54,15 @@ export const fontkit = {
 	 * Set to `true` for verbose error logging.
 	 */
 	logErrors: false,
+
+	/**
+	 * The default language to use.
+	 */
+	defaultLanguage: 'en',
+
+	setDefaultLanguage: (lang = 'en') => {
+		fontkit.defaultLanguage = lang;
+	},
 
 	/**
 	 * Register a new font format.
@@ -88,6 +96,8 @@ export const fontkit = {
 	 * @param bytes the raw font byte
 	 * @param postscriptName the optional PostScript name
 	 * @returns the font or font collection
+	 *
+	 * @deprecated Instantiate one of the class constructors {@link TrueTypeFont},
 	 */
 	create: (
 		bytes: Uint8Array,

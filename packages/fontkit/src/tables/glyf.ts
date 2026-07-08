@@ -1,4 +1,4 @@
-import r from '@pdf-lib/restructure';
+import * as r from 'restructure';
 
 export namespace glyfTable {
 	export type glyph = Uint8Array[];

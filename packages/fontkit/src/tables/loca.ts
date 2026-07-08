@@ -1,4 +1,4 @@
-import r from '@pdf-lib/restructure';
+import * as r from 'restructure';
 
 export namespace locaTable {
 	export interface locaV0 {
@@ -33,22 +33,19 @@ export const loca = new r.VersionedStruct<typeof locaFields, locaTable.loca>(
 );
 
 loca.process = function () {
-	if (this.version === 0) {
+	if (this.version === 0 && !this._processed) {
 		for (let i = 0; i < this.offsets.length; i++) {
 			this.offsets[i] <<= 1;
 		}
+		this._processed = true;
 	}
 };
 
 loca.preEncode = function () {
-	if (this.version != null) return;
-
-	// Assume this.offsets is a sorted array.
-	this.version = this.offsets[this.offsets.length - 1] > 0xffff ? 1 : 0;
-
-	if (this.version === 0) {
+	if (this.version === 0 && this._processed !== false) {
 		for (let i = 0; i < this.offsets.length; i++) {
 			this.offsets[i] >>>= 1;
 		}
+		this._processed = false;
 	}
 };

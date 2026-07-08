@@ -1,4 +1,4 @@
-declare module '@pdf-lib/unicode-properties' {
+declare module 'unicode-properties' {
 	/**
 	 * Unicode General Category constants (e.g., 'Lu' for Uppercase Letter, 'Nd' for Decimal Number).
 	 */

@@ -1,4 +1,4 @@
-import r from '@pdf-lib/restructure';
+import * as r from 'restructure';
 
 export namespace fvarTable {
 	export interface Axis {

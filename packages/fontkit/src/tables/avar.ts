@@ -1,4 +1,4 @@
-import r from '@pdf-lib/restructure';
+import * as r from 'restructure';
 
 export namespace avarTable {
 	export interface Correspondence {
