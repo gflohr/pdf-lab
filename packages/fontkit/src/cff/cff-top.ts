@@ -41,14 +41,13 @@ export class PredefinedOp {
 		return this.type.decode(stream, parent, operands);
 	}
 
-	size(value: any, ctx?: ParsingContext) {
-		console.log('predefined operator size called');
+	size(value: unknown, ctx?: ParsingContext) {
 		return this.type.size(value, ctx);
 	}
 
 	encode(
 		stream: EncodeStream,
-		value: any,
+		value: unknown,
 		ctx?: ParsingContext,
 	): number | Ptr | Ptr[] {
 		const index = this.predefinedOps.indexOf(value);
