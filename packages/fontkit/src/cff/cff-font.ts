@@ -1,7 +1,7 @@
 import type { DecodeStream } from 'restructure';
 import type { CFFDict } from './cff-dict.js';
 import type { CFFIndexRecord } from './cff-index.js';
-import type { CFFPrivateDictTable } from './cff-pointer.js';
+import type { CFFPrivateDictTable } from './cff-private-dict.js';
 import { standardStrings } from './cff-standard-strings.js';
 import { cffTop } from './cff-top.js';
 

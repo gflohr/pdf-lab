@@ -11,29 +11,6 @@ import type {
 import * as r from 'restructure';
 import type { CFFIndexRecord } from './cff-index.js';
 
-export interface CFFPrivateDictTable {
-	BlueValues?: number[] | null;
-	OtherBlues?: number[] | null;
-	FamilyBlues?: number[] | null;
-	FamilyOtherBlues?: number[] | null;
-	StdHW?: number;
-	StdVW?: number;
-	Subrs?: CFFIndexRecord[];
-	defaultWidthX?: number;
-	nominalWidthX?: number;
-	vsindex?: number;
-	blend?: unknown;
-	BlueScale?: number;
-	BlueShift?: number;
-	BlueFuzz?: number;
-	StemSnapH?: number[];
-	StemSnapV?: number[];
-	ForceBold?: boolean;
-	LanguageGroup?: number;
-	ExpansionFactor?: number;
-	initialRandomSeed?: number;
-}
-
 /**
  * A specialized CFF wrapper representing an encapsulation pointer handle
  * that forces large 4-byte spacing output structures during encoding.
@@ -94,7 +71,7 @@ export class CFFPointer<TField extends FieldT<any>> extends r.Pointer<TField> {
 		stream: EncodeStream | null,
 		value: InferField<TField>,
 		ctx: unknown,
-	): any {
+	): [Ptr] {
 		if (!stream) {
 			// Compute phase size generation mock.
 			(this as any).offsetType = {

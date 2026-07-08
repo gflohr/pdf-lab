@@ -1,6 +1,6 @@
 import type { DecodeStream, FieldT } from 'restructure';
 import { CFFDict } from './cff-dict.js';
-import { CFFIndex } from './cff-index.js';
+import { CFFIndex, type CFFIndexRecord } from './cff-index.js';
 import { CFFPointer } from './cff-pointer.js';
 
 const CFFBlendOp: FieldT<unknown> = {
@@ -15,7 +15,7 @@ const CFFBlendOp: FieldT<unknown> = {
 	},
 } as FieldT<unknown>;
 
-export const privateCFFDict = new CFFDict([
+export const cffPrivateDict = new CFFDict([
 	// key, name, type, default
 	[6, 'BlueValues', 'delta', null],
 	[7, 'OtherBlues', 'delta', null],
@@ -43,3 +43,26 @@ export const privateCFFDict = new CFFDict([
 		null,
 	],
 ]);
+
+export interface CFFPrivateDictTable {
+	BlueValues?: number[] | null;
+	OtherBlues?: number[] | null;
+	FamilyBlues?: number[] | null;
+	FamilyOtherBlues?: number[] | null;
+	StdHW?: number;
+	StdVW?: number;
+	BlueScale?: number;
+	BlueShift?: number;
+	BlueFuzz?: number;
+	StemSnapH?: number[];
+	StemSnapV?: number[];
+	ForceBold?: boolean;
+	LanguageGroup?: number;
+	ExpansionFactor?: number;
+	initialRandomSeed?: number;
+	defaultWidthX?: number;
+	nominalWidthX?: number;
+	vsindex?: number;
+	blend?: unknown;
+	Subrs?: CFFIndexRecord[];
+}

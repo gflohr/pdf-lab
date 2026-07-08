@@ -6,7 +6,7 @@ import type {
 	ParsingContext,
 } from 'restructure';
 import { cffOperand } from './cff-operand.js';
-import type { CFFPrivateDictTable } from './cff-pointer.js';
+import type { CFFPrivateDictTable } from './cff-private-dict.js';
 import type { CFFPrivateOp, PredefinedOp } from './cff-top.js';
 
 interface CFFOp extends FieldT<unknown> {

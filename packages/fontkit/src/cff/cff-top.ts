@@ -2,7 +2,6 @@ import type {
 	DecodeStream,
 	EncodeStream,
 	FieldT,
-	InferField,
 	ParsingContext,
 	resolveLength,
 } from 'restructure';
@@ -17,7 +16,7 @@ import { CFFDict } from './cff-dict.js';
 import { expertEncoding, standardEncoding } from './cff-encodings.js';
 import { CFFIndex } from './cff-index.js';
 import { CFFPointer, type Ptr } from './cff-pointer.js';
-import { privateCFFDict } from './cff-private-dict.js';
+import { type CFFPrivateDictTable, cffPrivateDict } from './cff-private-dict.js';
 
 interface RangeRecord {
 	first: number;
@@ -212,15 +211,16 @@ const fdSelect = new r.VersionedStruct(r.uint8, {
 	},
 });
 
-const ptr = new CFFPointer(privateCFFDict);
+const ptr = new CFFPointer(cffPrivateDict);
 export class CFFPrivateOp {
 	decode(
 		stream: DecodeStream,
 		parent: ParsingContext,
 		operands: number[],
-	): InferField<FieldT<any>> {
+	): CFFPrivateDictTable {
 		parent.length = operands[0];
-		return ptr.decode(stream, parent, [operands[1]]);
+		const decoded = ptr.decode(stream, parent, [operands[1]]);
+		return decoded;
 	}
 
 	size(dict: CFFDict, ctx?: ParsingContext): [number, number] {
@@ -230,14 +230,14 @@ export class CFFPrivateOp {
 		// undefined. I temporarily return `0` for the key size fallback to
 		// prevent such crashes, but proper serialisation behaviour for this
 		// private dict pointer needs verification.
-		return [privateCFFDict.size(dict, ctx, false), 0];
+		return [cffPrivateDict.size(dict, ctx, false), 0];
 	}
 
 	encode(stream: EncodeStream, dict: CFFDict, ctx?: ParsingContext) {
-		return [
-			privateCFFDict.size(dict, ctx, false),
-			ptr.encode(stream, dict, ctx)[0],
-		];
+		const size = cffPrivateDict.size(dict, ctx, false);
+		const encoded = ptr.encode(stream, dict, ctx);
+
+		return [size, encoded[0]];
 	}
 }
 
