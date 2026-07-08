@@ -26,7 +26,7 @@ const MAC_ENCODINGS = {
 // Map of platform ids to encoding ids.
 export const ENCODINGS = [
 	// unicode
-	['utf16be', 'utf16be', 'utf16be', 'utf16be', 'utf16be', 'utf16be'],
+	['utf-16be', 'utf-16be', 'utf-16be', 'utf-16be', 'utf-16be', 'utf-16be'],
 
 	// macintosh
 	// Mappings available at http://unicode.org/Public/MAPPINGS/VENDORS/APPLE/
@@ -73,7 +73,7 @@ export const ENCODINGS = [
 		'Laotian',
 		'Georgian',
 		'Armenian',
-		'hz-gb-2312',
+		'gbk',
 		'Tibetan',
 		'Mongolian',
 		'Geez',
@@ -82,23 +82,23 @@ export const ENCODINGS = [
 		'Sindhi',
 	],
 
-	// ISO (deprecated)
-	['ascii'],
+	// ISO (deprecated).
+	['ascii', null, 'iso-8859-1'],
 
-	// windows
+	// Windows.
 	// Docs here: http://msdn.microsoft.com/en-us/library/system.text.encoding(v=vs.110).aspx
 	[
 		'symbol',
-		'utf16be',
+		'utf-16be',
 		'shift-jis',
 		'gb18030',
 		'big5',
-		'x-cp20949',
+		'euc-kr',
 		'johab',
 		null,
 		null,
 		null,
-		'utf16be',
+		'utf-16be',
 	],
 ];
 
