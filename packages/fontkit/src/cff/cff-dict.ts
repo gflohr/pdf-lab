@@ -7,7 +7,7 @@ import type {
 } from 'restructure';
 import { cffOperand } from './cff-operand.js';
 import type { CFFPrivateDictTable } from './cff-pointer.js';
-import type { CFFPrivateOp } from './cff-top.js';
+import type { CFFPrivateOp, PredefinedOp } from './cff-top.js';
 
 interface CFFOp extends FieldT<unknown> {
 	decode(
@@ -27,7 +27,10 @@ type CFFOpType =
 	| string[]
 	| null
 	| CFFOp
-	| CFFPrivateOp;
+	| CFFPrivateOp
+	// FIXME! Is it really needed to add `PredefinedOp` to the union?
+
+	| PredefinedOp;
 
 export type CFFOpDefinition = [
 	operator: number | [number, number],

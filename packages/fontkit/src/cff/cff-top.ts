@@ -27,7 +27,7 @@ interface RangeRecord {
 
 // Checks if an operand is an index of a predefined value,
 // otherwise delegates to the provided type.
-class PredefinedOp {
+export class PredefinedOp {
 	constructor(
 		private readonly predefinedOps: any[],
 		private readonly type: CFFPointer<any>,
@@ -42,6 +42,7 @@ class PredefinedOp {
 	}
 
 	size(value: any, ctx?: ParsingContext) {
+		console.log('predefined operator size called');
 		return this.type.size(value, ctx);
 	}
 
@@ -224,9 +225,12 @@ export class CFFPrivateOp {
 	}
 
 	size(dict: CFFDict, ctx?: ParsingContext): [number, number] {
-		// The original version used ptr.size(dict, ctx)[0] as the second
-		// value. But invoking size() on ptr would cause a crash, as "this"
-		// is undefined in that context.
+		// FIXME: This method has zero test coverage upstream and contains a
+		// fatal runtime bug.  Upstream returns `ptr.size(dict, ctx)[0]` as
+		// the second item of the array, which crashes because `this` is
+		// undefined. I temporarily return `0` for the key size fallback to
+		// prevent such crashes, but proper serialisation behaviour for this
+		// private dict pointer needs verification.
 		return [privateCFFDict.size(dict, ctx, false), 0];
 	}
 
