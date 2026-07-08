@@ -30,28 +30,13 @@ export class LayoutEngine {
 
 	public layout(
 		str: string | Glyph[],
-		featuresOrScript:
+		features:
 			| OpenType.Features
-			| OpenType.FeatureTag[]
-			| Script.UnicodeScript,
-		scriptOrLanguage?: string | Script.UnicodeScript,
-		languageOrDirection?: string | BidiDirection,
+			| OpenType.FeatureTag[] = [],
+		script?: Script.UnicodeScript,
+		language?: string,
 		direction?: BidiDirection,
 	): GlyphRun {
-		// Make the features parameter optional
-		let features: OpenType.Features | OpenType.FeatureTag[];
-		let script: Script.UnicodeScript;
-		let language: string | undefined;
-		if (typeof featuresOrScript === 'string') {
-			direction = languageOrDirection as BidiDirection;
-			language = scriptOrLanguage;
-			script = featuresOrScript;
-			features = [];
-		} else {
-			features = featuresOrScript;
-			script = scriptOrLanguage as Script.UnicodeScript;
-			language = languageOrDirection;
-		}
 
 		// Map string to glyphs if needed
 		let glyphs: Glyph[];

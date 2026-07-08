@@ -42,7 +42,7 @@ describe('shaping', () => {
 		const font = fontkit.openSync(`${datadir}/amiri/amiri-regular.ttf`);
 
 		it('should use correct script and language when features are not specified', () => {
-			const { glyphs } = font.layout('۴', 'arab', 'URD');
+			const { glyphs } = font.layout('۴', [], 'arab', 'URD');
 			return assert.deepEqual(
 				glyphs.map((g) => g.id),
 				[1940],
@@ -50,7 +50,7 @@ describe('shaping', () => {
 		});
 
 		it('should use specified left-to-right direction', () => {
-			const { glyphs } = font.layout('١٢٣', 'arab', 'ARA ', 'ltr');
+			const { glyphs } = font.layout('١٢٣', [], 'arab', 'ARA ', 'ltr');
 			return assert.deepEqual(
 				glyphs.map((g) => g.id),
 				[446, 447, 448],

@@ -11,7 +11,7 @@ describe('glyph positioning', () => {
 		);
 
 		it('should get a glyph width', () =>
-			expect(font.getGlyph(5).advanceWidth).toBe(615));
+			expect(font.getGlyph(5)?.advanceWidth).toBe(615));
 	});
 
 	describe('opentype positioning', () => {
