@@ -143,6 +143,7 @@ export class DFont {
 				font.postscriptName === name ||
 				(font.postscriptName instanceof Uint8Array &&
 					name instanceof Uint8Array &&
+					font.postscriptName.length === name.length &&
 					font.postscriptName.every((v, i) => name[i] === v))
 			) {
 				return font;
