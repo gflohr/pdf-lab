@@ -33,7 +33,7 @@ export class PredefinedOp {
 		private readonly type: CFFPointer<any>,
 	) {}
 
-	decode(stream: DecodeStream, parent: unknown, operands: [number]): any {
+	decode(stream: DecodeStream, parent: unknown, operands: number[]): any {
 		if (this.predefinedOps[operands[0]]) {
 			return this.predefinedOps[operands[0]];
 		}
