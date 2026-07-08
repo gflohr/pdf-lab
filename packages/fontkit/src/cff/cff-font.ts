@@ -48,11 +48,9 @@ export class CFFFont {
 	}
 
 	public size() {
-		throw new Error('internal');
+		return 0;
 	}
-	public encode() {
-		throw new Error('internal');
-	}
+	public encode() {}
 
 	// sid: number | null
 	string(sid: number | null) {
