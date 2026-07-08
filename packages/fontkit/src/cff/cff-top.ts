@@ -3,7 +3,7 @@ import type {
 	EncodeStream,
 	FieldT,
 	ParsingContext,
-	resolveLength,
+	PropertyDescriptor,
 } from 'restructure';
 import * as r from 'restructure';
 import { itemVariationStore } from '../tables/variations.js';
@@ -20,6 +20,8 @@ import {
 	type CFFPrivateDictTable,
 	cffPrivateDict,
 } from './cff-private-dict.js';
+import type { StandardString } from './cff-standard-strings.js';
+import { CFFSubsetCharset } from '../subset/cff-subset.js';
 
 interface RangeRecord {
 	first: number;
@@ -31,11 +33,15 @@ interface RangeRecord {
 // otherwise delegates to the provided type.
 export class PredefinedOp {
 	constructor(
-		private readonly predefinedOps: any[],
-		private readonly type: CFFPointer<any>,
+		private readonly predefinedOps: StandardString[] | StandardString[][] | CFFSubsetCharset[],
+		private readonly type: CFFPointer<FieldT<PropertyDescriptor>>,
 	) {}
 
-	decode(stream: DecodeStream, parent: unknown, operands: number[]): any {
+	decode(
+		stream: DecodeStream,
+		parent: unknown,
+		operands: number[],
+	): PropertyDescriptor | StandardString | StandardString[] | CFFSubsetCharset{
 		if (this.predefinedOps[operands[0]]) {
 			return this.predefinedOps[operands[0]];
 		}
@@ -43,21 +49,24 @@ export class PredefinedOp {
 		return this.type.decode(stream, parent, operands);
 	}
 
-	size(value: unknown, ctx?: ParsingContext) {
+	size(value: unknown, ctx?: ParsingContext): number {
 		return this.type.size(value, ctx);
 	}
 
 	encode(
 		stream: EncodeStream,
-		value: unknown,
+		value: StandardString | StandardString[] | CFFSubsetCharset,
 		ctx?: ParsingContext,
 	): number | Ptr | Ptr[] {
-		const index = this.predefinedOps.indexOf(value);
-		if (index !== -1) {
-			return index;
+		if (typeof value === 'string'
+			&& typeof this.predefinedOps[0] === 'string') {
+			const index = (this.predefinedOps as StandardString[]).indexOf(value);
+			if (index >= 0) {
+				return index;
+			}
 		}
 
-		return this.type.encode(stream, value, ctx);
+		return this.type.encode(stream, value as CFFSubsetCharset, ctx);
 	}
 }
 

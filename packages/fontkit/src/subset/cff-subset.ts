@@ -1,4 +1,4 @@
-import type { EncodeStream } from 'restructure';
+import type { PropertyDescriptor } from 'restructure';
 import type { CFFDict } from '../cff/cff-dict.js';
 import type { CFFFont } from '../cff/cff-font.js';
 import type { CFFIndexRecord } from '../cff/cff-index.js';
@@ -7,6 +7,11 @@ import { type CFFTopData, cffTop } from '../cff/cff-top.js';
 import { CFFGlyph } from '../glyph/cff-glyph.js';
 import type { TrueTypeFont } from '../true-type-font.js';
 import { Subset } from './subset.js';
+
+export interface CFFSubsetCharset extends PropertyDescriptor {
+	version: 1 | 2;
+	ranges: { first: number, nLeft: number}[];
+}
 
 export class CFFSubset extends Subset {
 	private readonly cff: CFFFont;
