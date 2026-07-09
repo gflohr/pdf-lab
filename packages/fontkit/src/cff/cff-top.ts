@@ -34,7 +34,7 @@ interface RangeRecord {
 export class PredefinedOp {
 	constructor(
 		private readonly predefinedOps: StandardString[] | StandardString[][] | CFFSubsetCharset[],
-		private readonly type: CFFPointer<FieldT<PropertyDescriptor>>,
+		private readonly type: CFFPointer<FieldT<any>>,
 	) {}
 
 	decode(
