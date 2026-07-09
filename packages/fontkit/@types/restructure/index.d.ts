@@ -22,12 +22,14 @@ declare module 'restructure' {
 	/**
 	 * A wrapper configuration descriptor managing compiled metadata assignment rules.
 	 */
-	export class PropertyDescriptor {
+	export class PropertyDescriptor<T = unknown> {
 		enumerable: boolean;
 		configurable: boolean;
 		[key: string]: any;
 
 		constructor(opts?: Record<string, any>);
+
+		get(): T;
 	}
 
 	export type ParsingContext = any;
@@ -312,7 +314,7 @@ declare module 'restructure' {
 		decode(
 			stream: DecodeStream,
 			ctx?: unknown,
-		): InferField<TField> | number | null | { get: () => InferField<TField> };
+		): InferField<TField> | number | null | PropertyDescriptor<InferField<TField>>;
 
 		size(value?: unknown, ctx?: unknown): number;
 
