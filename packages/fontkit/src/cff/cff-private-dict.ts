@@ -15,7 +15,7 @@ const CFFBlendOp: FieldT<unknown> = {
 	},
 } as FieldT<unknown>;
 
-export const cffPrivateDict = new CFFDict([
+export const cffPrivateDict = new CFFDict<CFFPrivateDictTable>([
 	// key, name, type, default
 	[6, 'BlueValues', 'delta', null],
 	[7, 'OtherBlues', 'delta', null],

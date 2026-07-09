@@ -7,7 +7,6 @@ import type {
 } from 'restructure';
 import { cffOperand } from './cff-operand.js';
 import type { CFFPointer } from './cff-pointer.js';
-import type { CFFPrivateDictTable } from './cff-private-dict.js';
 import type { CFFPrivateOp, PredefinedOp } from './cff-top.js';
 
 interface CFFOp extends FieldT<unknown> {
@@ -63,10 +62,12 @@ export interface CFFContext {
 	pointerOffset?: number;
 }
 
+export type CFFDictResultShape = Record<string, any>;
+
 /**
  * Handles binary decoding and encoding of Compact Font Format (CFF) key-value dictionaries.
  */
-export class CFFDict implements FieldT<Record<string, any>> {
+export class CFFDict<T extends CFFDictResultShape = CFFDictResultShape> implements FieldT<Record<string, any>> {
 	public ops: CFFOpDefinition[];
 	public fields: Record<number, CFFOpDefinition>;
 
@@ -85,9 +86,9 @@ export class CFFDict implements FieldT<Record<string, any>> {
 	decodeOperands(
 		type: CFFOpType | string | undefined | null,
 		stream: DecodeStream,
-		ret: Record<string, CFFPrivateDictTable>,
+		ret: T,
 		operands: number[],
-	): any {
+	): unknown {
 		if (Array.isArray(type)) {
 			return operands.map((op, i) =>
 				this.decodeOperands(type[i], stream, ret, [op]),
@@ -140,7 +141,7 @@ export class CFFDict implements FieldT<Record<string, any>> {
 		}
 	}
 
-	decode(stream: DecodeStream, parent?: any): Record<string, any> {
+	decode(stream: DecodeStream, parent?: any): T {
 		const end = stream.pos + (parent?.length ?? 0);
 		const ret: Record<string, any> = {};
 		let operands: any[] = [];
@@ -172,7 +173,7 @@ export class CFFDict implements FieldT<Record<string, any>> {
 					throw new Error(`Unknown CFF operator token: ${b}`);
 				}
 
-				const val = this.decodeOperands(field[2], stream, ret, operands);
+				const val = this.decodeOperands(field[2], stream, ret as T, operands);
 				if (val != null) {
 					if (
 						val &&
@@ -191,7 +192,7 @@ export class CFFDict implements FieldT<Record<string, any>> {
 			}
 		}
 
-		return ret;
+		return ret as T;
 	}
 
 	size(

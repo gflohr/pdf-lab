@@ -253,7 +253,13 @@ export class CFFPrivateOp {
 	}
 }
 
-const fontDict = new CFFDict([
+interface CFFFontDictData {
+	Private?: CFFPrivateDictTable;
+	FontName?: string;
+	FontPatrix: number[];
+	PaintType: number;
+}
+const fontDict = new CFFDict<CFFFontDictData>([
 	// key, name, type(s), default
 	[18, 'Private', new CFFPrivateOp(), null],
 	[[12, 38], 'FontName', 'sid', null],
@@ -261,7 +267,41 @@ const fontDict = new CFFDict([
 	[[12, 5], 'PaintType', 'number', 0],
 ]);
 
-const cffTopDict = new CFFDict([
+interface CFFTopDictData {
+	ROS?: [string, string, number];
+	version?: string;
+	Notice?: string;
+	Copyright?: string;
+	FullName?: string;
+	FamilyName?: string;
+	Weight?: string;
+	isFixedPitch: boolean;
+	ItalicAngle: number;
+	UnderlinePosition: number;
+	UnderlineThickness: number;
+	PaintType: number;
+	CharstringType: number;
+	FontMatrix: [number, number, number, number, number, number];
+	UniqueID?: number;
+	FontBBox: [number, number, number, number];
+	StrokeWidth: number;
+	XUID: unknown[];
+	charset: StandardString[];
+	Private: CFFPrivateDictTable; // FIXME! This is probably wrong!
+	SytheticBase?: number;
+	PostScript?: string;
+	SFNTFontName?: string;
+	SFNTFontBlend?: number;
+	CIDFontVersion: number;
+	CIDFontRevision: number;
+	CIDFontType: number;
+	CIDCount: number;
+	UIDBase: number;
+	FDSelect?: number[];
+	FDArray?: number[];
+	FontName?: string;
+}
+const cffTopDict = new CFFDict<CFFTopDictData>([
 	// key, name, type(s), default
 	[[12, 30], 'ROS', ['sid', 'sid', 'number'], null],
 
@@ -307,7 +347,15 @@ const variationStore = new r.Struct({
 	itemVariationStore: itemVariationStore,
 });
 
-const cff2TopDict = new CFFDict([
+interface CFF2TopDictData {
+	FontMatrix: [number, number, number, number, number, number];
+	CharStrings?: number[];
+	FDSelect?: number[];
+	FDArray?: CFFFontDictData[];
+	vstore?: typeof variationStore;
+	maxstack: number;
+}
+const cff2TopDict = new CFFDict<CFF2TopDictData>([
 	[[12, 7], 'FontMatrix', 'array', [0.001, 0, 0, 0.001, 0, 0]],
 	[17, 'CharStrings', new CFFPointer(new CFFIndex()), null],
 	[[12, 37], 'FDSelect', new CFFPointer(fdSelect), null],
