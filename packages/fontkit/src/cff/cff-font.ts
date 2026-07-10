@@ -1,10 +1,10 @@
 import type { DecodeStream } from 'restructure';
 import type { CFFDict } from './cff-dict.js';
 import type { CFFPrivateDictTable } from './cff-private-dict.js';
-import { standardStrings } from './cff-standard-strings.js';
 import { cffTop } from './cff-top.js';
 import type { CFF1Font } from './cff1-font.js';
 import type { CFF2Font } from './cff2-font.js';
+import { StandardString } from './cff-standard-strings.js';
 
 export namespace CFFTable {
 	export interface IndexDescriptor {
@@ -18,7 +18,7 @@ export namespace CFFTable {
 		offSize: number;
 		nameIndex: string[];
 		topDictIndex: CFFDict[];
-		stringIndex: string[];
+		stringIndex: StandardString[];
 		globalSubrIndex: IndexDescriptor[];
 	}
 
@@ -36,6 +36,11 @@ export namespace CFFTable {
 export interface AnyCFFFontHeader {
 	hdrSize: number;
 	globalSubrIndex: CFFTable.IndexDescriptor[];
+
+	size(): 0;
+	encode(): void;
+
+	string(sid: number | null): StandardString | null;
 }
 
 export type AnyCFFFont = CFF1Font | CFF2Font;
@@ -50,7 +55,6 @@ export abstract class CFFFont {
 
 	private topDictIndex!: CFFDict[];
 	public topDict!: Record<string, any>;
-	private stringIndex!: string[];
 	public isCIDFont!: boolean;
 	private nameIndex!: string[];
 	public length!: number;
@@ -80,24 +84,13 @@ export abstract class CFFFont {
 		this.isCIDFont = 'ROS' in this.topDict && this.topDict.ROS != null;
 	}
 
-	public size() {
+	public size(): 0 {
 		return 0;
 	}
 
 	public encode() {}
 
-	// sid: number | null
-	string(sid: number | null) {
-		if (sid === null || this.version === 2) {
-			return null;
-		}
-
-		if (sid < standardStrings.length) {
-			return standardStrings[sid];
-		}
-
-		return this.stringIndex[sid - standardStrings.length];
-	}
+	abstract string(sid: number | null): StandardString | null;
 
 	get postscriptName(): string | null {
 		if (this.version !== 2) {
