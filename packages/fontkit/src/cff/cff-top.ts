@@ -294,6 +294,8 @@ export interface CFFTopDictData {
 	StrokeWidth: number;
 	XUID: unknown[];
 	charset: StandardString[];
+	Encoding: CFFCustomEncodingData;
+	CharStrings: CFFTable.IndexDescriptor[];
 	Private: CFFPrivateDictTable; // FIXME! This is probably wrong!
 	SytheticBase?: number;
 	PostScript: number | null;
@@ -308,6 +310,7 @@ export interface CFFTopDictData {
 	FDArray?: number[];
 	FontName: number | null;
 }
+
 const cffTopDict = new CFFDict<CFFTopDictData>([
 	// key, name, type(s), default
 	[[12, 30], 'ROS', ['sid', 'sid', 'number'], null],

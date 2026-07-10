@@ -44,7 +44,7 @@ export class CFFGlyph extends Glyph {
 			this._font.outlineVersion === 2 ? this._font.CFF2 : this._font['CFF '];
 		const stream = cff.stream;
 
-		const str = (cff.topDict as any).CharStrings[this.id];
+		const str = cff.topDict.CharStrings[this.id];
 		let end = str.offset + str.length;
 		stream.pos = str.offset;
 

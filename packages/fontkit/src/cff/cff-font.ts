@@ -96,9 +96,9 @@ export abstract class CFFFont {
 	}
 
 	getCharString(glyph: number): Uint8Array {
-		this.stream.pos = (this.topDict as any).CharStrings[glyph].offset;
+		this.stream.pos = this.topDict.CharStrings[glyph].offset;
 		return this.stream.readBuffer(
-			(this.topDict as any).CharStrings[glyph].length,
+			this.topDict.CharStrings[glyph].length,
 		);
 	}
 
