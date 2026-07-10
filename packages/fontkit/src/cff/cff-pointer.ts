@@ -9,7 +9,6 @@ import type {
 	PointerTOptions,
 } from 'restructure';
 import * as r from 'restructure';
-import type { CFFIndexRecord } from './cff-index.js';
 
 /**
  * A specialized CFF wrapper representing an encapsulation pointer handle

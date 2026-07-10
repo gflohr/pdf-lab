@@ -1,7 +1,7 @@
 import * as r from 'restructure';
 import { type AATFont, requiredAATTables } from './aat/aat-font.js';
 import { fontkit } from './base.js';
-import type { CFFFont } from './cff/cff-font.js';
+import type { CFF1Font } from './cff/cff1-font.js';
 import { CmapProcessor } from './cmap-processor.js';
 import type {
 	NamedVariation,
@@ -205,7 +205,7 @@ export class TrueTypeFont<
 		}
 	}
 
-	public get cff(): CFFFont | null {
+	public get cff(): CFF1Font | null {
 		return this['CFF '];
 	}
 
@@ -267,9 +267,6 @@ export class TrueTypeFont<
 	protected decodeTable<K extends keyof typeof tables>(
 		table: SFNTDirectoryEntry,
 	): ReturnType<(typeof tables)[K]['decode']> | null {
-if (table.tag.match(/^CFF2/)) {
-	debugger;
-}
 		const pos = this.stream.pos;
 		const stream = this.getTableStream(table.tag);
 

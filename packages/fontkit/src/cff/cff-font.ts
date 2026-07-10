@@ -4,6 +4,8 @@ import type { CFFIndexRecord } from './cff-index.js';
 import type { CFFPrivateDictTable } from './cff-private-dict.js';
 import { standardStrings } from './cff-standard-strings.js';
 import { cffTop } from './cff-top.js';
+import { CFF2Font } from './cff2-font.js';
+import { CFF1Font } from './cff1-font.js';
 
 export namespace CFFTable {
 	export interface IndexDescriptor {
@@ -12,7 +14,7 @@ export namespace CFFTable {
 	}
 }
 
-export class CFFFont {
+export abstract class CFFFont {
 	public version!: number;
 	private topDictIndex!: CFFDict[];
 	public topDict!: Record<string, any>;
@@ -44,13 +46,10 @@ export class CFFFont {
 		this.isCIDFont = 'ROS' in this.topDict && this.topDict.ROS != null;
 	}
 
-	static decode(stream: DecodeStream) {
-		return new CFFFont(stream);
-	}
-
 	public size() {
 		return 0;
 	}
+
 	public encode() {}
 
 	// sid: number | null

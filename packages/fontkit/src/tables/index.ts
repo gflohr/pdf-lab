@@ -21,7 +21,9 @@ import { loca } from './loca.js';
 import { prep } from './prep.js';
 
 // PostScript Outlines
-import { CFFFont } from '../cff/cff-font.js';
+import type { CFFFont } from '../cff/cff-font.js';
+import { CFF1Font } from '../cff/cff1-font.js';
+import { CFF2Font } from '../cff/cff2-font.js';
 import { VORG } from './VORG.js';
 
 import { COLR } from './COLR.js';
@@ -85,8 +87,8 @@ export const tables = {
 	prep,
 	'cvt ': cvt,
 	glyf,
-	'CFF ': CFFFont,
-	CFF2: CFFFont,
+	'CFF ': CFF1Font,
+	CFF2: CFF2Font,
 	VORG,
 	EBLC,
 	CBLC: EBLC,
