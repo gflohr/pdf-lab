@@ -6,6 +6,7 @@ import type {
 	PropertyDescriptor,
 } from 'restructure';
 import * as r from 'restructure';
+import type { CFFSubsetCharset } from '../subset/cff-subset.js';
 import { itemVariationStore } from '../tables/variations.js';
 import {
 	expertCharset,
@@ -14,6 +15,7 @@ import {
 } from './cff-charsets.js';
 import { CFFDict } from './cff-dict.js';
 import { expertEncoding, standardEncoding } from './cff-encodings.js';
+import type { CFFTable } from './cff-font.js';
 import { CFFIndex } from './cff-index.js';
 import { CFFPointer, type Ptr } from './cff-pointer.js';
 import {
@@ -21,7 +23,6 @@ import {
 	cffPrivateDict,
 } from './cff-private-dict.js';
 import type { StandardString } from './cff-standard-strings.js';
-import { CFFSubsetCharset } from '../subset/cff-subset.js';
 
 interface RangeRecord {
 	first: number;
@@ -33,7 +34,10 @@ interface RangeRecord {
 // otherwise delegates to the provided type.
 export class PredefinedOp {
 	constructor(
-		private readonly predefinedOps: StandardString[] | StandardString[][] | CFFSubsetCharset[],
+		private readonly predefinedOps:
+			| StandardString[]
+			| StandardString[][]
+			| CFFSubsetCharset[],
 		private readonly type: CFFPointer<FieldT<any>>,
 	) {}
 
@@ -41,7 +45,7 @@ export class PredefinedOp {
 		stream: DecodeStream,
 		parent: unknown,
 		operands: number[],
-	): PropertyDescriptor | StandardString | StandardString[] | CFFSubsetCharset{
+	): PropertyDescriptor | StandardString | StandardString[] | CFFSubsetCharset {
 		if (this.predefinedOps[operands[0]]) {
 			return this.predefinedOps[operands[0]];
 		}
@@ -58,8 +62,10 @@ export class PredefinedOp {
 		value: StandardString | StandardString[] | CFFSubsetCharset,
 		ctx?: ParsingContext,
 	): number | Ptr | Ptr[] {
-		if (typeof value === 'string'
-			&& typeof this.predefinedOps[0] === 'string') {
+		if (
+			typeof value === 'string' &&
+			typeof this.predefinedOps[0] === 'string'
+		) {
 			const index = (this.predefinedOps as StandardString[]).indexOf(value);
 			if (index >= 0) {
 				return index;
@@ -364,26 +370,6 @@ const cff2TopDict = new CFFDict<CFF2TopDictData>([
 	[25, 'maxstack', 'number', 193],
 ]);
 
-export interface CFFTopDataV1 {
-	version: 1;
-	hdrSize: number;
-	offSize: number;
-	nameIndex: string[];
-	topDictIndex: CFFDict[];
-	stringIndex: string[];
-	globalSubrIndex: { offset: number; length: number }[];
-}
-
-export interface CFFTopDataV2 {
-	version: 2;
-	hdrSize: number;
-	length: number;
-	topDict: CFFDict[];
-	globalSubrIndex: { offset: number; length: number }[];
-}
-
-export type CFFTopData = CFFTopDataV1 | CFFTopDataV2;
-
 const fields = {
 	1: {
 		hdrSize: r.uint8,
@@ -403,7 +389,7 @@ const fields = {
 };
 
 /** @internal */
-export const cffTop = new r.VersionedStruct<typeof fields, CFFTopData>(
+export const cffTop = new r.VersionedStruct<typeof fields, CFFTable.TopData>(
 	r.fixed16,
 	fields,
 );

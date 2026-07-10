@@ -1,4 +1,4 @@
-import type { CFFIndexRecord } from '../cff/cff-index.js';
+import type { CFFTable } from '../cff/cff-font.js';
 import type { OpenTypePostScriptFont } from '../open-type-font.js';
 import { Glyph } from './glyph.js';
 import { Path } from './path.js';
@@ -29,7 +29,7 @@ export class CFFGlyph extends Glyph {
 		return this._font['CFF '].getGlyphName(this.id);
 	}
 
-	private bias(s: CFFIndexRecord[]): number {
+	private bias(s: CFFTable.IndexDescriptor[]): number {
 		if (s.length < 1240) {
 			return 107;
 		} else if (s.length < 33900) {
@@ -105,7 +105,7 @@ export class CFFGlyph extends Glyph {
 				let op = stream.readUInt8();
 				let phase: boolean;
 				let index: number;
-				let subr: CFFIndexRecord;
+				let subr: CFFTable.IndexDescriptor;
 				let a: number;
 				let b: number;
 				let idx: number;

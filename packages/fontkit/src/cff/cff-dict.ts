@@ -67,7 +67,9 @@ export type CFFDictResultShape = Record<string, any>;
 /**
  * Handles binary decoding and encoding of Compact Font Format (CFF) key-value dictionaries.
  */
-export class CFFDict<T extends CFFDictResultShape = CFFDictResultShape> implements FieldT<Record<string, any>> {
+export class CFFDict<T extends CFFDictResultShape = CFFDictResultShape>
+	implements FieldT<Record<string, any>>
+{
 	public ops: CFFOpDefinition[];
 	public fields: Record<number, CFFOpDefinition>;
 

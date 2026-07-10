@@ -314,7 +314,11 @@ declare module 'restructure' {
 		decode(
 			stream: DecodeStream,
 			ctx?: unknown,
-		): InferField<TField> | number | null | PropertyDescriptor<InferField<TField>>;
+		):
+			| InferField<TField>
+			| number
+			| null
+			| PropertyDescriptor<InferField<TField>>;
 
 		size(value?: unknown, ctx?: unknown): number;
 

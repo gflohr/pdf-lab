@@ -7,24 +7,19 @@ import type {
 } from 'restructure';
 import * as r from 'restructure';
 import type { CFFDict } from './cff-dict.js';
-import type { CFFTopData } from './cff-top.js';
-
-export interface CFFIndexRecord {
-	offset: number;
-	length: number;
-}
+import type { CFFTable } from './cff-font.js';
 
 export type IndexItemValue =
 	| Record<string, unknown>
 	| string
 	| Buffer
-	| CFFIndexRecord;
+	| CFFTable.IndexDescriptor;
 
 interface CFFNodeContext extends FieldT<unknown> {
 	length: number;
 }
 
-type CFFNode = CFFNodeContext & CFFTopData;
+type CFFNode = CFFNodeContext & CFFTable.TopData;
 
 /**
  * Handles variable-length table lookups across structural subroutines,

@@ -1,6 +1,7 @@
 import type { DecodeStream, FieldT } from 'restructure';
 import { CFFDict } from './cff-dict.js';
-import { CFFIndex, type CFFIndexRecord } from './cff-index.js';
+import type { CFFTable } from './cff-font.js';
+import { CFFIndex } from './cff-index.js';
 import { CFFPointer } from './cff-pointer.js';
 
 const CFFBlendOp: FieldT<unknown> = {
@@ -64,5 +65,5 @@ export interface CFFPrivateDictTable {
 	nominalWidthX?: number;
 	vsindex?: number;
 	blend?: unknown;
-	Subrs?: CFFIndexRecord[];
+	Subrs?: CFFTable.IndexDescriptor[];
 }

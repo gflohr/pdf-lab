@@ -1,17 +1,34 @@
 import type { DecodeStream } from 'restructure';
 import type { CFFDict } from './cff-dict.js';
-import type { CFFIndexRecord } from './cff-index.js';
 import type { CFFPrivateDictTable } from './cff-private-dict.js';
 import { standardStrings } from './cff-standard-strings.js';
 import { cffTop } from './cff-top.js';
-import { CFF2Font } from './cff2-font.js';
-import { CFF1Font } from './cff1-font.js';
 
 export namespace CFFTable {
 	export interface IndexDescriptor {
 		offset: number;
 		length: number;
 	}
+
+	export interface TopDataV1 {
+		version: 1;
+		hdrSize: number;
+		offSize: number;
+		nameIndex: string[];
+		topDictIndex: CFFDict[];
+		stringIndex: string[];
+		globalSubrIndex: IndexDescriptor[];
+	}
+
+	export interface TopDataV2 {
+		version: 2;
+		hdrSize: number;
+		length: number;
+		topDict: CFFDict[];
+		globalSubrIndex: IndexDescriptor[];
+	}
+
+	export type TopData = TopDataV1 | TopDataV2;
 }
 
 export abstract class CFFFont {
@@ -21,7 +38,7 @@ export abstract class CFFFont {
 	private stringIndex!: string[];
 	public isCIDFont!: boolean;
 	private nameIndex!: string[];
-	public globalSubrIndex!: CFFIndexRecord[];
+	public globalSubrIndex!: CFFTable.IndexDescriptor[];
 	// These three properties somehow pop up and are needed for subsetting.
 	public hdrSize!: number;
 	public length!: number;
@@ -32,7 +49,7 @@ export abstract class CFFFont {
 		for (const k in top) {
 			const key = k as keyof typeof top;
 			const val = top[key];
-			(this as Record<string, unknown>)[key] = val;
+			(this as Record<string, unknown>)[key as string] = val;
 		}
 
 		if (this.version !== 2) {
