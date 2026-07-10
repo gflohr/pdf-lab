@@ -3,6 +3,8 @@ import type { CFFDict } from './cff-dict.js';
 import type { CFFPrivateDictTable } from './cff-private-dict.js';
 import { standardStrings } from './cff-standard-strings.js';
 import { cffTop } from './cff-top.js';
+import type { CFF1Font } from './cff1-font.js';
+import type { CFF2Font } from './cff2-font.js';
 
 export namespace CFFTable {
 	export interface IndexDescriptor {
@@ -11,7 +13,7 @@ export namespace CFFTable {
 	}
 
 	export interface TopDataV1 {
-		version: 1;
+		version: 1 | undefined;
 		hdrSize: number;
 		offSize: number;
 		nameIndex: string[];
@@ -31,24 +33,39 @@ export namespace CFFTable {
 	export type TopData = TopDataV1 | TopDataV2;
 }
 
+export interface AnyCFFFontHeader {
+	hdrSize: number;
+	globalSubrIndex: CFFTable.IndexDescriptor[];
+}
+
+export type AnyCFFFont = CFF1Font | CFF2Font;
+
 export abstract class CFFFont {
-	public version!: number;
+	protected topData: CFFTable.TopData;
+	public readonly version: 1 | 2 | undefined;
+	protected readonly decodedTopDataVersion: number | undefined;
+
+	public hdrSize: number;
+	public globalSubrIndex: CFFTable.IndexDescriptor[];
+
 	private topDictIndex!: CFFDict[];
 	public topDict!: Record<string, any>;
 	private stringIndex!: string[];
 	public isCIDFont!: boolean;
 	private nameIndex!: string[];
-	public globalSubrIndex!: CFFTable.IndexDescriptor[];
-	// These three properties somehow pop up and are needed for subsetting.
-	public hdrSize!: number;
 	public length!: number;
 	public header!: Uint8Array;
 
 	constructor(public readonly stream: DecodeStream) {
-		const top = cffTop.decode(this.stream);
-		for (const k in top) {
-			const key = k as keyof typeof top;
-			const val = top[key];
+		this.topData = cffTop.decode(this.stream);
+		this.version = this.topData.version;
+		this.decodedTopDataVersion = this.version;
+		this.hdrSize = this.topData.hdrSize;
+		this.globalSubrIndex = this.topData.globalSubrIndex;
+
+		for (const k in this.topData) {
+			const key = k as keyof typeof this.topData;
+			const val = this.topData[key];
 			(this as Record<string, unknown>)[key as string] = val;
 		}
 
@@ -71,7 +88,7 @@ export abstract class CFFFont {
 
 	// sid: number | null
 	string(sid: number | null) {
-		if (sid === null || this.version >= 2) {
+		if (sid === null || this.version === 2) {
 			return null;
 		}
 
@@ -83,7 +100,7 @@ export abstract class CFFFont {
 	}
 
 	get postscriptName(): string | null {
-		if (this.version < 2) {
+		if (this.version !== 2) {
 			return this.nameIndex[0];
 		}
 
@@ -105,7 +122,7 @@ export abstract class CFFFont {
 
 	getGlyphName(gid: number): string | null {
 		// CFF2 glyph names are in the post table.
-		if (this.version >= 2) {
+		if (this.version === 2) {
 			return null;
 		}
 
@@ -191,7 +208,7 @@ export abstract class CFFFont {
 			return null;
 		}
 
-		if (this.version < 2) {
+		if (this.version !== 2) {
 			return this.topDict.Private;
 		}
 

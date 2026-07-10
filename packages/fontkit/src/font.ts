@@ -1,5 +1,5 @@
 /* istanbul ignore file */
-import type { CFFFont } from './cff/cff-font.js';
+import type { CFF1Font } from './cff/cff1-font.js';
 import type { BoundingBox } from './glyph/bounding-box.js';
 import type { Glyph } from './glyph/glyph.js';
 import type { GlyphRun } from './layout/glyph-run.js';
@@ -149,9 +149,9 @@ export interface Font extends SFNTFont {
 	stringsForGlyph(id: number): string[];
 
 	/**
-	 * An alias for the font's `CFF ` table.
+	 * An alias for the font's `CFF ` table (always version 1).
 	 */
-	cff: CFFFont | null;
+	cff: CFF1Font | null;
 
 	/**
 	 * Get a font variation of that name.

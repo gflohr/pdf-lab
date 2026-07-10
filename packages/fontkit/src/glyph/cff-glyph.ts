@@ -181,13 +181,13 @@ export class CFFGlyph extends Glyph {
 							break;
 
 						case 11: // return
-							if (cff.version >= 2) {
+							if (cff.version !== 2) {
 								break;
 							}
 							return;
 
 						case 14: // endchar
-							if (cff.version >= 2) {
+							if (cff.version !== 2) {
 								break;
 							}
 
@@ -203,7 +203,7 @@ export class CFFGlyph extends Glyph {
 
 						case 15: {
 							// vsindex
-							if (cff.version < 2) {
+							if (cff.version !== 2) {
 								throw new Error('vsindex operator not supported in CFF v1');
 							}
 
@@ -213,7 +213,7 @@ export class CFFGlyph extends Glyph {
 
 						case 16: {
 							// blend
-							if (cff.version < 2) {
+							if (cff.version !== 2) {
 								throw new Error('blend operator not supported in CFF v1');
 							}
 

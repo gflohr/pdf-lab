@@ -35,12 +35,16 @@ export class CFFIndex<TType extends CFFDict | StringT | FieldT<IndexItemValue>>
 			ctx = ctx.parent as CFFNode;
 		}
 
-		return ctx ? ctx.version : -1;
+		if (ctx) {
+			return ctx.version === 2 ? 2 : 1;
+		} else {
+			return -1;
+		}
 	}
 
 	decode(stream: DecodeStream, parent: CFFNode): IndexItemValue[] {
 		const version = this.getCFFVersion(parent);
-		const count = version >= 2 ? stream.readUInt32BE() : stream.readUInt16BE();
+		const count = version !== 2 ? stream.readUInt16BE() : stream.readUInt32BE();
 
 		if (count === 0) {
 			return [];
