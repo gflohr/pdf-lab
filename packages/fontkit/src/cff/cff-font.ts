@@ -61,6 +61,9 @@ export abstract class CFFFont {
 	public header!: Uint8Array;
 
 	constructor(public readonly stream: DecodeStream) {
+		if (new.target === CFFFont) {
+			throw new Error('CFFFont is an abstract base class! Use CFF1Font or CFF2Font instead!');
+		}
 		this.topData = cffTop.decode(this.stream);
 		this.version = this.topData.version;
 		this.decodedTopDataVersion = this.version;
