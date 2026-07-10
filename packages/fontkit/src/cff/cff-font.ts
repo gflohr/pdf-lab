@@ -5,6 +5,13 @@ import type { CFFPrivateDictTable } from './cff-private-dict.js';
 import { standardStrings } from './cff-standard-strings.js';
 import { cffTop } from './cff-top.js';
 
+export namespace CFFTable {
+	export interface IndexDescriptor {
+		offset: number;
+		length: number;
+	}
+}
+
 export class CFFFont {
 	public version!: number;
 	private topDictIndex!: CFFDict[];
@@ -19,14 +26,6 @@ export class CFFFont {
 	public header!: Uint8Array;
 
 	constructor(public readonly stream: DecodeStream) {
-		this.decode();
-	}
-
-	static decode(stream: DecodeStream) {
-		return new CFFFont(stream);
-	}
-
-	decode() {
 		const top = cffTop.decode(this.stream);
 		for (const k in top) {
 			const key = k as keyof typeof top;
@@ -43,8 +42,10 @@ export class CFFFont {
 		}
 
 		this.isCIDFont = 'ROS' in this.topDict && this.topDict.ROS != null;
+	}
 
-		return this;
+	static decode(stream: DecodeStream) {
+		return new CFFFont(stream);
 	}
 
 	public size() {
