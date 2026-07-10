@@ -267,6 +267,9 @@ export class TrueTypeFont<
 	protected decodeTable<K extends keyof typeof tables>(
 		table: SFNTDirectoryEntry,
 	): ReturnType<(typeof tables)[K]['decode']> | null {
+if (table.tag.match(/^CFF2/)) {
+	debugger;
+}
 		const pos = this.stream.pos;
 		const stream = this.getTableStream(table.tag);
 

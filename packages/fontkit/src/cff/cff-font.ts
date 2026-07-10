@@ -34,7 +34,7 @@ export class CFFFont {
 			(this as Record<string, unknown>)[key] = val;
 		}
 
-		if (this.version < 2) {
+		if (this.version !== 2) {
 			if (this.topDictIndex.length !== 1) {
 				throw new Error('Only a single font is allowed in CFF');
 			}
