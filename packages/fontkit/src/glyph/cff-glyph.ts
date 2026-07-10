@@ -44,7 +44,13 @@ export class CFFGlyph extends Glyph {
 			this._font.outlineVersion === 2 ? this._font.CFF2 : this._font['CFF '];
 		const stream = cff.stream;
 
-		const str = cff.topDict.CharStrings[this.id];
+		// FIXME! CFFFont has a method for this!
+		const str = cff.topDict.CharStrings?.[this.id];
+		if (!str) {
+			throw new Error(
+				'Corrupt font file! Cannot get path, because of missing CharStrings!',
+			);
+		}
 		let end = str.offset + str.length;
 		stream.pos = str.offset;
 

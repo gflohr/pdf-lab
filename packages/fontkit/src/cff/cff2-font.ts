@@ -1,6 +1,5 @@
 import type { DecodeStream } from 'restructure';
 import { type AnyCFFFontHeader, CFFFont, type CFFTable } from './cff-font';
-import type { CFFTopDictData } from './cff-top';
 
 export interface CFF2Font extends AnyCFFFontHeader {
 	version: 2;
@@ -12,7 +11,7 @@ export class CFF2Font extends CFFFont {
 	public declare version: 2;
 	protected declare topData: CFFTable.TopDataV2;
 	public length: number;
-	public _topDict: CFFTopDictData;
+	public declare _topDict: CFFTable.TopDictDataV2;
 
 	constructor(stream: DecodeStream) {
 		super(stream);
@@ -35,11 +34,19 @@ export class CFF2Font extends CFFFont {
 		return null;
 	}
 
-	public override get topDict(): CFFTopDictData {
+	public override get topDict(): CFFTable.TopDictDataV2 {
 		return this._topDict;
 	}
 
 	public override get postscriptName(): null {
+		return null;
+	}
+
+	public override get fullName() {
+		return null;
+	}
+
+	public override get familyName() {
 		return null;
 	}
 }

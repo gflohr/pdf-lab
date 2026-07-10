@@ -7,7 +7,8 @@ import type {
 } from 'restructure';
 import * as r from 'restructure';
 import type { CFFSubsetCharset } from '../subset/cff-subset.js';
-import { itemVariationStore } from '../tables/variations.js';
+import { OpenType } from '../tables/open-type.js';
+import { itemVariationStore, OpenTypeVariation } from '../tables/variations.js';
 import {
 	expertCharset,
 	expertSubsetCharset,
@@ -23,12 +24,6 @@ import {
 	cffPrivateDict,
 } from './cff-private-dict.js';
 import type { StandardString } from './cff-standard-strings.js';
-
-interface RangeRecord {
-	first: number;
-	nLeft: number;
-	offset?: number;
-}
 
 // Checks if an operand is an index of a predefined value,
 // otherwise delegates to the provided type.
@@ -90,27 +85,17 @@ const range1Fields = {
 	first: r.uint16,
 	nLeft: r.uint8,
 };
-const range1 = new r.Struct<typeof range1Fields, RangeRecord>(range1Fields);
+const range1 = new r.Struct<typeof range1Fields, CFFTable.RangeRecord>(
+	range1Fields,
+);
 
 const range2Fields = {
 	first: r.uint16,
 	nLeft: r.uint16,
 };
-const range2 = new r.Struct<typeof range2Fields, RangeRecord>(range2Fields);
-
-interface CFFCustomEncodingDataV0 {
-	version: 0;
-	nCodes: number;
-	codes: number[];
-}
-
-interface CFFCustomEncodingDataV1 {
-	version: 1;
-	nRanges: number;
-	ranges: number[];
-}
-
-type CFFCustomEncodingData = CFFCustomEncodingDataV0 | CFFCustomEncodingDataV1;
+const range2 = new r.Struct<typeof range2Fields, CFFTable.RangeRecord>(
+	range2Fields,
+);
 
 const cffCustomEncodingFields = {
 	0: {
@@ -127,7 +112,7 @@ const cffCustomEncodingFields = {
 };
 const cffCustomEncoding = new r.VersionedStruct<
 	typeof cffCustomEncodingFields,
-	CFFCustomEncodingData
+	CFFTable.CustomEncodingData
 >(new CFFEncodingVersion(), cffCustomEncodingFields);
 
 const cffEncoding = new PredefinedOp(
@@ -140,7 +125,7 @@ const cffEncoding = new PredefinedOp(
  * length is equal to the provided length.
  * @internal
  */
-export class RangeArray extends r.Array<FieldT<RangeRecord>> {
+export class RangeArray extends r.Array<FieldT<CFFTable.RangeRecord>> {
 	override decode(stream: DecodeStream, parent?: ParsingContext) {
 		const length = r.resolveLength(this.length, stream, parent);
 		let count = 0;
@@ -163,12 +148,12 @@ interface CFFCustomCharsetDataV0 {
 
 interface CFFCustomCharsetDataV1 {
 	version: 1;
-	ranges: RangeRecord[];
+	ranges: CFFTable.RangeRecord[];
 }
 
 interface CFFCustomCharsetDataV2 {
 	version: 2;
-	ranges: RangeRecord[];
+	ranges: CFFTable.RangeRecord[];
 }
 
 type CFFCustomCharsetData =
@@ -259,13 +244,7 @@ export class CFFPrivateOp {
 	}
 }
 
-interface CFFFontDictData {
-	Private?: CFFPrivateDictTable;
-	FontName?: string;
-	FontPatrix: number[];
-	PaintType: number;
-}
-const fontDict = new CFFDict<CFFFontDictData>([
+const fontDict = new CFFDict<CFFTable.FontDictData>([
 	// key, name, type(s), default
 	[18, 'Private', new CFFPrivateOp(), null],
 	[[12, 38], 'FontName', 'sid', null],
@@ -273,45 +252,7 @@ const fontDict = new CFFDict<CFFFontDictData>([
 	[[12, 5], 'PaintType', 'number', 0],
 ]);
 
-// FIXME! This should be CFFTable.TopDictData.
-export interface CFFTopDictData {
-	ROS?: [string, string, number];
-	version: number | null;
-	Notice: number | null;
-	Copyright: number | null;
-	FullName: number | null;
-	FamilyName: number | null;
-	Weight: number | null;
-	isFixedPitch: boolean;
-	ItalicAngle: number;
-	UnderlinePosition: number;
-	UnderlineThickness: number;
-	PaintType: number;
-	CharstringType: number;
-	FontMatrix: [number, number, number, number, number, number];
-	UniqueID?: number;
-	FontBBox: [number, number, number, number];
-	StrokeWidth: number;
-	XUID: unknown[];
-	charset: StandardString[];
-	Encoding: CFFCustomEncodingData;
-	CharStrings: CFFTable.IndexDescriptor[];
-	Private: CFFPrivateDictTable; // FIXME! This is probably wrong!
-	SytheticBase?: number;
-	PostScript: number | null;
-	SFNTFontName: number | null;
-	SFNTFontBlend?: number;
-	CIDFontVersion: number;
-	CIDFontRevision: number;
-	CIDFontType: number;
-	CIDCount: number;
-	UIDBase: number;
-	FDSelect?: number[];
-	FDArray?: number[];
-	FontName: number | null;
-}
-
-const cffTopDict = new CFFDict<CFFTopDictData>([
+const cffTopDict = new CFFDict<CFFTable.TopDictDataV1>([
 	// key, name, type(s), default
 	[[12, 30], 'ROS', ['sid', 'sid', 'number'], null],
 
@@ -352,20 +293,17 @@ const cffTopDict = new CFFDict<CFFTopDictData>([
 	[[12, 38], 'FontName', 'sid', null],
 ]);
 
-const variationStore = new r.Struct({
+const variationStoreFields = {
 	length: r.uint16,
 	itemVariationStore: itemVariationStore,
-});
+};
 
-interface CFF2TopDictData {
-	FontMatrix: [number, number, number, number, number, number];
-	CharStrings?: number[];
-	FDSelect?: number[];
-	FDArray?: CFFFontDictData[];
-	vstore?: typeof variationStore;
-	maxstack: number;
-}
-const cff2TopDict = new CFFDict<CFF2TopDictData>([
+const variationStore = new r.Struct<
+	typeof variationStoreFields,
+	CFFTable.VariationStore
+>(variationStoreFields);
+
+const cff2TopDict = new CFFDict<CFFTable.TopDictDataV2>([
 	[[12, 7], 'FontMatrix', 'array', [0.001, 0, 0, 0.001, 0, 0]],
 	[17, 'CharStrings', new CFFPointer(new CFFIndex()), null],
 	[[12, 37], 'FDSelect', new CFFPointer(fdSelect), null],

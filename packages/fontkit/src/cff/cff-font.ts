@@ -1,8 +1,8 @@
 import type { DecodeStream } from 'restructure';
-import type { CFFDict } from './cff-dict.js';
+import type { OpenTypeVariation } from '../tables/variations.js';
 import type { CFFPrivateDictTable } from './cff-private-dict.js';
 import type { StandardString } from './cff-standard-strings.js';
-import { type CFFTopDictData, cffTop } from './cff-top.js';
+import { cffTop } from './cff-top.js';
 import type { CFF1Font } from './cff1-font.js';
 import type { CFF2Font } from './cff2-font.js';
 
@@ -12,22 +12,104 @@ export namespace CFFTable {
 		length: number;
 	}
 
+	export interface CustomEncodingDataV0 {
+		version: 0;
+		nCodes: number;
+		codes: number[];
+	}
+
+	export interface CustomEncodingDataV1 {
+		version: 1;
+		nRanges: number;
+		ranges: number[];
+	}
+
+	export type CustomEncodingData = CustomEncodingDataV0 | CustomEncodingDataV1;
+
+	export interface RangeRecord {
+		first: number;
+		nLeft: number;
+		offset?: number;
+	}
+
+	export interface TopDictDataHeader {
+		FontMatrix: [number, number, number, number, number, number];
+		CharStrings: IndexDescriptor[] | null;
+		FDSelect?: number[];
+		FDArray?: FontDictData[];
+	}
+
+	export interface TopDictDataV1 extends TopDictDataHeader {
+		ROS: [string, string, number] | null;
+		version: number | null;
+		Notice: number | null;
+		Copyright: number | null;
+		FullName: number | null;
+		FamilyName: number | null;
+		Weight: number | null;
+		isFixedPitch: boolean;
+		ItalicAngle: number;
+		UnderlinePosition: number;
+		UnderlineThickness: number;
+		PaintType: number;
+		CharstringType: number;
+		UniqueID?: number;
+		FontBBox: [number, number, number, number];
+		StrokeWidth: number;
+		XUID: unknown[];
+		charset: RangeRecord[];
+		Encoding: CustomEncodingData;
+		Private: CFFPrivateDictTable; // FIXME! This is probably wrong!
+		SytheticBase?: number;
+		PostScript: number | null;
+		SFNTFontName: number | null;
+		SFNTFontBlend?: number;
+		CIDFontVersion: number;
+		CIDFontRevision: number;
+		CIDFontType: number;
+		CIDCount: number;
+		UIDBase: number;
+		FontName: number | null;
+	}
+
+	export interface FontDictData {
+		Private?: CFFPrivateDictTable;
+		FontName?: string;
+		FontPatrix: number[];
+		PaintType: number;
+	}
+
+	export interface VariationStore {
+		length: number;
+		itemVariationStore: OpenTypeVariation.ItemVariationStore;
+	}
+
+	export interface TopDictDataV2 extends TopDictDataHeader {
+		vstore?: VariationStore;
+		maxstack: number;
+	}
+
+	export type TopDictData = TopDictDataV1 | TopDictDataV2;
+
 	export interface TopDataHeader {
 		version: 1 | undefined | 2;
 		hdrSize: number;
 		globalSubrIndex: IndexDescriptor[];
-		topDict: CFFTopDictData;
+		topDict: TopDictData;
 	}
+
 	export interface TopDataV1 extends TopDataHeader {
 		version: 1 | undefined;
 		offSize: number; // unused?
 		nameIndex: string[];
-		topDictIndex: CFFTopDictData[];
-		stringIndex: StandardString[];
+		topDictIndex: TopDictDataV1[];
+		topDict: TopDictDataV1;
+		stringIndex: string[];
 	}
 
 	export interface TopDataV2 extends TopDataHeader {
 		version: 2;
+		topDict: TopDictDataV2;
 		length: number;
 	}
 
@@ -41,10 +123,12 @@ export interface AnyCFFFontHeader {
 	size(): 0;
 	encode(): void;
 
-	string(sid: number | null): StandardString | null;
-	postscriptName: string | null;
-	topDict: CFFTopDictData;
+	string(sid: number | null): string | null;
+	topDict: CFFTable.TopDictData;
 	readonly isCIDFont: boolean;
+	readonly postscriptName: string | null;
+	readonly fullName: string | null;
+	readonly familyName: string | null;
 }
 
 export type AnyCFFFont = CFF1Font | CFF2Font;
@@ -62,7 +146,9 @@ export abstract class CFFFont {
 
 	constructor(public readonly stream: DecodeStream) {
 		if (new.target === CFFFont) {
-			throw new Error('CFFFont is an abstract base class! Use CFF1Font or CFF2Font instead!');
+			throw new Error(
+				'CFFFont is an abstract base class! Use CFF1Font or CFF2Font instead!',
+			);
 		}
 		this.topData = cffTop.decode(this.stream);
 		this.version = this.topData.version;
@@ -77,9 +163,9 @@ export abstract class CFFFont {
 
 	public encode() {}
 
-	public abstract string(sid: number | null): StandardString | null;
+	public abstract string(sid: number | null): string | null;
 
-	public abstract get topDict(): CFFTopDictData;
+	public abstract get topDict(): CFFTable.TopDictData;
 
 	public get isCIDFont(): boolean {
 		return 'ROS' in this.topDict && this.topDict.ROS != null;
@@ -87,19 +173,18 @@ export abstract class CFFFont {
 
 	public abstract get postscriptName(): string | null;
 
-	get fullName() {
-		return this.string(this.topDict.FullName) ?? null;
-	}
+	public abstract get fullName(): string | null;
 
-	get familyName() {
-		return this.string(this.topDict.FamilyName);
-	}
+	public abstract get familyName(): string | null;
 
 	getCharString(glyph: number): Uint8Array {
-		this.stream.pos = this.topDict.CharStrings[glyph].offset;
-		return this.stream.readBuffer(
-			this.topDict.CharStrings[glyph].length,
-		);
+		const charStrings = this.topDict.CharStrings?.[glyph];
+
+		// FIXME! Is this the correct fallback? Or rather throw an exception?
+		if (!charStrings) return new Uint8Array();
+
+		this.stream.pos = charStrings.offset;
+		return this.stream.readBuffer(charStrings.length);
 	}
 
 	getGlyphName(gid: number): string | null {
@@ -113,9 +198,11 @@ export abstract class CFFFont {
 			return null;
 		}
 
-		const { charset } = this.topDict;
+		const charset = (this.topDict as CFFTable.TopDictDataV1).charset;
 		if (Array.isArray(charset)) {
-			return charset[gid];
+			// FIXME! This code has zero test coverage, and charset[gid] is
+			// actually a RangeRecord.
+			return charset[gid] as unknown as string;
 		}
 
 		if (gid === 0) {
@@ -191,9 +278,9 @@ export abstract class CFFFont {
 		}
 
 		if (this.version !== 2) {
-			return this.topDict.Private;
+			return (this.topDict as CFFTable.TopDictDataV1).Private;
 		}
 
-		return (this.topDict.FDArray![0] as any).Private;
+		return this.topDict.FDArray?.[0].Private ?? null;
 	}
 }

@@ -6,6 +6,7 @@ import { cffTop } from '../cff/cff-top.js';
 import { CFFGlyph } from '../glyph/cff-glyph.js';
 import type { TrueTypeFont } from '../true-type-font.js';
 import { Subset } from './subset.js';
+import { CFF1Font } from '../cff/cff1-font.js';
 
 export interface CFFSubsetCharset extends PropertyDescriptor {
 	version: 1 | 2;
@@ -13,7 +14,7 @@ export interface CFFSubsetCharset extends PropertyDescriptor {
 }
 
 export class CFFSubset extends Subset {
-	private readonly cff: CFFFont;
+	private readonly cff: CFF1Font;
 	private charstrings: Uint8Array[] = [];
 	private gsubrs?: Uint8Array[];
 	private strings?: string[];
@@ -89,7 +90,8 @@ export class CFFSubset extends Subset {
 			}
 
 			if (fdMap[fd] == null) {
-				fdArray.push(Object.assign({}, this.cff.topDict.FDArray![fd] as any));
+				// FIXME! Check the cast!
+				fdArray.push(Object.assign({}, this.cff.topDict.FDArray?.[fd] as unknown as Record<number, number>));
 				used_subrs.push({});
 				fdMap[fd] = fdArray.length - 1;
 			}
@@ -138,7 +140,7 @@ export class CFFSubset extends Subset {
 
 		const privateDict = Object.assign({}, this.cff.topDict.Private);
 		if (this.cff.topDict.Private?.Subrs) {
-			(privateDict.Subrs as any) = this.subsetSubrs(
+			(privateDict.Subrs as unknown) = this.subsetSubrs(
 				this.cff.topDict.Private.Subrs,
 				used_subrs,
 			);

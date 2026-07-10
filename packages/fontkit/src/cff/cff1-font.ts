@@ -1,7 +1,6 @@
 import type { DecodeStream } from 'restructure';
 import { type AnyCFFFontHeader, CFFFont, type CFFTable } from './cff-font';
 import { type StandardString, standardStrings } from './cff-standard-strings';
-import type { CFFTopDictData } from './cff-top';
 
 export interface CFF1Font extends AnyCFFFontHeader {
 	readonly version: 1 | undefined;
@@ -11,9 +10,9 @@ export interface CFF1Font extends AnyCFFFontHeader {
 export class CFF1Font extends CFFFont {
 	protected declare topData: CFFTable.TopDataV1;
 	private nameIndex: string[];
-	public _topDict: CFFTopDictData;
-	private topDictIndex: CFFTopDictData[];
-	private stringIndex: StandardString[];
+	public declare _topDict: CFFTable.TopDictDataV1;
+	private topDictIndex: CFFTable.TopDictDataV1[];
+	private stringIndex: string[];
 
 	constructor(stream: DecodeStream) {
 		super(stream);
@@ -60,11 +59,19 @@ export class CFF1Font extends CFFFont {
 		return this.stringIndex[sid - standardStrings.length] as StandardString;
 	}
 
-	public override get topDict(): CFFTopDictData {
+	public override get topDict(): CFFTable.TopDictDataV1 {
 		return this._topDict;
 	}
 
 	public override get postscriptName(): string | null {
 		return this.nameIndex[0] ?? null;
+	}
+
+	public override get fullName() {
+		return this.string(this.topDict.FullName) ?? null;
+	}
+
+	public override get familyName() {
+		return this.string(this.topDict.FamilyName) ?? null;
 	}
 }
