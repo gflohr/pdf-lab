@@ -89,7 +89,7 @@ export class CFFSubset extends Subset {
 			}
 
 			if (fdMap[fd] == null) {
-				fdArray.push(Object.assign({}, this.cff.topDict.FDArray[fd]));
+				fdArray.push(Object.assign({}, this.cff.topDict.FDArray![fd] as any));
 				used_subrs.push({});
 				fdMap[fd] = fdArray.length - 1;
 			}
@@ -138,7 +138,7 @@ export class CFFSubset extends Subset {
 
 		const privateDict = Object.assign({}, this.cff.topDict.Private);
 		if (this.cff.topDict.Private?.Subrs) {
-			privateDict.Subrs = this.subsetSubrs(
+			(privateDict.Subrs as any) = this.subsetSubrs(
 				this.cff.topDict.Private.Subrs,
 				used_subrs,
 			);
@@ -177,7 +177,7 @@ export class CFFSubset extends Subset {
 			ranges: [{ first: 1, nLeft: this.charstrings.length - 2 }],
 		};
 
-		const topDict = Object.assign({}, this.cff.topDict) as CFFDict;
+		const topDict = Object.assign({}, this.cff.topDict) as unknown as CFFDict;
 		topDict.Private = null;
 		topDict.charset = charset;
 		topDict.Encoding = null;

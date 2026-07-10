@@ -273,14 +273,15 @@ const fontDict = new CFFDict<CFFFontDictData>([
 	[[12, 5], 'PaintType', 'number', 0],
 ]);
 
-interface CFFTopDictData {
+// FIXME! This should be CFFTable.TopDictData.
+export interface CFFTopDictData {
 	ROS?: [string, string, number];
-	version?: string;
-	Notice?: string;
-	Copyright?: string;
-	FullName?: string;
-	FamilyName?: string;
-	Weight?: string;
+	version: number | null;
+	Notice: number | null;
+	Copyright: number | null;
+	FullName: number | null;
+	FamilyName: number | null;
+	Weight: number | null;
 	isFixedPitch: boolean;
 	ItalicAngle: number;
 	UnderlinePosition: number;
@@ -295,8 +296,8 @@ interface CFFTopDictData {
 	charset: StandardString[];
 	Private: CFFPrivateDictTable; // FIXME! This is probably wrong!
 	SytheticBase?: number;
-	PostScript?: string;
-	SFNTFontName?: string;
+	PostScript: number | null;
+	SFNTFontName: number | null;
 	SFNTFontBlend?: number;
 	CIDFontVersion: number;
 	CIDFontRevision: number;
@@ -305,7 +306,7 @@ interface CFFTopDictData {
 	UIDBase: number;
 	FDSelect?: number[];
 	FDArray?: number[];
-	FontName?: string;
+	FontName: number | null;
 }
 const cffTopDict = new CFFDict<CFFTopDictData>([
 	// key, name, type(s), default

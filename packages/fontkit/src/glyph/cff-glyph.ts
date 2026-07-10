@@ -44,7 +44,7 @@ export class CFFGlyph extends Glyph {
 			this._font.outlineVersion === 2 ? this._font.CFF2 : this._font['CFF '];
 		const stream = cff.stream;
 
-		const str = cff.topDict.CharStrings[this.id];
+		const str = (cff.topDict as any).CharStrings[this.id];
 		let end = str.offset + str.length;
 		stream.pos = str.offset;
 
@@ -70,7 +70,7 @@ export class CFFGlyph extends Glyph {
 		const subrs = privateDict?.Subrs || [];
 		const subrsBias = this.bias(subrs);
 
-		const vstore = cff.topDict.vstore?.itemVariationStore;
+		const vstore = (cff.topDict as any).vstore?.itemVariationStore;
 		let vsindex = privateDict?.vsindex;
 		const variationProcessor = this._font.variationProcessor;
 

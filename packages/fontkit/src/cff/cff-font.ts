@@ -1,10 +1,10 @@
 import type { DecodeStream } from 'restructure';
 import type { CFFDict } from './cff-dict.js';
 import type { CFFPrivateDictTable } from './cff-private-dict.js';
-import { cffTop } from './cff-top.js';
+import type { StandardString } from './cff-standard-strings.js';
+import { type CFFTopDictData, cffTop } from './cff-top.js';
 import type { CFF1Font } from './cff1-font.js';
 import type { CFF2Font } from './cff2-font.js';
-import { StandardString } from './cff-standard-strings.js';
 
 export namespace CFFTable {
 	export interface IndexDescriptor {
@@ -12,22 +12,23 @@ export namespace CFFTable {
 		length: number;
 	}
 
-	export interface TopDataV1 {
-		version: 1 | undefined;
+	export interface TopDataHeader {
+		version: 1 | undefined | 2;
 		hdrSize: number;
-		offSize: number;
-		nameIndex: string[];
-		topDictIndex: CFFDict[];
-		stringIndex: StandardString[];
 		globalSubrIndex: IndexDescriptor[];
+		topDict: CFFTopDictData;
+	}
+	export interface TopDataV1 extends TopDataHeader {
+		version: 1 | undefined;
+		offSize: number; // unused?
+		nameIndex: string[];
+		topDictIndex: CFFTopDictData[];
+		stringIndex: StandardString[];
 	}
 
-	export interface TopDataV2 {
+	export interface TopDataV2 extends TopDataHeader {
 		version: 2;
-		hdrSize: number;
 		length: number;
-		topDict: CFFDict[];
-		globalSubrIndex: IndexDescriptor[];
 	}
 
 	export type TopData = TopDataV1 | TopDataV2;
@@ -41,6 +42,9 @@ export interface AnyCFFFontHeader {
 	encode(): void;
 
 	string(sid: number | null): StandardString | null;
+	postscriptName: string | null;
+	topDict: CFFTopDictData;
+	readonly isCIDFont: boolean;
 }
 
 export type AnyCFFFont = CFF1Font | CFF2Font;
@@ -53,10 +57,6 @@ export abstract class CFFFont {
 	public hdrSize: number;
 	public globalSubrIndex: CFFTable.IndexDescriptor[];
 
-	private topDictIndex!: CFFDict[];
-	public topDict!: Record<string, any>;
-	public isCIDFont!: boolean;
-	private nameIndex!: string[];
 	public length!: number;
 	public header!: Uint8Array;
 
@@ -66,22 +66,6 @@ export abstract class CFFFont {
 		this.decodedTopDataVersion = this.version;
 		this.hdrSize = this.topData.hdrSize;
 		this.globalSubrIndex = this.topData.globalSubrIndex;
-
-		for (const k in this.topData) {
-			const key = k as keyof typeof this.topData;
-			const val = this.topData[key];
-			(this as Record<string, unknown>)[key as string] = val;
-		}
-
-		if (this.version !== 2) {
-			if (this.topDictIndex.length !== 1) {
-				throw new Error('Only a single font is allowed in CFF');
-			}
-
-			this.topDict = this.topDictIndex[0];
-		}
-
-		this.isCIDFont = 'ROS' in this.topDict && this.topDict.ROS != null;
 	}
 
 	public size(): 0 {
@@ -90,18 +74,18 @@ export abstract class CFFFont {
 
 	public encode() {}
 
-	abstract string(sid: number | null): StandardString | null;
+	public abstract string(sid: number | null): StandardString | null;
 
-	get postscriptName(): string | null {
-		if (this.version !== 2) {
-			return this.nameIndex[0];
-		}
+	public abstract get topDict(): CFFTopDictData;
 
-		return null;
+	public get isCIDFont(): boolean {
+		return 'ROS' in this.topDict && this.topDict.ROS != null;
 	}
 
+	public abstract get postscriptName(): string | null;
+
 	get fullName() {
-		return this.string(this.topDict.FullName);
+		return this.string(this.topDict.FullName) ?? null;
 	}
 
 	get familyName() {
@@ -109,8 +93,10 @@ export abstract class CFFFont {
 	}
 
 	getCharString(glyph: number): Uint8Array {
-		this.stream.pos = this.topDict.CharStrings[glyph].offset;
-		return this.stream.readBuffer(this.topDict.CharStrings[glyph].length);
+		this.stream.pos = (this.topDict as any).CharStrings[glyph].offset;
+		return this.stream.readBuffer(
+			(this.topDict as any).CharStrings[glyph].length,
+		);
 	}
 
 	getGlyphName(gid: number): string | null {
@@ -135,14 +121,14 @@ export abstract class CFFFont {
 
 		gid -= 1;
 
-		switch (charset.version) {
+		switch ((charset as any).version) {
 			case 0:
-				return this.string(charset.glyphs[gid]);
+				return this.string((charset as any).glyphs[gid]);
 
 			case 1:
 			case 2:
-				for (let i = 0; i < charset.ranges.length; i++) {
-					const range = charset.ranges[i];
+				for (let i = 0; i < (charset as any).ranges.length; i++) {
+					const range = (charset as any).ranges[i];
 					if (range.offset <= gid && gid <= range.offset + range.nLeft) {
 						return this.string(range.first + (gid - range.offset));
 					}
@@ -158,13 +144,13 @@ export abstract class CFFFont {
 			return null;
 		}
 
-		switch (this.topDict.FDSelect.version) {
+		switch ((this.topDict.FDSelect as any).version) {
 			case 0:
-				return this.topDict.FDSelect.fds[gid];
+				return (this.topDict.FDSelect as any).fds[gid];
 			case 3:
 			case 4:
 				{
-					const { ranges } = this.topDict.FDSelect;
+					const { ranges } = this.topDict.FDSelect as any;
 					let low = 0;
 					let high = ranges.length - 1;
 
@@ -181,11 +167,11 @@ export abstract class CFFFont {
 					}
 				}
 				throw new Error(
-					`Unknown FDSelect version: ${this.topDict.FDSelect.version}`,
+					`Unknown FDSelect version: ${(this.topDict.FDSelect as any).version}`,
 				);
 			default:
 				throw new Error(
-					`Unknown FDSelect version: ${this.topDict.FDSelect.version}`,
+					`Unknown FDSelect version: ${(this.topDict.FDSelect as any).version}`,
 				);
 		}
 	}
@@ -195,7 +181,7 @@ export abstract class CFFFont {
 		if (this.topDict.FDSelect && this.topDict.FDArray) {
 			const fd = this.fdForGlyph(gid);
 			if (fd !== null && this.topDict.FDArray[fd]) {
-				return this.topDict.FDArray[fd].Private;
+				return (this.topDict.FDArray[fd] as any).Private;
 			}
 
 			return null;
@@ -205,6 +191,6 @@ export abstract class CFFFont {
 			return this.topDict.Private;
 		}
 
-		return this.topDict.FDArray[0].Private;
+		return (this.topDict.FDArray![0] as any).Private;
 	}
 }
