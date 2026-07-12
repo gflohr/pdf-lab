@@ -21,7 +21,6 @@ import { loca } from './loca.js';
 import { prep } from './prep.js';
 
 // PostScript Outlines
-import type { CFFFont } from '../cff/cff-font.js';
 import { CFF1Font } from '../cff/cff1-font.js';
 import { CFF2Font } from '../cff/cff2-font.js';
 import { VORG } from './VORG.js';
@@ -70,7 +69,7 @@ export type FontTable = Record<
 	 * used for decoding and encoding the table data is highly dynamic. Using
 	 * stricter typings is currently considered not being worth the effort.
 	 */
-	StructT<any, any> | VersionedStructT<any, any> | ArrayT<any> | typeof CFFFont
+	StructT<any, any> | VersionedStructT<any, any> | ArrayT<any> | typeof CFF1Font | typeof CFF2Font
 >;
 
 export const tables = {

@@ -1,13 +1,13 @@
 import type { DecodeStream } from 'restructure';
-import { type AnyCFFFontHeader, CFFFont, type CFFTable } from './cff-font';
+import { type CFFFontHeader, CFFFontBase, type CFFTable } from './cff-font';
 import { type StandardString, standardStrings } from './cff-standard-strings';
 
-export interface CFF1Font extends AnyCFFFontHeader {
+export interface CFF1Font extends CFFFontHeader {
 	readonly version: 1 | undefined;
 }
 
 // biome-ignore lint/suspicious/noUnsafeDeclarationMerging: Intentional.
-export class CFF1Font extends CFFFont {
+export class CFF1Font extends CFFFontBase {
 	protected declare topData: CFFTable.TopDataV1;
 	private nameIndex: string[];
 	public declare _topDict: CFFTable.TopDictDataV1;

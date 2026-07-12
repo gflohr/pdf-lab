@@ -1,7 +1,6 @@
 import type { DecodeStream } from 'restructure';
 import type { OpenTypeVariation } from '../tables/variations.js';
 import type { CFFPrivateDictTable } from './cff-private-dict.js';
-import type { StandardString } from './cff-standard-strings.js';
 import { cffTop } from './cff-top.js';
 import type { CFF1Font } from './cff1-font.js';
 import type { CFF2Font } from './cff2-font.js';
@@ -116,7 +115,7 @@ export namespace CFFTable {
 	export type TopData = TopDataV1 | TopDataV2;
 }
 
-export interface AnyCFFFontHeader {
+export interface CFFFontHeader {
 	hdrSize: number;
 	globalSubrIndex: CFFTable.IndexDescriptor[];
 
@@ -131,9 +130,9 @@ export interface AnyCFFFontHeader {
 	readonly familyName: string | null;
 }
 
-export type AnyCFFFont = CFF1Font | CFF2Font;
+export type CFFFont = CFF1Font | CFF2Font;
 
-export abstract class CFFFont {
+export abstract class CFFFontBase {
 	protected topData: CFFTable.TopData;
 	public readonly version: 1 | 2 | undefined;
 	protected readonly decodedTopDataVersion: number | undefined;
@@ -145,7 +144,7 @@ export abstract class CFFFont {
 	public header!: Uint8Array;
 
 	constructor(public readonly stream: DecodeStream) {
-		if (new.target === CFFFont) {
+		if (new.target === CFFFontBase) {
 			throw new Error(
 				'CFFFont is an abstract base class! Use CFF1Font or CFF2Font instead!',
 			);
