@@ -1,8 +1,9 @@
 import type { DecodeStream } from 'restructure';
-import { CFFFontBase, type CFFFontHeader, type CFFTable } from './cff-font';
+import { CFFFontBase, type CFFTable } from './cff-font';
 import { type StandardString, standardStrings } from './cff-standard-strings';
+import { CFFPrivateDictTable } from './cff-private-dict';
 
-export interface CFF1Font extends CFFFontHeader {
+export interface CFF1Font extends CFFFontBase {
 	readonly version: 1 | undefined;
 }
 
@@ -10,7 +11,7 @@ export interface CFF1Font extends CFFFontHeader {
 export class CFF1Font extends CFFFontBase {
 	protected declare topData: CFFTable.TopDataV1;
 	private nameIndex: string[];
-	public declare _topDict: CFFTable.TopDictDataV1;
+	private declare _topDict: CFFTable.TopDictDataV1;
 	private topDictIndex: CFFTable.TopDictDataV1[];
 	private stringIndex: string[];
 
@@ -47,7 +48,7 @@ export class CFF1Font extends CFFFontBase {
 		return new CFF1Font(stream);
 	}
 
-	public override string(sid: number | null): StandardString | null {
+	public string(sid: number | null): StandardString | null {
 		if (sid === null) {
 			return null;
 		}
@@ -59,7 +60,7 @@ export class CFF1Font extends CFFFontBase {
 		return this.stringIndex[sid - standardStrings.length] as StandardString;
 	}
 
-	public override get topDict(): CFFTable.TopDictDataV1 {
+	public get topDict(): CFFTable.TopDictDataV1 {
 		return this._topDict;
 	}
 
@@ -73,5 +74,65 @@ export class CFF1Font extends CFFFontBase {
 
 	public get familyName() {
 		return this.string(this.topDict.FamilyName) ?? null;
+	}
+
+	getGlyphName(gid: number): string | null {
+		// CID-keyed fonts don't have glyph names
+		if (this.isCIDFont) {
+			return null;
+		}
+
+		const charset = (this.topDict as CFFTable.TopDictDataV1).charset;
+		if (Array.isArray(charset)) {
+			// FIXME! This code has zero test coverage, and charset[gid] is
+			// actually a RangeRecord.
+			return charset[gid] as unknown as string;
+		}
+
+		if (gid === 0) {
+			return '.notdef';
+		}
+
+		gid -= 1;
+
+		switch ((charset as any).version) {
+			case 0:
+				return this.string((charset as any).glyphs[gid]);
+
+			case 1:
+			case 2:
+				for (let i = 0; i < (charset as any).ranges.length; i++) {
+					const range = (charset as any).ranges[i];
+					if (range.offset <= gid && gid <= range.offset + range.nLeft) {
+						return this.string(range.first + (gid - range.offset));
+					}
+				}
+				break;
+		}
+
+		return null;
+	}
+
+	getCharString(glyph: number): Uint8Array {
+		const charStrings = this.topDict.CharStrings?.[glyph];
+
+		// FIXME! Is this the correct fallback? Or rather throw an exception?
+		if (!charStrings) return new Uint8Array();
+
+		this.stream.pos = charStrings.offset;
+		return this.stream.readBuffer(charStrings.length);
+	}
+
+	privateDictForGlyph(gid: number): CFFPrivateDictTable | null {
+		if (this.topDict.FDSelect && this.topDict.FDArray) {
+			const fd = this.fdForGlyph(gid);
+			if (fd !== null && this.topDict.FDArray[fd]) {
+				return (this.topDict.FDArray[fd] as any).Private;
+			}
+
+			return null;
+		}
+
+		return this.topDict.Private;
 	}
 }

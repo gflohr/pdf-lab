@@ -94,7 +94,6 @@ export namespace CFFTable {
 		version: 1 | undefined | 2;
 		hdrSize: number;
 		globalSubrIndex: IndexDescriptor[];
-		topDict: TopDictData;
 	}
 
 	export interface TopDataV1 extends TopDataHeader {
@@ -115,20 +114,17 @@ export namespace CFFTable {
 	export type TopData = TopDataV1 | TopDataV2;
 }
 
-export interface CFFFontHeader {
+export interface CFFFontBase {
 	hdrSize: number;
 	globalSubrIndex: CFFTable.IndexDescriptor[];
 
 	size(): 0;
 	encode(): void;
-
-	string(sid: number | null): string | null;
-	topDict: CFFTable.TopDictData;
-	readonly isCIDFont: boolean;
 }
 
 export type CFFFont = CFF1Font | CFF2Font;
 
+// biome-ignore lint/suspicious/noUnsafeDeclarationMerging: Deliberately
 export abstract class CFFFontBase {
 	protected topData: CFFTable.TopData;
 	public readonly version: 1 | 2 | undefined;
@@ -159,64 +155,10 @@ export abstract class CFFFontBase {
 
 	public encode() {}
 
-	public abstract string(sid: number | null): string | null;
-
 	public abstract get topDict(): CFFTable.TopDictData;
 
 	public get isCIDFont(): boolean {
 		return 'ROS' in this.topDict && this.topDict.ROS != null;
-	}
-
-	getCharString(glyph: number): Uint8Array {
-		const charStrings = this.topDict.CharStrings?.[glyph];
-
-		// FIXME! Is this the correct fallback? Or rather throw an exception?
-		if (!charStrings) return new Uint8Array();
-
-		this.stream.pos = charStrings.offset;
-		return this.stream.readBuffer(charStrings.length);
-	}
-
-	getGlyphName(gid: number): string | null {
-		// CFF2 glyph names are in the post table.
-		if (this.version === 2) {
-			return null;
-		}
-
-		// CID-keyed fonts don't have glyph names
-		if (this.isCIDFont) {
-			return null;
-		}
-
-		const charset = (this.topDict as CFFTable.TopDictDataV1).charset;
-		if (Array.isArray(charset)) {
-			// FIXME! This code has zero test coverage, and charset[gid] is
-			// actually a RangeRecord.
-			return charset[gid] as unknown as string;
-		}
-
-		if (gid === 0) {
-			return '.notdef';
-		}
-
-		gid -= 1;
-
-		switch ((charset as any).version) {
-			case 0:
-				return this.string((charset as any).glyphs[gid]);
-
-			case 1:
-			case 2:
-				for (let i = 0; i < (charset as any).ranges.length; i++) {
-					const range = (charset as any).ranges[i];
-					if (range.offset <= gid && gid <= range.offset + range.nLeft) {
-						return this.string(range.first + (gid - range.offset));
-					}
-				}
-				break;
-		}
-
-		return null;
 	}
 
 	fdForGlyph(gid: number): number | null {
@@ -254,23 +196,5 @@ export abstract class CFFFontBase {
 					`Unknown FDSelect version: ${(this.topDict.FDSelect as any).version}`,
 				);
 		}
-	}
-
-	// gid: number, @returns { BlueValues: ... }
-	privateDictForGlyph(gid: number): CFFPrivateDictTable | null {
-		if (this.topDict.FDSelect && this.topDict.FDArray) {
-			const fd = this.fdForGlyph(gid);
-			if (fd !== null && this.topDict.FDArray[fd]) {
-				return (this.topDict.FDArray[fd] as any).Private;
-			}
-
-			return null;
-		}
-
-		if (this.version !== 2) {
-			return (this.topDict as CFFTable.TopDictDataV1).Private;
-		}
-
-		return this.topDict.FDArray?.[0].Private ?? null;
 	}
 }

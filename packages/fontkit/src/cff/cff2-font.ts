@@ -1,17 +1,19 @@
 import type { DecodeStream } from 'restructure';
-import { CFFFontBase, type CFFFontHeader, type CFFTable } from './cff-font';
+import { CFFFontBase, type CFFTable } from './cff-font';
+import type { CFFPrivateDictTable } from './cff-private-dict';
 
-export interface CFF2Font extends CFFFontHeader {
+export interface CFF2Font extends CFFFontBase {
 	version: 2;
+	topData: CFFTable.TopDataV2;
 	length: number;
 }
 
 // biome-ignore lint/suspicious/noUnsafeDeclarationMerging: Intentional.
 export class CFF2Font extends CFFFontBase {
 	public declare version: 2;
-	protected declare topData: CFFTable.TopDataV2;
+	public declare topData: CFFTable.TopDataV2;
 	public length: number;
-	public declare _topDict: CFFTable.TopDictDataV2;
+	private declare _topDict: CFFTable.TopDictDataV2;
 
 	constructor(stream: DecodeStream) {
 		super(stream);
@@ -30,11 +32,20 @@ export class CFF2Font extends CFFFontBase {
 		return new CFF2Font(stream);
 	}
 
-	public override string(_sid: number | null): null {
-		return null;
+	public get topDict(): CFFTable.TopDictDataV2 {
+		return this._topDict;
 	}
 
-	public override get topDict(): CFFTable.TopDictDataV2 {
-		return this._topDict;
+	privateDictForGlyph(gid: number): CFFPrivateDictTable | null {
+		if (this.topDict.FDSelect && this.topDict.FDArray) {
+			const fd = this.fdForGlyph(gid);
+			if (fd !== null && this.topDict.FDArray[fd]) {
+				return (this.topDict.FDArray[fd] as any).Private;
+			}
+
+			return null;
+		}
+
+		return this.topDict.FDArray?.[0].Private ?? null;
 	}
 }
