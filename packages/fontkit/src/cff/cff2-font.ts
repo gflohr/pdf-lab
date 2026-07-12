@@ -1,5 +1,5 @@
 import type { DecodeStream } from 'restructure';
-import { type CFFFontHeader, CFFFontBase, type CFFTable } from './cff-font';
+import { CFFFontBase, type CFFFontHeader, type CFFTable } from './cff-font';
 
 export interface CFF2Font extends CFFFontHeader {
 	version: 2;
@@ -36,17 +36,5 @@ export class CFF2Font extends CFFFontBase {
 
 	public override get topDict(): CFFTable.TopDictDataV2 {
 		return this._topDict;
-	}
-
-	public override get postscriptName(): null {
-		return null;
-	}
-
-	public override get fullName() {
-		return null;
-	}
-
-	public override get familyName() {
-		return null;
 	}
 }

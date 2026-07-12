@@ -1,5 +1,5 @@
 import type { DecodeStream } from 'restructure';
-import { type CFFFontHeader, CFFFontBase, type CFFTable } from './cff-font';
+import { CFFFontBase, type CFFFontHeader, type CFFTable } from './cff-font';
 import { type StandardString, standardStrings } from './cff-standard-strings';
 
 export interface CFF1Font extends CFFFontHeader {
@@ -63,15 +63,15 @@ export class CFF1Font extends CFFFontBase {
 		return this._topDict;
 	}
 
-	public override get postscriptName(): string | null {
+	public get postscriptName(): string | null {
 		return this.nameIndex[0] ?? null;
 	}
 
-	public override get fullName() {
+	public get fullName() {
 		return this.string(this.topDict.FullName) ?? null;
 	}
 
-	public override get familyName() {
+	public get familyName() {
 		return this.string(this.topDict.FamilyName) ?? null;
 	}
 }

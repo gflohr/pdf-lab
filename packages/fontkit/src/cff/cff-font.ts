@@ -125,9 +125,6 @@ export interface CFFFontHeader {
 	string(sid: number | null): string | null;
 	topDict: CFFTable.TopDictData;
 	readonly isCIDFont: boolean;
-	readonly postscriptName: string | null;
-	readonly fullName: string | null;
-	readonly familyName: string | null;
 }
 
 export type CFFFont = CFF1Font | CFF2Font;
@@ -169,12 +166,6 @@ export abstract class CFFFontBase {
 	public get isCIDFont(): boolean {
 		return 'ROS' in this.topDict && this.topDict.ROS != null;
 	}
-
-	public abstract get postscriptName(): string | null;
-
-	public abstract get fullName(): string | null;
-
-	public abstract get familyName(): string | null;
 
 	getCharString(glyph: number): Uint8Array {
 		const charStrings = this.topDict.CharStrings?.[glyph];
