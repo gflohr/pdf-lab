@@ -7,8 +7,7 @@ import type {
 } from 'restructure';
 import * as r from 'restructure';
 import type { CFFSubsetCharset } from '../subset/cff-subset.js';
-import { OpenType } from '../tables/open-type.js';
-import { itemVariationStore, OpenTypeVariation } from '../tables/variations.js';
+import { itemVariationStore } from '../tables/variations.js';
 import {
 	expertCharset,
 	expertSubsetCharset,
@@ -16,7 +15,7 @@ import {
 } from './cff-charsets.js';
 import { CFFDict } from './cff-dict.js';
 import { expertEncoding, standardEncoding } from './cff-encodings.js';
-import type { CFFTable } from './cff-font.js';
+import type { CFFFont, CFFTable } from './cff-font.js';
 import { CFFIndex } from './cff-index.js';
 import { CFFPointer, type Ptr } from './cff-pointer.js';
 import {
@@ -186,17 +185,23 @@ const cffCharset = new PredefinedOp(
 	new CFFPointer(cffCustomCharset, { lazy: true }),
 );
 
-const fdRange3 = new r.Struct({
+const fdRange3Fields = {
 	first: r.uint16,
 	fd: r.uint8,
-});
+};
+const fdRange3 = new r.Struct<typeof fdRange3Fields, CFFTable.FDRange>(
+	fdRange3Fields,
+);
 
-const fdRange4 = new r.Struct({
+const fdRange4Fields = {
 	first: r.uint32,
 	fd: r.uint16,
-});
+};
+const fdRange4 = new r.Struct<typeof fdRange4Fields, CFFTable.FDRange>(
+	fdRange4Fields,
+);
 
-const fdSelect = new r.VersionedStruct(r.uint8, {
+const fdSelectFields = {
 	0: {
 		fds: new r.Array(r.uint8, (t) => t.parent.CharStrings.length),
 	},
@@ -212,7 +217,12 @@ const fdSelect = new r.VersionedStruct(r.uint8, {
 		ranges: new r.Array(fdRange4, 'nRanges'),
 		sentinel: r.uint32,
 	},
-});
+};
+
+const fdSelect = new r.VersionedStruct<
+	typeof fdSelectFields,
+	CFFTable.FDSelect
+>(r.uint8, fdSelectFields);
 
 const ptr = new CFFPointer(cffPrivateDict);
 export class CFFPrivateOp {

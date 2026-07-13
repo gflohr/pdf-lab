@@ -153,9 +153,12 @@ describe('font subsetting', () => {
 
 			expect(glyph.path.toSVG()).toBe(f.glyphsForString('갈')[0]!.path.toSVG());
 
-			expect(cff.topDict.FDArray.length).toBe(2);
+			expect(cff.topDict.FDArray?.length).toBe(2);
 
-			expect(cff.topDict.FDSelect.fds).toEqual([0, 1, 1]);
+			expect(cff.topDict.FDSelect?.version).toBe(0);
+			if (cff.topDict.FDSelect!.version === 0) {
+				expect(cff.topDict.FDSelect?.fds).toEqual([0, 1, 1]);
+			}
 		});
 
 		it('should produce a subset with Asian punctuation correctly', async () => {

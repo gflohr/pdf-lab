@@ -31,10 +31,35 @@ export namespace CFFTable {
 		offset?: number;
 	}
 
+	export interface FDRange {
+		first: number;
+		fd: number;
+	}
+
+	export interface FDSelectV0 {
+		version: 0;
+		fds: number[];
+	}
+
+	export interface FDSelectV3 {
+		version: 3;
+		nRanges: number;
+		ranges: FDRange[];
+		sentinel: number;
+	}
+
+	export interface FDSelectV4 {
+		version: 4;
+		nRanges: number;
+		ranges: FDRange[];
+		sentinel: number;
+	}
+
+	export type FDSelect = FDSelectV0 | FDSelectV3 | FDSelectV4;
 	export interface TopDictDataHeader {
 		FontMatrix: [number, number, number, number, number, number];
 		CharStrings: IndexDescriptor[] | null;
-		FDSelect?: number[];
+		FDSelect?: FDSelect;
 		FDArray?: FontDictData[];
 	}
 
@@ -166,13 +191,13 @@ export abstract class CFFFontBase {
 			return null;
 		}
 
-		switch ((this.topDict.FDSelect as any).version) {
+		switch (this.topDict.FDSelect.version) {
 			case 0:
-				return (this.topDict.FDSelect as any).fds[gid];
+				return this.topDict.FDSelect.fds[gid];
 			case 3:
 			case 4:
 				{
-					const { ranges } = this.topDict.FDSelect as any;
+					const { ranges } = this.topDict.FDSelect;
 					let low = 0;
 					let high = ranges.length - 1;
 
@@ -189,11 +214,11 @@ export abstract class CFFFontBase {
 					}
 				}
 				throw new Error(
-					`Unknown FDSelect version: ${(this.topDict.FDSelect as any).version}`,
+					`Unknown FDSelect version: ${this.topDict.FDSelect.version}`,
 				);
 			default:
 				throw new Error(
-					`Unknown FDSelect version: ${(this.topDict.FDSelect as any).version}`,
+					`Unknown FDSelect version: ${(this.topDict.FDSelect as { version: unknown }).version}`,
 				);
 		}
 	}
