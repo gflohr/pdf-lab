@@ -1,6 +1,5 @@
 import type { DecodeStream } from 'restructure';
 import type { OpenTypeVariation } from '../tables/variations.js';
-import type { CFFPrivateDictTable } from './cff-private-dict.js';
 import { cffTop } from './cff-top.js';
 import type { CFF1Font } from './cff1-font.js';
 import type { CFF2Font } from './cff2-font.js';
@@ -56,6 +55,30 @@ export namespace CFFTable {
 	}
 
 	export type FDSelect = FDSelectV0 | FDSelectV3 | FDSelectV4;
+
+	export interface PrivateDictData {
+		BlueValues?: number[] | null;
+		OtherBlues?: number[] | null;
+		FamilyBlues?: number[] | null;
+		FamilyOtherBlues?: number[] | null;
+		StdHW?: number;
+		StdVW?: number;
+		BlueScale?: number;
+		BlueShift?: number;
+		BlueFuzz?: number;
+		StemSnapH?: number[];
+		StemSnapV?: number[];
+		ForceBold?: boolean;
+		LanguageGroup?: number;
+		ExpansionFactor?: number;
+		initialRandomSeed?: number;
+		defaultWidthX?: number;
+		nominalWidthX?: number;
+		vsindex?: number;
+		blend?: unknown;
+		Subrs?: CFFTable.IndexDescriptor[];
+	}
+
 	export interface TopDictDataHeader {
 		FontMatrix: [number, number, number, number, number, number];
 		CharStrings: IndexDescriptor[] | null;
@@ -83,7 +106,7 @@ export namespace CFFTable {
 		XUID: unknown[];
 		charset: RangeRecord[];
 		Encoding: CustomEncodingData;
-		Private: CFFPrivateDictTable; // FIXME! This is probably wrong!
+		Private: PrivateDictData;
 		SytheticBase?: number;
 		PostScript: number | null;
 		SFNTFontName: number | null;
@@ -97,11 +120,13 @@ export namespace CFFTable {
 	}
 
 	export interface FontDictData {
-		Private?: CFFPrivateDictTable;
+		Private?: PrivateDictData;
 		FontName?: string;
 		FontPatrix: number[];
 		PaintType: number;
 	}
+
+	export type DictData = FontDictData | TopDictData | PrivateDictData;
 
 	export interface VariationStore {
 		length: number;

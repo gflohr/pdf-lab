@@ -1,6 +1,5 @@
 import type { DecodeStream } from 'restructure';
 import { CFFFontBase, type CFFTable } from './cff-font';
-import type { CFFPrivateDictTable } from './cff-private-dict';
 
 export interface CFF2Font extends CFFFontBase {
 	version: 2;
@@ -36,7 +35,7 @@ export class CFF2Font extends CFFFontBase {
 		return this._topDict;
 	}
 
-	privateDictForGlyph(gid: number): CFFPrivateDictTable | null {
+	privateDictForGlyph(gid: number): CFFTable.PrivateDictData | null {
 		if (this.topDict.FDSelect && this.topDict.FDArray) {
 			const fd = this.fdForGlyph(gid);
 			if (fd !== null && this.topDict.FDArray[fd]) {

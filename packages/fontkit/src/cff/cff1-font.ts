@@ -1,6 +1,5 @@
 import type { DecodeStream } from 'restructure';
 import { CFFFontBase, type CFFTable } from './cff-font';
-import type { CFFPrivateDictTable } from './cff-private-dict';
 import { type StandardString, standardStrings } from './cff-standard-strings';
 
 export interface CFF1Font extends CFFFontBase {
@@ -123,7 +122,7 @@ export class CFF1Font extends CFFFontBase {
 		return this.stream.readBuffer(charStrings.length);
 	}
 
-	privateDictForGlyph(gid: number): CFFPrivateDictTable | null {
+	privateDictForGlyph(gid: number): CFFTable.PrivateDictData | null {
 		if (this.topDict.FDSelect && this.topDict.FDArray) {
 			const fd = this.fdForGlyph(gid);
 			if (fd !== null && this.topDict.FDArray[fd]) {

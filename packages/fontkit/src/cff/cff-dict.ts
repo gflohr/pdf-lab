@@ -5,6 +5,7 @@ import type {
 	FieldT,
 	ParsingContext,
 } from 'restructure';
+import type { CFFTable } from './cff-font.js';
 import { cffOperand } from './cff-operand.js';
 import type { CFFPointer } from './cff-pointer.js';
 import type { CFFPrivateOp, PredefinedOp } from './cff-top.js';
@@ -62,16 +63,15 @@ export interface CFFContext {
 	pointerOffset?: number;
 }
 
-export type CFFDictResultShape = Record<string, any>;
-
 /**
  * Handles binary decoding and encoding of Compact Font Format (CFF) key-value dictionaries.
  */
-export class CFFDict<T extends CFFDictResultShape = CFFDictResultShape>
-	implements FieldT<Record<string, any>>
+export class CFFDict<T extends CFFTable.DictData = CFFTable.DictData>
+	implements FieldT<CFFTable.DictData>
 {
 	public ops: CFFOpDefinition[];
 	public fields: Record<number, CFFOpDefinition>;
+	public declare length: number;
 
 	constructor(ops: CFFOpDefinition[] = []) {
 		this.ops = ops;
@@ -143,8 +143,8 @@ export class CFFDict<T extends CFFDictResultShape = CFFDictResultShape>
 		}
 	}
 
-	decode(stream: DecodeStream, parent?: any): T {
-		const end = stream.pos + (parent?.length ?? 0);
+	decode(stream: DecodeStream, parent: CFFDict): T {
+		const end = stream.pos + (parent.length ?? 0);
 		const ret: Record<string, any> = {};
 		let operands: any[] = [];
 
@@ -199,7 +199,7 @@ export class CFFDict<T extends CFFDictResultShape = CFFDictResultShape>
 
 	size(
 		dict: Record<string, any>,
-		parent?: any,
+		parent?: CFFContext,
 		includePointers = true,
 	): number {
 		const ctx: CFFContext = {
@@ -239,7 +239,7 @@ export class CFFDict<T extends CFFDictResultShape = CFFDictResultShape>
 		return len;
 	}
 
-	encode(stream: EncodeStream, dict: Record<string, any>, parent?: any): void {
+	encode(stream: EncodeStream, dict: Record<string, any>, parent?: CFFContext): void {
 		const ctx: CFFContext = {
 			pointers: [],
 			startOffset: stream.pos,

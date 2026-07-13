@@ -15,11 +15,10 @@ import {
 } from './cff-charsets.js';
 import { CFFDict } from './cff-dict.js';
 import { expertEncoding, standardEncoding } from './cff-encodings.js';
-import type { CFFFont, CFFTable } from './cff-font.js';
+import type { CFFTable } from './cff-font.js';
 import { CFFIndex } from './cff-index.js';
 import { CFFPointer, type Ptr } from './cff-pointer.js';
 import {
-	type CFFPrivateDictTable,
 	cffPrivateDict,
 } from './cff-private-dict.js';
 import type { StandardString } from './cff-standard-strings.js';
@@ -230,7 +229,7 @@ export class CFFPrivateOp {
 		stream: DecodeStream,
 		parent: ParsingContext,
 		operands: number[],
-	): CFFPrivateDictTable {
+	): CFFTable.PrivateDictData {
 		parent.length = operands[0];
 		const decoded = ptr.decode(stream, parent, [operands[1]]);
 		return decoded;

@@ -76,7 +76,7 @@ export class CFFIndex<TType extends CFFDict | StringT | FieldT<IndexItemValue>>
 				stream.pos = startPos + start;
 
 				parent.length = end - start;
-				ret.push(this.type.decode(stream, parent));
+				ret.push(this.type.decode(stream, parent) as any);
 				stream.pos = pos;
 			} else {
 				ret.push({

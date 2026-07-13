@@ -16,7 +16,7 @@ const CFFBlendOp: FieldT<unknown> = {
 	},
 } as FieldT<unknown>;
 
-export const cffPrivateDict = new CFFDict<CFFPrivateDictTable>([
+export const cffPrivateDict = new CFFDict<CFFTable.PrivateDictData>([
 	// key, name, type, default
 	[6, 'BlueValues', 'delta', null],
 	[7, 'OtherBlues', 'delta', null],
@@ -44,26 +44,3 @@ export const cffPrivateDict = new CFFDict<CFFPrivateDictTable>([
 		null,
 	],
 ]);
-
-export interface CFFPrivateDictTable {
-	BlueValues?: number[] | null;
-	OtherBlues?: number[] | null;
-	FamilyBlues?: number[] | null;
-	FamilyOtherBlues?: number[] | null;
-	StdHW?: number;
-	StdVW?: number;
-	BlueScale?: number;
-	BlueShift?: number;
-	BlueFuzz?: number;
-	StemSnapH?: number[];
-	StemSnapV?: number[];
-	ForceBold?: boolean;
-	LanguageGroup?: number;
-	ExpansionFactor?: number;
-	initialRandomSeed?: number;
-	defaultWidthX?: number;
-	nominalWidthX?: number;
-	vsindex?: number;
-	blend?: unknown;
-	Subrs?: CFFTable.IndexDescriptor[];
-}
