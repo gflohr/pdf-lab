@@ -85,7 +85,7 @@ export class CFFDict<T extends CFFDictResultShape = CFFDictResultShape>
 		}
 	}
 
-	decodeOperands(
+	private decodeOperands(
 		type: CFFOpType | string | undefined | null,
 		stream: DecodeStream,
 		ret: T,
@@ -115,7 +115,7 @@ export class CFFDict<T extends CFFDictResultShape = CFFDictResultShape>
 		}
 	}
 
-	encodeOperands(
+	private encodeOperands(
 		type: CFFOpEncodingType,
 		stream: EncodeStream | null,
 		ctx: CFFContext,
