@@ -10,7 +10,7 @@ import type { CFFDict, CFFTraversalContext } from './cff-dict.js';
 import type { CFFFont, CFFTable } from './cff-font.js';
 
 export type IndexItemValue =
-	| Record<string, unknown>
+	| CFFTable.DictData
 	| string
 	| Buffer
 	| CFFTable.IndexDescriptor;
@@ -31,8 +31,8 @@ function isCFFFont(
  * Handles variable-length table lookups across structural subroutines,
  * dictionaries, and string tables.
  */
-export class CFFIndex<TType extends CFFDict | StringT | FieldT<IndexItemValue>>
-	implements FieldT<IndexItemValue[]>
+export class CFFIndex<TType extends CFFDict | FieldT<IndexItemValue>>
+	implements FieldT<CFFTable.DictData | IndexItemValue[]>
 {
 	constructor(public type?: TType) {}
 
@@ -88,7 +88,8 @@ export class CFFIndex<TType extends CFFDict | StringT | FieldT<IndexItemValue>>
 				stream.pos = startPos + start;
 
 				parent.length = end - start;
-				ret.push(this.type.decode(stream, parent) as any);
+				const decoded = this.type.decode(stream, parent as CFFDict);
+				ret.push(decoded);
 				stream.pos = pos;
 			} else {
 				ret.push({
@@ -141,8 +142,7 @@ export class CFFIndex<TType extends CFFDict | StringT | FieldT<IndexItemValue>>
 
 	encode(
 		stream: EncodeStream,
-		// biome-ignore lint/suspicious/noExplicitAny: It can be almost anything.
-		arr: any[],
+		arr: IndexItemValue[],
 		parent: CFFDict,
 	) {
 		if (this.getCFFVersion(parent) >= 2) {
@@ -154,7 +154,7 @@ export class CFFIndex<TType extends CFFDict | StringT | FieldT<IndexItemValue>>
 			return;
 		}
 
-		const type = this.type || new r.Buffer();
+		const type = (this.type || new r.Buffer()) as FieldT<IndexItemValue>;
 
 		// Find maximum offset to determine offset type.
 		const sizes = [];
@@ -193,8 +193,6 @@ export class CFFIndex<TType extends CFFDict | StringT | FieldT<IndexItemValue>>
 		for (const item of arr) {
 			type.encode(stream, item, parent);
 		}
-
-		return;
 	}
 
 	fromBuffer(_buf: Uint8Array): never {
