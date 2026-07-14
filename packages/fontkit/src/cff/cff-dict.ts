@@ -6,6 +6,7 @@ import type {
 	ParsingContext,
 } from 'restructure';
 import type { CFFFont, CFFTable } from './cff-font.js';
+import type { CFFIndex, IndexItemValue } from './cff-index.js';
 import { cffOperand } from './cff-operand.js';
 import type { CFFPointer } from './cff-pointer.js';
 import type { CFFPrivateOp, PredefinedOp } from './cff-top.js';
@@ -56,10 +57,17 @@ export type CFFOpDefinition = [
  */
 export interface CFFTraversalContext {
 	parent?: CFFTraversalContext | CFFFont;
-	val: any;
+	val: CFFTable.DictData;
 	pointerSize: number;
 	startOffset: number;
-	pointers?: Array<{ type: any; val: any; parent: CFFTraversalContext | CFFFont }>;
+	// In the tests, the pointers property is always undefined or empty.
+	// The types are therefore inferred from usage and are not necessarily
+	// correct.
+	pointers?: Array<{
+		type: FieldT<IndexItemValue>;
+		val: IndexItemValue,
+		parent: CFFTraversalContext | CFFFont;
+	}>;
 	pointerOffset?: number;
 }
 
@@ -239,7 +247,11 @@ export class CFFDict<T extends CFFTable.DictData = CFFTable.DictData>
 		return len;
 	}
 
-	encode(stream: EncodeStream, dict: Record<string, any>, parent?: CFFTraversalContext): void {
+	encode(
+		stream: EncodeStream,
+		dict: Record<string, any>,
+		parent?: CFFTraversalContext,
+	): void {
 		const ctx: CFFTraversalContext = {
 			pointers: [],
 			startOffset: stream.pos,

@@ -18,9 +18,7 @@ import { expertEncoding, standardEncoding } from './cff-encodings.js';
 import type { CFFTable } from './cff-font.js';
 import { CFFIndex } from './cff-index.js';
 import { CFFPointer, type Ptr } from './cff-pointer.js';
-import {
-	cffPrivateDict,
-} from './cff-private-dict.js';
+import { cffPrivateDict } from './cff-private-dict.js';
 import type { StandardString } from './cff-standard-strings.js';
 
 // Checks if an operand is an index of a predefined value,
