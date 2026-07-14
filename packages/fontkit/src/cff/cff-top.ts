@@ -235,7 +235,7 @@ export class CFFPrivateOp {
 		return decoded;
 	}
 
-	size(dict: CFFDict, ctx?: ParsingContext): [number, number] {
+	size(dict: CFFTable.PrivateDictData, ctx?: ParsingContext): [number, number] {
 		// FIXME: This method has zero test coverage upstream and contains a
 		// fatal runtime bug.  Upstream returns `ptr.size(dict, ctx)[0]` as
 		// the second item of the array, which crashes because `this` is

@@ -72,6 +72,8 @@ export interface CFFTraversalContext {
 	pointerOffset?: number;
 }
 
+type CFFDictEncodeOperands = (Uint8Array | number)[] | CFFSubsetCharset | number | boolean;
+
 /**
  * Handles binary decoding and encoding of Compact Font Format (CFF) key-value dictionaries.
  */
@@ -128,7 +130,7 @@ export class CFFDict<T extends CFFTable.DictData = CFFTable.DictData>
 		type: CFFOpEncodingType,
 		stream: EncodeStream | null,
 		ctx: CFFTraversalContext,
-		operands: (Uint8Array | number)[] | CFFSubsetCharset | number | boolean,
+		operands: CFFDictEncodeOperands,
 	) {
 		if (Array.isArray(type)) {
 			if (!Array.isArray(operands)) {
@@ -227,7 +229,7 @@ export class CFFDict<T extends CFFTable.DictData = CFFTable.DictData>
 	}
 
 	size(
-		dict: Record<string, any>,
+		dict: T,
 		parent?: CFFTraversalContext,
 		includePointers = true,
 	): number {
@@ -242,7 +244,7 @@ export class CFFDict<T extends CFFTable.DictData = CFFTable.DictData>
 
 		for (const k in this.fields) {
 			const field = this.fields[k];
-			const val = dict[field[1]];
+			const val = dict[field[1] as keyof T];
 			if (val == null || isEqual(val, field[3])) {
 				continue;
 			}
@@ -251,7 +253,7 @@ export class CFFDict<T extends CFFTable.DictData = CFFTable.DictData>
 				field[2] as CFFOpEncodingType,
 				null,
 				ctx,
-				val,
+				val as CFFDictEncodeOperands,
 			);
 			for (const op of operands) {
 				len += cffOperand.size(op as number | Ptr);
@@ -270,7 +272,7 @@ export class CFFDict<T extends CFFTable.DictData = CFFTable.DictData>
 
 	encode(
 		stream: EncodeStream,
-		dict: Record<string, any>,
+		dict: T,
 		parent?: CFFTraversalContext,
 	): void {
 		const ctx: CFFTraversalContext = {
@@ -284,7 +286,7 @@ export class CFFDict<T extends CFFTable.DictData = CFFTable.DictData>
 		ctx.pointerOffset = stream.pos + this.size(dict, ctx, false);
 
 		for (const field of this.ops) {
-			const val = dict[field[1]];
+			const val = dict[field[1] as keyof T];
 			if (val == null || isEqual(val, field[3])) {
 				continue;
 			}
@@ -293,7 +295,7 @@ export class CFFDict<T extends CFFTable.DictData = CFFTable.DictData>
 				field[2] as CFFOpEncodingType,
 				stream,
 				ctx,
-				val,
+				val as CFFDictEncodeOperands,
 			);
 			for (const op of operands) {
 				cffOperand.encode(stream, op as number | Ptr);
