@@ -1,6 +1,6 @@
 import type { PropertyDescriptor } from 'restructure';
 import type { CFFDict } from '../cff/cff-dict.js';
-import type { CFFFont, CFFTable } from '../cff/cff-font.js';
+import type { CFFTable } from '../cff/cff-font.js';
 import { standardStrings } from '../cff/cff-standard-strings.js';
 import { cffTop } from '../cff/cff-top.js';
 import type { CFF1Font } from '../cff/cff1-font.js';

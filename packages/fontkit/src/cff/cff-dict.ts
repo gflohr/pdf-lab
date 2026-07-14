@@ -5,11 +5,12 @@ import type {
 	FieldT,
 	ParsingContext,
 } from 'restructure';
+import type { CFFSubsetCharset } from '../subset/cff-subset.js';
 import type { CFFFont, CFFTable } from './cff-font.js';
-import type { CFFIndex, IndexItemValue } from './cff-index.js';
+import type { IndexItemValue } from './cff-index.js';
 import { cffOperand } from './cff-operand.js';
-import type { CFFPointer } from './cff-pointer.js';
-import type { CFFPrivateOp, PredefinedOp } from './cff-top.js';
+import { CFFPointer, type Ptr } from './cff-pointer.js';
+import { CFFPrivateOp, PredefinedOp } from './cff-top.js';
 
 interface CFFOp extends FieldT<unknown> {
 	decode(
@@ -65,7 +66,7 @@ export interface CFFTraversalContext {
 	// correct.
 	pointers?: Array<{
 		type: FieldT<IndexItemValue>;
-		val: IndexItemValue,
+		val: IndexItemValue;
 		parent: CFFTraversalContext | CFFFont;
 	}>;
 	pointerOffset?: number;
@@ -78,7 +79,7 @@ export class CFFDict<T extends CFFTable.DictData = CFFTable.DictData>
 	implements FieldT<CFFTable.DictData>
 {
 	public ops: CFFOpDefinition[];
-	public fields: Record<number, CFFOpDefinition>;
+	public fields: Record<string, CFFOpDefinition>;
 	public declare length: number;
 
 	constructor(ops: CFFOpDefinition[] = []) {
@@ -127,19 +128,36 @@ export class CFFDict<T extends CFFTable.DictData = CFFTable.DictData>
 		type: CFFOpEncodingType,
 		stream: EncodeStream | null,
 		ctx: CFFTraversalContext,
-		operands: any,
-	): any[] {
+		operands: (Uint8Array | number)[] | CFFSubsetCharset | number | boolean,
+	) {
 		if (Array.isArray(type)) {
-			return operands.map(
-				(op: any, i: number) =>
-					this.encodeOperands(type[i] as CFFOpEncodingType, stream, ctx, op)[0],
-			);
-		} else if (
-			type &&
-			typeof type === 'object' &&
-			typeof type.encode === 'function'
-		) {
-			return type.encode(stream!, operands, ctx) as unknown as any[];
+			if (!Array.isArray(operands)) {
+				throw new Error(
+					`CFF Encoding Mismatch: Expected operands array to match type array layout, but received: ${typeof operands}`,
+				);
+			}
+
+			return operands.map((op: Uint8Array | number | Ptr, i: number) => {
+				const results = this.encodeOperands(
+					type[i] as CFFOpEncodingType,
+					stream,
+					ctx,
+					op as number,
+				) as [number];
+				return results[0];
+			});
+		} else if (type instanceof CFFPointer) {
+			return type.encode(stream!, operands, ctx);
+		} else if (type instanceof CFFPrivateOp) {
+			return type.encode(stream!, operands as CFFTable.PrivateDictData, ctx);
+		} else if (type instanceof PredefinedOp) {
+			const encoded = type.encode(stream!, operands as CFFSubsetCharset, ctx);
+			if (Array.isArray(encoded)) {
+				return encoded;
+			} else {
+				// This should not happen!
+				return [encoded];
+			}
 		} else if (typeof operands === 'number') {
 			return [operands];
 		} else if (typeof operands === 'boolean') {
@@ -153,8 +171,8 @@ export class CFFDict<T extends CFFTable.DictData = CFFTable.DictData>
 
 	decode(stream: DecodeStream, parent: CFFDict): T {
 		const end = stream.pos + (parent.length ?? 0);
-		const ret: Record<string, any> = {};
-		let operands: any[] = [];
+		const ret = {} as Record<string, unknown>;
+		let operands: number[] = [];
 
 		// Define hidden context metadata engine properties
 		Object.defineProperties(ret, {
@@ -198,7 +216,10 @@ export class CFFDict<T extends CFFTable.DictData = CFFTable.DictData>
 
 				operands = [];
 			} else {
-				operands.push(cffOperand.decode(stream, b));
+				const decoded = cffOperand.decode(stream, b);
+				if (typeof decoded !== 'undefined' && decoded !== null) {
+					operands.push(decoded);
+				}
 			}
 		}
 
@@ -233,7 +254,7 @@ export class CFFDict<T extends CFFTable.DictData = CFFTable.DictData>
 				val,
 			);
 			for (const op of operands) {
-				len += cffOperand.size(op);
+				len += cffOperand.size(op as number | Ptr);
 			}
 
 			const key = Array.isArray(field[0]) ? field[0] : [field[0]];
@@ -275,7 +296,7 @@ export class CFFDict<T extends CFFTable.DictData = CFFTable.DictData>
 				val,
 			);
 			for (const op of operands) {
-				cffOperand.encode(stream, op);
+				cffOperand.encode(stream, op as number | Ptr);
 			}
 
 			const key = Array.isArray(field[0]) ? field[0] : [field[0]];

@@ -50,9 +50,9 @@ export class PredefinedOp {
 
 	encode(
 		stream: EncodeStream,
-		value: StandardString | StandardString[] | CFFSubsetCharset,
+		value: StandardString[] | CFFSubsetCharset,
 		ctx?: ParsingContext,
-	): number | Ptr | Ptr[] {
+	): Ptr[] | number {
 		if (
 			typeof value === 'string' &&
 			typeof this.predefinedOps[0] === 'string'
@@ -63,7 +63,9 @@ export class PredefinedOp {
 			}
 		}
 
-		return this.type.encode(stream, value as CFFSubsetCharset, ctx);
+		const retval = this.type.encode(stream, value as CFFSubsetCharset, ctx);
+
+		return retval;
 	}
 }
 
@@ -243,7 +245,11 @@ export class CFFPrivateOp {
 		return [cffPrivateDict.size(dict, ctx, false), 0];
 	}
 
-	encode(stream: EncodeStream, dict: CFFDict, ctx?: ParsingContext) {
+	encode(
+		stream: EncodeStream,
+		dict: CFFTable.PrivateDictData,
+		ctx?: ParsingContext,
+	) {
 		const size = cffPrivateDict.size(dict, ctx, false);
 		const encoded = ptr.encode(stream, dict, ctx);
 
