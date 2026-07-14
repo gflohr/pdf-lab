@@ -6,7 +6,7 @@ import type {
 	StringT,
 } from 'restructure';
 import * as r from 'restructure';
-import type { CFFContext, CFFDict } from './cff-dict.js';
+import type { CFFTraversalContext, CFFDict } from './cff-dict.js';
 import type { CFFFont, CFFTable } from './cff-font.js';
 
 export type IndexItemValue =
@@ -21,7 +21,7 @@ interface CFFNodeContext extends FieldT<unknown> {
 
 type CFFNode = CFFNodeContext & CFFTable.TopData;
 
-function isCFFFont(ctx: CFFContext | CFFDict | CFFFont): ctx is CFFFont {
+function isCFFFont(ctx: CFFTraversalContext | CFFDict | CFFFont): ctx is CFFFont {
 	return 'hdrSize' in ctx && typeof (ctx as CFFFont).hdrSize === 'number';
 }
 
@@ -34,11 +34,11 @@ export class CFFIndex<TType extends CFFDict | StringT | FieldT<IndexItemValue>>
 {
 	constructor(public type?: TType) {}
 
-	private getCFFVersion(ctx?: CFFContext | CFFDict | CFFFont) {
+	private getCFFVersion(ctx?: CFFTraversalContext | CFFDict | CFFFont) {
 		let current = ctx;
 
 		while (current && !isCFFFont(current)) {
-			current = current.parent as CFFContext | CFFDict | CFFFont | undefined;
+			current = current.parent as CFFTraversalContext | CFFDict | CFFFont | undefined;
 		}
 
 		if (current) {

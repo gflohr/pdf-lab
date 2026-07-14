@@ -54,12 +54,12 @@ export type CFFOpDefinition = [
 /**
  * @internal
  */
-export interface CFFContext {
-	parent?: CFFContext | CFFFont;
+export interface CFFTraversalContext {
+	parent?: CFFTraversalContext | CFFFont;
 	val: any;
 	pointerSize: number;
 	startOffset: number;
-	pointers?: Array<{ type: any; val: any; parent: CFFContext | CFFFont }>;
+	pointers?: Array<{ type: any; val: any; parent: CFFTraversalContext | CFFFont }>;
 	pointerOffset?: number;
 }
 
@@ -118,7 +118,7 @@ export class CFFDict<T extends CFFTable.DictData = CFFTable.DictData>
 	private encodeOperands(
 		type: CFFOpEncodingType,
 		stream: EncodeStream | null,
-		ctx: CFFContext,
+		ctx: CFFTraversalContext,
 		operands: any,
 	): any[] {
 		if (Array.isArray(type)) {
@@ -199,10 +199,10 @@ export class CFFDict<T extends CFFTable.DictData = CFFTable.DictData>
 
 	size(
 		dict: Record<string, any>,
-		parent?: CFFContext,
+		parent?: CFFTraversalContext,
 		includePointers = true,
 	): number {
-		const ctx: CFFContext = {
+		const ctx: CFFTraversalContext = {
 			parent,
 			val: dict,
 			pointerSize: 0,
@@ -239,8 +239,8 @@ export class CFFDict<T extends CFFTable.DictData = CFFTable.DictData>
 		return len;
 	}
 
-	encode(stream: EncodeStream, dict: Record<string, any>, parent?: CFFContext): void {
-		const ctx: CFFContext = {
+	encode(stream: EncodeStream, dict: Record<string, any>, parent?: CFFTraversalContext): void {
+		const ctx: CFFTraversalContext = {
 			pointers: [],
 			startOffset: stream.pos,
 			parent,
