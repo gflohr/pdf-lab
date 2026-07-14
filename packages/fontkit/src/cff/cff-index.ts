@@ -140,11 +140,7 @@ export class CFFIndex<TType extends CFFDict | FieldT<IndexItemValue>>
 		return size;
 	}
 
-	encode(
-		stream: EncodeStream,
-		arr: IndexItemValue[],
-		parent: CFFDict,
-	) {
+	encode(stream: EncodeStream, arr: IndexItemValue[], parent: CFFDict) {
 		if (this.getCFFVersion(parent) >= 2) {
 			stream.writeUInt32BE(arr.length);
 		} else {

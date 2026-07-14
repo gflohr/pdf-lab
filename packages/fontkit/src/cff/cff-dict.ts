@@ -72,7 +72,11 @@ export interface CFFTraversalContext {
 	pointerOffset?: number;
 }
 
-type CFFDictEncodeOperands = (Uint8Array | number)[] | CFFSubsetCharset | number | boolean;
+type CFFDictEncodeOperands =
+	| (Uint8Array | number)[]
+	| CFFSubsetCharset
+	| number
+	| boolean;
 
 /**
  * Handles binary decoding and encoding of Compact Font Format (CFF) key-value dictionaries.
@@ -228,11 +232,7 @@ export class CFFDict<T extends CFFTable.DictData = CFFTable.DictData>
 		return ret as T;
 	}
 
-	size(
-		dict: T,
-		parent?: CFFTraversalContext,
-		includePointers = true,
-	): number {
+	size(dict: T, parent?: CFFTraversalContext, includePointers = true): number {
 		const ctx: CFFTraversalContext = {
 			parent,
 			val: dict,
@@ -270,11 +270,7 @@ export class CFFDict<T extends CFFTable.DictData = CFFTable.DictData>
 		return len;
 	}
 
-	encode(
-		stream: EncodeStream,
-		dict: T,
-		parent?: CFFTraversalContext,
-	): void {
+	encode(stream: EncodeStream, dict: T, parent?: CFFTraversalContext): void {
 		const ctx: CFFTraversalContext = {
 			pointers: [],
 			startOffset: stream.pos,

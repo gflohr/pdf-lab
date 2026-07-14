@@ -1,7 +1,6 @@
 /* istanbul ignore file */
 import type * as r from 'restructure';
 import type { AATFont } from './aat/aat-font.js';
-import type { CFFFont } from './cff/cff-font.js';
 import type { CFF1Font } from './cff/cff1-font.js';
 import type { CFF2Font } from './cff/cff2-font.js';
 import type { BoundingBox } from './glyph/bounding-box.js';
