@@ -5,7 +5,7 @@ import type {
 	FieldT,
 	ParsingContext,
 } from 'restructure';
-import type { CFFTable } from './cff-font.js';
+import type { CFFFont, CFFTable } from './cff-font.js';
 import { cffOperand } from './cff-operand.js';
 import type { CFFPointer } from './cff-pointer.js';
 import type { CFFPrivateOp, PredefinedOp } from './cff-top.js';
@@ -55,11 +55,11 @@ export type CFFOpDefinition = [
  * @internal
  */
 export interface CFFContext {
-	parent?: CFFContext;
+	parent?: CFFContext | CFFFont;
 	val: any;
 	pointerSize: number;
 	startOffset: number;
-	pointers?: Array<{ type: any; val: any; parent: any }>;
+	pointers?: Array<{ type: any; val: any; parent: CFFContext | CFFFont }>;
 	pointerOffset?: number;
 }
 

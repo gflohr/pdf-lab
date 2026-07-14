@@ -6,8 +6,8 @@ import type {
 	StringT,
 } from 'restructure';
 import * as r from 'restructure';
-import type { CFFDict } from './cff-dict.js';
-import type { CFFTable } from './cff-font.js';
+import type { CFFContext, CFFDict } from './cff-dict.js';
+import type { CFFFont, CFFTable } from './cff-font.js';
 
 export type IndexItemValue =
 	| Record<string, unknown>
@@ -21,6 +21,10 @@ interface CFFNodeContext extends FieldT<unknown> {
 
 type CFFNode = CFFNodeContext & CFFTable.TopData;
 
+function isCFFFont(ctx: CFFContext | CFFDict | CFFFont): ctx is CFFFont {
+	return 'hdrSize' in ctx && typeof (ctx as CFFFont).hdrSize === 'number';
+}
+
 /**
  * Handles variable-length table lookups across structural subroutines,
  * dictionaries, and string tables.
@@ -30,19 +34,21 @@ export class CFFIndex<TType extends CFFDict | StringT | FieldT<IndexItemValue>>
 {
 	constructor(public type?: TType) {}
 
-	private getCFFVersion(ctx?: CFFNode) {
-		while (ctx && !ctx.hdrSize) {
-			ctx = ctx.parent as CFFNode;
+	private getCFFVersion(ctx?: CFFContext | CFFDict | CFFFont) {
+		let current = ctx;
+
+		while (current && !isCFFFont(current)) {
+			current = current.parent as CFFContext | CFFDict | CFFFont | undefined;
 		}
 
-		if (ctx) {
-			return ctx.version === 2 ? 2 : 1;
+		if (current) {
+			return current.version === 2 ? 2 : 1;
 		} else {
 			return -1;
 		}
 	}
 
-	decode(stream: DecodeStream, parent: CFFNode): IndexItemValue[] {
+	decode(stream: DecodeStream, parent: CFFFont | CFFDict): IndexItemValue[] {
 		const version = this.getCFFVersion(parent);
 		const count = version !== 2 ? stream.readUInt16BE() : stream.readUInt32BE();
 
@@ -131,7 +137,7 @@ export class CFFIndex<TType extends CFFDict | StringT | FieldT<IndexItemValue>>
 		stream: EncodeStream,
 		// biome-ignore lint/suspicious/noExplicitAny: It can be almost anything.
 		arr: any[],
-		parent: CFFNode,
+		parent: CFFDict,
 	) {
 		if (this.getCFFVersion(parent) >= 2) {
 			stream.writeUInt32BE(arr.length);
