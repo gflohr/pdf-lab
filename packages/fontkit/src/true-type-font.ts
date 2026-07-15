@@ -43,7 +43,6 @@ import {
 	type TrueTypeSubsetFont,
 } from './true-type-subset-font.js';
 import { asciiDecoder } from './utils.js';
-import { CFF2Font } from './cff/cff2-font.js';
 
 export type LayoutFeatures = OpenType.Features | AAT.Features;
 

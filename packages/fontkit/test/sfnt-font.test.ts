@@ -174,14 +174,12 @@ describe('TrueTypeFont Capabilities & Table Resolution', () => {
 		beforeEach(() => {
 			font = Object.create(TrueTypeFont.prototype);
 
-			font['existingTableTags'] = new Set<string>();
 			font['tables'] = {} as SFNTTableMap;
 			font.directory = { tables: {} } as SFNTFontDirectory;
 
 			font['getTable'] = vi.fn().mockReturnValue({});
 
 			for (const tag of requiredOpenTypeTables) {
-				font['existingTableTags'].add(tag);
 				font.directory.tables[tag] = {
 					tag,
 					offset: 0,
@@ -209,7 +207,6 @@ describe('TrueTypeFont Capabilities & Table Resolution', () => {
 			it('should decode the core tables PLUS loca when outlines are "TrueType"', () => {
 				font['outlines'] = 'TrueType';
 
-				font['existingTableTags'].add('loca');
 				font.directory.tables['loca'] = { tag: 'loca' } as SFNTDirectoryEntry;
 
 				font.asOpenTypeFont();
@@ -225,7 +222,6 @@ describe('TrueTypeFont Capabilities & Table Resolution', () => {
 				font.outlines = 'PostScript';
 				font.outlineVersion = 1;
 
-				font['existingTableTags'].add('CFF ');
 				font.directory.tables['CFF '] = { tag: 'CFF ' } as SFNTDirectoryEntry;
 
 				font.asOpenTypeFont();
@@ -241,7 +237,6 @@ describe('TrueTypeFont Capabilities & Table Resolution', () => {
 				font.outlines = 'PostScript';
 				font.outlineVersion = 2;
 
-				font['existingTableTags'].add('CFF2');
 				font.directory.tables['CFF2'] = { tag: 'CFF2' } as SFNTDirectoryEntry;
 
 				font.asOpenTypeFont();
