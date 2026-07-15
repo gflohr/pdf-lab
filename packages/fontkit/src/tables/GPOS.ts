@@ -12,7 +12,19 @@ import {
 } from './open-type.js';
 import { featureVariations, type OpenTypeVariation } from './variations.js';
 
-const ValueFormat = new r.Bitfield(r.uint16, [
+interface DecodedValueFormat {
+	xPlacement: boolean;
+	yPlacement: boolean;
+	xAdvance: boolean;
+	yAdvance: boolean;
+	xPlaDevice: boolean;
+	yPlaDevice: boolean;
+	xAdvDevice: boolean;
+	yAdvDevice: boolean;
+}
+
+// FIXME! Rename this to valueFormat!
+const ValueFormat = new r.Bitfield<string[]>(r.uint16, [
 	'xPlacement',
 	'yPlacement',
 	'xAdvance',
@@ -50,39 +62,55 @@ const types = {
 	}),
 };
 
-export class ValueRecord implements r.FieldT<GPOSTable.DecodedValueRecord> {
-	private key: string;
+type ValueRecordContext = {
+	parent: ValueRecordContext | GPOSTable.LookupTable;
 
-	constructor(key: string = 'valueFormat') {
+	[key: string]: unknown;
+};
+
+function isLookupTable(
+	ctx: ValueRecordContext | GPOSTable.LookupTable | undefined,
+	key: string,
+): ctx is GPOSTable.LookupTable {
+	return !!(ctx && key in ctx && ctx[key as keyof typeof ctx] !== undefined);
+}
+
+export class ValueRecord implements r.FieldT<GPOSTable.DecodedValueRecord> {
+	private key: 'valueFormat' | 'valueFormat1' | 'valueFormat2';
+
+	constructor(
+		key: 'valueFormat' | 'valueFormat1' | 'valueFormat2' = 'valueFormat',
+	) {
 		this.key = key;
 	}
 
-	/**
-	 * Walks up the parent chain to find the structural configuration
-	 * and dynamically constructs the appropriate layout.
-	 */
 	private buildStruct(
-		parent: any,
-	): r.StructT<GPOSTable.DecodedValueRecord, any> {
-		let struct = parent;
+		parent: ValueRecordContext,
+	): r.StructT<Record<string, unknown>, GPOSTable.DecodedValueRecord> {
+		let current: ValueRecordContext | GPOSTable.LookupTable | undefined =
+			parent;
 
 		// Crawl up the hierarchy until we find the format dictionary and a parent
-		while (struct && !(struct[this.key] && struct.parent)) {
-			struct = struct.parent;
+		while (current && !isLookupTable(current, this.key)) {
+			current = current.parent as ValueRecordContext;
 		}
 
-		if (!struct?.[this.key]) {
+		const struct = current as GPOSTable.LookupTable;
+
+		if (!struct?.[this.key as keyof typeof struct]) {
 			// Fallback to an empty struct if the configuration context isn't found
 			return new r.Struct({});
 		}
 
-		// biome-ignore lint/suspicious/noExplicitAny: see above!
-		const fields: Record<string, any> = {};
-
 		// Inject the contextual start offset reference required by restructure
-		fields.rel = () => struct._startOffset;
+		const rel = () =>
+			(struct as unknown as { _startOffset: number })._startOffset;
+		const fields: Record<string, r.FieldT<unknown>> = {};
+		(fields as unknown as { rel: typeof rel }).rel = rel;
 
-		const format = struct[this.key];
+		const format = struct[
+			this.key as keyof typeof struct
+		] as GPOSTable.DecodedValueRecord;
 		for (const key in format) {
 			const fieldKey = key as keyof typeof types;
 			if (format[fieldKey] && types[fieldKey]) {
@@ -103,8 +131,9 @@ export class ValueRecord implements r.FieldT<GPOSTable.DecodedValueRecord> {
 		const res = this.buildStruct(parent).decode(stream, parent);
 		// Clean up the transient helper reference before passing data back
 		if (res) {
-			delete res.rel;
+			delete (res as { rel: unknown }).rel;
 		}
+
 		return res;
 	}
 
@@ -187,14 +216,14 @@ export namespace GPOSTable {
 
 		// Single positioning value
 		coverage: OpenType.Coverage | null;
-		valueFormat: typeof ValueFormat;
+		valueFormat: DecodedValueFormat;
 		value: DecodedValueRecord;
 	}
 
 	export interface LookupSingleV2 {
 		version: 2;
 		coverage: OpenType.Coverage | null;
-		valueFormat: typeof ValueFormat;
+		valueFormat: DecodedValueFormat;
 		valueCount: number;
 		values: r.RestructureLazyArray<DecodedValueRecord>;
 	}
@@ -209,8 +238,8 @@ export namespace GPOSTable {
 
 		// Adjustments for glyph pairs
 		coverage: OpenType.Coverage | null;
-		valueFormat1: typeof ValueFormat;
-		valueFormat2: typeof ValueFormat;
+		valueFormat1: DecodedValueFormat;
+		valueFormat2: DecodedValueFormat;
 		pairSetCount: number;
 		pairSets: r.RestructureLazyArray<PairValueRecord[]>;
 	}
@@ -219,8 +248,8 @@ export namespace GPOSTable {
 		version: 2;
 
 		coverage: OpenType.Coverage | null;
-		valueFormat1: typeof ValueFormat;
-		valueFormat2: typeof ValueFormat;
+		valueFormat1: DecodedValueFormat;
+		valueFormat2: DecodedValueFormat;
 		classDef1: OpenType.ClassDef | null;
 		classDef2: OpenType.ClassDef | null;
 		class1Count: number;
