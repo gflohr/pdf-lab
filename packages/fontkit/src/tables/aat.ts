@@ -193,18 +193,32 @@ export class UnboundedArrayAccessor<TField extends r.FieldT<any>> {
 }
 
 export class AATUnboundedArray<
-	TField extends r.FieldT<any>,
-> extends r.Array<TField> {
+	TField extends r.FieldT<unknown>,
+> {
 	private arrayType: TField;
 
 	constructor(type: TField) {
-		super(type, 0);
 		this.arrayType = type;
 	}
 
-	// We cast the output to 'any' to satisfy the base class's expectation of returning a real array array
-	decode(stream: r.DecodeStream, parent?: r.ParsingContext): any {
+	size(val?: unknown, ctx?: unknown) {
+		return this.arrayType.size(val, ctx);
+	}
+
+	decode(stream: r.DecodeStream, parent?: r.ParsingContext) {
 		return new UnboundedArrayAccessor(this.arrayType, stream, parent);
+	}
+
+	encode() {
+		throw new Error('AATUnboundedArray does not support encoding!');
+	}
+
+	fromBuffer() {
+		throw new Error('AATUnboundedArray cannot be created from a buffer!');
+	}
+
+	toBuffer(): Uint8Array {
+		throw new Error('AATUnboundedArray cannot be encoded into a buffer!');
 	}
 }
 
