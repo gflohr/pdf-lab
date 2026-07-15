@@ -1,6 +1,3 @@
-/** biome-ignore-all lint/suspicious/noExplicitAny: This module hijacks the
- * offsetType member of the base class dynamically.
- */
 import type {
 	DecodeStream,
 	EncodeStream,
@@ -33,7 +30,7 @@ export class Ptr {
  * Specialized CFF Dict stream pointer. Handles variable operands collected
  * from the dictionary stack as dynamic lookahead offsets.
  */
-export class CFFPointer<TField extends FieldT<any>> extends r.Pointer<TField> {
+export class CFFPointer<TField extends FieldT<unknown>> extends r.Pointer<TField> {
 	constructor(type: TField, options: PointerTOptions = {}) {
 		if (options.type == null) {
 			options.type = 'global';
@@ -55,9 +52,9 @@ export class CFFPointer<TField extends FieldT<any>> extends r.Pointer<TField> {
 		if (operands && operands.length > 0) {
 			// Hijack offsetType: instead of reading bytes, return the
 			// pre-parsed operand size coordinate.
-			(this as any).offsetType = {
+			(this as r.PointerT<FieldT<unknown>>).offsetType = {
 				decode: () => operands[0],
-			};
+			} as unknown as number;
 		}
 
 		return super.decode(stream, parent) as InferField<TField>;
@@ -71,22 +68,24 @@ export class CFFPointer<TField extends FieldT<any>> extends r.Pointer<TField> {
 		value: InferField<TField>,
 		ctx: unknown,
 	): [Ptr] {
+		const cheshire = this as r.PointerT<FieldT<unknown>>;
+
 		if (!stream) {
 			// Compute phase size generation mock.
-			(this as any).offsetType = {
+			cheshire.offsetType = {
 				size: () => 0,
-			} as FieldT<number>;
+			} as unknown as number;
 
 			this.size(value, ctx);
 			return [new Ptr(0)];
 		}
 
 		let ptr: number | null = null;
-		(this as any).offsetType = {
+		cheshire.offsetType = {
 			encode: (_stream: EncodeStream, val: number) => {
 				ptr = val;
 			},
-		};
+		} as unknown as number;
 
 		super.encode(stream, value, ctx);
 
