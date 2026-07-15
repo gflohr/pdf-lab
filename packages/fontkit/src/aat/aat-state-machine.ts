@@ -12,12 +12,15 @@ const DONT_ADVANCE = 0x4000;
 
 type ProcessEntry = (
 	_glyph: Glyph,
-	entry: AAT.StateEntry<Record<string, any>>,
+	entry: AAT.StateEntry<Record<string, unknown>>,
 	index: number,
 ) => void;
 interface TraverseOpts {
-	enter: (glyph: number, entry: AAT.StateEntry<Record<string, any>>) => void;
-	exit: (glyph: number, entry: AAT.StateEntry<Record<string, any>>) => void;
+	enter: (
+		glyph: number,
+		entry: AAT.StateEntry<Record<string, unknown>>,
+	) => void;
+	exit: (glyph: number, entry: AAT.StateEntry<Record<string, unknown>>) => void;
 }
 export class AATStateMachine {
 	private readonly lookupTable: AATLookupTable<number>;

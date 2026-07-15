@@ -174,7 +174,7 @@ export class AATMorxProcessor {
 
 	private processIndicRearragement(
 		_glyph: Glyph,
-		entry: AAT.StateEntry<Record<string, any>>,
+		entry: AAT.StateEntry<unknown>,
 		index: number,
 	) {
 		if (entry.flags & MARK_FIRST) {
@@ -195,7 +195,7 @@ export class AATMorxProcessor {
 
 	private processContextualSubstitution(
 		glyph: Glyph,
-		entry: AAT.StateEntry<Record<string, any>>,
+		entry: AAT.StateEntry<morxTable.ContextualData>,
 		index: number,
 	) {
 		const table = this.subtable!.table as morxTable.SubtableDataV1;
@@ -230,7 +230,7 @@ export class AATMorxProcessor {
 
 	private processLigature(
 		_glyph: Glyph,
-		entry: AAT.StateEntry<Record<string, any>>,
+		entry: AAT.StateEntry<morxTable.LigatureData>,
 		index: number,
 	) {
 		if (entry.flags & SET_COMPONENT) {
@@ -323,7 +323,7 @@ export class AATMorxProcessor {
 
 	private processGlyphInsertion(
 		_glyph: Glyph,
-		entry: AAT.StateEntry<Record<string, any>>,
+		entry: AAT.StateEntry<morxTable.InsertionData>,
 		index: number,
 	) {
 		if (entry.flags & SET_MARK) {
@@ -398,7 +398,7 @@ export class AATMorxProcessor {
 		const stateMachine = this.getStateMachine(subtable);
 		const process = this.getProcessor() as (
 			glyph: Glyph,
-			entry: AAT.StateEntry<Record<string, any>>,
+			entry: AAT.StateEntry<unknown>,
 			index: number,
 		) => void;
 

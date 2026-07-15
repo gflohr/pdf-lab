@@ -1,10 +1,3 @@
-/** biome-ignore-all lint/suspicious/noExplicitAny: This file implements
- * advanced font layout parsing structures (AAT) that dynamically alter
- * execution context graphs, utilise virtual proxy arrays (UnboundedArray), and
- * bypass structural compilation layers via custom wrapper wrappers (Shadow).
- * Loose typing via 'any' is required to prevent circular resolution errors
- * inside the parser engine framework.
- */
 import * as r from 'restructure';
 
 export namespace AAT {
@@ -132,7 +125,7 @@ export namespace AAT {
 		newStateOffset: number;
 		newState: number;
 		flags: number;
-		[additionalKeys: string]: any;
+		[additionalKeys: string]: unknown;
 	} & TEntry;
 
 	export interface StateHeader<TLookup = number, TEntry = Record<string, any>> {

@@ -11,6 +11,7 @@ import {
 	openTypeScriptList,
 } from './open-type.js';
 import { featureVariations, type OpenTypeVariation } from './variations.js';
+import { FlushValues } from 'pako';
 
 interface DecodedValueFormat {
 	xPlacement: boolean;
@@ -85,7 +86,7 @@ export class ValueRecord implements r.FieldT<GPOSTable.DecodedValueRecord> {
 	}
 
 	private buildStruct(
-		parent: ValueRecordContext,
+		parent?: ValueRecordContext,
 	): r.StructT<Record<string, unknown>, GPOSTable.DecodedValueRecord> {
 		let current: ValueRecordContext | GPOSTable.LookupTable | undefined =
 			parent;
@@ -121,13 +122,11 @@ export class ValueRecord implements r.FieldT<GPOSTable.DecodedValueRecord> {
 		return new r.Struct<typeof fields, GPOSTable.DecodedValueRecord>(fields);
 	}
 
-	// biome-ignore lint/suspicious/noExplicitAny: see above!
-	size(val?: any, ctx?: any): number {
-		return this.buildStruct(ctx).size(val, ctx);
+	size(val?: GPOSTable.DecodedValueRecord, ctx?: ValueRecordContext): number {
+		return this.buildStruct(ctx).size(val);
 	}
 
-	// biome-ignore lint/suspicious/noExplicitAny: see above!
-	decode(stream: r.DecodeStream, parent?: any): any {
+	decode(stream: r.DecodeStream, parent?: ValueRecordContext): GPOSTable.DecodedValueRecord {
 		const res = this.buildStruct(parent).decode(stream, parent);
 		// Clean up the transient helper reference before passing data back
 		if (res) {
