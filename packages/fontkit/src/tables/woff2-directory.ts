@@ -171,7 +171,7 @@ export interface WOFF2Directory extends SFNTDirectory {
  * Internal context layout map used strictly for restructuring hooks
  */
 interface WOFF2DirectoryContext extends Omit<WOFF2Directory, 'tables'> {
-	tables: WOFF2TableEntryBinary[] & Record<string, WOFF2DirectoryEntry>;
+	tables: Record<string, WOFF2DirectoryEntry>;
 }
 
 /* ========================================================================== */
@@ -225,10 +225,10 @@ export const woff2DirectoryStruct = new r.Struct<typeof fields, WOFF2Directory>(
 woff2DirectoryStruct.process = function (this: WOFF2DirectoryContext): void {
 	const mappedTables: Record<string, WOFF2DirectoryEntry> = {};
 
-	for (let i = 0; i < this.tables.length; i++) {
-		const table = this.tables[i];
-		mappedTables[table.tag] = table as any;
+	const binaryTables = this.tables as unknown as WOFF2DirectoryBinary[];
+	for (const table of binaryTables) {
+		mappedTables[table.tag] = table as unknown as WOFF2DirectoryEntry;
 	}
 
-	this.tables = mappedTables as any;
+	this.tables = mappedTables;
 };

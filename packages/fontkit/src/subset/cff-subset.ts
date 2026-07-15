@@ -224,7 +224,7 @@ export class CFFSubset extends Subset {
 			topDictIndex: [topDict],
 			stringIndex: this.strings,
 			globalSubrIndex: this.gsubrs,
-		} as unknown as CFFTable.TopData;
+		};
 
 		return cffTop.toBuffer(top);
 	}
