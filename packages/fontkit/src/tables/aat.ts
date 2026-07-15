@@ -69,7 +69,7 @@ export namespace AAT {
 
 	export interface LookupTableV0<T> {
 		version: 0;
-		values: UnboundedArrayAccessor<r.FieldT<T>>;
+		values: UnboundedArrayAccessor<T, r.FieldT<T>>;
 	}
 
 	export interface LookupSegmentSingle<T> {
@@ -131,8 +131,8 @@ export namespace AAT {
 	export interface StateHeader<TLookup = number, TEntry = Record<string, any>> {
 		nClasses: number;
 		classTable: LookupTable<TLookup>;
-		stateArray: UnboundedArrayAccessor<r.FieldT<number[]>>;
-		entryTable: UnboundedArrayAccessor<r.FieldT<StateEntry<TEntry>>>;
+		stateArray: UnboundedArrayAccessor<number[], r.FieldT<number[]>>;
+		entryTable: UnboundedArrayAccessor<StateEntry<TEntry>, r.FieldT<StateEntry<TEntry>>>;
 	}
 
 	export type StateEntry1<TEntry> = {
@@ -144,8 +144,8 @@ export namespace AAT {
 	export interface StateHeader1<TEntry = Record<string, any>> {
 		nClasses: number;
 		classTable: Omit<LookupTableV8<number>, 'count'>;
-		stateArray: UnboundedArrayAccessor<r.FieldT<number[][]>>;
-		entryTable: UnboundedArrayAccessor<r.FieldT<StateEntry1<TEntry>>>;
+		stateArray: UnboundedArrayAccessor<number[][], r.FieldT<number[][]>>;
+		entryTable: UnboundedArrayAccessor<StateEntry1<TEntry>, r.FieldT<StateEntry1<TEntry>>>;
 	}
 
 	export type StateTable = r.StructT<Record<string, unknown>, AAT.StateHeader>;
@@ -158,33 +158,33 @@ export namespace AAT {
 	export type TypeFeatures = Record<string, Record<string, boolean>>;
 }
 
-export class UnboundedArrayAccessor<TField extends r.FieldT<any>> {
+export class UnboundedArrayAccessor<TItem, TField extends r.FieldT<TItem>> {
 	private type: TField;
 	private stream: r.DecodeStream;
 	private parent?: r.ParsingContext;
 	private base: number;
-	private _items: r.InferField<TField>[];
+	private items: TItem[];
 
 	constructor(type: TField, stream: r.DecodeStream, parent?: r.ParsingContext) {
 		this.type = type;
 		this.stream = stream;
 		this.parent = parent;
 		this.base = this.stream.pos;
-		this._items = [];
+		this.items = [];
 	}
 
 	// Changing the return from 'unknown' to 'InferField<TField>' fixes
 	// downstream usage.
-	getItem(index: number): r.InferField<TField> {
-		if (this._items[index] == null) {
+	getItem(index: number): TItem {
+		if (this.items[index] == null) {
 			const pos = this.stream.pos;
 			// Note: passing null as value to match size signature
 			this.stream.pos = this.base + this.type.size(null, this.parent) * index;
-			this._items[index] = this.type.decode(this.stream, this.parent);
+			this.items[index] = this.type.decode(this.stream, this.parent);
 			this.stream.pos = pos;
 		}
 
-		return this._items[index];
+		return this.items[index];
 	}
 
 	inspect() {
@@ -193,7 +193,8 @@ export class UnboundedArrayAccessor<TField extends r.FieldT<any>> {
 }
 
 export class AATUnboundedArray<
-	TField extends r.FieldT<unknown>,
+	TItem = unknown,
+	TField extends r.FieldT<TItem> = r.FieldT<TItem>,
 > {
 	private arrayType: TField;
 
