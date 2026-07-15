@@ -1,6 +1,5 @@
 import type { BoundingBox } from './glyph/bounding-box.js';
 import type { Glyph } from './glyph/glyph.js';
-import type { GlyphVariationProcessor } from './glyph/glyph-variation-processor.js';
 import type { SFNTFont } from './sfnt-font.js';
 import type { SFNTTableMap } from './tables/directory.js';
 

@@ -1,6 +1,6 @@
 import * as r from 'restructure';
+import type { SFNTDirectory } from './index.js';
 import type { WOFFDirectoryEntry } from './woff-directory.js';
-import { SFNTDirectory } from './index.js';
 
 const Base128 = {
 	decode(stream: r.DecodeStream): number {

@@ -1,10 +1,4 @@
-import type {
-	DecodeStream,
-	EncodeStream,
-	FieldT,
-	NumberT,
-	StringT,
-} from 'restructure';
+import type { DecodeStream, EncodeStream, FieldT, NumberT } from 'restructure';
 import * as r from 'restructure';
 import type { CFFDict, CFFTraversalContext } from './cff-dict.js';
 import type { CFFFont, CFFTable } from './cff-font.js';

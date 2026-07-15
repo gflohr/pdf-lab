@@ -31,7 +31,9 @@ export interface WOFFDirectoryBinary {
 /**
  * Tier 2: Post-Processed Runtime Representation (Clean App API).
  */
-export interface WOFFDirectoryEntry extends WOFFTableEntryBinary, SFNTDirectoryEntry {
+export interface WOFFDirectoryEntry
+	extends WOFFTableEntryBinary,
+		SFNTDirectoryEntry {
 	/** The actual decoded table payload stream, or null if unparsed */
 	unwrapped?: unknown;
 }
@@ -105,11 +107,10 @@ export const woffDirectoryStruct = new r.Struct<typeof fields, WOFFDirectory>(
 woffDirectoryStruct.process = function (this: WOFFDirectoryContext): void {
 	const mappedTables: Record<string, WOFFDirectoryEntry> = {};
 
-	const binaryTables = this.tables as unknown as WOFFDirectoryBinary[]
+	const binaryTables = this.tables as unknown as WOFFDirectoryBinary[];
 	for (const table of binaryTables) {
 		mappedTables[table.tag] = table as unknown as WOFFDirectoryEntry;
 	}
 
-	// Safely cast away the binary array representation to the clean runtime map
 	this.tables = mappedTables;
 };

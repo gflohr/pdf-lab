@@ -1,6 +1,6 @@
 import { requiredTrueTypeSubsetTables } from '../true-type-subset-font.js';
 import type { WOFF2Font } from '../woff2-font.js';
-import { type DecodedGlyph, TrueTypeGlyph } from './true-type-glyph.js';
+import { TrueTypeGlyph } from './true-type-glyph.js';
 
 /**
  * Represents a TrueType glyph in the WOFF2 format, which compresses glyphs differently.
