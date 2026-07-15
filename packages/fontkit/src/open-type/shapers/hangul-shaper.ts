@@ -31,7 +31,7 @@ export class HangulShaper extends DefaultShaper {
 		plan.add(['ljmo', 'vjmo', 'tjmo'], false);
 	}
 
-	static assignFeatures(plan: ShapingPlan<null>, glyphs: GlyphInfo<null>[]) {
+	static assignFeatures<T = null>(plan: ShapingPlan<T>, glyphs: GlyphInfo<T>[]) {
 		let state = 0;
 		let i = 0;
 		while (i < glyphs.length) {
@@ -46,23 +46,23 @@ export class HangulShaper extends DefaultShaper {
 				case DECOMPOSE:
 					// Decompose the composed syllable if it is not supported by the font.
 					if (!plan.font.hasGlyphForCodePoint(code)) {
-						i = decompose(glyphs, i, plan.font);
+						i = decompose(glyphs as GlyphInfo<null>[], i, plan.font);
 					}
 					break;
 
 				case COMPOSE:
 					// Found a decomposed syllable. Try to compose if supported by the font.
-					i = compose(glyphs, i, plan.font);
+					i = compose(glyphs as GlyphInfo<null>[], i, plan.font);
 					break;
 
 				case TONE_MARK:
 					// Got a valid syllable, followed by a tone mark. Move the tone mark to the beginning of the syllable.
-					reorderToneMark(glyphs, i, plan.font);
+					reorderToneMark(glyphs as GlyphInfo<null>[], i, plan.font);
 					break;
 
 				case INVALID:
 					// Tone mark has no valid syllable to attach to, so insert a dotted circle
-					i = insertDottedCircle(glyphs, i, plan.font);
+					i = insertDottedCircle(glyphs as GlyphInfo<null>[], i, plan.font);
 					break;
 			}
 

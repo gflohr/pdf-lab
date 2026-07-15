@@ -115,9 +115,9 @@ export class IndicShaper extends DefaultShaper {
 		// TODO: turn off kern (Khmer) and liga features.
 	}
 
-	static assignFeatures(
-		plan: ShapingPlan<IndicInfo>,
-		glyphs: GlyphInfo<IndicInfo>[],
+	static assignFeatures<T = IndicInfo>(
+		plan: ShapingPlan<T>,
+		glyphs: GlyphInfo<T>[],
 	) {
 		// Decompose split matras
 		// TODO: do this in a more general unicode normalizer
@@ -147,7 +147,7 @@ export class IndicShaper extends DefaultShaper {
 					);
 				});
 
-				glyphs.splice(i, 1, ...decomposed);
+				glyphs.splice(i, 1, ...(decomposed as GlyphInfo<T>[]));
 			}
 		}
 	}

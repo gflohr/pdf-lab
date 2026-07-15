@@ -3,6 +3,7 @@ import type { BidiDirection } from '../../layout/glyph-run.js';
 import type { OpenType } from '../../tables/open-type.js';
 import type { GlyphInfo } from '../glyph-info.js';
 import type { ShapingPlan } from '../shaping-plan.js';
+import { IndicInfo } from './indic-shaper.js';
 
 const VARIATION_FEATURES: OpenType.FeatureTag[] = ['rvrn'];
 const COMMON_FEATURES: OpenType.FeatureTag[] = [
@@ -48,7 +49,7 @@ export class DefaultShaper {
 
 		// Assign local features to glyphs
 		// biome-ignore lint/complexity/noThisInStatic: needs rewrite
-		this.assignFeatures(plan, glyphs);
+		this.assignFeatures<T>(plan, glyphs);
 	}
 
 	static planPreprocessing<T>(plan: ShapingPlan<T>) {
@@ -70,16 +71,9 @@ export class DefaultShaper {
 		plan.setFeatureOverrides(userFeatures);
 	}
 
-	protected static assignFeatures(
-		/* biome-ignore lint/suspicious/noExplicitAny: This base static method
-		 * must use 'any' to act as a wildcard, allowing inheriting shapers
-		 * (like Indic or Arabic) to safely narrow the generic parameters to
-		 * their specific layout structures without violating the Liskov
-		 * Substitution Principle.
-		 */
-		_plan: ShapingPlan<any>,
-		// biome-ignore lint/suspicious/noExplicitAny: See above!
-		glyphs: GlyphInfo<any>[],
+	protected static assignFeatures<T>(
+		_plan: ShapingPlan<T>,
+		glyphs: GlyphInfo<T>[],
 	) {
 		// Enable contextual fractions
 		for (let i = 0; i < glyphs.length; i++) {
