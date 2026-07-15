@@ -69,7 +69,7 @@ export namespace AAT {
 
 	export interface LookupTableV0<T> {
 		version: 0;
-		values: UnboundedArrayAccessor<T, r.FieldT<T>>;
+		values: UnboundedArrayAccessor<T>;
 	}
 
 	export interface LookupSegmentSingle<T> {
@@ -131,8 +131,8 @@ export namespace AAT {
 	export interface StateHeader<TLookup = number, TEntry = Record<string, any>> {
 		nClasses: number;
 		classTable: LookupTable<TLookup>;
-		stateArray: UnboundedArrayAccessor<number[], r.FieldT<number[]>>;
-		entryTable: UnboundedArrayAccessor<StateEntry<TEntry>, r.FieldT<StateEntry<TEntry>>>;
+		stateArray: UnboundedArrayAccessor<number[]>;
+		entryTable: UnboundedArrayAccessor<StateEntry<TEntry>>;
 	}
 
 	export type StateEntry1<TEntry> = {
@@ -144,8 +144,8 @@ export namespace AAT {
 	export interface StateHeader1<TEntry = Record<string, any>> {
 		nClasses: number;
 		classTable: Omit<LookupTableV8<number>, 'count'>;
-		stateArray: UnboundedArrayAccessor<number[][], r.FieldT<number[][]>>;
-		entryTable: UnboundedArrayAccessor<StateEntry1<TEntry>, r.FieldT<StateEntry1<TEntry>>>;
+		stateArray: UnboundedArrayAccessor<number[][]>;
+		entryTable: UnboundedArrayAccessor<StateEntry1<TEntry>>;
 	}
 
 	export type StateTable = r.StructT<Record<string, unknown>, AAT.StateHeader>;
@@ -158,14 +158,14 @@ export namespace AAT {
 	export type TypeFeatures = Record<string, Record<string, boolean>>;
 }
 
-export class UnboundedArrayAccessor<TItem, TField extends r.FieldT<TItem>> {
-	private type: TField;
+export class UnboundedArrayAccessor<TItem> {
+	private type: r.FieldT<TItem>;
 	private stream: r.DecodeStream;
 	private parent?: r.ParsingContext;
 	private base: number;
 	private items: TItem[];
 
-	constructor(type: TField, stream: r.DecodeStream, parent?: r.ParsingContext) {
+	constructor(type: r.FieldT<TItem>, stream: r.DecodeStream, parent?: r.ParsingContext) {
 		this.type = type;
 		this.stream = stream;
 		this.parent = parent;
@@ -192,13 +192,10 @@ export class UnboundedArrayAccessor<TItem, TField extends r.FieldT<TItem>> {
 	}
 }
 
-export class AATUnboundedArray<
-	TItem = unknown,
-	TField extends r.FieldT<TItem> = r.FieldT<TItem>,
-> {
-	private arrayType: TField;
+export class AATUnboundedArray<TItem = unknown> {
+	private arrayType: r.FieldT<TItem>;
 
-	constructor(type: TField) {
+	constructor(type: r.FieldT<TItem>) {
 		this.arrayType = type;
 	}
 

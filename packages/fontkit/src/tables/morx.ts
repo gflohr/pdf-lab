@@ -21,7 +21,7 @@ export namespace morxTable {
 	}
 
 	export interface SubstitutionTable {
-		items: UnboundedArrayAccessor<AAT.LookupTable<number>, r.FieldT<AAT.LookupTable<number>>>;
+		items: UnboundedArrayAccessor<AAT.LookupTable<number>>;
 	}
 
 	export interface SubtableDataV1 {
@@ -40,9 +40,9 @@ export namespace morxTable {
 	export interface SubtableDataV2 {
 		version: 2;
 		stateTable: AAT.StateHeader<number, LigatureData>;
-		ligatureActions: UnboundedArrayAccessor<number, r.FieldT<number>>;
-		components: UnboundedArrayAccessor<number, r.FieldT<number>>;
-		ligatureList: UnboundedArrayAccessor<number, r.FieldT<number>>;
+		ligatureActions: UnboundedArrayAccessor<number>;
+		components: UnboundedArrayAccessor<number>;
+		ligatureList: UnboundedArrayAccessor<number>;
 	}
 
 	// Format 4: Non-contextual glyph substitution subtable.
@@ -61,7 +61,7 @@ export namespace morxTable {
 	export interface SubtableDataV5 {
 		version: 5;
 		stateTable: AAT.StateHeader<number, InsertionData>;
-		insertionActions: UnboundedArrayAccessor<number, r.FieldT<number>>;
+		insertionActions: UnboundedArrayAccessor<number>;
 	}
 
 	export type SubtableData =
