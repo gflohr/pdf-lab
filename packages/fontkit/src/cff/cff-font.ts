@@ -1,5 +1,6 @@
 import type { DecodeStream } from 'restructure';
 import type { OpenTypeVariation } from '../tables/variations.js';
+import type { StandardString } from './cff-standard-strings.js';
 import { cffTop } from './cff-top.js';
 import type { CFF1Font } from './cff1-font.js';
 import type { CFF2Font } from './cff2-font.js';
@@ -27,7 +28,7 @@ export namespace CFFTable {
 	export interface RangeRecord {
 		first: number;
 		nLeft: number;
-		offset?: number;
+		offset: number; // Added during decoding.
 	}
 
 	export interface FDRange {
@@ -86,6 +87,26 @@ export namespace CFFTable {
 		FDArray?: FontDictData[];
 	}
 
+	export interface CustomCharsetDataV0 {
+		version: 0;
+		glyphs: number[];
+	}
+
+	export interface CustomCharsetDataV1 {
+		version: 1;
+		ranges: RangeRecord[];
+	}
+
+	export interface CustomCharsetDataV2 {
+		version: 2;
+		ranges: RangeRecord[];
+	}
+
+	export type CustomCharsetData =
+		| CustomCharsetDataV0
+		| CustomCharsetDataV1
+		| CustomCharsetDataV2;
+
 	export interface TopDictDataV1 extends TopDictDataHeader {
 		ROS: [string, string, number] | null;
 		version: number | null;
@@ -104,7 +125,7 @@ export namespace CFFTable {
 		FontBBox: [number, number, number, number];
 		StrokeWidth: number;
 		XUID: unknown[];
-		charset: RangeRecord[];
+		charset: CustomCharsetData | StandardString[];
 		Encoding: CustomEncodingData;
 		Private: PrivateDictData;
 		SytheticBase?: number;

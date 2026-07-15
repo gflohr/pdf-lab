@@ -81,7 +81,7 @@ export class CFF1Font extends CFFFontBase {
 			return null;
 		}
 
-		const charset = (this.topDict as CFFTable.TopDictDataV1).charset;
+		const charset = this.topDict.charset;
 		if (Array.isArray(charset)) {
 			// FIXME! This code has zero test coverage, and charset[gid] is
 			// actually a RangeRecord.
@@ -94,14 +94,14 @@ export class CFF1Font extends CFFFontBase {
 
 		gid -= 1;
 
-		switch ((charset as any).version) {
+		switch (charset.version) {
 			case 0:
-				return this.string((charset as any).glyphs[gid]);
+				return this.string(charset.glyphs[gid]);
 
 			case 1:
 			case 2:
-				for (let i = 0; i < (charset as any).ranges.length; i++) {
-					const range = (charset as any).ranges[i];
+				for (let i = 0; i < charset.ranges.length; i++) {
+					const range = charset.ranges[i];
 					if (range.offset <= gid && gid <= range.offset + range.nLeft) {
 						return this.string(range.first + (gid - range.offset));
 					}
@@ -126,7 +126,7 @@ export class CFF1Font extends CFFFontBase {
 		if (this.topDict.FDSelect && this.topDict.FDArray) {
 			const fd = this.fdForGlyph(gid);
 			if (fd !== null && this.topDict.FDArray[fd]) {
-				return (this.topDict.FDArray[fd] as any).Private;
+				return this.topDict.FDArray[fd].Private ?? null;
 			}
 
 			return null;

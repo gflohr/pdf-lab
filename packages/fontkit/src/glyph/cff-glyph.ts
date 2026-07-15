@@ -75,7 +75,8 @@ export class CFFGlyph extends Glyph {
 		const subrs = privateDict?.Subrs || [];
 		const subrsBias = this.bias(subrs);
 
-		const vstore = (cff.topDict as CFFTable.TopDictDataV2).vstore?.itemVariationStore;
+		const vstore = (cff.topDict as CFFTable.TopDictDataV2).vstore
+			?.itemVariationStore;
 		let vsindex = privateDict?.vsindex;
 		const variationProcessor = this._font.variationProcessor;
 

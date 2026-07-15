@@ -39,7 +39,7 @@ export class CFF2Font extends CFFFontBase {
 		if (this.topDict.FDSelect && this.topDict.FDArray) {
 			const fd = this.fdForGlyph(gid);
 			if (fd !== null && this.topDict.FDArray[fd]) {
-				return (this.topDict.FDArray[fd] as any).Private;
+				return this.topDict.FDArray[fd].Private ?? null;
 			}
 
 			return null;

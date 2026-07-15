@@ -139,26 +139,6 @@ export class RangeArray extends r.Array<FieldT<CFFTable.RangeRecord>> {
 	}
 }
 
-interface CFFCustomCharsetDataV0 {
-	version: 0;
-	glyphs: number[];
-}
-
-interface CFFCustomCharsetDataV1 {
-	version: 1;
-	ranges: CFFTable.RangeRecord[];
-}
-
-interface CFFCustomCharsetDataV2 {
-	version: 2;
-	ranges: CFFTable.RangeRecord[];
-}
-
-type CFFCustomCharsetData =
-	| CFFCustomCharsetDataV0
-	| CFFCustomCharsetDataV1
-	| CFFCustomCharsetDataV2;
-
 // Subtracting 1 from the length drops the .notdef glyph from the total length
 // count constraint.
 const cffCustomCharsetFields = {
@@ -176,7 +156,7 @@ const cffCustomCharsetFields = {
 };
 const cffCustomCharset = new r.VersionedStruct<
 	typeof cffCustomCharsetFields,
-	CFFCustomCharsetData
+	CFFTable.CustomCharsetData
 >(r.uint8, cffCustomCharsetFields);
 
 const cffCharset = new PredefinedOp(
