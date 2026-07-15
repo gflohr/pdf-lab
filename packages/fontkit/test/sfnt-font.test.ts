@@ -9,7 +9,6 @@ import {
 	type SFNTFontDirectory,
 	type SFNTTableMap,
 	TrueTypeFont,
-	tables,
 } from '../src/index.js';
 
 vi.mock('./src/tables/index.js', () => ({
@@ -97,7 +96,7 @@ describe('TrueTypeFont Capabilities & Table Resolution', () => {
 				tag: 'true',
 				numTables: tags.length,
 				tables: tablesMap,
-			} as any);
+			} as ReturnType<(typeof TrueTypeFont.prototype)['decodeDirectory']>);
 
 			return new TrueTypeFont(mockStream);
 		};
@@ -260,7 +259,7 @@ describe('TrueTypeFont Capabilities & Table Resolution', () => {
 				vi.mocked(font['getTable']).mockImplementation((entry) => {
 					if (entry.tag === 'OS/2')
 						throw new Error('Malformed table array stream');
-					return {} as any;
+					return {} as ReturnType<(typeof font)['getTable']>;
 				});
 
 				expect(() => font.asOpenTypeFont()).toThrow(
