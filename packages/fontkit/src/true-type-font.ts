@@ -43,6 +43,7 @@ import {
 	type TrueTypeSubsetFont,
 } from './true-type-subset-font.js';
 import { asciiDecoder } from './utils.js';
+import { CFF2Font } from './cff/cff2-font.js';
 
 export type LayoutFeatures = OpenType.Features | AAT.Features;
 
@@ -137,7 +138,7 @@ export class TrueTypeFont<
 
 	// Infers all other table properties (cmap, head, OS/2, etc.) via the
 	// interface heritage.
-	[key: string]: any;
+	[key: string]: unknown;
 
 	public static probe(buffer: Uint8Array): boolean {
 		const format = asciiDecoder.decode(buffer.slice(0, 4));
