@@ -44,7 +44,6 @@ export class CFFGlyph extends Glyph {
 			this._font.outlineVersion === 2 ? this._font.CFF2 : this._font['CFF '];
 		const stream = cff.stream;
 
-		// FIXME! CFFFont has a method for this!
 		const str = cff.topDict.CharStrings?.[this.id];
 		if (!str) {
 			throw new Error(
@@ -76,7 +75,7 @@ export class CFFGlyph extends Glyph {
 		const subrs = privateDict?.Subrs || [];
 		const subrsBias = this.bias(subrs);
 
-		const vstore = (cff.topDict as any).vstore?.itemVariationStore;
+		const vstore = (cff.topDict as CFFTable.TopDictDataV2).vstore?.itemVariationStore;
 		let vsindex = privateDict?.vsindex;
 		const variationProcessor = this._font.variationProcessor;
 
@@ -219,7 +218,7 @@ export class CFFGlyph extends Glyph {
 
 						case 16: {
 							// blend
-							if (cff.version !== 2) {
+							if (cff.version !== 2 || !vstore) {
 								throw new Error('blend operator not supported in CFF v1');
 							}
 
