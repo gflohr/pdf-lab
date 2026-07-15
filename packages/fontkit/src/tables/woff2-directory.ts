@@ -1,5 +1,6 @@
 import * as r from 'restructure';
 import type { WOFFDirectoryEntry } from './woff-directory.js';
+import { SFNTDirectory } from './index.js';
 
 const Base128 = {
 	decode(stream: r.DecodeStream): number {
@@ -148,7 +149,7 @@ export interface WOFF2DirectoryEntry
 	extends WOFFDirectoryEntry,
 		WOFF2TableMetadata {}
 
-export interface WOFF2Directory {
+export interface WOFF2Directory extends SFNTDirectory {
 	tag: string;
 	flavor: number;
 	length: number;

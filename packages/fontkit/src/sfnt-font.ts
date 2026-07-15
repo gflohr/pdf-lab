@@ -19,7 +19,7 @@ import type { CPALTable } from './tables/CPAL.js';
 import type { cmapTable } from './tables/cmap.js';
 import type { cvtTable } from './tables/cvt.js';
 import type { DSIGTable } from './tables/DSIG.js';
-import type { SFNTTableMap } from './tables/directory.js';
+import type { SFNTDirectoryEntry, SFNTTableMap } from './tables/directory.js';
 import type { EBLCTable } from './tables/EBLC.js';
 import type { featTable } from './tables/feat.js';
 import type { fpgmTable } from './tables/fpgm.js';
@@ -62,7 +62,7 @@ import type { TrueTypeSubsetFont } from './true-type-subset-font.js';
 export interface SFNTFontDirectory {
 	tag: string;
 	numTables: number;
-	tables: Record<string, any>;
+	tables: Record<string, SFNTDirectoryEntry>;
 }
 
 /**

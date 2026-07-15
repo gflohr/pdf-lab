@@ -209,7 +209,7 @@ export class TrueTypeFont<
 		return this['CFF '];
 	}
 
-	private getTable<K extends keyof SFNTTableMap>(
+	protected getTable<K extends keyof SFNTTableMap>(
 		table: SFNTDirectoryEntry,
 	): SFNTTableMap[K] | null {
 		if (!table) {
