@@ -1,5 +1,5 @@
 /** biome-ignore-all assist/source/organizeImports: tables are sorted by topic */
-import type { ArrayT, StructT, VersionedStructT } from 'restructure';
+import type { StructT } from 'restructure';
 
 // AAT.
 
@@ -63,17 +63,10 @@ import { just } from './just.js';
 import { morx } from './morx.js';
 import { opbd } from './opbd.js';
 
+/** @internal */
 export type FontTable = Record<
 	string,
-	/** biome-ignore lint/suspicious/noExplicitAny: The restructure library
-	 * used for decoding and encoding the table data is highly dynamic. Using
-	 * stricter typings is currently considered not being worth the effort.
-	 */
-	| StructT<any, any>
-	| VersionedStructT<any, any>
-	| ArrayT<any>
-	| typeof CFF1Font
-	| typeof CFF2Font
+	StructT<Record<string, unknown>, unknown> | typeof CFF1Font | typeof CFF2Font
 >;
 
 export const tables = {
