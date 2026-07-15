@@ -52,15 +52,15 @@ export namespace nameTable {
 	}
 
 	// Notice that "records" is typed as nameProcessedRecords to match the output state!
-	export interface nameV1 {
-		version: 1;
+	export interface nameV0 {
+		version: 0;
 		count: number;
 		stringOffset: number;
 		records: ProcessedRecords;
 	}
 
-	export interface nameV2 {
-		version: 2;
+	export interface nameV1 {
+		version: 1;
 		count: number;
 		stringOffset: number;
 		records: ProcessedRecords;
@@ -68,7 +68,7 @@ export namespace nameTable {
 		langTags: LangTagRecord[];
 	}
 
-	export type name = nameV1 | nameV2;
+	export type name = nameV0 | nameV1;
 }
 
 const nameRecordFields = {
@@ -155,7 +155,7 @@ const NAMES = [
 	'wwsSubfamilyName',
 ];
 
-name.process = function (this: any) {
+name.process = function (this: nameTable.name) {
 	const rawRecords = this.records as nameTable.NameRecord[];
 	const processedRecords: nameTable.ProcessedRecords = {};
 
@@ -164,6 +164,7 @@ name.process = function (this: any) {
 			LANGUAGES[record.platformID]?.[record.languageID];
 
 		if (
+			this.version === 1 &&
 			language == null &&
 			this.langTags != null &&
 			record.languageID >= 0x8000
@@ -209,7 +210,7 @@ name.process = function (this: any) {
 	this.records = processedRecords;
 };
 
-name.preEncode = function (this: any) {
+name.preEncode = function (this: nameTable.name) {
 	if (Array.isArray(this.records)) return;
 	this.version = 0;
 
@@ -256,7 +257,7 @@ name.preEncode = function (this: any) {
 		}
 	}
 
-	this.records = records;
+	this.records = records as nameTable.ProcessedRecords;
 	this.count = records.length;
 	this.stringOffset = name.size(this, null, false);
 };

@@ -228,12 +228,17 @@ function wouldSubstitute(
 	glyphs: IndicGlyphInfo[],
 	feature: OpenType.FeatureTag,
 ) {
+	if (glyphs.length === 0) return false;
+
+	const engine = glyphs[0]._font.layoutEngine.engine;
+	const gsubProcessor = (engine as OpenTypeLayoutEngine<unknown>)?.GSUBProcessor;
+	if (!gsubProcessor) return false;
+
 	for (const glyph of glyphs) {
 		glyph.features = { [feature]: true };
 	}
 
-	const GSUB = (glyphs[0]._font.layoutEngine as any).engine.GSUBProcessor;
-	GSUB.applyFeatures([feature], glyphs);
+	gsubProcessor.applyFeatures([feature], glyphs);
 
 	return glyphs.length === 1;
 }
