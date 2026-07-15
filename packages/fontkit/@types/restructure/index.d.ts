@@ -224,7 +224,7 @@ declare module 'restructure' {
 		preEncode?: (this: any, stream: DecodeStream) => void;
 
 		fromBuffer(buf: Uint8Array): TExplicitOut;
-		toBuffer(val?: any | null): Uint8Array;
+		toBuffer(val?: Record<string, unknown> | null): Uint8Array;
 	}
 
 	export type InferVersionedStruct<
@@ -254,7 +254,7 @@ declare module 'restructure' {
 		preEncode?: (this: any, stream: DecodeStream) => void;
 
 		fromBuffer(buf: Uint8Array): TExplicitOut;
-		toBuffer(val?: any | null): Uint8Array;
+		toBuffer(val?: Record<string, unknown> | null): Uint8Array;
 	}
 
 	type BitfieldResult<T extends readonly (string | null)[]> = {
