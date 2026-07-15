@@ -40,7 +40,9 @@ export const cffPrivateDict = new CFFDict<CFFTable.PrivateDictData>([
 	[
 		19,
 		'Subrs',
-		new CFFPointer(new CFFIndex() as FieldT<any>, { type: 'local' }),
+		new CFFPointer(new CFFIndex() as FieldT<CFFTable.IndexDescriptor[]>, {
+			type: 'local',
+		}),
 		null,
 	],
 ]);
