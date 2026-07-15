@@ -8,8 +8,8 @@ import {
 	type SFNTDirectoryEntry,
 	type SFNTFontDirectory,
 	type SFNTTableMap,
-	tables,
 	TrueTypeFont,
+	tables,
 } from '../src/index.js';
 
 vi.mock('./src/tables/index.js', () => ({
@@ -41,10 +41,10 @@ describe('TrueTypeFont Capabilities & Table Resolution', () => {
 			tables: {},
 		} as SFNTFontDirectory;
 
-		font['decodeTable'] = vi.fn(
-			(entry: SFNTDirectoryEntry) =>
-				({ tag: entry.tag, mockParsed: true }) as unknown,
-		) as typeof font['decodeTable'];
+		font['decodeTable'] = vi.fn((entry: SFNTDirectoryEntry) => ({
+			tag: entry.tag,
+			mockParsed: true,
+		})) as (typeof font)['decodeTable'];
 	});
 
 	describe('hasTable()', () => {

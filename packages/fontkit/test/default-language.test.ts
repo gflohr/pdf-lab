@@ -9,7 +9,7 @@ const mockFontkit = {
 
 class TestFont {
 	defaultLanguage = 'de';
-	name: { records: Record<string, any> } | null = null;
+	name: { records: Record<string, Record<string, string>> } | null = null;
 
 	// The method we are testing
 	protected getName(
