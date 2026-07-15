@@ -23,20 +23,25 @@ import type { StandardString } from './cff-standard-strings.js';
 
 // Checks if an operand is an index of a predefined value,
 // otherwise delegates to the provided type.
-export class PredefinedOp {
+export class PredefinedOp<T> {
 	constructor(
 		private readonly predefinedOps:
 			| StandardString[]
 			| StandardString[][]
 			| CFFSubsetCharset[],
-		private readonly type: CFFPointer<FieldT<any>>,
+		private readonly type: CFFPointer<FieldT<T>>,
 	) {}
 
 	decode(
 		stream: DecodeStream,
 		parent: unknown,
 		operands: number[],
-	): PropertyDescriptor | StandardString | StandardString[] | CFFSubsetCharset {
+	):
+		| PropertyDescriptor
+		| StandardString
+		| StandardString[]
+		| CFFSubsetCharset
+		| T {
 		if (this.predefinedOps[operands[0]]) {
 			return this.predefinedOps[operands[0]];
 		}
@@ -50,20 +55,22 @@ export class PredefinedOp {
 
 	encode(
 		stream: EncodeStream,
-		value: StandardString[] | CFFSubsetCharset,
+		value: StandardString | T,
 		ctx?: ParsingContext,
 	): Ptr[] | number {
 		if (
 			typeof value === 'string' &&
 			typeof this.predefinedOps[0] === 'string'
 		) {
-			const index = (this.predefinedOps as StandardString[]).indexOf(value);
+			const index = (this.predefinedOps as StandardString[]).indexOf(
+				value as StandardString,
+			);
 			if (index >= 0) {
 				return index;
 			}
 		}
 
-		const retval = this.type.encode(stream, value as CFFSubsetCharset, ctx);
+		const retval = this.type.encode(stream, value as T, ctx);
 
 		return retval;
 	}
@@ -113,7 +120,7 @@ const cffCustomEncoding = new r.VersionedStruct<
 	CFFTable.CustomEncodingData
 >(new CFFEncodingVersion(), cffCustomEncodingFields);
 
-const cffEncoding = new PredefinedOp(
+const cffEncoding = new PredefinedOp<CFFTable.CustomEncodingData>(
 	[standardEncoding, expertEncoding],
 	new CFFPointer(cffCustomEncoding, { lazy: true }),
 );
@@ -159,7 +166,7 @@ const cffCustomCharset = new r.VersionedStruct<
 	CFFTable.CustomCharsetData
 >(r.uint8, cffCustomCharsetFields);
 
-const cffCharset = new PredefinedOp(
+const cffCharset = new PredefinedOp<CFFTable.CustomCharsetData>(
 	[isoAdobeCharset, expertCharset, expertSubsetCharset],
 	new CFFPointer(cffCustomCharset, { lazy: true }),
 );

@@ -32,7 +32,7 @@ type CFFOpType =
 	| CFFOp
 	| CFFPrivateOp
 	// FIXME! Is it really needed to add `PredefinedOp` to the union?
-	| PredefinedOp;
+	| PredefinedOp<unknown>;
 
 type CFFOpEncodingType =
 	| 'delta'
@@ -44,7 +44,7 @@ type CFFOpEncodingType =
 	| string[]
 	| CFFPrivateOp
 	| CFFPointer<FieldT<unknown>>
-	| PredefinedOp;
+	| PredefinedOp<unknown>;
 
 export type CFFOpDefinition = [
 	operator: number | [number, number],
