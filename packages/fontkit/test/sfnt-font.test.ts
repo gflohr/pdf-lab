@@ -8,6 +8,7 @@ import {
 	type SFNTDirectoryEntry,
 	type SFNTFontDirectory,
 	type SFNTTableMap,
+	tables,
 	TrueTypeFont,
 } from '../src/index.js';
 
@@ -42,8 +43,8 @@ describe('TrueTypeFont Capabilities & Table Resolution', () => {
 
 		font['decodeTable'] = vi.fn(
 			(entry: SFNTDirectoryEntry) =>
-				({ tag: entry.tag, mockParsed: true }) as any,
-		);
+				({ tag: entry.tag, mockParsed: true }) as unknown,
+		) as typeof font['decodeTable'];
 	});
 
 	describe('hasTable()', () => {
@@ -57,7 +58,7 @@ describe('TrueTypeFont Capabilities & Table Resolution', () => {
 			font.directory.tables.head = {
 				tag: 'head',
 				offset: 100,
-			};
+			} as SFNTDirectoryEntry;
 
 			expect(font.hasTable('head')).toBe(true);
 			expect(font['decodeTable']).not.toHaveBeenCalled();
@@ -68,7 +69,7 @@ describe('TrueTypeFont Capabilities & Table Resolution', () => {
 			font.directory.tables.foot = {
 				tag: 'foot',
 				offset: 100,
-			};
+			} as SFNTDirectoryEntry;
 
 			expect(font.hasTable('foot')).toBe(true);
 			expect(font['decodeTable']).not.toHaveBeenCalled();
@@ -87,9 +88,9 @@ describe('TrueTypeFont Capabilities & Table Resolution', () => {
 		});
 
 		const createFontWithTables = (tags: string[]) => {
-			const tablesMap: Record<string, any> = {};
+			const tablesMap: Record<string, SFNTDirectoryEntry> = {};
 			for (const tag of tags) {
-				tablesMap[tag] = { tag, length: 100, offset: 0 };
+				tablesMap[tag] = { tag, length: 100, offset: 0 } as SFNTDirectoryEntry;
 			}
 
 			vi.mocked(TrueTypeFont.prototype['decodeDirectory']).mockReturnValueOnce({
@@ -182,7 +183,11 @@ describe('TrueTypeFont Capabilities & Table Resolution', () => {
 
 			for (const tag of requiredOpenTypeTables) {
 				font['existingTableTags'].add(tag);
-				font.directory.tables[tag] = { tag, offset: 0, length: 100 } as unknown;
+				font.directory.tables[tag] = {
+					tag,
+					offset: 0,
+					length: 100,
+				} as SFNTDirectoryEntry;
 			}
 		});
 
