@@ -87,7 +87,6 @@ export class CFFSubset extends Subset {
 			}
 
 			if (fdMap[fd] == null) {
-				// FIXME! Check the cast!
 				fdArray.push(
 					Object.assign(
 						{},
@@ -132,8 +131,7 @@ export class CFFSubset extends Subset {
 		for (const gid of this.glyphs) {
 			const glyph = this.getGlyph(gid);
 
-			// FIXME! The getter must have a side-effect.
-			glyph.path; // this causes the glyph to be parsed
+			glyph.decodePath(); // This causes the glyph to be parsed.
 
 			for (const subr in glyph.usedSubrs) {
 				used_subrs[subr] = true;
