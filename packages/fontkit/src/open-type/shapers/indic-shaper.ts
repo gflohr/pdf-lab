@@ -228,6 +228,13 @@ function wouldSubstitute(
 ) {
 	if (glyphs.length === 0) return false;
 
+	const GSUB = (
+		glyphs[0].font.layoutEngine.engine as OpenTypeLayoutEngine<unknown>
+	)?.gsubProcessor;
+	if (!GSUB) {
+		return false;
+	}
+
 	const engine = glyphs[0].font.layoutEngine.engine;
 	const gsubProcessor = (engine as OpenTypeLayoutEngine<unknown>)
 		?.gsubProcessor;
@@ -237,7 +244,7 @@ function wouldSubstitute(
 		glyph.features = { [feature]: true };
 	}
 
-	gsubProcessor.applyFeatures([feature], glyphs);
+	GSUB.applyFeatures([feature], glyphs);
 
 	return glyphs.length === 1;
 }

@@ -1,6 +1,9 @@
 import type { DecodeStream } from 'restructure';
 import { CFFFontBase, type CFFTable } from './cff-font.js';
-import { type StandardString, standardStrings } from './cff-standard-strings.js';
+import {
+	type StandardString,
+	standardStrings,
+} from './cff-standard-strings.js';
 
 export interface CFF1Font extends CFFFontBase {
 	readonly version: 1 | undefined;
@@ -122,7 +125,9 @@ export class CFF1Font extends CFFFontBase {
 			//
 			// For now, we throw an exception so that the problem can become
 			// reproducible.
-			throw new Error(`CFF Error: CharString mapping for glyph ${glyph} is missing.`);
+			throw new Error(
+				`CFF Error: CharString mapping for glyph ${glyph} is missing.`,
+			);
 		}
 
 		this.stream.pos = charStrings.offset;

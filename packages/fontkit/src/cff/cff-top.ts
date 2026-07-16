@@ -215,21 +215,15 @@ export class CFFPrivateOp {
 	}
 
 	size(dict: CFFTable.PrivateDictData, ctx?: ParsingContext): [number, number] {
-		// This method has zero test coverage upstream and maybe contains a
-		// fatal runtime bug. Returning `ptr.size(dict, ctx)[0]` as
-		// the second item of the array, should actually crash, because it
-		// returns a number.
+		// This method has zero test coverage upstream and probably contains a
+		// runtime bug, see the bogus cast!
 		return [
 			cffPrivateDict.size(dict, ctx, false),
 			(ptr.size(dict, ctx) as unknown as number[])[0],
 		];
 	}
 
-	encode(
-		stream: EncodeStream,
-		dict: CFFTable.PrivateDictData,
-		ctx?: ParsingContext,
-	) {
+	encode(stream: EncodeStream, dict: CFFTable.PrivateDictData, ctx?: ParsingContext) {
 		const size = cffPrivateDict.size(dict, ctx, false);
 		const encoded = ptr.encode(stream, dict, ctx);
 

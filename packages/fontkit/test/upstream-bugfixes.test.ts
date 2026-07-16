@@ -46,8 +46,7 @@ describe('bugfixes from foliojs/fontkit', () => {
 			const glyph = font.getGlyph(5);
 			expect(glyph).not.toBeNull();
 
-			// FIXME! Do not rely on getter side-effect.
-			expect(() => glyph!.path).not.toThrow();
+			expect(() => glyph!.decodePath()).not.toThrow();
 		});
 	});
 });

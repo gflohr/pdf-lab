@@ -14,8 +14,9 @@ export class OpenTypeLayoutEngine<T> {
 	private font: TrueTypeFont;
 	private glyphInfos: GlyphInfo<T>[] | null;
 	private plan: ShapingPlan<T> | null;
+	/** @internal */
 	public gsubProcessor: GSUBProcessor<T> | null;
-	public gposProcessor: GPOSProcessor<T> | null;
+	private gposProcessor: GPOSProcessor<T> | null;
 	private shaper: typeof DefaultShaper | undefined | null;
 
 	constructor(font: TrueTypeFont) {

@@ -127,13 +127,14 @@ export abstract class Glyph {
 		this.codePoints = [...codePoints];
 		this.font = font;
 
-		// TODO: get this info from GDEF if available
+		// TODO: get this info from GDEF if available.
 		this.isMark =
 			this.codePoints.length > 0 && this.codePoints.every(unicode.isMark);
 		this.isLigature = this.codePoints.length > 1;
 	}
 
-	protected decodePath(): Path {
+	/** @internal */
+	public decodePath(): Path {
 		return new Path();
 	}
 

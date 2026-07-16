@@ -1,6 +1,6 @@
 import { requiredTrueTypeSubsetTables } from '../true-type-subset-font.js';
 import type { WOFF2Font } from '../woff2-font.js';
-import { TrueTypeGlyph } from './true-type-glyph.js';
+import { type DecodedGlyph, TrueTypeGlyph } from './true-type-glyph.js';
 
 /**
  * Represents a TrueType glyph in the WOFF2 format, which compresses glyphs differently.
@@ -23,9 +23,8 @@ export class WOFF2Glyph extends TrueTypeGlyph {
 	public decode() {
 		// We have to decode in advance (in WOFF2Font), so just return the
 		// pre-decoded data.
-		const font = this.font as unknown as WOFF2Font;
-
-		return font.transformedGlyphs?.[this.id] ?? null;
+		const font = this.font as WOFF2Font;
+		return font.transformedGlyphs?.[this.id] as DecodedGlyph;
 	}
 
 	protected getCBox() {

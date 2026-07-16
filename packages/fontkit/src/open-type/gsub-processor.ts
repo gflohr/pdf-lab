@@ -221,9 +221,10 @@ export class GSUBProcessor<T> extends OpenTypeProcessor<T> {
 					(table as GSUBTable.LookupExtension).extension,
 				);
 
-			case 8:
-				console.warn('GSUB lookup type 8 is not implemented! Please report a @pdf-lab/fontkit issue!');
-
+			case 8: // Not handled.
+				console.warn(
+					`GSUB lookup type 8 is not supported! Please report a bug in @pdf-lab/fontkit!`,
+				);
 				return false;
 
 			default:

@@ -284,7 +284,12 @@ export class TrueTypeGlyph extends Glyph {
 		}
 	}
 
-	/** @internal */
+	/**
+	 * This is only public in order to work around an endless loop
+	 * in WOFF2Font by calling the prototype method.
+	 *
+	 * @internal
+	 */
 	public decodeComposite(
 		glyph: DecodedCompositeGlyph,
 		stream: r.DecodeStream,
@@ -452,8 +457,12 @@ export class TrueTypeGlyph extends Glyph {
 		return this._metrics!;
 	}
 
-	// Converts contours to a Path object that can be rendered
-	protected decodePath(): Path {
+	/**
+	 * Converts contours to a Path object that can be rendered.
+	 *
+	 * @internal
+	 */
+	public decodePath(): Path {
 		const contours = this.decodeContours();
 		const path = new Path();
 

@@ -35,7 +35,7 @@ export class GlyphInfo<ShaperInfoT = null> {
 		this.codePoints = codePoints;
 
 		this._id = id;
-		this.updateGlyphClass(id);
+		this.updateGlyphClassification(id);
 
 		this.features = {};
 		if (Array.isArray(features)) {
@@ -63,10 +63,10 @@ export class GlyphInfo<ShaperInfoT = null> {
 
 	set id(id: number) {
 		this._id = id;
-		this.updateGlyphClass(id);
+		this.updateGlyphClassification(id);
 	}
 
-	private updateGlyphClass(id: number) {
+	private updateGlyphClassification(id: number) {
 		this.substituted = true;
 
 		const GDEF = this.font.GDEF;
