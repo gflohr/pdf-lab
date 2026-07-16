@@ -5,6 +5,8 @@ import fontkitTypedocSidebar from '../fontkit/api/typedoc-sidebar.json';
 export default defineConfig({
 	title: "@pdf-lab",
 	description: "High-quality PDF tools for Node and the Browser",
+	// FIXME! This seems to be a bug in the TypeDoc Markdown plug-in.
+	ignoreDeadLinks: true,
 	themeConfig: {
 		// https://vitepress.dev/reference/default-theme-config
 		nav: [
