@@ -29,6 +29,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --ignore-scripts
 
+      # The project has to be build, because some files are generated.
+      - name: Build Project
+        run: pnpm build
+
       - name: Create API documentation
         run: pnpm run typedoc
 
