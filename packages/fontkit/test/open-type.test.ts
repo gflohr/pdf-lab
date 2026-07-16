@@ -9,7 +9,9 @@ describe('opentype', async () => {
 	const font = new TrueTypeFont(fontBytes);
 
 	it('featureParams nameID of stylistic set should be 257', () => {
-		expect(font.GSUB?.featureList[150]?.feature.featureParams?.nameID).toBe(257);
+		expect(font.GSUB?.featureList[150]?.feature.featureParams?.nameID).toBe(
+			257,
+		);
 	});
 
 	it('featureParams version of stylistic set should be 0', () => {

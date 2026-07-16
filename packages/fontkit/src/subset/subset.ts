@@ -1,6 +1,11 @@
 import type { Glyph } from '../glyph/glyph.js';
 import type { SFNTFont, SFNTFontDirectory } from '../sfnt-font.js';
 
+/** @deprecated call the encode() method of {@link Subset} synchronously instead! */
+export interface SubsetStream {
+	on(eventType: 'data', callback: (data: Uint8Array) => void): this;
+	on(eventType: 'end', callback: () => void): this;
+}
 export abstract class Subset {
 	protected readonly glyphs: number[];
 	private readonly mapping: Record<number, number>;
@@ -27,8 +32,40 @@ export abstract class Subset {
 		return this.mapping[glyph];
 	}
 
-	// FIXME! It probaly makes sense to support the old version, too.
-	// It defines encodeStream(), which returns an EncodeStream. And this
-	// can be used as an optional argument to encode().
 	abstract encode(): Uint8Array;
+
+	/**
+	 * @deprecated Call encode() synchronously instead!
+	 */
+	public encodeStream(): SubsetStream {
+		type DataCallback = (data: Uint8Array) => void;
+		type EndCallback = () => void;
+
+		let dataCallback: DataCallback | undefined;
+		let endCallback: EndCallback | undefined;
+
+		const buffer = this.encode();
+
+		queueMicrotask(() => {
+			if (dataCallback) {
+				dataCallback(buffer);
+			}
+			if (endCallback) {
+				endCallback();
+			}
+		});
+
+		const stream: SubsetStream = {
+			on(eventType, callback) {
+				if (eventType === 'data') {
+					dataCallback = callback as DataCallback;
+				} else if (eventType === 'end') {
+					endCallback = callback as EndCallback;
+				}
+				return this;
+			},
+		};
+
+		return stream;
+	}
 }

@@ -30,14 +30,11 @@ export class LayoutEngine {
 
 	public layout(
 		str: string | Glyph[],
-		features:
-			| OpenType.Features
-			| OpenType.FeatureTag[] = [],
+		features: OpenType.Features | OpenType.FeatureTag[] = [],
 		script?: Script.UnicodeScript,
 		language?: string,
 		direction?: BidiDirection,
 	): GlyphRun {
-
 		// Map string to glyphs if needed
 		let glyphs: Glyph[];
 		if (typeof str === 'string') {
