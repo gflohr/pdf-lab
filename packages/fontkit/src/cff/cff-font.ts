@@ -85,6 +85,7 @@ export namespace CFFTable {
 		CharStrings: IndexDescriptor[] | null;
 		FDSelect?: FDSelect;
 		FDArray?: FontDictData[];
+		length: number; // Added by decode().
 	}
 
 	export interface CustomCharsetDataV0 {

@@ -158,25 +158,26 @@ interface LeftTableConfig {
 	max: number;
 }
 
-interface KernRootContext extends r.ParsingContext {}
-
-interface KernSubTableContext {
-	parent: KernRootContext;
+interface KernSubtableContext {
+	parent: { _startOffset?: number };
 	rowWidth: number;
 	leftTable: LeftTableConfig;
 }
 
-export interface Kern2ArrayContext extends r.ParsingContext {
-	parent: KernSubTableContext;
-	off: number;
+export interface Kern2ArrayContext  {
+	parent?: KernSubtableContext;
+	off?: number;
+	_startOffset?: number;
 }
 
 const kern2ArrayFields = {
-	off: (t: Kern2ArrayContext) =>
-		t._startOffset! - t.parent!.parent!._startOffset!,
-	len: (t: Kern2ArrayContext) =>
-		((t.parent.leftTable.max - t.off) / t.parent.rowWidth + 1) *
-		(t.parent.rowWidth / 2),
+	off: (t: Kern2ArrayContext) => {
+		return t._startOffset! - (t.parent?.parent?._startOffset ?? 0);
+	},
+	len: (t: Kern2ArrayContext) => {
+		return (((t.parent?.leftTable.max ?? 0) - t.off!) / (t.parent?.rowWidth ?? 0) + 1) *
+		((t.parent?.rowWidth ?? 0) / 2);
+	},
 	values: new r.LazyArray(r.int16, 'len'),
 };
 const kern2Array = new r.Struct<kernTable.Kern2Array>(kern2ArrayFields);

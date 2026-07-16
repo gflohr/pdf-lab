@@ -2,7 +2,6 @@ import type {
 	DecodeStream,
 	EncodeStream,
 	FieldT,
-	ParsingContext,
 	PropertyDescriptor,
 } from 'restructure';
 import * as r from 'restructure';
@@ -13,7 +12,7 @@ import {
 	expertSubsetCharset,
 	isoAdobeCharset,
 } from './cff-charsets.js';
-import { CFFDict } from './cff-dict.js';
+import { CFFDict, CFFTraversalContext } from './cff-dict.js';
 import { expertEncoding, standardEncoding } from './cff-encodings.js';
 import type { CFFTable } from './cff-font.js';
 import { CFFIndex } from './cff-index.js';
@@ -49,14 +48,14 @@ export class PredefinedOp<T> {
 		return this.type.decode(stream, parent, operands);
 	}
 
-	size(value: unknown, ctx?: ParsingContext): number {
+	size(value: unknown, ctx?: unknown): number {
 		return this.type.size(value, ctx);
 	}
 
 	encode(
 		stream: EncodeStream,
 		value: StandardString | T,
-		ctx?: ParsingContext,
+		ctx?: unknown,
 	): Ptr[] | number {
 		if (
 			typeof value === 'string' &&
@@ -127,7 +126,7 @@ const cffEncoding = new PredefinedOp<CFFTable.CustomEncodingData>(
  * @internal
  */
 export class RangeArray extends r.Array<FieldT<CFFTable.RangeRecord>> {
-	override decode(stream: DecodeStream, parent?: ParsingContext) {
+	override decode(stream: DecodeStream, parent?: unknown) {
 		const length = r.resolveLength(this.length, stream, parent);
 		let count = 0;
 		const res = [];
@@ -206,7 +205,7 @@ const ptr = new CFFPointer(cffPrivateDict);
 export class CFFPrivateOp {
 	decode(
 		stream: DecodeStream,
-		parent: ParsingContext,
+		parent: CFFTable.TopDictData,
 		operands: number[],
 	): CFFTable.PrivateDictData {
 		parent.length = operands[0];
@@ -214,7 +213,7 @@ export class CFFPrivateOp {
 		return decoded;
 	}
 
-	size(dict: CFFTable.PrivateDictData, ctx?: ParsingContext): [number, number] {
+	size(dict: CFFTable.PrivateDictData, ctx?: CFFTraversalContext): [number, number] {
 		// This method has zero test coverage upstream and probably contains a
 		// runtime bug, see the bogus cast!
 		return [
@@ -223,7 +222,7 @@ export class CFFPrivateOp {
 		];
 	}
 
-	encode(stream: EncodeStream, dict: CFFTable.PrivateDictData, ctx?: ParsingContext) {
+	encode(stream: EncodeStream, dict: CFFTable.PrivateDictData, ctx?: CFFTraversalContext) {
 		const size = cffPrivateDict.size(dict, ctx, false);
 		const encoded = ptr.encode(stream, dict, ctx);
 

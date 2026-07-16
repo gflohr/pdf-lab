@@ -167,7 +167,7 @@ class Substream extends r.DecodeStream {
 		this.buf = new r.Buffer(this.length);
 	}
 
-	decode(stream: r.DecodeStream, parent?: r.ParsingContext): r.DecodeStream {
+	decode(stream: r.DecodeStream, parent: GlyfTableData): r.DecodeStream {
 		return new r.DecodeStream(this.buf.decode(stream, parent));
 	}
 }

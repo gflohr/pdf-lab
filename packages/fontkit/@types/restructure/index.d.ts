@@ -28,7 +28,6 @@ declare module 'restructure' {
 		get(): T;
 	}
 
-	export type ParsingContext = any;
 	export type LengthResolver<T = any> = (t: T) => number;
 	export type Length = number | string | LengthResolver<any> | NumberT;
 	export class DecodeStream {

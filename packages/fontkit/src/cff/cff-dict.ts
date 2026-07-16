@@ -3,7 +3,6 @@ import type {
 	DecodeStream,
 	EncodeStream,
 	FieldT,
-	ParsingContext,
 } from 'restructure';
 import type { CFFSubsetCharset } from '../subset/cff-subset.js';
 import type { CFFFont, CFFTable } from './cff-font.js';
@@ -15,8 +14,8 @@ import { CFFPrivateOp, PredefinedOp } from './cff-top.js';
 interface CFFOp extends FieldT<unknown> {
 	decode(
 		stream: DecodeStream,
-		ctx?: ParsingContext,
-		operands?: ParsingContext,
+		ctx?: CFFTable.DictData,
+		operands?: unknown,
 	): unknown;
 }
 
@@ -114,7 +113,7 @@ export class CFFDict<T extends CFFTable.DictData = CFFTable.DictData>
 			typeof type === 'object' &&
 			typeof type.decode === 'function'
 		) {
-			return type.decode(stream, ret, operands);
+			return type.decode(stream, ret as CFFTable.TopDictData, operands);
 		} else {
 			switch (type) {
 				case 'number':

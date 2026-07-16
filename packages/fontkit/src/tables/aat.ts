@@ -165,14 +165,14 @@ export namespace AAT {
 export class UnboundedArrayAccessor<TItem> {
 	private type: r.FieldT<TItem>;
 	private stream: r.DecodeStream;
-	private parent?: r.ParsingContext;
+	private parent?: morxTable.SubtableData;
 	private base: number;
 	private items: TItem[];
 
 	constructor(
 		type: r.FieldT<TItem>,
 		stream: r.DecodeStream,
-		parent?: r.ParsingContext,
+		parent?: morxTable.SubtableData,
 	) {
 		this.type = type;
 		this.stream = stream;
@@ -211,7 +211,7 @@ export class AATUnboundedArray<TItem = unknown> {
 		return this.arrayType.size(val, ctx);
 	}
 
-	decode(stream: r.DecodeStream, parent?: r.ParsingContext) {
+	decode(stream: r.DecodeStream, parent?: morxTable.SubtableData) {
 		return new UnboundedArrayAccessor(this.arrayType, stream, parent);
 	}
 
