@@ -8,10 +8,9 @@ import type { USEInfo } from './shapers/universal-shaper.js';
 export type ShaperInfo = IndicInfo | USEInfo;
 
 export class GlyphInfo<ShaperInfoT = null> {
-	public _font: TrueTypeFont;
-	// The constructor calls the setter for this member. It is therefore
-	// always initialised.
-	private _id!: number;
+	/** @internal */
+	public font: TrueTypeFont;
+	private _id: number;
 	public features: OpenType.FeatureFlags;
 	public ligatureID: number | null;
 	public ligatureComponent: number | null;
@@ -22,7 +21,7 @@ export class GlyphInfo<ShaperInfoT = null> {
 	public substituted: boolean;
 	public isMultiplied: boolean;
 	public isBase?: boolean;
-	public isLigature?: boolean; // FIXME! Is this meant to be the same as isLigated?
+	public isLigature?: boolean;
 	public isMark?: boolean;
 	public markAttachmentType?: number;
 
@@ -33,7 +32,7 @@ export class GlyphInfo<ShaperInfoT = null> {
 		features?: OpenType.FeatureTag[] | OpenType.Features,
 	) {
 		// FIXME! Other classes access the _font property!
-		this._font = font;
+		this.font = font;
 		this.codePoints = codePoints;
 
 		this._id = id;
@@ -71,7 +70,7 @@ export class GlyphInfo<ShaperInfoT = null> {
 	private updateGlyphClass(id: number) {
 		this.substituted = true;
 
-		const GDEF = this._font.GDEF;
+		const GDEF = this.font.GDEF;
 		if (GDEF?.glyphClassDef) {
 			// TODO: clean this up
 			const classID = OpenTypeProcessor.prototype.getClassID(
@@ -95,7 +94,7 @@ export class GlyphInfo<ShaperInfoT = null> {
 
 	copy(): GlyphInfo<ShaperInfoT> {
 		return new GlyphInfo(
-			this._font,
+			this.font,
 			this.id,
 			[...this.codePoints],
 			this.features,

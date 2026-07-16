@@ -228,7 +228,7 @@ function wouldSubstitute(
 ) {
 	if (glyphs.length === 0) return false;
 
-	const engine = glyphs[0]._font.layoutEngine.engine;
+	const engine = glyphs[0].font.layoutEngine.engine;
 	const gsubProcessor = (engine as OpenTypeLayoutEngine<unknown>)
 		?.GSUBProcessor;
 	if (!gsubProcessor) return false;
