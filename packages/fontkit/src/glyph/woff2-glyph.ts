@@ -23,7 +23,7 @@ export class WOFF2Glyph extends TrueTypeGlyph {
 	public decode() {
 		// We have to decode in advance (in WOFF2Font), so just return the
 		// pre-decoded data.
-		const font = this._font as unknown as WOFF2Font;
+		const font = this.font as unknown as WOFF2Font;
 
 		return font.transformedGlyphs?.[this.id] ?? null;
 	}

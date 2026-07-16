@@ -114,7 +114,7 @@ export class TrueTypeGlyph extends Glyph {
 	public phantomPoints?: Point[];
 	public components?: Component[];
 
-	protected declare _font: TrueTypeSubsetFont;
+	protected declare font: TrueTypeSubsetFont;
 
 	private variationProcessor: GlyphVariationProcessor | null;
 
@@ -137,11 +137,11 @@ export class TrueTypeGlyph extends Glyph {
 			return this.path.cbox;
 		}
 
-		const stream = this._font.getGlyfTableStream();
+		const stream = this.font.getGlyfTableStream();
 		if (!stream) {
 			throw new Error("Malformed font! Cannot decode table 'glyf'!");
 		}
-		stream.pos += this._font.loca.offsets[this.id];
+		stream.pos += this.font.loca.offsets[this.id];
 		const glyph = GlyphHeader.decode(stream);
 
 		const cbox = new BoundingBox(
@@ -187,15 +187,15 @@ export class TrueTypeGlyph extends Glyph {
 	 * @internal
 	 */
 	public decode(): DecodedGlyph | null {
-		const glyphPos = this._font.loca.offsets[this.id];
-		const nextPos = this._font.loca.offsets[this.id + 1];
+		const glyphPos = this.font.loca.offsets[this.id];
+		const nextPos = this.font.loca.offsets[this.id + 1];
 
 		// Nothing to do if there is no data for this glyph
 		if (glyphPos === nextPos) {
 			return null;
 		}
 
-		const stream = this._font.getGlyfTableStream();
+		const stream = this.font.getGlyfTableStream();
 		if (!stream) {
 			throw new Error("Malformed font! Cannot decode table 'glyh'!");
 		}
@@ -387,7 +387,7 @@ export class TrueTypeGlyph extends Glyph {
 			// resolve composite glyphs
 			for (const component of glyph.components!) {
 				const contours = (
-					this._font.getGlyph(component.glyphID) as unknown as TrueTypeGlyph
+					this.font.getGlyph(component.glyphID) as unknown as TrueTypeGlyph
 				).getContours();
 				for (let i = 0; i < contours.length; i++) {
 					const contour = contours[i];
@@ -410,7 +410,7 @@ export class TrueTypeGlyph extends Glyph {
 		}
 
 		// Recompute and cache metrics if we performed variation processing, and don't have an HVAR table
-		if (glyph.phantomPoints && !this._font.HVAR) {
+		if (glyph.phantomPoints && !this.font.HVAR) {
 			this._metrics!.advanceWidth =
 				glyph.phantomPoints[1].x - glyph.phantomPoints[0].x;
 			this._metrics!.advanceHeight =
@@ -442,7 +442,7 @@ export class TrueTypeGlyph extends Glyph {
 		const cbox = this.getCBox(true);
 		super.getMetrics(cbox);
 
-		if (this.variationProcessor && !this._font.HVAR) {
+		if (this.variationProcessor && !this.font.HVAR) {
 			// No HVAR table, decode the glyph. This triggers recomputation of metrics.
 			// FIXME! The getter is invoked because of the side-effect only!
 			this.path;
