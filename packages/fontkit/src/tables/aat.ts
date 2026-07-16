@@ -233,7 +233,7 @@ export class AATUnboundedArray<TItem = unknown> {
  * Builds an AAT lookup-table parser for the provided value field type.
  */
 export const aatLookupTable = <TField extends r.FieldT<unknown> = typeof r.uint16>(
-	ValueType: TField = r.uint16 as unknown as TField,
+	valueType: TField = r.uint16 as unknown as TField,
 ) => {
 	interface Nested {
 		parent?: Nested;
@@ -272,7 +272,7 @@ export const aatLookupTable = <TField extends r.FieldT<unknown> = typeof r.uint1
 		}
 	}
 
-	ValueType = new Shadow(ValueType) as unknown as TField;
+	valueType = new Shadow(valueType) as unknown as TField;
 
 	const binarySearchHeaderFields = {
 		unitSize: r.uint16,
@@ -288,7 +288,7 @@ export const aatLookupTable = <TField extends r.FieldT<unknown> = typeof r.uint1
 	const lookupSegmentSingleFields = {
 		lastGlyph: r.uint16,
 		firstGlyph: r.uint16,
-		value: ValueType,
+		value: valueType,
 	};
 	const LookupSegmentSingle = new r.Struct<
 		AAT.LookupSegmentSingle<r.InferField<TField>>
@@ -299,7 +299,7 @@ export const aatLookupTable = <TField extends r.FieldT<unknown> = typeof r.uint1
 		firstGlyph: r.uint16,
 		values: new r.Pointer(
 			r.uint16,
-			new r.Array(ValueType, (t) => t.lastGlyph - t.firstGlyph + 1),
+			new r.Array(valueType, (t) => t.lastGlyph - t.firstGlyph + 1),
 			{ type: 'parent' },
 		),
 	};
@@ -309,7 +309,7 @@ export const aatLookupTable = <TField extends r.FieldT<unknown> = typeof r.uint1
 
 	const lookupSingleFields = {
 		glyph: r.uint16,
-		value: ValueType,
+		value: valueType,
 	};
 	const LookupSingle = new r.Struct<AAT.LookupSingle<r.InferField<TField>>>(
 		lookupSingleFields,
@@ -317,7 +317,7 @@ export const aatLookupTable = <TField extends r.FieldT<unknown> = typeof r.uint1
 
 	const lookupTableFields = {
 		0: {
-			values: new AATUnboundedArray(ValueType), // length == number of glyphs maybe?
+			values: new AATUnboundedArray(valueType), // length == number of glyphs maybe?
 		},
 		2: {
 			binarySearchHeader: BinarySearchHeader,
@@ -340,7 +340,7 @@ export const aatLookupTable = <TField extends r.FieldT<unknown> = typeof r.uint1
 		8: {
 			firstGlyph: r.uint16,
 			count: r.uint16,
-			values: new r.Array(ValueType, 'count'),
+			values: new r.Array(valueType, 'count'),
 		},
 	};
 
