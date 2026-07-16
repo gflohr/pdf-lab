@@ -58,8 +58,6 @@ interface IndicGlyphInfo extends GlyphInfo<IndicInfo> {
 	shaperInfo: IndicInfo;
 }
 
-// FIXME! Fix the explicit any occurrencies!
-
 /**
  * The IndicShaper supports indic scripts e.g. Devanagari, Kannada, etc.
  * Based on code from Harfbuzz: https://github.com/behdad/harfbuzz/blob/master/src/hb-ot-shape-complex-indic.cc
