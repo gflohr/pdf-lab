@@ -101,8 +101,6 @@ export type DecodedGlyph =
 
 /**
  * Represents a TrueType glyph.
- *
- * // FIXME! Rename that to TrueTypeGlyph!
  */
 export class TrueTypeGlyph extends Glyph {
 	// Legacys Hack: Properties injected via base Glyph constructor mutations.
@@ -116,7 +114,7 @@ export class TrueTypeGlyph extends Glyph {
 	public phantomPoints?: Point[];
 	public components?: Component[];
 
-	protected declare _font: TrueTypeSubsetFont;
+	protected declare font: TrueTypeSubsetFont;
 
 	private variationProcessor: GlyphVariationProcessor | null;
 
@@ -139,11 +137,11 @@ export class TrueTypeGlyph extends Glyph {
 			return this.path.cbox;
 		}
 
-		const stream = this._font.getGlyfTableStream();
+		const stream = this.font.getGlyfTableStream();
 		if (!stream) {
 			throw new Error("Malformed font! Cannot decode table 'glyf'!");
 		}
-		stream.pos += this._font.loca.offsets[this.id];
+		stream.pos += this.font.loca.offsets[this.id];
 		const glyph = GlyphHeader.decode(stream);
 
 		const cbox = new BoundingBox(
@@ -189,15 +187,15 @@ export class TrueTypeGlyph extends Glyph {
 	 * @internal
 	 */
 	public decode(): DecodedGlyph | null {
-		const glyphPos = this._font.loca.offsets[this.id];
-		const nextPos = this._font.loca.offsets[this.id + 1];
+		const glyphPos = this.font.loca.offsets[this.id];
+		const nextPos = this.font.loca.offsets[this.id + 1];
 
 		// Nothing to do if there is no data for this glyph
 		if (glyphPos === nextPos) {
 			return null;
 		}
 
-		const stream = this._font.getGlyfTableStream();
+		const stream = this.font.getGlyfTableStream();
 		if (!stream) {
 			throw new Error("Malformed font! Cannot decode table 'glyh'!");
 		}
@@ -286,8 +284,12 @@ export class TrueTypeGlyph extends Glyph {
 		}
 	}
 
-	// FIXME! This is only public in order to work around an endless loop
-	// in WOFF2Font by calling the prototype method.
+	/**
+	 * This is only public in order to work around an endless loop
+	 * in WOFF2Font by calling the prototype method.
+	 *
+	 * @internal
+	 */
 	public decodeComposite(
 		glyph: DecodedCompositeGlyph,
 		stream: r.DecodeStream,
@@ -377,7 +379,7 @@ export class TrueTypeGlyph extends Glyph {
 	}
 
 	// Decodes font data, resolves composite glyphs, and returns an array of contours
-	private getContours(): Point[][] {
+	private decodeContours(): Point[][] {
 		const glyph = this.decode();
 		if (!glyph) {
 			return [];
@@ -389,8 +391,8 @@ export class TrueTypeGlyph extends Glyph {
 			// resolve composite glyphs
 			for (const component of glyph.components!) {
 				const contours = (
-					this._font.getGlyph(component.glyphID) as unknown as TrueTypeGlyph
-				).getContours();
+					this.font.getGlyph(component.glyphID) as unknown as TrueTypeGlyph
+				).decodeContours();
 				for (let i = 0; i < contours.length; i++) {
 					const contour = contours[i];
 					for (let j = 0; j < contour.length; j++) {
@@ -412,7 +414,7 @@ export class TrueTypeGlyph extends Glyph {
 		}
 
 		// Recompute and cache metrics if we performed variation processing, and don't have an HVAR table
-		if (glyph.phantomPoints && !this._font.HVAR) {
+		if (glyph.phantomPoints && !this.font.HVAR) {
 			this._metrics!.advanceWidth =
 				glyph.phantomPoints[1].x - glyph.phantomPoints[0].x;
 			this._metrics!.advanceHeight =
@@ -444,18 +446,18 @@ export class TrueTypeGlyph extends Glyph {
 		const cbox = this.getCBox(true);
 		super.getMetrics(cbox);
 
-		if (this.variationProcessor && !this._font.HVAR) {
-			// No HVAR table, decode the glyph. This triggers recomputation of metrics.
-			// FIXME! The getter is invoked because of the side-effect only!
-			this.path;
+		if (this.variationProcessor && !this.font.HVAR) {
+			// No HVAR table, decode the glyph. This triggers recomputation of
+			// metrics.
+			this.decodeContours();
 		}
 
 		return this._metrics!;
 	}
 
 	// Converts contours to a Path object that can be rendered
-	protected getPath(): Path {
-		const contours = this.getContours();
+	public decodePath(): Path {
+		const contours = this.decodeContours();
 		const path = new Path();
 
 		for (let i = 0; i < contours.length; i++) {

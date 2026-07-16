@@ -8,10 +8,9 @@ import type { USEInfo } from './shapers/universal-shaper.js';
 export type ShaperInfo = IndicInfo | USEInfo;
 
 export class GlyphInfo<ShaperInfoT = null> {
-	public _font: TrueTypeFont;
-	// The constructor calls the setter for this member. It is therefore
-	// always initialised.
-	private _id!: number;
+	/** @internal */
+	public font: TrueTypeFont;
+	private _id: number;
 	public features: OpenType.FeatureFlags;
 	public ligatureID: number | null;
 	public ligatureComponent: number | null;
@@ -22,7 +21,7 @@ export class GlyphInfo<ShaperInfoT = null> {
 	public substituted: boolean;
 	public isMultiplied: boolean;
 	public isBase?: boolean;
-	public isLigature?: boolean; // FIXME! Is this meant to be the same as isLigated?
+	public isLigature?: boolean;
 	public isMark?: boolean;
 	public markAttachmentType?: number;
 
@@ -32,15 +31,11 @@ export class GlyphInfo<ShaperInfoT = null> {
 		public codePoints: number[] = [],
 		features?: OpenType.FeatureTag[] | OpenType.Features,
 	) {
-		// FIXME! Other classes access the _font property!
-		this._font = font;
+		this.font = font;
 		this.codePoints = codePoints;
 
-		// FIXME! The setter for `id` has side-effects. The side-effects
-		// should be moved into a separate, private method that is then called
-		// both by the constructor and the setter. Then we can remove the
-		// bogus initialisation.
-		this.id = id;
+		this._id = id;
+		this.updateGlyphClassification(id);
 
 		this.features = {};
 		if (Array.isArray(features)) {
@@ -68,9 +63,13 @@ export class GlyphInfo<ShaperInfoT = null> {
 
 	set id(id: number) {
 		this._id = id;
+		this.updateGlyphClassification(id);
+	}
+
+	private updateGlyphClassification(id: number) {
 		this.substituted = true;
 
-		const GDEF = this._font.GDEF;
+		const GDEF = this.font.GDEF;
 		if (GDEF?.glyphClassDef) {
 			// TODO: clean this up
 			const classID = OpenTypeProcessor.prototype.getClassID(
@@ -94,7 +93,7 @@ export class GlyphInfo<ShaperInfoT = null> {
 
 	copy(): GlyphInfo<ShaperInfoT> {
 		return new GlyphInfo(
-			this._font,
+			this.font,
 			this.id,
 			[...this.codePoints],
 			this.features,

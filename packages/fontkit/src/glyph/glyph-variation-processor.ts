@@ -46,9 +46,6 @@ interface MetricVariationTable {
  *
  * Apple's documentation for these tables is not great, so thanks to the
  * Freetype project for figuring much of this out.
- *
- * FIXME! This class cache blend vectors and calculates normalised coordinates
- * and remembers them. That can easily be integrated into the TrueTypeFont class.
  */
 export class GlyphVariationProcessor {
 	private font: TrueTypeFont;
@@ -520,8 +517,6 @@ export class GlyphVariationProcessor {
 	}
 
 	// getAdvanceAdjustment(gid: number, table: any) {
-	// FIXME! Create a common base type for the BASE, GDEF, and HVAR table!
-	// This will be an appropriate type for the table argument.
 	public getAdvanceAdjustment(gid: number, table: MetricVariationTable) {
 		let outerIndex: number;
 		let innerIndex: number;

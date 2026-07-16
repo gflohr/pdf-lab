@@ -10,7 +10,7 @@ export class CFFGlyph extends Glyph {
 	public usedGsubrs: Record<number, boolean> = {};
 	public usedSubrs: Record<number, boolean> = {};
 
-	protected declare _font: OpenTypePostScriptFont;
+	protected declare font: OpenTypePostScriptFont;
 
 	// biome-ignore lint/complexity/noUselessConstructor:required for property narrowing.
 	constructor(
@@ -22,11 +22,11 @@ export class CFFGlyph extends Glyph {
 	}
 
 	protected getName() {
-		if (this._font.outlineVersion === 2) {
+		if (this.font.outlineVersion === 2) {
 			return super.getName();
 		}
 
-		return this._font['CFF '].getGlyphName(this.id);
+		return this.font['CFF '].getGlyphName(this.id);
 	}
 
 	private bias(s: CFFIndexRecord[]): number {
@@ -39,9 +39,9 @@ export class CFFGlyph extends Glyph {
 		}
 	}
 
-	protected getPath(): Path {
+	public decodePath(): Path {
 		const cff =
-			this._font.outlineVersion === 2 ? this._font.CFF2 : this._font['CFF '];
+			this.font.outlineVersion === 2 ? this.font.CFF2 : this.font['CFF '];
 		const stream = cff.stream;
 
 		const str = cff.topDict.CharStrings[this.id];
@@ -72,7 +72,7 @@ export class CFFGlyph extends Glyph {
 
 		const vstore = cff.topDict.vstore?.itemVariationStore;
 		let vsindex = privateDict?.vsindex;
-		const variationProcessor = this._font.variationProcessor;
+		const variationProcessor = this.font.variationProcessor;
 
 		function checkWidth() {
 			if (width == null) {

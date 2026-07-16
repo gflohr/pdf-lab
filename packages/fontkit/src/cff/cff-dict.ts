@@ -28,7 +28,6 @@ type CFFOpType =
 	| null
 	| CFFOp
 	| CFFPrivateOp
-	// FIXME! Is it really needed to add `PredefinedOp` to the union?
 	| PredefinedOp;
 
 export type CFFOpDefinition = [

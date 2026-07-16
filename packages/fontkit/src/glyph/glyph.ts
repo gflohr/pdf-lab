@@ -97,9 +97,7 @@ export interface FontkitRenderingContext {
 export abstract class Glyph {
 	public readonly id: number;
 	public readonly codePoints: readonly number[];
-	// FIXME! Rename that to just font!
-	protected readonly _font: TrueTypeSubsetFont | OpenTypeFont;
-	// FIXME! Make these two property private and private getters.
+	protected readonly font: TrueTypeSubsetFont | OpenTypeFont;
 	public readonly isMark: boolean;
 	public readonly isLigature: boolean;
 	private _path?: Path;
@@ -127,15 +125,16 @@ export abstract class Glyph {
 		this.id = id;
 
 		this.codePoints = [...codePoints];
-		this._font = font;
+		this.font = font;
 
-		// TODO: get this info from GDEF if available
+		// TODO: get this info from GDEF if available.
 		this.isMark =
 			this.codePoints.length > 0 && this.codePoints.every(unicode.isMark);
 		this.isLigature = this.codePoints.length > 1;
 	}
 
-	protected getPath(): Path {
+	/** @internal */
+	public decodePath(): Path {
 		return new Path();
 	}
 
@@ -168,30 +167,30 @@ export abstract class Glyph {
 		}
 
 		let { advance: advanceWidth, bearing: leftBearing } = this.getTableMetrics(
-			this._font.hmtx,
+			this.font.hmtx,
 		);
 
 		let advanceHeight: number;
 		let topBearing: number;
 
 		// For vertical metrics, use vmtx if available, or fall back to global data
-		if (this._font.vmtx) {
-			const metrics = this.getTableMetrics(this._font.vmtx);
+		if (this.font.vmtx) {
+			const metrics = this.getTableMetrics(this.font.vmtx);
 			advanceHeight = metrics.advance;
 			topBearing = metrics.bearing;
 		} else {
 			const localCbox = cbox === undefined || cbox === null ? this.cbox : cbox;
 
-			if (this._font['OS/2'] && this._font['OS/2']!.version !== 0) {
-				const os2 = this._font['OS/2']!;
+			if (this.font['OS/2'] && this.font['OS/2']!.version !== 0) {
+				const os2 = this.font['OS/2']!;
 				advanceHeight = Math.abs(os2.typoAscender - os2.typoDescender);
 				topBearing = os2.typoAscender - localCbox.maxY;
-			} else if (this._font.hhea) {
-				const hhea = this._font.hhea!;
+			} else if (this.font.hhea) {
+				const hhea = this.font.hhea!;
 				advanceHeight = Math.abs(hhea.ascent - hhea.descent);
 				topBearing = hhea.ascent - localCbox.maxY;
 			} else {
-				const unitsPerEm = this._font.unitsPerEm;
+				const unitsPerEm = this.font.unitsPerEm;
 				// Fall back to the height of the glyph's visual box itself,
 				// or the fallback grid if the box is flat/empty.
 				const boxHeight = localCbox.maxY - localCbox.minY;
@@ -203,11 +202,11 @@ export abstract class Glyph {
 			}
 		}
 
-		if ((this._font as TrueTypeFont).variationProcessor && this._font.HVAR) {
-			const font = this._font as TrueTypeFont;
+		if ((this.font as TrueTypeFont).variationProcessor && this.font.HVAR) {
+			const font = this.font as TrueTypeFont;
 			advanceWidth += font.variationProcessor!.getAdvanceAdjustment(
 				this.id,
-				this._font.HVAR,
+				this.font.HVAR,
 			);
 		}
 
@@ -259,7 +258,7 @@ export abstract class Glyph {
 		// Cache the path so we only decode it once
 		// Decoding is actually performed by subclasses
 		if (typeof this._path === 'undefined') {
-			this._path = this.getPath();
+			this._path = this.decodePath();
 		}
 
 		return this._path;
@@ -269,7 +268,7 @@ export abstract class Glyph {
 	 * Returns a path scaled to the given font size.
 	 */
 	public getScaledPath(size: number): Path {
-		const scale = (1 / this._font.unitsPerEm) * size;
+		const scale = (1 / this.font.unitsPerEm) * size;
 		return this.path.scale(scale);
 	}
 
@@ -296,7 +295,7 @@ export abstract class Glyph {
 	}
 
 	protected getName(): string | null {
-		const { post } = this._font;
+		const { post } = this.font;
 
 		if (!post) {
 			return null;
@@ -360,7 +359,7 @@ export abstract class Glyph {
 	public render(ctx: FontkitRenderingContext, size: number) {
 		ctx.save();
 
-		const scale = (1 / this._font.unitsPerEm) * size;
+		const scale = (1 / this.font.unitsPerEm) * size;
 		ctx.scale(scale, scale);
 
 		const fn = this.path.toFunction();

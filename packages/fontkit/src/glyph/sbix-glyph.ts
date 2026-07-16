@@ -27,11 +27,11 @@ export class SBIXGlyph extends TrueTypeGlyph {
 	 * along with the image type, and origin.
 	 */
 	getImageForSize(size: number): SBIXImageType | null {
-		// FIXME! This looks suspicious! If no table with ppem >= size is
-		// found, table is the last table. Is that correct?
+		// This looks suspicious but is correct. If no table is found, the
+		// last one is taken, which has the largest bitmaps.
 		let table: sbixTable.ImageTable | undefined;
-		for (let i = 0; i < this._font.sbix!.imageTables.length; i++) {
-			table = this._font.sbix!.imageTables[i];
+		for (let i = 0; i < this.font.sbix!.imageTables.length; i++) {
+			table = this.font.sbix!.imageTables[i];
 			if (table && table.ppem >= size) {
 				break;
 			}
@@ -47,14 +47,14 @@ export class SBIXGlyph extends TrueTypeGlyph {
 			return null;
 		}
 
-		this._font.stream.pos = start;
-		return SBIXImage.decode(this._font.stream, { buflen: end - start });
+		this.font.stream.pos = start;
+		return SBIXImage.decode(this.font.stream, { buflen: end - start });
 	}
 
 	render(ctx: FontkitRenderingContext, size: number) {
 		const img = this.getImageForSize(size);
 		if (img != null) {
-			const scale = size / this._font.unitsPerEm;
+			const scale = size / this.font.unitsPerEm;
 			ctx.image(img.data, {
 				height: size,
 				x: img.originX,
@@ -62,7 +62,7 @@ export class SBIXGlyph extends TrueTypeGlyph {
 			});
 		}
 
-		if (this._font.sbix!.flags.renderOutlines) {
+		if (this.font.sbix!.flags.renderOutlines) {
 			super.render(ctx, size);
 		}
 	}

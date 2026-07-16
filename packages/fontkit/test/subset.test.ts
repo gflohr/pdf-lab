@@ -36,7 +36,7 @@ describe('font subsetting', () => {
 		});
 
 		it('should re-encode variation glyphs', async () => {
-			// FIXME! This can only work on macOS.
+			// This can only work on macOS.
 			if (!fs.existsSync('/System/Library/Fonts/Supplemental/Skia.ttf')) return;
 
 			const font = fontkit.openSync(
@@ -90,6 +90,45 @@ describe('font subsetting', () => {
 			expect(subsetShape).toBeDefined();
 			fontShape = font.glyphsForString('b')?.[0]?.path.toSVG();
 			expect(subsetShape).toBe(fontShape);
+		});
+
+		it('should produce a subset using the legacy encodeStream API', async () => {
+			const subset = font.createSubset();
+			for (const glyph of font.glyphsForString('hello')) {
+				subset.includeGlyph(glyph);
+			}
+
+			const encodedBuffer = await new Promise<Uint8Array>((resolve) => {
+				const chunks: Uint8Array[] = [];
+
+				subset
+					.encodeStream()
+					.on('data', (chunk) => {
+						chunks.push(chunk);
+					})
+					.on('end', () => {
+						// Combine chunks into a single Uint8Array
+						const totalLength = chunks.reduce(
+							(sum, chunk) => sum + chunk.length,
+							0,
+						);
+						const result = new Uint8Array(totalLength);
+						let offset = 0;
+						for (const chunk of chunks) {
+							result.set(chunk, offset);
+							offset += chunk.length;
+						}
+						resolve(result);
+					});
+			});
+
+			const f = new TrueTypeFont(encodedBuffer);
+
+			expect(f.numGlyphs).toBe(5);
+
+			expect(f.getGlyph(1)!.path.toSVG()).toBe(
+				font.glyphsForString('h')[0]!.path.toSVG(),
+			);
 		});
 	});
 
