@@ -235,6 +235,9 @@ export class AATUnboundedArray<TItem = unknown> {
 export const aatLookupTable = <TField extends r.FieldT<any> = typeof r.uint16>(
 	ValueType: TField = r.uint16 as unknown as TField,
 ) => {
+	interface Nested {
+		parent?: Nested;
+	}
 	// Helper class that makes internal structures invisible to pointers
 	class Shadow<TField extends r.FieldT<unknown>> implements r.FieldT<unknown> {
 		private type: TField;
@@ -243,19 +246,19 @@ export const aatLookupTable = <TField extends r.FieldT<any> = typeof r.uint16>(
 			this.type = type;
 		}
 
-		decode(stream: r.DecodeStream, ctx?: r.ParsingContext) {
+		decode(stream: r.DecodeStream, ctx?: Nested) {
 			const parentContext = ctx?.parent?.parent;
 
 			return this.type.decode(stream, parentContext);
 		}
 
-		size(val?: r.FieldT<number>, ctx?: r.ParsingContext) {
+		size(val?: r.FieldT<number>, ctx?: Nested) {
 			ctx = ctx?.parent?.parent;
 
 			return this.type.size(val, ctx);
 		}
 
-		encode(stream: r.EncodeStream, val: number, ctx?: r.ParsingContext) {
+		encode(stream: r.EncodeStream, val: number, ctx?: Nested) {
 			ctx = ctx?.parent?.parent;
 
 			return this.type.encode(stream, val, ctx);
