@@ -45,6 +45,6 @@ export class CFF2Font extends CFFFontBase {
 			return null;
 		}
 
-		return this.topDict.FDArray?.[0].Private ?? null;
+		return this.topDict.FDArray?.[0]?.Private ?? null;
 	}
 }
