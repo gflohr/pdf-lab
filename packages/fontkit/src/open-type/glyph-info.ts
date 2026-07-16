@@ -10,9 +10,7 @@ export type ShaperInfo = IndicInfo | USEInfo;
 export class GlyphInfo<ShaperInfoT = null> {
 	/** @internal */
 	public font: TrueTypeFont;
-	// The constructor calls the setter for this member. It is therefore
-	// always initialised.
-	private _id!: number;
+	private _id: number;
 	public features: OpenType.FeatureFlags;
 	public ligatureID: number | null;
 	public ligatureComponent: number | null;
