@@ -94,7 +94,7 @@ export namespace GSUBTable {
 
 	export interface GSUBV1_1 extends OpenType.LayoutTableBase<LookupTable> {
 		version: 65537; // 1.1 as float.
-		featureVariations: OpenTypeVariation.FeatureVariations; // FIXME! || null?
+		featureVariations: OpenTypeVariation.FeatureVariations;
 	}
 
 	export type GSUB = GSUBV1_0 | GSUBV1_1;

@@ -36,7 +36,7 @@ describe('font subsetting', () => {
 		});
 
 		it('should re-encode variation glyphs', async () => {
-			// FIXME! This can only work on macOS.
+			// This can only work on macOS.
 			if (!fs.existsSync('/System/Library/Fonts/Supplemental/Skia.ttf')) return;
 
 			const font = fontkit.openSync(

@@ -8,8 +8,7 @@ const datadir = path.resolve(import.meta.dirname, './data');
 
 describe('variations', () => {
 	describe('Skia', () => {
-		// FIXME! This is a recipe for future failure. The font may change or
-		// get overwritten.
+		// This only works on a Mac.
 		const hasSkiaFont = fs.existsSync(
 			'/System/Library/Fonts/Supplemental/Skia.ttf',
 		);
