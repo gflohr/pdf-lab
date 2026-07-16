@@ -22,7 +22,7 @@ export class GlyphInfo<ShaperInfoT = null> {
 	public substituted: boolean;
 	public isMultiplied: boolean;
 	public isBase?: boolean;
-	public isLigature?: boolean; // FIXME! Is this meant to be the same as isLigated?
+	public isLigature?: boolean;
 	public isMark?: boolean;
 	public markAttachmentType?: number;
 

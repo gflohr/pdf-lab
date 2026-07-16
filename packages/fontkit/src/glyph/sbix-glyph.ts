@@ -27,8 +27,8 @@ export class SBIXGlyph extends TrueTypeGlyph {
 	 * along with the image type, and origin.
 	 */
 	getImageForSize(size: number): SBIXImageType | null {
-		// FIXME! This looks suspicious! If no table with ppem >= size is
-		// found, table is the last table. Is that correct?
+		// This looks suspicious but is correct. If no table is found, the
+		// last one is taken, which has the largest bitmaps.
 		let table: sbixTable.ImageTable | undefined;
 		for (let i = 0; i < this.font.sbix!.imageTables.length; i++) {
 			table = this.font.sbix!.imageTables[i];
