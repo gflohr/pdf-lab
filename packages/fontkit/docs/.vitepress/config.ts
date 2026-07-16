@@ -11,6 +11,8 @@ export default defineConfig({
 		},
 	},
 	description: 'An advanced font engine for Node and the browser.',
+	// FIXME! This is a bug in the typedoc Markdown generator!
+	ignoreDeadLinks: true,
 	themeConfig: {
 		// https://vitepress.dev/reference/default-theme-config
 		nav: [{ text: 'API', link: '/api/' }],

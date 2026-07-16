@@ -1,0 +1,21 @@
+{
+	"name": "docs",
+	"version": "0.1.0",
+	"description": "Documentation for @pdf-lab",
+	"private": true,
+	"main": "index.js",
+	"scripts": {
+		"check": "biome check",
+		"check:fix": "biome check --write",
+		"docs:dev": "vitepress dev",
+		"docs:build": "vitepress build",
+		"docs:preview": "vitepress preview"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"type": "module",
+	"devDependencies": {
+		"vitepress": "^1.6.4"
+	}
+}

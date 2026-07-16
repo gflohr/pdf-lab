@@ -7,17 +7,17 @@ import { DefaultShaper } from './default-shaper.js';
  * This is a shaper for the Hangul script, used by the Korean language.
  * It does the following:
  *   - decompose if unsupported by the font:
- *     <LV>   -> <L,V>
- *     <LVT>  -> <L,V,T>
- *     <LV,T> -> <L,V,T>
+ *     &lt;LV&gt;   &rarrow; &lt;L,V&gt;
+ *     &lt;LVT&gt;  &rarrow; &lt;L,V,T&gt;
+ *     &lt;LV,T&gt; &rarrow; &lt;L,V,T&gt;
  *
  *   - compose if supported by the font:
- *     <L,V>   -> <LV>
- *     <L,V,T> -> <LVT>
- *     <LV,T>  -> <LVT>
+ *     &lt;L,V&gt;   &rarrow; &lt;LV&gt;
+ *     &lt;L,V,T&gt; &rarrow; &lt;LVT&gt;
+ *     &lt;LV,T&gt;  &rarrow; &lt;LVT&gt;
  *
  *   - reorder tone marks (S is any valid syllable):
- *     <S, M> -> <M, S>
+ *     &lt;S, M&gt; &rarrow; &lt;M, S&gt;
  *
  *   - apply ljmo, vjmo, and tjmo OpenType features to decomposed Jamo sequences.
  *
