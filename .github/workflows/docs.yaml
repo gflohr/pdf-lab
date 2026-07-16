@@ -44,7 +44,9 @@ jobs:
         with:
           path: 'packages/docs/.vitepress/dist'
 
-  deploy:
+deploy:
+    # Only run this job on pushes to the 'main' branch, skipping on PRs
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
