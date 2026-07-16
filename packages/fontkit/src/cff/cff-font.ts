@@ -220,12 +220,15 @@ export abstract class CFFFontBase {
 		this.globalSubrIndex = this.topData.globalSubrIndex;
 	}
 
+	/** @internal */
 	public size(): 0 {
 		return 0;
 	}
 
+	/** @internal */
 	public encode() {}
 
+	/** The TopDict data. */
 	public abstract get topDict(): CFFTable.TopDictData;
 
 	public get isCIDFont(): boolean {
