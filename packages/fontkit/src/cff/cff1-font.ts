@@ -30,12 +30,12 @@ export class CFF1Font extends CFFFontBase {
 		this.topDictIndex = this.topData.topDictIndex;
 		this.stringIndex = this.topData.stringIndex;
 
-		if (this.topDictIndex.length !== 1) {
-			throw new Error('Only a single font is allowed in CFF version 1');
-		}
-
 		if (!this.topDictIndex.length) {
 			throw new Error('TopDict list of CFF 1 font is empty!');
+		}
+
+		if (this.topDictIndex.length !== 1) {
+			throw new Error('Only a single font is allowed in CFF version 1');
 		}
 
 		this._topDict = this.topDictIndex[0];
