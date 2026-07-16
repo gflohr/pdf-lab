@@ -1,4 +1,3 @@
-import { FlushValues } from 'pako';
 import * as r from 'restructure';
 import {
 	type OpenType,

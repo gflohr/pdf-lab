@@ -3,7 +3,6 @@ import type { BidiDirection } from '../../layout/glyph-run.js';
 import type { OpenType } from '../../tables/open-type.js';
 import type { GlyphInfo } from '../glyph-info.js';
 import type { ShapingPlan } from '../shaping-plan.js';
-import { IndicInfo } from './indic-shaper.js';
 
 const VARIATION_FEATURES: OpenType.FeatureTag[] = ['rvrn'];
 const COMMON_FEATURES: OpenType.FeatureTag[] = [

@@ -22,7 +22,7 @@ import { asciiDecoder } from './utils.js';
  */
 export class WOFF2Font extends TrueTypeFont<WOFF2Directory> {
 	private dataPos?: number;
-	// FIXME: DO NOT initialize this inline (e.g., `= false`).
+	// DO NOT initialize this inline (e.g., `= false`).
 	//
 	// See https://www.guido-flohr.net/a-javascript-lifecycle-trap-how-class-field-initialisers-break-inheritance/
 	private decompressed: boolean;

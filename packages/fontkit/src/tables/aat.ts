@@ -232,7 +232,9 @@ export class AATUnboundedArray<TItem = unknown> {
 /**
  * Builds an AAT lookup-table parser for the provided value field type.
  */
-export const aatLookupTable = <TField extends r.FieldT<unknown> = typeof r.uint16>(
+export const aatLookupTable = <
+	TField extends r.FieldT<unknown> = typeof r.uint16,
+>(
 	valueType: TField = r.uint16 as unknown as TField,
 ) => {
 	interface Nested {
@@ -401,10 +403,10 @@ export function aatStateTable1<
 		parent: {
 			stateArray: {
 				base: number;
-			},
+			};
 			_startOffset: number;
 			nClasses: number;
-		}
+		};
 	}
 
 	const entry = Object.assign(

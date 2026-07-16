@@ -4,10 +4,6 @@
 // the library is used inside of this project. It is very well possible that
 // legitimate usage of `restructure` is not reflected here. Do not suspect
 // a bug in this case but rather extend the typing.
-//
-// FIXME! In its current state, this is a little bit of a mess because it has
-// grown by fixing typing errors in the tables code, as they occurred. It is
-// probably possible to get rid of a lot of the explicit any types.
 declare module 'restructure' {
 	/**
 	 * Resolves a static number, string-pointer, or functional resolver down to

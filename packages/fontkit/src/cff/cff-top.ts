@@ -215,13 +215,14 @@ export class CFFPrivateOp {
 	}
 
 	size(dict: CFFTable.PrivateDictData, ctx?: ParsingContext): [number, number] {
-		// FIXME: This method has zero test coverage upstream and contains a
-		// fatal runtime bug.  Upstream returns `ptr.size(dict, ctx)[0]` as
-		// the second item of the array, which crashes because `this` is
-		// undefined. I temporarily return `0` for the key size fallback to
-		// prevent such crashes, but proper serialisation behaviour for this
-		// private dict pointer needs verification.
-		return [cffPrivateDict.size(dict, ctx, false), 0];
+		// This method has zero test coverage upstream and maybe contains a
+		// fatal runtime bug. Returning `ptr.size(dict, ctx)[0]` as
+		// the second item of the array, should actually crash, because it
+		// returns a number.
+		return [
+			cffPrivateDict.size(dict, ctx, false),
+			(ptr.size(dict, ctx) as unknown as number[])[0],
+		];
 	}
 
 	encode(
