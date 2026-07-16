@@ -231,7 +231,7 @@ function wouldSubstitute(
 		glyph.features = { [feature]: true };
 	}
 
-	const GSUB = (glyphs[0]._font.layoutEngine as any).engine.GSUBProcessor;
+	const GSUB = (glyphs[0].font.layoutEngine as any).engine.GSUBProcessor;
 	GSUB.applyFeatures([feature], glyphs);
 
 	return glyphs.length === 1;
