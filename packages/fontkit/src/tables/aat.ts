@@ -148,7 +148,7 @@ export namespace AAT {
 		flags: number;
 	} & TEntry;
 
-	export interface StateHeader1<TEntry = Record<string, any>> {
+	export interface StateHeader1<TEntry = Record<string, unknown>> {
 		nClasses: number;
 		classTable: Omit<LookupTableV8<number>, 'count'>;
 		stateArray: UnboundedArrayAccessor<number[][]>;
@@ -236,7 +236,7 @@ export const aatLookupTable = <TField extends r.FieldT<any> = typeof r.uint16>(
 	ValueType: TField = r.uint16 as unknown as TField,
 ) => {
 	// Helper class that makes internal structures invisible to pointers
-	class Shadow<TField extends r.FieldT<any>> implements r.FieldT<any> {
+	class Shadow<TField extends r.FieldT<unknown>> implements r.FieldT<unknown> {
 		private type: TField;
 
 		constructor(type: TField) {
