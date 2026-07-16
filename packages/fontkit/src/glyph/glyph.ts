@@ -135,7 +135,8 @@ export abstract class Glyph {
 		this.isLigature = this.codePoints.length > 1;
 	}
 
-	protected getPath(): Path {
+	/** @internal */
+	public decodePath(): Path {
 		return new Path();
 	}
 
@@ -259,7 +260,7 @@ export abstract class Glyph {
 		// Cache the path so we only decode it once
 		// Decoding is actually performed by subclasses
 		if (typeof this._path === 'undefined') {
-			this._path = this.getPath();
+			this._path = this.decodePath();
 		}
 
 		return this._path;

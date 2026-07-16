@@ -454,7 +454,7 @@ export class TrueTypeGlyph extends Glyph {
 	}
 
 	// Converts contours to a Path object that can be rendered
-	protected getPath(): Path {
+	public decodePath(): Path {
 		const contours = this.getContours();
 		const path = new Path();
 

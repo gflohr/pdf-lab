@@ -58,10 +58,6 @@ export interface FontAxis {
  * The names of the 8 baseline tables strictly required for an OpenType
  * font program file to be considered valid according to the structural
  * specification.
- *
- * FIXME! This list contains the required tables as per OpenType specification.
- * Instead, it should be checked which tables are really required by the
- * library, in every context, where an {@link OpenTypeFont} is processed.
  */
 export const coreTableKeys = [
 	'cmap',
@@ -607,14 +603,6 @@ export class TrueTypeFont<
 		return this.glyphs[glyph] ?? null;
 	}
 
-	// FIXME! The method either returns an SBIXGlyph, a COLRGlyph, a
-	// TrueTypeGlyph, or a CFFGlyph. But the SBIXGlyph or COLRGlyph is not
-	// necessarily a bitmap. It would probably be better to have a factory
-	// method that returns the correct glyph for a particular codepoint.
-	//
-	// Otherwise, getGlyph()/getBaseGlyph() could be simplified by simply
-	// checking just once in the constructor what the appropriate Glyph
-	// class for this particular font is.
 	public getGlyph(
 		glyph: number,
 		characters: readonly number[] = [],
