@@ -14,25 +14,24 @@ export class OpenTypeLayoutEngine<T> {
 	private font: TrueTypeFont;
 	private glyphInfos: GlyphInfo<T>[] | null;
 	private plan: ShapingPlan<T> | null;
-	// FIXME! Rename that to gsubProcessor!
-	private GSUBProcessor: GSUBProcessor<T> | null;
-	// FIXME! Rename that to gposProcessor!
-	private GPOSProcessor: GPOSProcessor<T> | null;
+	/** @internal */
+	public gsubProcessor: GSUBProcessor<T> | null;
+	private gposProcessor: GPOSProcessor<T> | null;
 	private shaper: typeof DefaultShaper | undefined | null;
 
 	constructor(font: TrueTypeFont) {
 		this.font = font;
 		this.glyphInfos = null;
 		this.plan = null;
-		this.GSUBProcessor = null;
-		this.GPOSProcessor = null;
+		this.gsubProcessor = null;
+		this.gposProcessor = null;
 
 		if (font.GSUB) {
-			this.GSUBProcessor = new GSUBProcessor(font, font.GSUB);
+			this.gsubProcessor = new GSUBProcessor(font, font.GSUB);
 		}
 
 		if (font.GPOS) {
-			this.GPOSProcessor = new GPOSProcessor(font, font.GPOS);
+			this.gposProcessor = new GPOSProcessor(font, font.GPOS);
 		}
 	}
 
@@ -46,16 +45,16 @@ export class OpenTypeLayoutEngine<T> {
 
 		// Select a script based on what is available in GSUB/GPOS.
 		let script = null;
-		if (this.GPOSProcessor) {
-			script = this.GPOSProcessor.selectScript(
+		if (this.gposProcessor) {
+			script = this.gposProcessor.selectScript(
 				glyphRun.script,
 				glyphRun.language,
 				glyphRun.direction,
 			);
 		}
 
-		if (this.GSUBProcessor) {
-			script = this.GSUBProcessor.selectScript(
+		if (this.gsubProcessor) {
+			script = this.gsubProcessor.selectScript(
 				glyphRun.script,
 				glyphRun.language,
 				glyphRun.direction,
@@ -82,8 +81,8 @@ export class OpenTypeLayoutEngine<T> {
 
 	/** @internal */
 	substitute(glyphRun: GlyphRun) {
-		if (this.GSUBProcessor) {
-			this.plan!.process(this.GSUBProcessor, this.glyphInfos!);
+		if (this.gsubProcessor) {
+			this.plan!.process(this.gsubProcessor, this.glyphInfos!);
 
 			// Map glyph infos back to normal Glyph objects.
 			glyphRun.glyphs = this.glyphInfos!.map((glyphInfo) =>
@@ -98,9 +97,9 @@ export class OpenTypeLayoutEngine<T> {
 			this.zeroMarkAdvances(glyphRun.positions);
 		}
 
-		if (this.GPOSProcessor) {
+		if (this.gposProcessor) {
 			this.plan!.process(
-				this.GPOSProcessor,
+				this.gposProcessor,
 				this.glyphInfos!,
 				glyphRun.positions,
 			);
@@ -116,7 +115,7 @@ export class OpenTypeLayoutEngine<T> {
 			glyphRun.positions.reverse();
 		}
 
-		return this.GPOSProcessor?.features;
+		return this.gposProcessor?.features;
 	}
 
 	/** @internal */
@@ -142,17 +141,17 @@ export class OpenTypeLayoutEngine<T> {
 	): OpenType.FeatureTag[] {
 		const features: OpenType.FeatureTag[] = [];
 
-		if (this.GSUBProcessor) {
-			this.GSUBProcessor.selectScript(script, language);
+		if (this.gsubProcessor) {
+			this.gsubProcessor.selectScript(script, language);
 			features.push(
-				...(Object.keys(this.GSUBProcessor.features) as OpenType.FeatureTag[]),
+				...(Object.keys(this.gsubProcessor.features) as OpenType.FeatureTag[]),
 			);
 		}
 
-		if (this.GPOSProcessor) {
-			this.GPOSProcessor.selectScript(script, language);
+		if (this.gposProcessor) {
+			this.gposProcessor.selectScript(script, language);
 			features.push(
-				...(Object.keys(this.GPOSProcessor.features) as OpenType.FeatureTag[]),
+				...(Object.keys(this.gposProcessor.features) as OpenType.FeatureTag[]),
 			);
 		}
 

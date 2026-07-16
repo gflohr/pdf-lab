@@ -21,6 +21,7 @@ import {
 } from './indic-data.js';
 import base64DeflatedTrie from './trie-indic.js';
 import base64DeflatedUseData from './use.js';
+import { OpenTypeLayoutEngine } from '../open-type-layout-engine.js';
 
 export class IndicInfo {
 	constructor(
@@ -231,7 +232,11 @@ function wouldSubstitute(
 		glyph.features = { [feature]: true };
 	}
 
-	const GSUB = (glyphs[0].font.layoutEngine as any).engine.GSUBProcessor;
+	const GSUB = (glyphs[0].font.layoutEngine.engine as OpenTypeLayoutEngine<unknown>)?.gsubProcessor;
+	if (!GSUB) {
+		return false;
+	}
+
 	GSUB.applyFeatures([feature], glyphs);
 
 	return glyphs.length === 1;
@@ -269,7 +274,7 @@ function initialReordering(
 	plan: ShapingPlan<IndicInfo>,
 ) {
 	const indicConfig = plan.indicConfig!;
-	const features = (font.layoutEngine.engine as any).GSUBProcessor.features;
+	const features = (font.layoutEngine.engine as OpenTypeLayoutEngine<unknown>)?.gsubProcessor?.features;
 
 	const dottedCircle = font.glyphForCodePoint(0x25cc)?.id;
 	if (!dottedCircle) {
@@ -349,7 +354,7 @@ function initialReordering(
 		// base consonants.
 		if (
 			indicConfig.rephPos !== POSITIONS.Ra_To_Become_Reph &&
-			features.rphf &&
+			features?.rphf &&
 			start + 3 <= end &&
 			((indicConfig.rephMode === 'Implicit' && !isJoiner(glyphs[start + 2])) ||
 				(indicConfig.rephMode === 'Explicit' &&
@@ -682,7 +687,7 @@ function initialReordering(
 		}
 
 		const prefLen = 2;
-		if (features.pref && base + prefLen < end) {
+		if (features?.pref && base + prefLen < end) {
 			// Find a Halant,Ra sequence and mark it for pre-base reordering processing.
 			for (let i = base + 1; i + prefLen - 1 < end; i++) {
 				const g = [
@@ -739,7 +744,7 @@ function finalReordering(
 	plan: ShapingPlan<IndicInfo>,
 ) {
 	const indicConfig = plan.indicConfig!;
-	const features = (font.layoutEngine.engine as any).GSUBProcessor.features;
+	const features = (font.layoutEngine.engine as OpenTypeLayoutEngine<unknown>)?.gsubProcessor?.features;
 
 	for (
 		let start = 0, end = nextSyllable(glyphs, 0);
@@ -753,7 +758,7 @@ function finalReordering(
 		// reordering before applying all the remaining font features to the entire
 		// cluster.
 
-		let tryPref = !!features.pref;
+		let tryPref = !!features?.pref;
 
 		// Find base again
 		let base = start;
