@@ -36,11 +36,8 @@ export class GlyphInfo<ShaperInfoT = null> {
 		this.font = font;
 		this.codePoints = codePoints;
 
-		// FIXME! The setter for `id` has side-effects. The side-effects
-		// should be moved into a separate, private method that is then called
-		// both by the constructor and the setter. Then we can remove the
-		// bogus initialisation.
-		this.id = id;
+		this._id = id;
+		this.updateGlyphClassification(id);
 
 		this.features = {};
 		if (Array.isArray(features)) {
@@ -68,6 +65,10 @@ export class GlyphInfo<ShaperInfoT = null> {
 
 	set id(id: number) {
 		this._id = id;
+		this.updateGlyphClassification(id);
+	}
+
+	private updateGlyphClassification(id: number) {
 		this.substituted = true;
 
 		const GDEF = this.font.GDEF;
