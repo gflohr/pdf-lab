@@ -1,4 +1,4 @@
-// FIXME! Synchronise that with the encoding table from pdf-lab-core!
+// TODO! Synchronise that with the encoding table from pdf-lab-core!
 export const standardNames = [
 	'.notdef',
 	'.null',

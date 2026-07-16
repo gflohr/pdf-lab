@@ -98,7 +98,6 @@ export abstract class Glyph {
 	public readonly id: number;
 	public readonly codePoints: readonly number[];
 	protected readonly font: TrueTypeSubsetFont | OpenTypeFont;
-	// FIXME! Make these two property private and private getters.
 	public readonly isMark: boolean;
 	public readonly isLigature: boolean;
 	private _path?: Path;

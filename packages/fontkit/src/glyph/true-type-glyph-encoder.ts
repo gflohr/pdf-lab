@@ -38,8 +38,6 @@ const Glyf = new r.Struct({
 
 /**
  * Encodes TrueType glyph outlines.
- *
- * FIXME! This is rather a function than a class.
  */
 export class TrueTypeGlyphEncoder {
 	encodeSimple(path: Path, instructions: number[] = []): Uint8Array {
