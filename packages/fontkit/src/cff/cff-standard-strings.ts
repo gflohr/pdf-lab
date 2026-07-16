@@ -392,4 +392,6 @@ export const standardStrings = [
 	'Regular',
 	'Roman',
 	'Semibold',
-];
+] as const;
+
+export type StandardString = (typeof standardStrings)[number] | '';

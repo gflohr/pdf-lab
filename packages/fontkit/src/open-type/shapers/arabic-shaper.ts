@@ -176,9 +176,9 @@ export class ArabicShaper extends DefaultShaper {
 		plan.addStage('mset');
 	}
 
-	protected static assignFeatures(
-		plan: ShapingPlan<null>,
-		glyphs: GlyphInfo<null>[],
+	protected static assignFeatures<T = null>(
+		plan: ShapingPlan<T>,
+		glyphs: GlyphInfo<T>[],
 	) {
 		DefaultShaper.assignFeatures(plan, glyphs);
 

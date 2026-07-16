@@ -1,4 +1,5 @@
 import * as r from 'restructure';
+import type { SFNTDirectory, SFNTDirectoryEntry } from './index.ts';
 
 /**
  * Tier 1: Pure Binary Representation (Matches file bytes exactly)
@@ -30,12 +31,14 @@ export interface WOFFDirectoryBinary {
 /**
  * Tier 2: Post-Processed Runtime Representation (Clean App API).
  */
-export interface WOFFDirectoryEntry extends WOFFTableEntryBinary {
+export interface WOFFDirectoryEntry
+	extends WOFFTableEntryBinary,
+		SFNTDirectoryEntry {
 	/** The actual decoded table payload stream, or null if unparsed */
 	unwrapped?: unknown;
 }
 
-export interface WOFFDirectory {
+export interface WOFFDirectory extends SFNTDirectory {
 	tag: string;
 	flavor: number;
 	length: number;
@@ -57,7 +60,7 @@ export interface WOFFDirectory {
  */
 interface WOFFDirectoryContext extends Omit<WOFFDirectory, 'tables'> {
 	// During execution, tables transitions from the raw array to the mapped record
-	tables: WOFFTableEntryBinary[] & Record<string, WOFFDirectoryEntry>;
+	tables: Record<string, WOFFDirectoryEntry>;
 }
 
 /* ========================================================================== */
@@ -72,10 +75,9 @@ const woffDirectoryEntryFields = {
 	origChecksum: r.uint32,
 };
 
-const woffDirectoryEntryStruct = new r.Struct<
-	typeof woffDirectoryEntryFields,
-	WOFFTableEntryBinary
->(woffDirectoryEntryFields);
+const woffDirectoryEntryStruct = new r.Struct<WOFFTableEntryBinary>(
+	woffDirectoryEntryFields,
+);
 
 const fields = {
 	tag: new r.String(4), // Should be 'wOFF'
@@ -94,9 +96,7 @@ const fields = {
 	tables: new r.Array(woffDirectoryEntryStruct, 'numTables'),
 };
 
-export const woffDirectoryStruct = new r.Struct<typeof fields, WOFFDirectory>(
-	fields,
-);
+export const woffDirectoryStruct = new r.Struct<WOFFDirectory>(fields);
 
 /* ========================================================================== */
 /* Restructure Lifecycle Hooks                                                */
@@ -104,10 +104,10 @@ export const woffDirectoryStruct = new r.Struct<typeof fields, WOFFDirectory>(
 woffDirectoryStruct.process = function (this: WOFFDirectoryContext): void {
 	const mappedTables: Record<string, WOFFDirectoryEntry> = {};
 
-	for (const table of this.tables) {
-		mappedTables[table.tag] = table;
+	const binaryTables = this.tables as unknown as WOFFDirectoryBinary[];
+	for (const table of binaryTables) {
+		mappedTables[table.tag] = table as unknown as WOFFDirectoryEntry;
 	}
 
-	// Safely cast away the binary array representation to the clean runtime map
-	this.tables = mappedTables as any;
+	this.tables = mappedTables;
 };

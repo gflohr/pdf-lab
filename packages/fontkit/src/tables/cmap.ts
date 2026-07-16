@@ -174,35 +174,28 @@ const subheaderFields = {
 	idDelta: r.int16,
 	idRangeOffset: r.uint16,
 };
-const subheader = new r.Struct<typeof subheaderFields, cmapTable.Subheader>(
-	subheaderFields,
-);
+const subheader = new r.Struct<cmapTable.Subheader>(subheaderFields);
 
 const cmapGroupFields = {
 	startCharCode: r.uint32,
 	endCharCode: r.uint32,
 	glyphID: r.uint32,
 };
-const cmapGroup = new r.Struct<typeof cmapGroupFields, cmapTable.Group>(
-	cmapGroupFields,
-);
+const cmapGroup = new r.Struct<cmapTable.Group>(cmapGroupFields);
 
 const unicodeValueRangeFields = {
 	startUnicodeValue: r.uint24,
 	additionalCount: r.uint8,
 };
-const unicodeValueRange = new r.Struct<
-	typeof unicodeValueRangeFields,
-	cmapTable.UnicodeValueRange
->(unicodeValueRangeFields);
+const unicodeValueRange = new r.Struct<cmapTable.UnicodeValueRange>(
+	unicodeValueRangeFields,
+);
 
 const uvsMappingFields = {
 	unicodeValue: r.uint24,
 	glyphID: r.uint16,
 };
-const uvsMapping = new r.Struct<typeof uvsMappingFields, cmapTable.UVSMapping>(
-	uvsMappingFields,
-);
+const uvsMapping = new r.Struct<cmapTable.UVSMapping>(uvsMappingFields);
 
 const DefaultUVS = new r.Array(unicodeValueRange, r.uint32);
 const NonDefaultUVS = new r.Array(uvsMapping, r.uint32);
@@ -212,10 +205,9 @@ const varSelectorRecordFields = {
 	defaultUVS: new r.Pointer(r.uint32, DefaultUVS, { type: 'parent' }),
 	nonDefaultUVS: new r.Pointer(r.uint32, NonDefaultUVS, { type: 'parent' }),
 };
-const varSelectorRecord = new r.Struct<
-	typeof varSelectorRecordFields,
-	cmapTable.VarSelectorRecord
->(varSelectorRecordFields);
+const varSelectorRecord = new r.Struct<cmapTable.VarSelectorRecord>(
+	varSelectorRecordFields,
+);
 
 const cmapSubtableFields = {
 	0: {
@@ -313,19 +305,17 @@ const cmapSubtableFields = {
 		varSelectors: new r.LazyArray(varSelectorRecord, 'numRecords'),
 	},
 };
-const cmapSubtable = new r.VersionedStruct<
-	typeof cmapSubtableFields,
-	cmapTable.Subtable
->(r.uint16, cmapSubtableFields);
+const cmapSubtable = new r.VersionedStruct<cmapTable.Subtable>(
+	r.uint16,
+	cmapSubtableFields,
+);
 
 const cmapEntryFields = {
 	platformID: r.uint16, // Platform identifier
 	encodingID: r.uint16, // Platform-specific encoding identifier
 	table: new r.Pointer(r.uint32, cmapSubtable, { type: 'parent', lazy: true }),
 };
-const cmapEntry = new r.Struct<typeof cmapEntryFields, cmapTable.Entry>(
-	cmapEntryFields,
-);
+const cmapEntry = new r.Struct<cmapTable.Entry>(cmapEntryFields);
 
 // Character to glyph mapping.
 const cmapStructFields = {
@@ -334,6 +324,4 @@ const cmapStructFields = {
 	tables: new r.Array(cmapEntry, 'numSubtables'),
 };
 /** @internal */
-export const cmap = new r.Struct<typeof cmapStructFields, cmapTable.cmap>(
-	cmapStructFields,
-);
+export const cmap = new r.Struct<cmapTable.cmap>(cmapStructFields);

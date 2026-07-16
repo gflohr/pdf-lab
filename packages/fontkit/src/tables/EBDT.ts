@@ -116,10 +116,7 @@ const bigMetricsFields = {
 	vertAdvance: r.uint8,
 };
 /** @internal */
-export const bigMetrics = new r.Struct<
-	typeof bigMetricsFields,
-	EBDTTable.BigMetrics
->(bigMetricsFields);
+export const bigMetrics = new r.Struct<EBDTTable.BigMetrics>(bigMetricsFields);
 
 const smallMetricsFields = {
 	height: r.uint8,
@@ -128,20 +125,16 @@ const smallMetricsFields = {
 	bearingY: r.int8,
 	advance: r.uint8,
 };
-export const smallMetrics = new r.Struct<
-	typeof smallMetricsFields,
-	EBDTTable.SmallMetrics
->(smallMetricsFields);
+export const smallMetrics = new r.Struct<EBDTTable.SmallMetrics>(
+	smallMetricsFields,
+);
 
 const ebdtComponentFields = {
 	glyph: r.uint16,
 	xOffset: r.int8,
 	yOffset: r.int8,
 };
-const ebdtComponent = new r.Struct<
-	typeof ebdtComponentFields,
-	EBDTTable.Component
->(ebdtComponentFields);
+const ebdtComponent = new r.Struct<EBDTTable.Component>(ebdtComponentFields);
 
 export class ByteAligned {}
 export class BitAligned {}
@@ -207,7 +200,7 @@ const glyphFields = {
 };
 
 /** @internal */
-export const ebdt = new r.VersionedStruct<typeof glyphFields, EBDTTable.Glyph>(
+export const glyph = new r.VersionedStruct<EBDTTable.Glyph>(
 	'version',
 	glyphFields,
 );

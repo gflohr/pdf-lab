@@ -1,4 +1,4 @@
-import type { CFFIndexRecord } from '../cff/cff-index.js';
+import type { CFFTable } from '../cff/cff-font.js';
 import type { OpenTypePostScriptFont } from '../open-type-font.js';
 import { Glyph } from './glyph.js';
 import { Path } from './path.js';
@@ -29,7 +29,7 @@ export class CFFGlyph extends Glyph {
 		return this.font['CFF '].getGlyphName(this.id);
 	}
 
-	private bias(s: CFFIndexRecord[]): number {
+	private bias(s: CFFTable.IndexDescriptor[]): number {
 		if (s.length < 1240) {
 			return 107;
 		} else if (s.length < 33900) {
@@ -39,12 +39,18 @@ export class CFFGlyph extends Glyph {
 		}
 	}
 
+	/** @internal */
 	public decodePath(): Path {
 		const cff =
 			this.font.outlineVersion === 2 ? this.font.CFF2 : this.font['CFF '];
 		const stream = cff.stream;
 
-		const str = cff.topDict.CharStrings[this.id];
+		const str = cff.topDict.CharStrings?.[this.id];
+		if (!str) {
+			throw new Error(
+				'Corrupt font file! Cannot get path, because of missing CharStrings!',
+			);
+		}
 		let end = str.offset + str.length;
 		stream.pos = str.offset;
 
@@ -70,7 +76,8 @@ export class CFFGlyph extends Glyph {
 		const subrs = privateDict?.Subrs || [];
 		const subrsBias = this.bias(subrs);
 
-		const vstore = cff.topDict.vstore?.itemVariationStore;
+		const vstore = (cff.topDict as CFFTable.TopDictDataV2).vstore
+			?.itemVariationStore;
 		let vsindex = privateDict?.vsindex;
 		const variationProcessor = this.font.variationProcessor;
 
@@ -105,7 +112,7 @@ export class CFFGlyph extends Glyph {
 				let op = stream.readUInt8();
 				let phase: boolean;
 				let index: number;
-				let subr: CFFIndexRecord;
+				let subr: CFFTable.IndexDescriptor;
 				let a: number;
 				let b: number;
 				let idx: number;
@@ -181,13 +188,13 @@ export class CFFGlyph extends Glyph {
 							break;
 
 						case 11: // return
-							if (cff.version >= 2) {
+							if (cff.version !== 2) {
 								break;
 							}
 							return;
 
 						case 14: // endchar
-							if (cff.version >= 2) {
+							if (cff.version !== 2) {
 								break;
 							}
 
@@ -203,7 +210,7 @@ export class CFFGlyph extends Glyph {
 
 						case 15: {
 							// vsindex
-							if (cff.version < 2) {
+							if (cff.version !== 2) {
 								throw new Error('vsindex operator not supported in CFF v1');
 							}
 
@@ -213,7 +220,7 @@ export class CFFGlyph extends Glyph {
 
 						case 16: {
 							// blend
-							if (cff.version < 2) {
+							if (cff.version !== 2 || !vstore) {
 								throw new Error('blend operator not supported in CFF v1');
 							}
 

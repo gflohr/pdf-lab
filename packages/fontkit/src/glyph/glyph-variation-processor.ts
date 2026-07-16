@@ -46,6 +46,8 @@ interface MetricVariationTable {
  *
  * Apple's documentation for these tables is not great, so thanks to the
  * Freetype project for figuring much of this out.
+ *
+ * @internal
  */
 export class GlyphVariationProcessor {
 	private font: TrueTypeFont;

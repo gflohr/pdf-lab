@@ -12,7 +12,18 @@ import {
 } from './open-type.js';
 import { featureVariations, type OpenTypeVariation } from './variations.js';
 
-const ValueFormat = new r.Bitfield(r.uint16, [
+interface DecodedValueFormat {
+	xPlacement: boolean;
+	yPlacement: boolean;
+	xAdvance: boolean;
+	yAdvance: boolean;
+	xPlaDevice: boolean;
+	yPlaDevice: boolean;
+	xAdvDevice: boolean;
+	yAdvDevice: boolean;
+}
+
+const valueFormat = new r.Bitfield<string[]>(r.uint16, [
 	'xPlacement',
 	'yPlacement',
 	'xAdvance',
@@ -50,39 +61,55 @@ const types = {
 	}),
 };
 
-export class ValueRecord implements r.FieldT<GPOSTable.DecodedValueRecord> {
-	private key: string;
+type ValueRecordContext = {
+	parent: ValueRecordContext | GPOSTable.LookupTable;
 
-	constructor(key: string = 'valueFormat') {
+	[key: string]: unknown;
+};
+
+function isLookupTable(
+	ctx: ValueRecordContext | GPOSTable.LookupTable | undefined,
+	key: string,
+): ctx is GPOSTable.LookupTable {
+	return !!(ctx && key in ctx && ctx[key as keyof typeof ctx] !== undefined);
+}
+
+export class ValueRecord implements r.FieldT<GPOSTable.DecodedValueRecord> {
+	private key: 'valueFormat' | 'valueFormat1' | 'valueFormat2';
+
+	constructor(
+		key: 'valueFormat' | 'valueFormat1' | 'valueFormat2' = 'valueFormat',
+	) {
 		this.key = key;
 	}
 
-	/**
-	 * Walks up the parent chain to find the structural configuration
-	 * and dynamically constructs the appropriate layout.
-	 */
 	private buildStruct(
-		parent: any,
-	): r.StructT<GPOSTable.DecodedValueRecord, any> {
-		let struct = parent;
+		parent?: ValueRecordContext,
+	): r.StructT<GPOSTable.DecodedValueRecord> {
+		let current: ValueRecordContext | GPOSTable.LookupTable | undefined =
+			parent;
 
 		// Crawl up the hierarchy until we find the format dictionary and a parent
-		while (struct && !(struct[this.key] && struct.parent)) {
-			struct = struct.parent;
+		while (current && !isLookupTable(current, this.key)) {
+			current = current.parent as ValueRecordContext;
 		}
 
-		if (!struct?.[this.key]) {
+		const struct = current as GPOSTable.LookupTable;
+
+		if (!struct?.[this.key as keyof typeof struct]) {
 			// Fallback to an empty struct if the configuration context isn't found
 			return new r.Struct({});
 		}
 
-		// biome-ignore lint/suspicious/noExplicitAny: see above!
-		const fields: Record<string, any> = {};
-
 		// Inject the contextual start offset reference required by restructure
-		fields.rel = () => struct._startOffset;
+		const rel = () =>
+			(struct as unknown as { _startOffset: number })._startOffset;
+		const fields: Record<string, r.FieldT<unknown>> = {};
+		(fields as unknown as { rel: typeof rel }).rel = rel;
 
-		const format = struct[this.key];
+		const format = struct[
+			this.key as keyof typeof struct
+		] as GPOSTable.DecodedValueRecord;
 		for (const key in format) {
 			const fieldKey = key as keyof typeof types;
 			if (format[fieldKey] && types[fieldKey]) {
@@ -90,21 +117,23 @@ export class ValueRecord implements r.FieldT<GPOSTable.DecodedValueRecord> {
 			}
 		}
 
-		return new r.Struct<typeof fields, GPOSTable.DecodedValueRecord>(fields);
+		return new r.Struct<GPOSTable.DecodedValueRecord>(fields);
 	}
 
-	// biome-ignore lint/suspicious/noExplicitAny: see above!
-	size(val?: any, ctx?: any): number {
-		return this.buildStruct(ctx).size(val, ctx);
+	size(val?: GPOSTable.DecodedValueRecord, ctx?: ValueRecordContext): number {
+		return this.buildStruct(ctx).size(val);
 	}
 
-	// biome-ignore lint/suspicious/noExplicitAny: see above!
-	decode(stream: r.DecodeStream, parent?: any): any {
+	decode(
+		stream: r.DecodeStream,
+		parent?: ValueRecordContext,
+	): GPOSTable.DecodedValueRecord {
 		const res = this.buildStruct(parent).decode(stream, parent);
 		// Clean up the transient helper reference before passing data back
 		if (res) {
-			delete res.rel;
+			delete (res as { rel: unknown }).rel;
 		}
+
 		return res;
 	}
 
@@ -187,14 +216,14 @@ export namespace GPOSTable {
 
 		// Single positioning value
 		coverage: OpenType.Coverage | null;
-		valueFormat: typeof ValueFormat;
+		valueFormat: DecodedValueFormat;
 		value: DecodedValueRecord;
 	}
 
 	export interface LookupSingleV2 {
 		version: 2;
 		coverage: OpenType.Coverage | null;
-		valueFormat: typeof ValueFormat;
+		valueFormat: DecodedValueFormat;
 		valueCount: number;
 		values: r.RestructureLazyArray<DecodedValueRecord>;
 	}
@@ -209,8 +238,8 @@ export namespace GPOSTable {
 
 		// Adjustments for glyph pairs
 		coverage: OpenType.Coverage | null;
-		valueFormat1: typeof ValueFormat;
-		valueFormat2: typeof ValueFormat;
+		valueFormat1: DecodedValueFormat;
+		valueFormat2: DecodedValueFormat;
 		pairSetCount: number;
 		pairSets: r.RestructureLazyArray<PairValueRecord[]>;
 	}
@@ -219,8 +248,8 @@ export namespace GPOSTable {
 		version: 2;
 
 		coverage: OpenType.Coverage | null;
-		valueFormat1: typeof ValueFormat;
-		valueFormat2: typeof ValueFormat;
+		valueFormat1: DecodedValueFormat;
+		valueFormat2: DecodedValueFormat;
 		classDef1: OpenType.ClassDef | null;
 		classDef2: OpenType.ClassDef | null;
 		class1Count: number;
@@ -315,10 +344,9 @@ const pairValueRecordFields = {
 	value1: new ValueRecord('valueFormat1'),
 	value2: new ValueRecord('valueFormat2'),
 };
-const PairValueRecord = new r.Struct<
-	typeof pairValueRecordFields,
-	GPOSTable.PairValueRecord
->(pairValueRecordFields);
+const PairValueRecord = new r.Struct<GPOSTable.PairValueRecord>(
+	pairValueRecordFields,
+);
 
 const PairSet = new r.Array(PairValueRecord, r.uint16);
 
@@ -326,10 +354,7 @@ const class2RecordFields = {
 	value1: new ValueRecord('valueFormat1'),
 	value2: new ValueRecord('valueFormat2'),
 };
-const Class2Record = new r.Struct<
-	typeof class2RecordFields,
-	GPOSTable.Class2Record
->(class2RecordFields);
+const Class2Record = new r.Struct<GPOSTable.Class2Record>(class2RecordFields);
 
 const anchorFields = {
 	1: {
@@ -353,27 +378,21 @@ const anchorFields = {
 		yDeviceTable: new r.Pointer(r.uint16, openTypeDevice),
 	},
 };
-const Anchor = new r.VersionedStruct<typeof anchorFields, GPOSTable.Anchor>(
-	r.uint16,
-	anchorFields,
-);
+const Anchor = new r.VersionedStruct<GPOSTable.Anchor>(r.uint16, anchorFields);
 
 const entryExitRecordFields = {
 	entryAnchor: new r.Pointer(r.uint16, Anchor, { type: 'parent' }),
 	exitAnchor: new r.Pointer(r.uint16, Anchor, { type: 'parent' }),
 };
-const EntryExitRecord = new r.Struct<
-	typeof entryExitRecordFields,
-	GPOSTable.EntryExitRecord
->(entryExitRecordFields);
+const EntryExitRecord = new r.Struct<GPOSTable.EntryExitRecord>(
+	entryExitRecordFields,
+);
 
 const markRecordFields = {
 	class: r.uint16,
 	markAnchor: new r.Pointer(r.uint16, Anchor, { type: 'parent' }),
 };
-const MarkRecord = new r.Struct<typeof markRecordFields, GPOSTable.MarkRecord>(
-	markRecordFields,
-);
+const MarkRecord = new r.Struct<GPOSTable.MarkRecord>(markRecordFields);
 
 const MarkArray = new r.Array(MarkRecord, r.uint16);
 
@@ -399,12 +418,12 @@ const gposLookupFieldsV1 = {
 	1: {
 		// Single positioning value
 		coverage: new r.Pointer(r.uint16, openTypeCoverage),
-		valueFormat: ValueFormat,
+		valueFormat: valueFormat,
 		value: new ValueRecord(),
 	},
 	2: {
 		coverage: new r.Pointer(r.uint16, openTypeCoverage),
-		valueFormat: ValueFormat,
+		valueFormat: valueFormat,
 		valueCount: r.uint16,
 		values: new r.LazyArray(new ValueRecord(), 'valueCount'),
 	},
@@ -414,8 +433,8 @@ const gposLookupFieldsV2 = {
 	1: {
 		// Adjustments for glyph pairs
 		coverage: new r.Pointer(r.uint16, openTypeCoverage),
-		valueFormat1: ValueFormat,
-		valueFormat2: ValueFormat,
+		valueFormat1: valueFormat,
+		valueFormat2: valueFormat,
 		pairSetCount: r.uint16,
 		pairSets: new r.LazyArray(new r.Pointer(r.uint16, PairSet), 'pairSetCount'),
 	},
@@ -423,8 +442,8 @@ const gposLookupFieldsV2 = {
 	2: {
 		// Class pair adjustment
 		coverage: new r.Pointer(r.uint16, openTypeCoverage),
-		valueFormat1: ValueFormat,
-		valueFormat2: ValueFormat,
+		valueFormat1: valueFormat,
+		valueFormat2: valueFormat,
 		classDef1: new r.Pointer(r.uint16, openTypeClassDef),
 		classDef2: new r.Pointer(r.uint16, openTypeClassDef),
 		class1Count: r.uint16,
@@ -437,15 +456,12 @@ const gposLookupFieldsV2 = {
 };
 
 const gposLookupFields = {
-	1: new r.VersionedStruct<typeof gposLookupFieldsV1, GPOSTable.LookupSingle>(
+	1: new r.VersionedStruct<GPOSTable.LookupSingle>(
 		r.uint16,
 		gposLookupFieldsV1,
 	),
 
-	2: new r.VersionedStruct<typeof gposLookupFieldsV2, GPOSTable.LookupPair>(
-		r.uint16,
-		gposLookupFieldsV2,
-	),
+	2: new r.VersionedStruct<GPOSTable.LookupPair>(r.uint16, gposLookupFieldsV2),
 
 	3: {
 		// Cursive Attachment Positioning.
@@ -495,10 +511,10 @@ const gposLookupFields = {
 		extension: selfPointer,
 	},
 };
-const GPOSLookup = new r.VersionedStruct<
-	typeof gposLookupFields,
-	GPOSTable.LookupTable
->('lookupType', gposLookupFields);
+const GPOSLookup = new r.VersionedStruct<GPOSTable.LookupTable>(
+	'lookupType',
+	gposLookupFields,
+);
 
 // Fix circular reference
 selfPointer.type = GPOSLookup;
@@ -516,10 +532,10 @@ const gposStructFields = {
 	},
 };
 /** @internal */
-export const GPOS = new r.VersionedStruct<
-	typeof gposStructFields,
-	GPOSTable.GPOS
->(r.uint32, gposStructFields);
+export const GPOS = new r.VersionedStruct<GPOSTable.GPOS>(
+	r.uint32,
+	gposStructFields,
+);
 
 /** @internal */
 export { GPOSLookup };

@@ -22,10 +22,9 @@ const opticalBoundsStructFields = {
 	right: r.int16,
 	bottom: r.int16,
 };
-const OpticalBounds = new r.Struct<
-	typeof opticalBoundsStructFields,
-	opbdTable.OpticalBounds
->(opticalBoundsStructFields);
+const OpticalBounds = new r.Struct<opbdTable.OpticalBounds>(
+	opticalBoundsStructFields,
+);
 
 const opticalBoundsFields = {
 	version: r.fixed32,
@@ -33,6 +32,4 @@ const opticalBoundsFields = {
 	lookupTable: aatLookupTable(OpticalBounds),
 };
 /** @internal */
-export const opbd = new r.Struct<typeof opticalBoundsFields, opbdTable.opbd>(
-	opticalBoundsFields,
-);
+export const opbd = new r.Struct<opbdTable.opbd>(opticalBoundsFields);

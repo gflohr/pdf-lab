@@ -1,4 +1,6 @@
-export const standardEncoding = [
+import type { StandardString } from './cff-standard-strings';
+
+export const standardEncoding: StandardString[] = [
 	'',
 	'',
 	'',
@@ -251,9 +253,9 @@ export const standardEncoding = [
 	'oslash',
 	'oe',
 	'germandbls',
-];
+] as const;
 
-export const expertEncoding = [
+export const expertEncoding: StandardString[] = [
 	'',
 	'',
 	'',
@@ -509,4 +511,4 @@ export const expertEncoding = [
 	'Yacutesmall',
 	'Thornsmall',
 	'Ydieresissmall',
-];
+] as const;

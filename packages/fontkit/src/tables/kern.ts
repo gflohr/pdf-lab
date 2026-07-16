@@ -140,9 +140,7 @@ const kernPairFields = {
 	right: r.uint16,
 	value: r.int16,
 };
-const kernPair = new r.Struct<typeof kernPairFields, kernTable.Pair>(
-	kernPairFields,
-);
+const kernPair = new r.Struct<kernTable.Pair>(kernPairFields);
 
 export type ClassTableContext = {
 	offsets: number[];
@@ -155,37 +153,34 @@ const classTableFields = {
 	max: (t: ClassTableContext) =>
 		t.offsets.length && Math.max.apply(Math, t.offsets),
 };
-const classTable = new r.Struct<typeof classTableFields, kernTable.ClassTable>(
-	classTableFields,
-);
+const classTable = new r.Struct<kernTable.ClassTable>(classTableFields);
 interface LeftTableConfig {
 	max: number;
 }
 
-interface KernRootContext extends r.ParsingContext {}
-
-interface KernSubTableContext {
-	parent: KernRootContext;
+interface KernSubtableContext {
+	parent: { _startOffset?: number };
 	rowWidth: number;
 	leftTable: LeftTableConfig;
 }
 
-export interface Kern2ArrayContext extends r.ParsingContext {
-	parent: KernSubTableContext;
-	off: number;
+export interface Kern2ArrayContext  {
+	parent?: KernSubtableContext;
+	off?: number;
+	_startOffset?: number;
 }
 
 const kern2ArrayFields = {
-	off: (t: Kern2ArrayContext) =>
-		t._startOffset! - t.parent!.parent!._startOffset!,
-	len: (t: Kern2ArrayContext) =>
-		((t.parent.leftTable.max - t.off) / t.parent.rowWidth + 1) *
-		(t.parent.rowWidth / 2),
+	off: (t: Kern2ArrayContext) => {
+		return t._startOffset! - (t.parent?.parent?._startOffset ?? 0);
+	},
+	len: (t: Kern2ArrayContext) => {
+		return (((t.parent?.leftTable.max ?? 0) - t.off!) / (t.parent?.rowWidth ?? 0) + 1) *
+		((t.parent?.rowWidth ?? 0) / 2);
+	},
 	values: new r.LazyArray(r.int16, 'len'),
 };
-const kern2Array = new r.Struct<typeof kern2ArrayFields, kernTable.Kern2Array>(
-	kern2ArrayFields,
-);
+const kern2Array = new r.Struct<kernTable.Kern2Array>(kern2ArrayFields);
 
 const kernSubtableFields = {
 	0: {
@@ -218,10 +213,10 @@ const kernSubtableFields = {
 		),
 	},
 };
-const KernSubtable = new r.VersionedStruct<
-	typeof kernSubtableFields,
-	kernTable.Subtable
->('format', kernSubtableFields);
+const KernSubtable = new r.VersionedStruct<kernTable.Subtable>(
+	'format',
+	kernSubtableFields,
+);
 
 const kernTableFields = {
 	0: {
@@ -257,10 +252,10 @@ const kernTableFields = {
 		padding: new r.Reserved(r.uint8, (t) => t.length - t._currentOffset),
 	},
 };
-const KernTable = new r.VersionedStruct<
-	typeof kernTableFields,
-	kernTable.Table
->('version', kernTableFields);
+const KernTable = new r.VersionedStruct<kernTable.Table>(
+	'version',
+	kernTableFields,
+);
 
 const kernFields = {
 	0: {
@@ -277,7 +272,4 @@ const kernFields = {
 	},
 };
 /** @internal */
-export const kern = new r.VersionedStruct<typeof kernFields, kernTable.kern>(
-	r.uint16,
-	kernFields,
-);
+export const kern = new r.VersionedStruct<kernTable.kern>(r.uint16, kernFields);

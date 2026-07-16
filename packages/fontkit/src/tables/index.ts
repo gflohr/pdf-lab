@@ -1,5 +1,5 @@
 /** biome-ignore-all assist/source/organizeImports: tables are sorted by topic */
-import type { ArrayT, StructT, VersionedStructT } from 'restructure';
+import type { StructT } from 'restructure';
 
 // AAT.
 
@@ -21,7 +21,8 @@ import { loca } from './loca.js';
 import { prep } from './prep.js';
 
 // PostScript Outlines
-import { CFFFont } from '../cff/cff-font.js';
+import { CFF1Font } from '../cff/cff1-font.js';
+import { CFF2Font } from '../cff/cff2-font.js';
 import { VORG } from './VORG.js';
 
 import { COLR } from './COLR.js';
@@ -62,13 +63,10 @@ import { just } from './just.js';
 import { morx } from './morx.js';
 import { opbd } from './opbd.js';
 
+/** @internal */
 export type FontTable = Record<
 	string,
-	/** biome-ignore lint/suspicious/noExplicitAny: The restructure library
-	 * used for decoding and encoding the table data is highly dynamic. Using
-	 * stricter typings is currently considered not being worth the effort.
-	 */
-	StructT<any, any> | VersionedStructT<any, any> | ArrayT<any> | typeof CFFFont
+	StructT<unknown> | typeof CFF1Font | typeof CFF2Font
 >;
 
 export const tables = {
@@ -85,8 +83,8 @@ export const tables = {
 	prep,
 	'cvt ': cvt,
 	glyf,
-	'CFF ': CFFFont,
-	CFF2: CFFFont,
+	'CFF ': CFF1Font,
+	CFF2: CFF2Font,
 	VORG,
 	EBLC,
 	CBLC: EBLC,

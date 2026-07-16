@@ -1,129 +1,239 @@
 import type { DecodeStream } from 'restructure';
-import type { CFFDict } from './cff-dict.js';
-import type { CFFIndexRecord } from './cff-index.js';
-import type { CFFPrivateDictTable } from './cff-pointer.js';
-import { standardStrings } from './cff-standard-strings.js';
+import type { OpenTypeVariation } from '../tables/variations.js';
+import type { StandardString } from './cff-standard-strings.js';
 import { cffTop } from './cff-top.js';
+import type { CFF1Font } from './cff1-font.js';
+import type { CFF2Font } from './cff2-font.js';
 
-export class CFFFont {
-	public version!: number;
-	private topDictIndex!: CFFDict[];
-	public topDict!: Record<string, any>;
-	private stringIndex!: string[];
-	public isCIDFont!: boolean;
-	private nameIndex!: string[];
-	public globalSubrIndex!: CFFIndexRecord[];
-	// These three properties somehow pop up and are needed for subsetting.
-	public hdrSize!: number;
+export namespace CFFTable {
+	export interface IndexDescriptor {
+		offset: number;
+		length: number;
+	}
+
+	export interface CustomEncodingDataV0 {
+		version: 0;
+		nCodes: number;
+		codes: number[];
+	}
+
+	export interface CustomEncodingDataV1 {
+		version: 1;
+		nRanges: number;
+		ranges: number[];
+	}
+
+	export type CustomEncodingData = CustomEncodingDataV0 | CustomEncodingDataV1;
+
+	export interface RangeRecord {
+		first: number;
+		nLeft: number;
+		offset: number; // Added during decoding.
+	}
+
+	export interface FDRange {
+		first: number;
+		fd: number;
+	}
+
+	export interface FDSelectV0 {
+		version: 0;
+		fds: number[];
+	}
+
+	export interface FDSelectV3 {
+		version: 3;
+		nRanges: number;
+		ranges: FDRange[];
+		sentinel: number;
+	}
+
+	export interface FDSelectV4 {
+		version: 4;
+		nRanges: number;
+		ranges: FDRange[];
+		sentinel: number;
+	}
+
+	export type FDSelect = FDSelectV0 | FDSelectV3 | FDSelectV4;
+
+	export interface PrivateDictData {
+		BlueValues?: number[] | null;
+		OtherBlues?: number[] | null;
+		FamilyBlues?: number[] | null;
+		FamilyOtherBlues?: number[] | null;
+		StdHW?: number;
+		StdVW?: number;
+		BlueScale?: number;
+		BlueShift?: number;
+		BlueFuzz?: number;
+		StemSnapH?: number[];
+		StemSnapV?: number[];
+		ForceBold?: boolean;
+		LanguageGroup?: number;
+		ExpansionFactor?: number;
+		initialRandomSeed?: number;
+		defaultWidthX?: number;
+		nominalWidthX?: number;
+		vsindex?: number;
+		blend?: unknown;
+		Subrs?: CFFTable.IndexDescriptor[];
+	}
+
+	export interface TopDictDataHeader {
+		FontMatrix: [number, number, number, number, number, number];
+		CharStrings: IndexDescriptor[] | null;
+		FDSelect?: FDSelect;
+		FDArray?: FontDictData[];
+		length: number; // Added by decode().
+	}
+
+	export interface CustomCharsetDataV0 {
+		version: 0;
+		glyphs: number[];
+	}
+
+	export interface CustomCharsetDataV1 {
+		version: 1;
+		ranges: RangeRecord[];
+	}
+
+	export interface CustomCharsetDataV2 {
+		version: 2;
+		ranges: RangeRecord[];
+	}
+
+	export type CustomCharsetData =
+		| CustomCharsetDataV0
+		| CustomCharsetDataV1
+		| CustomCharsetDataV2;
+
+	export interface TopDictDataV1 extends TopDictDataHeader {
+		ROS: [string, string, number] | null;
+		version: number | null;
+		Notice: number | null;
+		Copyright: number | null;
+		FullName: number | null;
+		FamilyName: number | null;
+		Weight: number | null;
+		isFixedPitch: boolean;
+		ItalicAngle: number;
+		UnderlinePosition: number;
+		UnderlineThickness: number;
+		PaintType: number;
+		CharstringType: number;
+		UniqueID?: number;
+		FontBBox: [number, number, number, number];
+		StrokeWidth: number;
+		XUID: unknown[];
+		charset: CustomCharsetData | StandardString[];
+		Encoding: CustomEncodingData;
+		Private: PrivateDictData;
+		SytheticBase?: number;
+		PostScript: number | null;
+		SFNTFontName: number | null;
+		SFNTFontBlend?: number;
+		CIDFontVersion: number;
+		CIDFontRevision: number;
+		CIDFontType: number;
+		CIDCount: number;
+		UIDBase: number;
+		FontName: number | null;
+	}
+
+	export interface FontDictData {
+		Private?: PrivateDictData;
+		FontName?: string;
+		FontPatrix: number[];
+		PaintType: number;
+	}
+
+	export type DictData = FontDictData | TopDictData | PrivateDictData;
+
+	export interface VariationStore {
+		length: number;
+		itemVariationStore: OpenTypeVariation.ItemVariationStore;
+	}
+
+	export interface TopDictDataV2 extends TopDictDataHeader {
+		vstore?: VariationStore;
+		maxstack: number;
+	}
+
+	export type TopDictData = TopDictDataV1 | TopDictDataV2;
+
+	export interface TopDataHeader {
+		version: 1 | undefined | 2;
+		hdrSize: number;
+		globalSubrIndex: IndexDescriptor[];
+	}
+
+	export interface TopDataV1 extends TopDataHeader {
+		version: 1 | undefined;
+		offSize: number; // unused?
+		nameIndex: string[];
+		topDictIndex: TopDictDataV1[];
+		topDict: TopDictDataV1;
+		stringIndex: string[];
+	}
+
+	export interface TopDataV2 extends TopDataHeader {
+		version: 2;
+		topDict: TopDictDataV2;
+		length: number;
+	}
+
+	export type TopData = TopDataV1 | TopDataV2;
+}
+
+export interface CFFFontBase {
+	hdrSize: number;
+	globalSubrIndex: CFFTable.IndexDescriptor[];
+
+	size(): 0;
+	encode(): void;
+}
+
+export type CFFFont = CFF1Font | CFF2Font;
+
+// biome-ignore lint/suspicious/noUnsafeDeclarationMerging: Deliberately
+export abstract class CFFFontBase {
+	protected topData: CFFTable.TopData;
+	public readonly version: 1 | 2 | undefined;
+	protected readonly decodedTopDataVersion: number | undefined;
+
+	public hdrSize: number;
+	public globalSubrIndex: CFFTable.IndexDescriptor[];
+
 	public length!: number;
 	public header!: Uint8Array;
 
 	constructor(public readonly stream: DecodeStream) {
-		this.decode();
-	}
-
-	static decode(stream: DecodeStream) {
-		return new CFFFont(stream);
-	}
-
-	decode() {
-		const top = cffTop.decode(this.stream);
-		for (const k in top) {
-			const key = k as keyof typeof top;
-			const val = top[key];
-			(this as Record<string, unknown>)[key] = val;
+		if (new.target === CFFFontBase) {
+			throw new Error(
+				'CFFFont is an abstract base class! Use CFF1Font or CFF2Font instead!',
+			);
 		}
-
-		if (this.version < 2) {
-			if (this.topDictIndex.length !== 1) {
-				throw new Error('Only a single font is allowed in CFF');
-			}
-
-			this.topDict = this.topDictIndex[0];
-		}
-
-		this.isCIDFont = 'ROS' in this.topDict && this.topDict.ROS != null;
-
-		return this;
+		this.topData = cffTop.decode(this.stream);
+		this.version = this.topData.version;
+		this.decodedTopDataVersion = this.version;
+		this.hdrSize = this.topData.hdrSize;
+		this.globalSubrIndex = this.topData.globalSubrIndex;
 	}
 
-	public size() {
+	/** @internal */
+	public size(): 0 {
 		return 0;
 	}
+
+	/** @internal */
 	public encode() {}
 
-	// sid: number | null
-	string(sid: number | null) {
-		if (sid === null || this.version >= 2) {
-			return null;
-		}
+	/** The TopDict data. */
+	public abstract get topDict(): CFFTable.TopDictData;
 
-		if (sid < standardStrings.length) {
-			return standardStrings[sid];
-		}
-
-		return this.stringIndex[sid - standardStrings.length];
-	}
-
-	get postscriptName(): string | null {
-		if (this.version < 2) {
-			return this.nameIndex[0];
-		}
-
-		return null;
-	}
-
-	get fullName() {
-		return this.string(this.topDict.FullName);
-	}
-
-	get familyName() {
-		return this.string(this.topDict.FamilyName);
-	}
-
-	getCharString(glyph: number): Uint8Array {
-		this.stream.pos = this.topDict.CharStrings[glyph].offset;
-		return this.stream.readBuffer(this.topDict.CharStrings[glyph].length);
-	}
-
-	getGlyphName(gid: number): string | null {
-		// CFF2 glyph names are in the post table.
-		if (this.version >= 2) {
-			return null;
-		}
-
-		// CID-keyed fonts don't have glyph names
-		if (this.isCIDFont) {
-			return null;
-		}
-
-		const { charset } = this.topDict;
-		if (Array.isArray(charset)) {
-			return charset[gid];
-		}
-
-		if (gid === 0) {
-			return '.notdef';
-		}
-
-		gid -= 1;
-
-		switch (charset.version) {
-			case 0:
-				return this.string(charset.glyphs[gid]);
-
-			case 1:
-			case 2:
-				for (let i = 0; i < charset.ranges.length; i++) {
-					const range = charset.ranges[i];
-					if (range.offset <= gid && gid <= range.offset + range.nLeft) {
-						return this.string(range.first + (gid - range.offset));
-					}
-				}
-				break;
-		}
-
-		return null;
+	public get isCIDFont(): boolean {
+		return 'ROS' in this.topDict && this.topDict.ROS != null;
 	}
 
 	fdForGlyph(gid: number): number | null {
@@ -153,31 +263,11 @@ export class CFFFont {
 						}
 					}
 				}
-				throw new Error(
-					`Unknown FDSelect version: ${this.topDict.FDSelect.version}`,
-				);
+				throw new Error(`No matching FDSelect range found for glyph ${gid}`);
 			default:
 				throw new Error(
-					`Unknown FDSelect version: ${this.topDict.FDSelect.version}`,
+					`Unknown FDSelect version: ${(this.topDict.FDSelect as { version: unknown }).version}`,
 				);
 		}
-	}
-
-	// gid: number, @returns { BlueValues: ... }
-	privateDictForGlyph(gid: number): CFFPrivateDictTable | null {
-		if (this.topDict.FDSelect && this.topDict.FDArray) {
-			const fd = this.fdForGlyph(gid);
-			if (fd !== null && this.topDict.FDArray[fd]) {
-				return this.topDict.FDArray[fd].Private;
-			}
-
-			return null;
-		}
-
-		if (this.version < 2) {
-			return this.topDict.Private;
-		}
-
-		return this.topDict.FDArray[0].Private;
 	}
 }

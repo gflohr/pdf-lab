@@ -82,9 +82,9 @@ export class UniversalShaper extends DefaultShaper {
 		plan.addStage(['abvs', 'blws', 'pres', 'psts', 'dist', 'abvm', 'blwm']);
 	}
 
-	static assignFeatures(
-		plan: ShapingPlan<USEInfo>,
-		glyphs: GlyphInfo<USEInfo>[],
+	static assignFeatures<T = USEInfo>(
+		plan: ShapingPlan<T>,
+		glyphs: GlyphInfo<T>[],
 	) {
 		// Decompose split vowels
 		// TODO: do this in a more general unicode normalizer
@@ -113,7 +113,7 @@ export class UniversalShaper extends DefaultShaper {
 					);
 				});
 
-				glyphs.splice(i, 1, ...decomposed);
+				glyphs.splice(i, 1, ...(decomposed as GlyphInfo<T>[]));
 			}
 		}
 	}

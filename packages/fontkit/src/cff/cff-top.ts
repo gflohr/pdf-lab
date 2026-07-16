@@ -2,38 +2,45 @@ import type {
 	DecodeStream,
 	EncodeStream,
 	FieldT,
-	InferField,
-	ParsingContext,
-	resolveLength,
+	PropertyDescriptor,
 } from 'restructure';
 import * as r from 'restructure';
+import type { CFFSubsetCharset } from '../subset/cff-subset.js';
 import { itemVariationStore } from '../tables/variations.js';
 import {
 	expertCharset,
 	expertSubsetCharset,
 	isoAdobeCharset,
 } from './cff-charsets.js';
-import { CFFDict } from './cff-dict.js';
+import { CFFDict, CFFTraversalContext } from './cff-dict.js';
 import { expertEncoding, standardEncoding } from './cff-encodings.js';
+import type { CFFTable } from './cff-font.js';
 import { CFFIndex } from './cff-index.js';
 import { CFFPointer, type Ptr } from './cff-pointer.js';
-import { privateCFFDict } from './cff-private-dict.js';
-
-interface RangeRecord {
-	first: number;
-	nLeft: number;
-	offset?: number;
-}
+import { cffPrivateDict } from './cff-private-dict.js';
+import type { StandardString } from './cff-standard-strings.js';
 
 // Checks if an operand is an index of a predefined value,
 // otherwise delegates to the provided type.
-export class PredefinedOp {
+export class PredefinedOp<T> {
 	constructor(
-		private readonly predefinedOps: any[],
-		private readonly type: CFFPointer<any>,
+		private readonly predefinedOps:
+			| StandardString[]
+			| StandardString[][]
+			| CFFSubsetCharset[],
+		private readonly type: CFFPointer<FieldT<T>>,
 	) {}
 
-	decode(stream: DecodeStream, parent: unknown, operands: number[]): any {
+	decode(
+		stream: DecodeStream,
+		parent: unknown,
+		operands: number[],
+	):
+		| PropertyDescriptor
+		| StandardString
+		| StandardString[]
+		| CFFSubsetCharset
+		| T {
 		if (this.predefinedOps[operands[0]]) {
 			return this.predefinedOps[operands[0]];
 		}
@@ -41,21 +48,30 @@ export class PredefinedOp {
 		return this.type.decode(stream, parent, operands);
 	}
 
-	size(value: unknown, ctx?: ParsingContext) {
+	size(value: unknown, ctx?: unknown): number {
 		return this.type.size(value, ctx);
 	}
 
 	encode(
 		stream: EncodeStream,
-		value: unknown,
-		ctx?: ParsingContext,
-	): number | Ptr | Ptr[] {
-		const index = this.predefinedOps.indexOf(value);
-		if (index !== -1) {
-			return index;
+		value: StandardString | T,
+		ctx?: unknown,
+	): Ptr[] | number {
+		if (
+			typeof value === 'string' &&
+			typeof this.predefinedOps[0] === 'string'
+		) {
+			const index = (this.predefinedOps as StandardString[]).indexOf(
+				value as StandardString,
+			);
+			if (index >= 0) {
+				return index;
+			}
 		}
 
-		return this.type.encode(stream, value, ctx);
+		const retval = this.type.encode(stream, value as T, ctx);
+
+		return retval;
 	}
 }
 
@@ -73,27 +89,13 @@ const range1Fields = {
 	first: r.uint16,
 	nLeft: r.uint8,
 };
-const range1 = new r.Struct<typeof range1Fields, RangeRecord>(range1Fields);
+const range1 = new r.Struct<CFFTable.RangeRecord>(range1Fields);
 
 const range2Fields = {
 	first: r.uint16,
 	nLeft: r.uint16,
 };
-const range2 = new r.Struct<typeof range2Fields, RangeRecord>(range2Fields);
-
-interface CFFCustomEncodingDataV0 {
-	version: 0;
-	nCodes: number;
-	codes: number[];
-}
-
-interface CFFCustomEncodingDataV1 {
-	version: 1;
-	nRanges: number;
-	ranges: number[];
-}
-
-type CFFCustomEncodingData = CFFCustomEncodingDataV0 | CFFCustomEncodingDataV1;
+const range2 = new r.Struct<CFFTable.RangeRecord>(range2Fields);
 
 const cffCustomEncodingFields = {
 	0: {
@@ -108,12 +110,12 @@ const cffCustomEncodingFields = {
 
 	// TODO: supplement?
 };
-const cffCustomEncoding = new r.VersionedStruct<
-	typeof cffCustomEncodingFields,
-	CFFCustomEncodingData
->(new CFFEncodingVersion(), cffCustomEncodingFields);
+const cffCustomEncoding = new r.VersionedStruct<CFFTable.CustomEncodingData>(
+	new CFFEncodingVersion(),
+	cffCustomEncodingFields,
+);
 
-const cffEncoding = new PredefinedOp(
+const cffEncoding = new PredefinedOp<CFFTable.CustomEncodingData>(
 	[standardEncoding, expertEncoding],
 	new CFFPointer(cffCustomEncoding, { lazy: true }),
 );
@@ -123,8 +125,8 @@ const cffEncoding = new PredefinedOp(
  * length is equal to the provided length.
  * @internal
  */
-export class RangeArray extends r.Array<FieldT<RangeRecord>> {
-	override decode(stream: DecodeStream, parent?: ParsingContext) {
+export class RangeArray extends r.Array<FieldT<CFFTable.RangeRecord>> {
+	override decode(stream: DecodeStream, parent?: unknown) {
 		const length = r.resolveLength(this.length, stream, parent);
 		let count = 0;
 		const res = [];
@@ -138,26 +140,6 @@ export class RangeArray extends r.Array<FieldT<RangeRecord>> {
 		return res;
 	}
 }
-
-interface CFFCustomCharsetDataV0 {
-	version: 0;
-	glyphs: number[];
-}
-
-interface CFFCustomCharsetDataV1 {
-	version: 1;
-	ranges: RangeRecord[];
-}
-
-interface CFFCustomCharsetDataV2 {
-	version: 2;
-	ranges: RangeRecord[];
-}
-
-type CFFCustomCharsetData =
-	| CFFCustomCharsetDataV0
-	| CFFCustomCharsetDataV1
-	| CFFCustomCharsetDataV2;
 
 // Subtracting 1 from the length drops the .notdef glyph from the total length
 // count constraint.
@@ -174,27 +156,29 @@ const cffCustomCharsetFields = {
 		ranges: new RangeArray(range2, (t) => t.parent.CharStrings.length - 1),
 	},
 };
-const cffCustomCharset = new r.VersionedStruct<
-	typeof cffCustomCharsetFields,
-	CFFCustomCharsetData
->(r.uint8, cffCustomCharsetFields);
+const cffCustomCharset = new r.VersionedStruct<CFFTable.CustomCharsetData>(
+	r.uint8,
+	cffCustomCharsetFields,
+);
 
-const cffCharset = new PredefinedOp(
+const cffCharset = new PredefinedOp<CFFTable.CustomCharsetData>(
 	[isoAdobeCharset, expertCharset, expertSubsetCharset],
 	new CFFPointer(cffCustomCharset, { lazy: true }),
 );
 
-const fdRange3 = new r.Struct({
+const fdRange3Fields = {
 	first: r.uint16,
 	fd: r.uint8,
-});
+};
+const fdRange3 = new r.Struct<CFFTable.FDRange>(fdRange3Fields);
 
-const fdRange4 = new r.Struct({
+const fdRange4Fields = {
 	first: r.uint32,
 	fd: r.uint16,
-});
+};
+const fdRange4 = new r.Struct<CFFTable.FDRange>(fdRange4Fields);
 
-const fdSelect = new r.VersionedStruct(r.uint8, {
+const fdSelectFields = {
 	0: {
 		fds: new r.Array(r.uint8, (t) => t.parent.CharStrings.length),
 	},
@@ -210,37 +194,43 @@ const fdSelect = new r.VersionedStruct(r.uint8, {
 		ranges: new r.Array(fdRange4, 'nRanges'),
 		sentinel: r.uint32,
 	},
-});
+};
 
-const ptr = new CFFPointer(privateCFFDict);
+const fdSelect = new r.VersionedStruct<CFFTable.FDSelect>(
+	r.uint8,
+	fdSelectFields,
+);
+
+const ptr = new CFFPointer(cffPrivateDict);
 export class CFFPrivateOp {
 	decode(
 		stream: DecodeStream,
-		parent: ParsingContext,
+		parent: CFFTable.TopDictData,
 		operands: number[],
-	): InferField<FieldT<any>> {
+	): CFFTable.PrivateDictData {
 		parent.length = operands[0];
-		return ptr.decode(stream, parent, [operands[1]]);
+		const decoded = ptr.decode(stream, parent, [operands[1]]);
+		return decoded;
 	}
 
-	size(dict: CFFDict, ctx?: ParsingContext): [number, number] {
+	size(dict: CFFTable.PrivateDictData, ctx?: CFFTraversalContext): [number, number] {
 		// This method has zero test coverage upstream and probably contains a
 		// runtime bug, see the bogus cast!
 		return [
-			privateCFFDict.size(dict, ctx, false),
+			cffPrivateDict.size(dict, ctx, false),
 			(ptr.size(dict, ctx) as unknown as number[])[0],
 		];
 	}
 
-	encode(stream: EncodeStream, dict: CFFDict, ctx?: ParsingContext) {
-		return [
-			privateCFFDict.size(dict, ctx, false),
-			ptr.encode(stream, dict, ctx)[0],
-		];
+	encode(stream: EncodeStream, dict: CFFTable.PrivateDictData, ctx?: CFFTraversalContext) {
+		const size = cffPrivateDict.size(dict, ctx, false);
+		const encoded = ptr.encode(stream, dict, ctx);
+
+		return [size, encoded[0]];
 	}
 }
 
-const fontDict = new CFFDict([
+const fontDict = new CFFDict<CFFTable.FontDictData>([
 	// key, name, type(s), default
 	[18, 'Private', new CFFPrivateOp(), null],
 	[[12, 38], 'FontName', 'sid', null],
@@ -248,7 +238,7 @@ const fontDict = new CFFDict([
 	[[12, 5], 'PaintType', 'number', 0],
 ]);
 
-const cffTopDict = new CFFDict([
+const cffTopDict = new CFFDict<CFFTable.TopDictDataV1>([
 	// key, name, type(s), default
 	[[12, 30], 'ROS', ['sid', 'sid', 'number'], null],
 
@@ -289,12 +279,16 @@ const cffTopDict = new CFFDict([
 	[[12, 38], 'FontName', 'sid', null],
 ]);
 
-const variationStore = new r.Struct({
+const variationStoreFields = {
 	length: r.uint16,
 	itemVariationStore: itemVariationStore,
-});
+};
 
-const cff2TopDict = new CFFDict([
+const variationStore = new r.Struct<CFFTable.VariationStore>(
+	variationStoreFields,
+);
+
+const cff2TopDict = new CFFDict<CFFTable.TopDictDataV2>([
 	[[12, 7], 'FontMatrix', 'array', [0.001, 0, 0, 0.001, 0, 0]],
 	[17, 'CharStrings', new CFFPointer(new CFFIndex()), null],
 	[[12, 37], 'FDSelect', new CFFPointer(fdSelect), null],
@@ -302,26 +296,6 @@ const cff2TopDict = new CFFDict([
 	[24, 'vstore', new CFFPointer(variationStore), null],
 	[25, 'maxstack', 'number', 193],
 ]);
-
-export interface CFFTopDataV1 {
-	version: 1;
-	hdrSize: number;
-	offSize: number;
-	nameIndex: string[];
-	topDictIndex: CFFDict[];
-	stringIndex: string[];
-	globalSubrIndex: { offset: number; length: number }[];
-}
-
-export interface CFFTopDataV2 {
-	version: 2;
-	hdrSize: number;
-	length: number;
-	topDict: CFFDict[];
-	globalSubrIndex: { offset: number; length: number }[];
-}
-
-export type CFFTopData = CFFTopDataV1 | CFFTopDataV2;
 
 const fields = {
 	1: {
@@ -342,7 +316,7 @@ const fields = {
 };
 
 /** @internal */
-export const cffTop = new r.VersionedStruct<typeof fields, CFFTopData>(
+export const cffTop = new r.VersionedStruct<CFFTable.TopData>(
 	r.fixed16,
 	fields,
 );

@@ -54,10 +54,7 @@ const jstfPriorityFields = {
 	extensionDisableGPOS: new r.Pointer(r.uint16, jstfGSUBModList),
 	extensionJstfMax: new r.Pointer(r.uint16, openTypeLookupList(GPOSLookup)),
 };
-const jstfPriority = new r.Struct<
-	typeof jstfPriorityFields,
-	JSTFTable.Priority
->(jstfPriorityFields);
+const jstfPriority = new r.Struct<JSTFTable.Priority>(jstfPriorityFields);
 
 const jstfLangSys = new r.Array(
 	new r.Pointer(r.uint16, jstfPriority),
@@ -68,10 +65,9 @@ const jstfLangSysRecordFields = {
 	tag: new r.String(4),
 	jstfLangSys: new r.Pointer(r.uint16, jstfLangSys),
 };
-const jstfLangSysRecord = new r.Struct<
-	typeof jstfLangSysRecordFields,
-	JSTFTable.LangSysRecord
->(jstfLangSysRecordFields);
+const jstfLangSysRecord = new r.Struct<JSTFTable.LangSysRecord>(
+	jstfLangSysRecordFields,
+);
 
 const jstfScriptFields = {
 	extenderGlyphs: new r.Pointer(r.uint16, new r.Array(r.uint16, r.uint16)), // array of glyphs to extend line length
@@ -79,18 +75,15 @@ const jstfScriptFields = {
 	langSysCount: r.uint16,
 	langSysRecords: new r.Array(jstfLangSysRecord, 'langSysCount'),
 };
-const jstfScript = new r.Struct<typeof jstfScriptFields, JSTFTable.Script>(
-	jstfScriptFields,
-);
+const jstfScript = new r.Struct<JSTFTable.Script>(jstfScriptFields);
 
 const jstfScriptRecordFields = {
 	tag: new r.String(4),
 	script: new r.Pointer(r.uint16, jstfScript, { type: 'parent' }),
 };
-const jstfScriptRecord = new r.Struct<
-	typeof jstfScriptRecordFields,
-	JSTFTable.ScriptRecord
->(jstfScriptRecordFields);
+const jstfScriptRecord = new r.Struct<JSTFTable.ScriptRecord>(
+	jstfScriptRecordFields,
+);
 
 const jstfStructFields = {
 	version: r.uint32, // should be 0x00010000
@@ -98,6 +91,4 @@ const jstfStructFields = {
 	scriptList: new r.Array(jstfScriptRecord, 'scriptCount'),
 };
 /** @internal */
-export const JSTF = new r.Struct<typeof jstfStructFields, JSTFTable.JSTF>(
-	jstfStructFields,
-);
+export const JSTF = new r.Struct<JSTFTable.JSTF>(jstfStructFields);

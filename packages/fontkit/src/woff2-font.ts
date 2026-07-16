@@ -167,7 +167,7 @@ class Substream extends r.DecodeStream {
 		this.buf = new r.Buffer(this.length);
 	}
 
-	decode(stream: r.DecodeStream, parent?: r.ParsingContext): r.DecodeStream {
+	decode(stream: r.DecodeStream, parent: GlyfTableData): r.DecodeStream {
 		return new r.DecodeStream(this.buf.decode(stream, parent));
 	}
 }
@@ -211,7 +211,7 @@ const fields = {
 	bboxes: new Substream('bboxStreamSize'),
 	instructions: new Substream('instructionStreamSize'),
 };
-const GlyfTable = new r.Struct<typeof fields, GlyfTableData>(fields);
+const GlyfTable = new r.Struct<GlyfTableData>(fields);
 
 const WORD_CODE = 253;
 const ONE_MORE_BYTE_CODE2 = 254;

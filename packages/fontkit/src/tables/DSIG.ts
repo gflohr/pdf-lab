@@ -32,19 +32,16 @@ const signatureFields = {
 	length: r.uint32,
 	offset: r.uint32,
 };
-const signature = new r.Struct<typeof signatureFields, DSIGTable.Signature>(
-	signatureFields,
-);
+const signature = new r.Struct<DSIGTable.Signature>(signatureFields);
 
 const signatureBlockFields = {
 	reserved: new r.Reserved(r.uint16, 2),
 	cbSignature: r.uint32, // Length (in bytes) of the PKCS#7 packet in pbSignature
 	signature: new r.Buffer('cbSignature'),
 };
-const signatureBlock = new r.Struct<
-	typeof signatureBlockFields,
-	DSIGTable.SignatureBlock
->(signatureBlockFields);
+const signatureBlock = new r.Struct<DSIGTable.SignatureBlock>(
+	signatureBlockFields,
+);
 
 const dsigStructFields = {
 	ulVersion: r.uint32,
@@ -54,6 +51,4 @@ const dsigStructFields = {
 	signatureBlocks: new r.Array(signatureBlock, 'usNumSigs'),
 };
 /** @internal */
-export const DSIG = new r.Struct<typeof dsigStructFields, DSIGTable.DSIG>(
-	dsigStructFields,
-);
+export const DSIG = new r.Struct<DSIGTable.DSIG>(dsigStructFields);

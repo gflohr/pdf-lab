@@ -51,6 +51,4 @@ const gvarStructFields = {
 	),
 };
 /** @internal */
-export const gvar = new r.Struct<typeof gvarStructFields, gvarTable.gvar>(
-	gvarStructFields,
-);
+export const gvar = new r.Struct<gvarTable.gvar>(gvarStructFields);

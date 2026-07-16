@@ -37,10 +37,10 @@ const ttcHeaderFields = {
 };
 
 // Use r.uint32 as the fixed version discriminator block
-const TTCHeader = new r.VersionedStruct<
-	typeof ttcHeaderFields,
-	TTCTable.Header
->(r.uint32, ttcHeaderFields);
+const TTCHeader = new r.VersionedStruct<TTCTable.Header>(
+	r.uint32,
+	ttcHeaderFields,
+);
 
 export class TrueTypeCollection {
 	private stream: r.DecodeStream;

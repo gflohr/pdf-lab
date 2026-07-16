@@ -3,17 +3,19 @@ import type {
 	DecodeStream,
 	EncodeStream,
 	FieldT,
-	ParsingContext,
 } from 'restructure';
+import type { CFFSubsetCharset } from '../subset/cff-subset.js';
+import type { CFFFont, CFFTable } from './cff-font.js';
+import type { IndexItemValue } from './cff-index.js';
 import { cffOperand } from './cff-operand.js';
-import type { CFFPrivateDictTable } from './cff-pointer.js';
-import type { CFFPrivateOp, PredefinedOp } from './cff-top.js';
+import { CFFPointer, type Ptr } from './cff-pointer.js';
+import { CFFPrivateOp, PredefinedOp } from './cff-top.js';
 
 interface CFFOp extends FieldT<unknown> {
 	decode(
 		stream: DecodeStream,
-		ctx?: ParsingContext,
-		operands?: ParsingContext,
+		ctx?: CFFTable.DictData,
+		operands?: unknown,
 	): unknown;
 }
 
@@ -28,7 +30,19 @@ type CFFOpType =
 	| null
 	| CFFOp
 	| CFFPrivateOp
-	| PredefinedOp;
+	| PredefinedOp<unknown>;
+
+type CFFOpEncodingType =
+	| 'delta'
+	| 'number'
+	| 'boolean'
+	| 'offset'
+	| 'sid'
+	| 'array'
+	| string[]
+	| CFFPrivateOp
+	| CFFPointer<FieldT<unknown>>
+	| PredefinedOp<unknown>;
 
 export type CFFOpDefinition = [
 	operator: number | [number, number],
@@ -40,21 +54,37 @@ export type CFFOpDefinition = [
 /**
  * @internal
  */
-export interface CFFContext {
-	parent?: CFFContext;
-	val: any;
+export interface CFFTraversalContext {
+	parent?: CFFTraversalContext | CFFFont;
+	val: CFFTable.DictData;
 	pointerSize: number;
 	startOffset: number;
-	pointers?: Array<{ type: any; val: any; parent: any }>;
+	// In the tests, the pointers property is always undefined or empty.
+	// The types are therefore inferred from usage and are not necessarily
+	// correct.
+	pointers?: Array<{
+		type: FieldT<IndexItemValue>;
+		val: IndexItemValue;
+		parent: CFFTraversalContext | CFFFont;
+	}>;
 	pointerOffset?: number;
 }
+
+type CFFDictEncodeOperands =
+	| (Uint8Array | number)[]
+	| CFFSubsetCharset
+	| number
+	| boolean;
 
 /**
  * Handles binary decoding and encoding of Compact Font Format (CFF) key-value dictionaries.
  */
-export class CFFDict implements FieldT<Record<string, any>> {
+export class CFFDict<T extends CFFTable.DictData = CFFTable.DictData>
+	implements FieldT<CFFTable.DictData>
+{
 	public ops: CFFOpDefinition[];
-	public fields: Record<number, CFFOpDefinition>;
+	public fields: Record<string, CFFOpDefinition>;
+	public declare length: number;
 
 	constructor(ops: CFFOpDefinition[] = []) {
 		this.ops = ops;
@@ -68,12 +98,12 @@ export class CFFDict implements FieldT<Record<string, any>> {
 		}
 	}
 
-	decodeOperands(
+	private decodeOperands(
 		type: CFFOpType | string | undefined | null,
 		stream: DecodeStream,
-		ret: Record<string, CFFPrivateDictTable>,
+		ret: T,
 		operands: number[],
-	): any {
+	): unknown {
 		if (Array.isArray(type)) {
 			return operands.map((op, i) =>
 				this.decodeOperands(type[i], stream, ret, [op]),
@@ -83,7 +113,7 @@ export class CFFDict implements FieldT<Record<string, any>> {
 			typeof type === 'object' &&
 			typeof type.decode === 'function'
 		) {
-			return type.decode(stream, ret, operands);
+			return type.decode(stream, ret as CFFTable.TopDictData, operands);
 		} else {
 			switch (type) {
 				case 'number':
@@ -98,19 +128,40 @@ export class CFFDict implements FieldT<Record<string, any>> {
 		}
 	}
 
-	encodeOperands(
-		type: any,
+	private encodeOperands(
+		type: CFFOpEncodingType,
 		stream: EncodeStream | null,
-		ctx: CFFContext,
-		operands: any,
-	): any[] {
+		ctx: CFFTraversalContext,
+		operands: CFFDictEncodeOperands,
+	) {
 		if (Array.isArray(type)) {
-			return operands.map(
-				(op: any, i: number) =>
-					this.encodeOperands(type[i], stream, ctx, op)[0],
-			);
-		} else if (type && typeof type.encode === 'function') {
-			return type.encode(stream, operands, ctx);
+			if (!Array.isArray(operands)) {
+				throw new Error(
+					`CFF Encoding Mismatch: Expected operands array to match type array layout, but received: ${typeof operands}`,
+				);
+			}
+
+			return operands.map((op: Uint8Array | number | Ptr, i: number) => {
+				const results = this.encodeOperands(
+					type[i] as CFFOpEncodingType,
+					stream,
+					ctx,
+					op as number,
+				) as [number];
+				return results[0];
+			});
+		} else if (type instanceof CFFPointer) {
+			return type.encode(stream!, operands, ctx);
+		} else if (type instanceof CFFPrivateOp) {
+			return type.encode(stream!, operands as CFFTable.PrivateDictData, ctx);
+		} else if (type instanceof PredefinedOp) {
+			const encoded = type.encode(stream!, operands as CFFSubsetCharset, ctx);
+			if (Array.isArray(encoded)) {
+				return encoded;
+			} else {
+				// This should not happen!
+				return [encoded];
+			}
 		} else if (typeof operands === 'number') {
 			return [operands];
 		} else if (typeof operands === 'boolean') {
@@ -122,10 +173,10 @@ export class CFFDict implements FieldT<Record<string, any>> {
 		}
 	}
 
-	decode(stream: DecodeStream, parent?: any): Record<string, any> {
-		const end = stream.pos + (parent?.length ?? 0);
-		const ret: Record<string, any> = {};
-		let operands: any[] = [];
+	decode(stream: DecodeStream, parent: CFFDict): T {
+		const end = stream.pos + (parent.length ?? 0);
+		const ret = {} as Record<string, unknown>;
+		let operands: number[] = [];
 
 		// Define hidden context metadata engine properties
 		Object.defineProperties(ret, {
@@ -154,7 +205,7 @@ export class CFFDict implements FieldT<Record<string, any>> {
 					throw new Error(`Unknown CFF operator token: ${b}`);
 				}
 
-				const val = this.decodeOperands(field[2], stream, ret, operands);
+				const val = this.decodeOperands(field[2], stream, ret as T, operands);
 				if (val != null) {
 					if (
 						val &&
@@ -169,19 +220,18 @@ export class CFFDict implements FieldT<Record<string, any>> {
 
 				operands = [];
 			} else {
-				operands.push(cffOperand.decode(stream, b));
+				const decoded = cffOperand.decode(stream, b);
+				if (typeof decoded !== 'undefined' && decoded !== null) {
+					operands.push(decoded);
+				}
 			}
 		}
 
-		return ret;
+		return ret as T;
 	}
 
-	size(
-		dict: Record<string, any>,
-		parent?: any,
-		includePointers = true,
-	): number {
-		const ctx: CFFContext = {
+	size(dict: T, parent?: CFFTraversalContext, includePointers = true): number {
+		const ctx: CFFTraversalContext = {
 			parent,
 			val: dict,
 			pointerSize: 0,
@@ -192,14 +242,19 @@ export class CFFDict implements FieldT<Record<string, any>> {
 
 		for (const k in this.fields) {
 			const field = this.fields[k];
-			const val = dict[field[1]];
+			const val = dict[field[1] as keyof T];
 			if (val == null || isEqual(val, field[3])) {
 				continue;
 			}
 
-			const operands = this.encodeOperands(field[2], null, ctx, val);
+			const operands = this.encodeOperands(
+				field[2] as CFFOpEncodingType,
+				null,
+				ctx,
+				val as CFFDictEncodeOperands,
+			);
 			for (const op of operands) {
-				len += cffOperand.size(op);
+				len += cffOperand.size(op as number | Ptr);
 			}
 
 			const key = Array.isArray(field[0]) ? field[0] : [field[0]];
@@ -213,8 +268,8 @@ export class CFFDict implements FieldT<Record<string, any>> {
 		return len;
 	}
 
-	encode(stream: EncodeStream, dict: Record<string, any>, parent?: any): void {
-		const ctx: CFFContext = {
+	encode(stream: EncodeStream, dict: T, parent?: CFFTraversalContext): void {
+		const ctx: CFFTraversalContext = {
 			pointers: [],
 			startOffset: stream.pos,
 			parent,
@@ -225,14 +280,19 @@ export class CFFDict implements FieldT<Record<string, any>> {
 		ctx.pointerOffset = stream.pos + this.size(dict, ctx, false);
 
 		for (const field of this.ops) {
-			const val = dict[field[1]];
+			const val = dict[field[1] as keyof T];
 			if (val == null || isEqual(val, field[3])) {
 				continue;
 			}
 
-			const operands = this.encodeOperands(field[2], stream, ctx, val);
+			const operands = this.encodeOperands(
+				field[2] as CFFOpEncodingType,
+				stream,
+				ctx,
+				val as CFFDictEncodeOperands,
+			);
 			for (const op of operands) {
-				cffOperand.encode(stream, op);
+				cffOperand.encode(stream, op as number | Ptr);
 			}
 
 			const key = Array.isArray(field[0]) ? field[0] : [field[0]];

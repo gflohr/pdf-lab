@@ -1,11 +1,9 @@
-import type { EncodeStream } from 'restructure';
 import type { Path } from '../glyph/path.js';
 import { TrueTypeGlyph } from '../glyph/true-type-glyph.js';
 import { TrueTypeGlyphEncoder } from '../glyph/true-type-glyph-encoder.js';
 import type { OpenTypeTrueTypeFont } from '../open-type-font.js';
-import { directory, type SFNTDirectoryEntry } from '../tables/directory.js';
+import { directory } from '../tables/directory.js';
 import type { hmtxTable } from '../tables/hmtx.js';
-import { tables } from '../tables/index.js';
 import type { TrueTypeFont } from '../true-type-font.js';
 import { Subset } from './subset.js';
 
@@ -162,7 +160,7 @@ export class TrueTypeSubset extends Subset {
 				// 'OS/2': clone @font['OS/2']
 				// post: clone @font.post
 				// cmap: cmap
-			} as Record<string, SFNTDirectoryEntry | Record<string, any>>,
+			} as Record<string, unknown>,
 		});
 	}
 

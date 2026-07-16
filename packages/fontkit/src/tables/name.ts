@@ -52,15 +52,15 @@ export namespace nameTable {
 	}
 
 	// Notice that "records" is typed as nameProcessedRecords to match the output state!
-	export interface nameV1 {
-		version: 1;
+	export interface nameV0 {
+		version: 0;
 		count: number;
 		stringOffset: number;
 		records: ProcessedRecords;
 	}
 
-	export interface nameV2 {
-		version: 2;
+	export interface nameV1 {
+		version: 1;
 		count: number;
 		stringOffset: number;
 		records: ProcessedRecords;
@@ -68,7 +68,7 @@ export namespace nameTable {
 		langTags: LangTagRecord[];
 	}
 
-	export type name = nameV1 | nameV2;
+	export type name = nameV0 | nameV1;
 }
 
 const nameRecordFields = {
@@ -90,9 +90,7 @@ const nameRecordFields = {
 		},
 	),
 };
-const NameRecord = new r.Struct<typeof nameRecordFields, nameTable.NameRecord>(
-	nameRecordFields,
-);
+const NameRecord = new r.Struct<nameTable.NameRecord>(nameRecordFields);
 
 const langTagRecordFields = {
 	length: r.uint16,
@@ -101,10 +99,9 @@ const langTagRecordFields = {
 		relativeTo: (ctx) => ctx.stringOffset,
 	}),
 };
-const LangTagRecord = new r.Struct<
-	typeof langTagRecordFields,
-	nameTable.LangTagRecord
->(langTagRecordFields);
+const LangTagRecord = new r.Struct<nameTable.LangTagRecord>(
+	langTagRecordFields,
+);
 
 const nameFields = {
 	0: {
@@ -124,10 +121,7 @@ const nameFields = {
 // We explicitly cast the base generic here to pass the runtime array format checks
 // internally inside restructure, but map it gracefully to the finalized nameTable.name shape.
 /** @internal */
-export const name = new r.VersionedStruct<typeof nameFields, nameTable.name>(
-	r.uint16,
-	nameFields,
-);
+export const name = new r.VersionedStruct<nameTable.name>(r.uint16, nameFields);
 
 const NAMES = [
 	'copyright',
@@ -155,7 +149,7 @@ const NAMES = [
 	'wwsSubfamilyName',
 ];
 
-name.process = function (this: any) {
+name.process = function (this: nameTable.name) {
 	const rawRecords = this.records as nameTable.NameRecord[];
 	const processedRecords: nameTable.ProcessedRecords = {};
 
@@ -164,6 +158,7 @@ name.process = function (this: any) {
 			LANGUAGES[record.platformID]?.[record.languageID];
 
 		if (
+			this.version === 1 &&
 			language == null &&
 			this.langTags != null &&
 			record.languageID >= 0x8000
@@ -209,7 +204,7 @@ name.process = function (this: any) {
 	this.records = processedRecords;
 };
 
-name.preEncode = function (this: any) {
+name.preEncode = function (this: nameTable.name) {
 	if (Array.isArray(this.records)) return;
 	this.version = 0;
 
@@ -256,7 +251,7 @@ name.preEncode = function (this: any) {
 		}
 	}
 
-	this.records = records;
+	this.records = records as nameTable.ProcessedRecords;
 	this.count = records.length;
 	this.stringOffset = name.size(this, null, false);
 };

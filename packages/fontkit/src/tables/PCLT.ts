@@ -39,4 +39,4 @@ const pcltFields = {
 	reserved: new r.Reserved(r.uint8),
 };
 /** @internal */
-export const PCLT = new r.Struct<typeof pcltFields, PCLTTable.PCLT>(pcltFields);
+export const PCLT = new r.Struct<PCLTTable.PCLT>(pcltFields);

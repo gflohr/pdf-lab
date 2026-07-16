@@ -31,7 +31,7 @@ const gaspFields = {
 		'symmetricGridfit', // only in version 1, for ClearType
 	]),
 };
-const gaspRange = new r.Struct<typeof gaspFields, gaspTable.Range>(gaspFields);
+const gaspRange = new r.Struct<gaspTable.Range>(gaspFields);
 
 const gaspStructFields = {
 	version: r.uint16, // set to 0
@@ -39,6 +39,4 @@ const gaspStructFields = {
 	gaspRanges: new r.Array(gaspRange, 'numRanges'), // Sorted by ppem
 };
 /** @internal */
-export const gasp = new r.Struct<typeof gaspStructFields, gaspTable.gasp>(
-	gaspStructFields,
-);
+export const gasp = new r.Struct<gaspTable.gasp>(gaspStructFields);

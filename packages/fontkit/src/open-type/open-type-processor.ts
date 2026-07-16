@@ -24,7 +24,6 @@ export class OpenTypeProcessor<T> {
 	private language: OpenType.LangSys | null;
 	private languageTag: string | null;
 	public features: Partial<Record<OpenType.FeatureTag, OpenType.Feature>>;
-	private lookups: Record<string, unknown>;
 	private variationsIndex: number;
 	protected glyphs: GlyphInfo<T>[];
 	protected positions?: GlyphPosition[];
@@ -44,7 +43,6 @@ export class OpenTypeProcessor<T> {
 		this.languageTag = null;
 
 		this.features = {};
-		this.lookups = {};
 
 		// Setup variation substitutions
 		this.variationsIndex = font.variationProcessor

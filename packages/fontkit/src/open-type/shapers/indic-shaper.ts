@@ -7,6 +7,7 @@ import * as Script from '../../layout/script.js';
 import type { OpenType } from '../../tables/open-type.js';
 import type { TrueTypeFont } from '../../true-type-font.js';
 import { GlyphInfo } from '../glyph-info.js';
+import type { OpenTypeLayoutEngine } from '../open-type-layout-engine.js';
 import type { ShapingFunction, ShapingPlan } from '../shaping-plan.js';
 import { DefaultShaper } from './default-shaper.js';
 import base64DeflatedIndicMachine from './indic.js';
@@ -21,7 +22,6 @@ import {
 } from './indic-data.js';
 import base64DeflatedTrie from './trie-indic.js';
 import base64DeflatedUseData from './use.js';
-import { OpenTypeLayoutEngine } from '../open-type-layout-engine.js';
 
 export class IndicInfo {
 	constructor(
@@ -113,9 +113,9 @@ export class IndicShaper extends DefaultShaper {
 		// TODO: turn off kern (Khmer) and liga features.
 	}
 
-	static assignFeatures(
-		plan: ShapingPlan<IndicInfo>,
-		glyphs: GlyphInfo<IndicInfo>[],
+	static assignFeatures<T = IndicInfo>(
+		plan: ShapingPlan<T>,
+		glyphs: GlyphInfo<T>[],
 	) {
 		// Decompose split matras
 		// TODO: do this in a more general unicode normalizer
@@ -145,7 +145,7 @@ export class IndicShaper extends DefaultShaper {
 					);
 				});
 
-				glyphs.splice(i, 1, ...decomposed);
+				glyphs.splice(i, 1, ...(decomposed as GlyphInfo<T>[]));
 			}
 		}
 	}
@@ -226,13 +226,22 @@ function wouldSubstitute(
 	glyphs: IndicGlyphInfo[],
 	feature: OpenType.FeatureTag,
 ) {
-	for (const glyph of glyphs) {
-		glyph.features = { [feature]: true };
-	}
+	if (glyphs.length === 0) return false;
 
-	const GSUB = (glyphs[0].font.layoutEngine.engine as OpenTypeLayoutEngine<unknown>)?.gsubProcessor;
+	const GSUB = (
+		glyphs[0].font.layoutEngine.engine as OpenTypeLayoutEngine<unknown>
+	)?.gsubProcessor;
 	if (!GSUB) {
 		return false;
+	}
+
+	const engine = glyphs[0].font.layoutEngine.engine;
+	const gsubProcessor = (engine as OpenTypeLayoutEngine<unknown>)
+		?.gsubProcessor;
+	if (!gsubProcessor) return false;
+
+	for (const glyph of glyphs) {
+		glyph.features = { [feature]: true };
 	}
 
 	GSUB.applyFeatures([feature], glyphs);
@@ -271,9 +280,11 @@ function initialReordering(
 	glyphs: IndicGlyphInfo[],
 	plan: ShapingPlan<IndicInfo>,
 ) {
-	const indicConfig = plan.indicConfig!;
-	const features = (font.layoutEngine.engine as OpenTypeLayoutEngine<unknown>)?.gsubProcessor?.features;
+	const engine = font.layoutEngine.engine;
+	const features = (engine as OpenTypeLayoutEngine<unknown>)?.gsubProcessor
+		?.features;
 
+	const indicConfig = plan.indicConfig!;
 	const dottedCircle = font.glyphForCodePoint(0x25cc)?.id;
 	if (!dottedCircle) {
 		throw new Error(
@@ -742,7 +753,9 @@ function finalReordering(
 	plan: ShapingPlan<IndicInfo>,
 ) {
 	const indicConfig = plan.indicConfig!;
-	const features = (font.layoutEngine.engine as OpenTypeLayoutEngine<unknown>)?.gsubProcessor?.features;
+	const engine = font.layoutEngine.engine;
+	const features = (engine as OpenTypeLayoutEngine<unknown>)?.gsubProcessor
+		?.features;
 
 	for (
 		let start = 0, end = nextSyllable(glyphs, 0);

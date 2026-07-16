@@ -1,5 +1,6 @@
 import type { DecodeStream, FieldT } from 'restructure';
 import { CFFDict } from './cff-dict.js';
+import type { CFFTable } from './cff-font.js';
 import { CFFIndex } from './cff-index.js';
 import { CFFPointer } from './cff-pointer.js';
 
@@ -15,7 +16,7 @@ const CFFBlendOp: FieldT<unknown> = {
 	},
 } as FieldT<unknown>;
 
-export const privateCFFDict = new CFFDict([
+export const cffPrivateDict = new CFFDict<CFFTable.PrivateDictData>([
 	// key, name, type, default
 	[6, 'BlueValues', 'delta', null],
 	[7, 'OtherBlues', 'delta', null],
@@ -39,7 +40,9 @@ export const privateCFFDict = new CFFDict([
 	[
 		19,
 		'Subrs',
-		new CFFPointer(new CFFIndex() as FieldT<any>, { type: 'local' }),
+		new CFFPointer(new CFFIndex() as FieldT<CFFTable.IndexDescriptor[]>, {
+			type: 'local',
+		}),
 		null,
 	],
 ]);

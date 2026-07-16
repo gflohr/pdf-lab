@@ -1,7 +1,7 @@
 import * as r from 'restructure';
 import { type AATFont, requiredAATTables } from './aat/aat-font.js';
 import { fontkit } from './base.js';
-import type { CFFFont } from './cff/cff-font.js';
+import type { CFF1Font } from './cff/cff1-font.js';
 import { CmapProcessor } from './cmap-processor.js';
 import type {
 	NamedVariation,
@@ -133,7 +133,7 @@ export class TrueTypeFont<
 
 	// Infers all other table properties (cmap, head, OS/2, etc.) via the
 	// interface heritage.
-	[key: string]: any;
+	[key: string]: unknown;
 
 	public static probe(buffer: Uint8Array): boolean {
 		const format = asciiDecoder.decode(buffer.slice(0, 4));
@@ -201,11 +201,11 @@ export class TrueTypeFont<
 		}
 	}
 
-	public get cff(): CFFFont | null {
+	public get cff(): CFF1Font | null {
 		return this['CFF '];
 	}
 
-	private getTable<K extends keyof SFNTTableMap>(
+	protected getTable<K extends keyof SFNTTableMap>(
 		table: SFNTDirectoryEntry,
 	): SFNTTableMap[K] | null {
 		if (!table) {

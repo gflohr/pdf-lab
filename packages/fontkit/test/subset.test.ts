@@ -3,8 +3,9 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as r from 'restructure';
 import { describe, expect, it } from 'vitest';
-import { CFFFont } from '../src/cff/cff-font.js';
+import type { CFFFont } from '../src/cff/cff-font.js';
 import { CFFGlyph } from '../src/glyph/cff-glyph.js';
+import { CFF1Font } from '../src/index.js';
 import type { OpenTypePostScriptFont } from '../src/open-type-font.js';
 import { TrueTypeFont } from '../src/true-type-font.js';
 import fontkit from './helpers.js';
@@ -154,7 +155,7 @@ describe('font subsetting', () => {
 			const buf = subset.encode();
 
 			const stream = new r.DecodeStream(buf);
-			const cff = new CFFFont(stream);
+			const cff = new CFF1Font(stream);
 			const glyph = new CFFGlyph(1, [], {
 				outlines: 'PostScript',
 				stream,
@@ -182,7 +183,7 @@ describe('font subsetting', () => {
 			const buf = subset.encode();
 
 			const stream = new r.DecodeStream(buf);
-			const cff = new CFFFont(stream);
+			const cff = new CFF1Font(stream);
 			const glyph = new CFFGlyph(1, [], {
 				outlines: 'PostScript',
 				stream,
@@ -191,9 +192,12 @@ describe('font subsetting', () => {
 
 			expect(glyph.path.toSVG()).toBe(f.glyphsForString('갈')[0]!.path.toSVG());
 
-			expect(cff.topDict.FDArray.length).toBe(2);
+			expect(cff.topDict.FDArray?.length).toBe(2);
 
-			expect(cff.topDict.FDSelect.fds).toEqual([0, 1, 1]);
+			expect(cff.topDict.FDSelect?.version).toBe(0);
+			if (cff.topDict.FDSelect!.version === 0) {
+				expect(cff.topDict.FDSelect?.fds).toEqual([0, 1, 1]);
+			}
 		});
 
 		it('should produce a subset with Asian punctuation correctly', async () => {
@@ -214,7 +218,7 @@ describe('font subsetting', () => {
 
 			expect(koreanFont.cff).not.toBeNull();
 
-			const cff = new CFFFont(stream);
+			const cff = new CFF1Font(stream);
 
 			let glyph = new CFFGlyph(1, [], {
 				stream,

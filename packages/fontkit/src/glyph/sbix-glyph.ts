@@ -15,7 +15,7 @@ const sbixFields = {
 	type: new r.String(4),
 	data: new r.Buffer((t) => t.parent.buflen - t._currentOffset),
 };
-const SBIXImage = new r.Struct<typeof sbixFields, SBIXImageType>(sbixFields);
+const SBIXImage = new r.Struct<SBIXImageType>(sbixFields);
 
 /**
  * Represents a color (e.g. emoji) glyph in Apple's SBIX format.

@@ -1,4 +1,6 @@
-export const isoAdobeCharset = [
+import type { StandardString } from './cff-standard-strings';
+
+export const isoAdobeCharset: StandardString[] = [
 	'.notdef',
 	'space',
 	'exclam',
@@ -228,9 +230,9 @@ export const isoAdobeCharset = [
 	'yacute',
 	'ydieresis',
 	'zcaron',
-];
+] as const;
 
-export const expertCharset = [
+export const expertCharset: StandardString[] = [
 	'.notdef',
 	'space',
 	'exclamsmall',
@@ -397,9 +399,9 @@ export const expertCharset = [
 	'Yacutesmall',
 	'Thornsmall',
 	'Ydieresissmall',
-];
+] as const;
 
-export const expertSubsetCharset = [
+export const expertSubsetCharset: StandardString[] = [
 	'.notdef',
 	'space',
 	'dollaroldstyle',
@@ -487,4 +489,4 @@ export const expertSubsetCharset = [
 	'dollarinferior',
 	'periodinferior',
 	'commainferior',
-];
+] as const;

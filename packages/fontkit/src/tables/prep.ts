@@ -14,6 +14,4 @@ const prepStructFields = {
 	controlValueProgram: new r.Array(r.uint8),
 };
 /** @internal */
-export const prep = new r.Struct<typeof prepStructFields, prepTable.prep>(
-	prepStructFields,
-);
+export const prep = new r.Struct<prepTable.prep>(prepStructFields);

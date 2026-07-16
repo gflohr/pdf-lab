@@ -135,20 +135,16 @@ const mapDataEntryFields = {
 	innerIndex: (t: MapDataEntryContext): number =>
 		t.entry & ((1 << ((t.parent.entryFormat & 0x000f) + 1)) - 1),
 };
-const MapDataEntry = new r.Struct<
-	typeof mapDataEntryFields,
-	HVARTable.MapDataEntry
->(mapDataEntryFields);
+const MapDataEntry = new r.Struct<HVARTable.MapDataEntry>(mapDataEntryFields);
 
 const deltaSetIndexMapFields = {
 	entryFormat: r.uint16,
 	mapCount: r.uint16,
 	mapData: new r.Array(MapDataEntry, 'mapCount'),
 };
-const DeltaSetIndexMap = new r.Struct<
-	typeof deltaSetIndexMapFields,
-	HVARTable.DeltaSetIndexMap
->(deltaSetIndexMapFields);
+const DeltaSetIndexMap = new r.Struct<HVARTable.DeltaSetIndexMap>(
+	deltaSetIndexMapFields,
+);
 
 const hvarFields = {
 	majorVersion: r.uint16,
@@ -160,4 +156,4 @@ const hvarFields = {
 };
 
 /** @internal */
-export const HVAR = new r.Struct<typeof hvarFields, HVARTable.HVAR>(hvarFields);
+export const HVAR = new r.Struct<HVARTable.HVAR>(hvarFields);

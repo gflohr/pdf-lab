@@ -1,7 +1,7 @@
 /* istanbul ignore file */
 import { readFileSync } from 'node:fs';
 import * as fs from 'node:fs/promises';
-import type { Font, VariationCoordinates } from '../src/font.js';
+import type { VariationCoordinates } from '../src/font.js';
 import { fontkit, type SFNTFont } from '../src/index.js';
 import type { TrueTypeFont } from '../src/true-type-font.js';
 

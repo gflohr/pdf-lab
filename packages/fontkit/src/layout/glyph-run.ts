@@ -66,9 +66,6 @@ export class GlyphRun {
 	}
 
 	public set positions(value: GlyphPosition[]) {
-		if (!value) {
-			console.trace('here');
-		}
 		if (value.length !== this.glyphs.length) {
 			throw new Error(
 				`Layout structural mismatch: positions array length (${value.length}) must match glyphs length (${this.glyphs.length})`,

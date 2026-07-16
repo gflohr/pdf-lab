@@ -4,10 +4,6 @@
 // the library is used inside of this project. It is very well possible that
 // legitimate usage of `restructure` is not reflected here. Do not suspect
 // a bug in this case but rather extend the typing.
-//
-// FIXME! In its current state, this is a little bit of a mess because it has
-// grown by fixing typing errors in the tables code, as they occurred. It is
-// probably possible to get rid of a lot of the explicit any types.
 declare module 'restructure' {
 	/**
 	 * Resolves a static number, string-pointer, or functional resolver down to
@@ -22,15 +18,16 @@ declare module 'restructure' {
 	/**
 	 * A wrapper configuration descriptor managing compiled metadata assignment rules.
 	 */
-	export class PropertyDescriptor {
+	export class PropertyDescriptor<T = unknown> {
 		enumerable: boolean;
 		configurable: boolean;
 		[key: string]: any;
 
 		constructor(opts?: Record<string, any>);
+
+		get(): T;
 	}
 
-	export type ParsingContext = any;
 	export type LengthResolver<T = any> = (t: T) => number;
 	export type Length = number | string | LengthResolver<any> | NumberT;
 	export class DecodeStream {
@@ -192,17 +189,15 @@ declare module 'restructure' {
 		toBuffer(val?: any | null): Uint8Array;
 	}
 
-	export type TypedStruct<T> = StructT<Record<string, any>, T>;
-	export type ComputedField<TStruct> = (t: TStruct) => any;
-	export type StructFields = Record<string, FieldT<any> | ComputedField<any>>;
+	export type StructFields = Record<string | number, any>;
 	type InferStruct<TFields extends StructFields> = {
 		[K in keyof TFields]: InferField<TFields[K]>;
 	};
-	export class StructT<TFields, TExplicitOut> implements FieldT<TExplicitOut> {
+	export class StructT<TExplicitOut> implements FieldT<TExplicitOut> {
 		readonly __type?: TExplicitOut;
 		readonly parent?: FieldT<any>;
 
-		constructor(fields: TFields);
+		constructor(fields: StructFields);
 
 		size(
 			value?: TExplicitOut,
@@ -222,25 +217,27 @@ declare module 'restructure' {
 		preEncode?: (this: any, stream: DecodeStream) => void;
 
 		fromBuffer(buf: Uint8Array): TExplicitOut;
-		toBuffer(val?: any | null): Uint8Array;
+		toBuffer(val?: Record<string, unknown> | null): Uint8Array;
 	}
 
+	export type VersionedStructFields = Record<string | number, StructFields>;
 	export type InferVersionedStruct<
 		TVersions extends Record<string, StructFields>,
 	> = {
 		[K in keyof TVersions & string]: { version: K } & InferStruct<TVersions[K]>;
 	}[keyof TVersions & string];
 
-	export class VersionedStructT<TVersions, TExplicitOut>
-		implements FieldT<TExplicitOut>
-	{
+	export class VersionedStructT<TExplicitOut> implements FieldT<TExplicitOut> {
 		/** Holds the structural signature of the compiled output type safely */
 		readonly __type?: TExplicitOut;
 		readonly parent?: FieldT<any>;
 
-		versions: TVersions;
+		versions: VersionedStructFields;
 
-		constructor(versionField: string | FieldT<number>, versions: TVersions);
+		constructor(
+			versionField: string | FieldT<number>,
+			versions: VersionedStructFields,
+		);
 
 		decode(stream: DecodeStream, parent?: any): TExplicitOut;
 
@@ -252,7 +249,7 @@ declare module 'restructure' {
 		preEncode?: (this: any, stream: DecodeStream) => void;
 
 		fromBuffer(buf: Uint8Array): TExplicitOut;
-		toBuffer(val?: any | null): Uint8Array;
+		toBuffer(val?: Record<string, unknown> | null): Uint8Array;
 	}
 
 	type BitfieldResult<T extends readonly (string | null)[]> = {
@@ -312,7 +309,11 @@ declare module 'restructure' {
 		decode(
 			stream: DecodeStream,
 			ctx?: unknown,
-		): InferField<TField> | number | null | { get: () => InferField<TField> };
+		):
+			| InferField<TField>
+			| number
+			| null
+			| PropertyDescriptor<InferField<TField>>;
 
 		size(value?: unknown, ctx?: unknown): number;
 
@@ -396,13 +397,13 @@ declare module 'restructure' {
 		length?: Length,
 		lengthType?: 'count' | 'bytes',
 	) => LazyArrayT<TField, TExplicitOut>;
-	export const Struct: new <TFields, TExplicitOut>(
-		fields: TFields,
-	) => StructT<TFields, TExplicitOut>;
-	export const VersionedStruct: new <TVersions, TExplicitOut>(
+	export const Struct: new <TExplicitOut>(
+		fields: StructFields,
+	) => StructT<TExplicitOut>;
+	export const VersionedStruct: new <TExplicitOut>(
 		versionField: string | FieldT<number>,
-		versions: TVersions,
-	) => VersionedStructT<TVersions, TExplicitOut>;
+		versions: VersionedStructFields,
+	) => VersionedStructT<TExplicitOut>;
 	export const Bitfield: typeof BitfieldT;
 	export const Pointer: typeof PointerT;
 	export const VoidPointer: typeof VoidPointerT;

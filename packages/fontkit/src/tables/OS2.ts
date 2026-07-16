@@ -265,7 +265,4 @@ const os2Fields = {
 };
 
 /** @internal */
-export const OS2 = new r.VersionedStruct<typeof os2Fields, OS2Table.OS2>(
-	r.uint16,
-	os2Fields,
-);
+export const OS2 = new r.VersionedStruct<OS2Table.OS2>(r.uint16, os2Fields);

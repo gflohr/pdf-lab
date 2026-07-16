@@ -1,4 +1,5 @@
 import * as r from 'restructure';
+import type { SFNTDirectory } from './index.js';
 import type { WOFFDirectoryEntry } from './woff-directory.js';
 
 const Base128 = {
@@ -148,7 +149,7 @@ export interface WOFF2DirectoryEntry
 	extends WOFFDirectoryEntry,
 		WOFF2TableMetadata {}
 
-export interface WOFF2Directory {
+export interface WOFF2Directory extends SFNTDirectory {
 	tag: string;
 	flavor: number;
 	length: number;
@@ -170,7 +171,7 @@ export interface WOFF2Directory {
  * Internal context layout map used strictly for restructuring hooks
  */
 interface WOFF2DirectoryContext extends Omit<WOFF2Directory, 'tables'> {
-	tables: WOFF2TableEntryBinary[] & Record<string, WOFF2DirectoryEntry>;
+	tables: Record<string, WOFF2DirectoryEntry>;
 }
 
 /* ========================================================================== */
@@ -190,10 +191,9 @@ const woff2DirectoryEntryFields = {
 	transformLength: new r.Optional(Base128, (t) => t.transformed),
 };
 
-const woff2DirectoryEntryStruct = new r.Struct<
-	typeof woff2DirectoryEntryFields,
-	WOFF2TableEntryBinary
->(woff2DirectoryEntryFields);
+const woff2DirectoryEntryStruct = new r.Struct<WOFF2TableEntryBinary>(
+	woff2DirectoryEntryFields,
+);
 
 const fields = {
 	tag: new r.String(4),
@@ -213,9 +213,7 @@ const fields = {
 	tables: new r.Array(woff2DirectoryEntryStruct, 'numTables'),
 };
 
-export const woff2DirectoryStruct = new r.Struct<typeof fields, WOFF2Directory>(
-	fields,
-);
+export const woff2DirectoryStruct = new r.Struct<WOFF2Directory>(fields);
 
 /* ========================================================================== */
 /* Restructure Lifecycle Hooks                                                */
@@ -224,10 +222,10 @@ export const woff2DirectoryStruct = new r.Struct<typeof fields, WOFF2Directory>(
 woff2DirectoryStruct.process = function (this: WOFF2DirectoryContext): void {
 	const mappedTables: Record<string, WOFF2DirectoryEntry> = {};
 
-	for (let i = 0; i < this.tables.length; i++) {
-		const table = this.tables[i];
-		mappedTables[table.tag] = table as any;
+	const binaryTables = this.tables as unknown as WOFF2DirectoryBinary[];
+	for (const table of binaryTables) {
+		mappedTables[table.tag] = table as unknown as WOFF2DirectoryEntry;
 	}
 
-	this.tables = mappedTables as any;
+	this.tables = mappedTables;
 };

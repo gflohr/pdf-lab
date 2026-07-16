@@ -63,10 +63,7 @@ const tableEntryFields = {
 	length: r.uint32,
 };
 
-const tableEntryStruct = new r.Struct<
-	typeof tableEntryFields,
-	SFNTTableEntryBinary
->(tableEntryFields);
+const tableEntryStruct = new r.Struct<SFNTTableEntryBinary>(tableEntryFields);
 
 const directoryFields = {
 	tag: new r.String(4),
@@ -77,9 +74,7 @@ const directoryFields = {
 	tables: new r.Array(tableEntryStruct, 'numTables'),
 };
 
-const directoryStruct = new r.Struct<typeof directoryFields, SFNTDirectory>(
-	directoryFields,
-);
+const directoryStruct = new r.Struct<SFNTDirectory>(directoryFields);
 
 // Restructure Lifecycle Hooks.
 directoryStruct.process = function (this: DirectoryContext): void {

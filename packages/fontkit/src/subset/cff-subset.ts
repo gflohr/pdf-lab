@@ -1,15 +1,20 @@
-import type { EncodeStream } from 'restructure';
+import type { PropertyDescriptor } from 'restructure';
 import type { CFFDict } from '../cff/cff-dict.js';
-import type { CFFFont } from '../cff/cff-font.js';
-import type { CFFIndexRecord } from '../cff/cff-index.js';
+import type { CFFTable } from '../cff/cff-font.js';
 import { standardStrings } from '../cff/cff-standard-strings.js';
-import { type CFFTopData, cffTop } from '../cff/cff-top.js';
+import { cffTop } from '../cff/cff-top.js';
+import type { CFF1Font } from '../cff/cff1-font.js';
 import { CFFGlyph } from '../glyph/cff-glyph.js';
 import type { TrueTypeFont } from '../true-type-font.js';
 import { Subset } from './subset.js';
 
+export interface CFFSubsetCharset extends PropertyDescriptor {
+	version: 1 | 2;
+	ranges: { first: number; nLeft: number }[];
+}
+
 export class CFFSubset extends Subset {
-	private readonly cff: CFFFont;
+	private readonly cff: CFF1Font;
 	private charstrings: Uint8Array[] = [];
 	private gsubrs?: Uint8Array[];
 	private strings?: string[];
@@ -45,7 +50,7 @@ export class CFFSubset extends Subset {
 	}
 
 	private subsetSubrs(
-		subrs: CFFIndexRecord[],
+		subrs: CFFTable.IndexDescriptor[],
 		used: Record<number, boolean>,
 	): Uint8Array[] {
 		const res: Uint8Array[] = [];
@@ -82,7 +87,12 @@ export class CFFSubset extends Subset {
 			}
 
 			if (fdMap[fd] == null) {
-				fdArray.push(Object.assign({}, this.cff.topDict.FDArray[fd]));
+				fdArray.push(
+					Object.assign(
+						{},
+						this.cff.topDict.FDArray?.[fd] as unknown as Record<number, number>,
+					),
+				);
 				used_subrs.push({});
 				fdMap[fd] = fdArray.length - 1;
 			}
@@ -101,13 +111,13 @@ export class CFFSubset extends Subset {
 		for (let i = 0; i < fdArray.length; i++) {
 			const dict = fdArray[i] as {
 				FontName: unknown;
-				Private?: Record<string, CFFIndexRecord[] | Uint8Array[]>;
+				Private?: Record<string, CFFTable.IndexDescriptor[] | Uint8Array[]>;
 			};
 			delete dict.FontName;
 			if (dict.Private?.Subrs) {
 				dict.Private = Object.assign({}, dict.Private);
 				dict.Private.Subrs = this.subsetSubrs(
-					dict.Private.Subrs as CFFIndexRecord[],
+					dict.Private.Subrs as CFFTable.IndexDescriptor[],
 					used_subrs[i],
 				);
 			}
@@ -130,7 +140,7 @@ export class CFFSubset extends Subset {
 
 		const privateDict = Object.assign({}, this.cff.topDict.Private);
 		if (this.cff.topDict.Private?.Subrs) {
-			privateDict.Subrs = this.subsetSubrs(
+			(privateDict.Subrs as unknown) = this.subsetSubrs(
 				this.cff.topDict.Private.Subrs,
 				used_subrs,
 			);
@@ -169,7 +179,7 @@ export class CFFSubset extends Subset {
 			ranges: [{ first: 1, nLeft: this.charstrings.length - 2 }],
 		};
 
-		const topDict = Object.assign({}, this.cff.topDict) as CFFDict;
+		const topDict = Object.assign({}, this.cff.topDict) as unknown as CFFDict;
 		topDict.Private = null;
 		topDict.charset = charset;
 		topDict.Encoding = null;
@@ -209,7 +219,7 @@ export class CFFSubset extends Subset {
 			topDictIndex: [topDict],
 			stringIndex: this.strings,
 			globalSubrIndex: this.gsubrs,
-		} as unknown as CFFTopData;
+		};
 
 		return cffTop.toBuffer(top);
 	}

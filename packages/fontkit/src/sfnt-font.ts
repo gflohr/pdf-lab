@@ -1,7 +1,8 @@
 /* istanbul ignore file */
 import type * as r from 'restructure';
 import type { AATFont } from './aat/aat-font.js';
-import type { CFFFont } from './cff/cff-font.js';
+import type { CFF1Font } from './cff/cff1-font.js';
+import type { CFF2Font } from './cff/cff2-font.js';
 import type { BoundingBox } from './glyph/bounding-box.js';
 import type { Glyph } from './glyph/glyph.js';
 import type { GlyphVariationProcessor } from './glyph/glyph-variation-processor.js';
@@ -18,7 +19,7 @@ import type { CPALTable } from './tables/CPAL.js';
 import type { cmapTable } from './tables/cmap.js';
 import type { cvtTable } from './tables/cvt.js';
 import type { DSIGTable } from './tables/DSIG.js';
-import type { SFNTTableMap } from './tables/directory.js';
+import type { SFNTDirectoryEntry, SFNTTableMap } from './tables/directory.js';
 import type { EBLCTable } from './tables/EBLC.js';
 import type { featTable } from './tables/feat.js';
 import type { fpgmTable } from './tables/fpgm.js';
@@ -61,14 +62,14 @@ import type { TrueTypeSubsetFont } from './true-type-subset-font.js';
 export interface SFNTFontDirectory {
 	tag: string;
 	numTables: number;
-	tables: Record<string, any>;
+	tables: Record<string, SFNTDirectoryEntry>;
 }
 
 /**
  * Baseline interface representing an unvalidated SFNT-based layout.
  * Every table property is considered nullable by default. As a consequence,
  * many properties are possibly `undefined`. You can avoid that by upcasting
- * the font object with {@link SFNTFont.asOpenTypeFont} to an
+ * the font object with {@link SFNTFont["asOpenTypeFont"]} to an
  * {@link OpenTypeFont}, which guarantees the presence of the 8 core tables,
  * and 0-2 outline tables.
  */
@@ -187,17 +188,17 @@ export interface SFNTFont<
 	/**
 	 * PostScript Compact Font Format (CFF) Outline Table version 1.
 	 */
-	cff: CFFFont | null;
+	cff: CFF1Font | null;
 
 	/**
 	 * Alternate PostScript Compact Font Format alias mapping.
 	 */
-	'CFF ': CFFFont | null;
+	'CFF ': CFF1Font | null;
 
 	/**
 	 * PostScript Compact Font Format (CFF) Outline Table version 2.
 	 */
-	CFF2: CFFFont | null;
+	CFF2: CFF2Font | null;
 
 	/**
 	 * Vertical Origin Table. Specifies vertical coordinate origins for dynamic

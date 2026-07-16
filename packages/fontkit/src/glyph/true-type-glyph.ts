@@ -21,7 +21,7 @@ const fields = {
 	xMax: r.int16,
 	yMax: r.int16,
 };
-const GlyphHeader = new r.Struct<typeof fields, GlyphHeaderData>(fields);
+const GlyphHeader = new r.Struct<GlyphHeaderData>(fields);
 
 // Flags for simple glyphs.
 export const ON_CURVE = 1 << 0; /** @internal */
@@ -378,7 +378,8 @@ export class TrueTypeGlyph extends Glyph {
 		];
 	}
 
-	// Decodes font data, resolves composite glyphs, and returns an array of contours
+	// Decodes font data, resolves composite glyphs, and returns an array of
+	// contours.
 	private decodeContours(): Point[][] {
 		const glyph = this.decode();
 		if (!glyph) {
@@ -413,7 +414,8 @@ export class TrueTypeGlyph extends Glyph {
 			points = glyph.points || [];
 		}
 
-		// Recompute and cache metrics if we performed variation processing, and don't have an HVAR table
+		// Recompute and cache metrics if we performed variation processing,
+		// and don't have an HVAR table.
 		if (glyph.phantomPoints && !this.font.HVAR) {
 			this._metrics!.advanceWidth =
 				glyph.phantomPoints[1].x - glyph.phantomPoints[0].x;
@@ -455,7 +457,11 @@ export class TrueTypeGlyph extends Glyph {
 		return this._metrics!;
 	}
 
-	// Converts contours to a Path object that can be rendered
+	/**
+	 * Converts contours to a Path object that can be rendered.
+	 *
+	 * @internal
+	 */
 	public decodePath(): Path {
 		const contours = this.decodeContours();
 		const path = new Path();

@@ -222,7 +222,9 @@ export class GSUBProcessor<T> extends OpenTypeProcessor<T> {
 				);
 
 			case 8: // Not handled.
-				console.warn(`GSUB lookup type 8 is not supported! Please report a bug in @pdf-lab/fontkit!`);
+				console.warn(
+					`GSUB lookup type 8 is not supported! Please report a bug in @pdf-lab/fontkit!`,
+				);
 				return false;
 
 			default:

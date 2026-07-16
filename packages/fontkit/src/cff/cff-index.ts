@@ -1,51 +1,56 @@
-import type {
-	DecodeStream,
-	EncodeStream,
-	FieldT,
-	NumberT,
-	StringT,
-} from 'restructure';
+import type { DecodeStream, EncodeStream, FieldT, NumberT } from 'restructure';
 import * as r from 'restructure';
-import type { CFFDict } from './cff-dict.js';
-import type { CFFTopData } from './cff-top.js';
-
-export interface CFFIndexRecord {
-	offset: number;
-	length: number;
-}
+import type { CFFDict, CFFTraversalContext } from './cff-dict.js';
+import type { CFFFont, CFFTable } from './cff-font.js';
 
 export type IndexItemValue =
-	| Record<string, unknown>
+	| CFFTable.DictData
 	| string
 	| Buffer
-	| CFFIndexRecord;
+	| CFFTable.IndexDescriptor;
 
 interface CFFNodeContext extends FieldT<unknown> {
 	length: number;
 }
 
-type CFFNode = CFFNodeContext & CFFTopData;
+type CFFNode = CFFNodeContext & CFFTable.TopData;
+
+function isCFFFont(
+	ctx: CFFTraversalContext | CFFDict | CFFFont,
+): ctx is CFFFont {
+	return 'hdrSize' in ctx && typeof (ctx as CFFFont).hdrSize === 'number';
+}
 
 /**
  * Handles variable-length table lookups across structural subroutines,
  * dictionaries, and string tables.
  */
-export class CFFIndex<TType extends CFFDict | StringT | FieldT<IndexItemValue>>
-	implements FieldT<IndexItemValue[]>
+export class CFFIndex<TType extends CFFDict | FieldT<IndexItemValue>>
+	implements FieldT<CFFTable.DictData | IndexItemValue[]>
 {
 	constructor(public type?: TType) {}
 
-	private getCFFVersion(ctx?: CFFNode) {
-		while (ctx && !ctx.hdrSize) {
-			ctx = ctx.parent as CFFNode;
+	private getCFFVersion(ctx?: CFFTraversalContext | CFFDict | CFFFont) {
+		let current = ctx;
+
+		while (current && !isCFFFont(current)) {
+			current = current.parent as
+				| CFFTraversalContext
+				| CFFDict
+				| CFFFont
+				| undefined;
 		}
 
-		return ctx ? ctx.version : -1;
+		if (current) {
+			return current.version === 2 ? 2 : 1;
+		} else {
+			return -1;
+		}
 	}
 
-	decode(stream: DecodeStream, parent: CFFNode): IndexItemValue[] {
+	decode(stream: DecodeStream, parent: CFFFont | CFFDict): IndexItemValue[] {
 		const version = this.getCFFVersion(parent);
-		const count = version >= 2 ? stream.readUInt32BE() : stream.readUInt16BE();
+		const count = version !== 2 ? stream.readUInt16BE() : stream.readUInt32BE();
 
 		if (count === 0) {
 			return [];
@@ -77,7 +82,8 @@ export class CFFIndex<TType extends CFFDict | StringT | FieldT<IndexItemValue>>
 				stream.pos = startPos + start;
 
 				parent.length = end - start;
-				ret.push(this.type.decode(stream, parent));
+				const decoded = this.type.decode(stream, parent as CFFDict);
+				ret.push(decoded);
 				stream.pos = pos;
 			} else {
 				ret.push({
@@ -128,12 +134,7 @@ export class CFFIndex<TType extends CFFDict | StringT | FieldT<IndexItemValue>>
 		return size;
 	}
 
-	encode(
-		stream: EncodeStream,
-		// biome-ignore lint/suspicious/noExplicitAny: It can be almost anything.
-		arr: any[],
-		parent: CFFNode,
-	) {
+	encode(stream: EncodeStream, arr: IndexItemValue[], parent: CFFDict) {
 		if (this.getCFFVersion(parent) >= 2) {
 			stream.writeUInt32BE(arr.length);
 		} else {
@@ -143,7 +144,7 @@ export class CFFIndex<TType extends CFFDict | StringT | FieldT<IndexItemValue>>
 			return;
 		}
 
-		const type = this.type || new r.Buffer();
+		const type = (this.type || new r.Buffer()) as FieldT<IndexItemValue>;
 
 		// Find maximum offset to determine offset type.
 		const sizes = [];
@@ -182,8 +183,6 @@ export class CFFIndex<TType extends CFFDict | StringT | FieldT<IndexItemValue>>
 		for (const item of arr) {
 			type.encode(stream, item, parent);
 		}
-
-		return;
 	}
 
 	fromBuffer(_buf: Uint8Array): never {
