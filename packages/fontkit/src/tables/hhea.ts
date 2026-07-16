@@ -101,4 +101,4 @@ const fields = {
 };
 
 /** @internal */
-export const hhea = new r.Struct<typeof fields, hheaTable.hhea>(fields);
+export const hhea = new r.Struct<hheaTable.hhea>(fields);

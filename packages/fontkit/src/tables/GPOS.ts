@@ -1,3 +1,4 @@
+import { FlushValues } from 'pako';
 import * as r from 'restructure';
 import {
 	type OpenType,
@@ -11,7 +12,6 @@ import {
 	openTypeScriptList,
 } from './open-type.js';
 import { featureVariations, type OpenTypeVariation } from './variations.js';
-import { FlushValues } from 'pako';
 
 interface DecodedValueFormat {
 	xPlacement: boolean;
@@ -87,7 +87,7 @@ export class ValueRecord implements r.FieldT<GPOSTable.DecodedValueRecord> {
 
 	private buildStruct(
 		parent?: ValueRecordContext,
-	): r.StructT<Record<string, unknown>, GPOSTable.DecodedValueRecord> {
+	): r.StructT<GPOSTable.DecodedValueRecord> {
 		let current: ValueRecordContext | GPOSTable.LookupTable | undefined =
 			parent;
 
@@ -119,14 +119,17 @@ export class ValueRecord implements r.FieldT<GPOSTable.DecodedValueRecord> {
 			}
 		}
 
-		return new r.Struct<typeof fields, GPOSTable.DecodedValueRecord>(fields);
+		return new r.Struct<GPOSTable.DecodedValueRecord>(fields);
 	}
 
 	size(val?: GPOSTable.DecodedValueRecord, ctx?: ValueRecordContext): number {
 		return this.buildStruct(ctx).size(val);
 	}
 
-	decode(stream: r.DecodeStream, parent?: ValueRecordContext): GPOSTable.DecodedValueRecord {
+	decode(
+		stream: r.DecodeStream,
+		parent?: ValueRecordContext,
+	): GPOSTable.DecodedValueRecord {
 		const res = this.buildStruct(parent).decode(stream, parent);
 		// Clean up the transient helper reference before passing data back
 		if (res) {
@@ -343,10 +346,9 @@ const pairValueRecordFields = {
 	value1: new ValueRecord('valueFormat1'),
 	value2: new ValueRecord('valueFormat2'),
 };
-const PairValueRecord = new r.Struct<
-	typeof pairValueRecordFields,
-	GPOSTable.PairValueRecord
->(pairValueRecordFields);
+const PairValueRecord = new r.Struct<GPOSTable.PairValueRecord>(
+	pairValueRecordFields,
+);
 
 const PairSet = new r.Array(PairValueRecord, r.uint16);
 
@@ -354,10 +356,7 @@ const class2RecordFields = {
 	value1: new ValueRecord('valueFormat1'),
 	value2: new ValueRecord('valueFormat2'),
 };
-const Class2Record = new r.Struct<
-	typeof class2RecordFields,
-	GPOSTable.Class2Record
->(class2RecordFields);
+const Class2Record = new r.Struct<GPOSTable.Class2Record>(class2RecordFields);
 
 const anchorFields = {
 	1: {
@@ -381,7 +380,7 @@ const anchorFields = {
 		yDeviceTable: new r.Pointer(r.uint16, openTypeDevice),
 	},
 };
-const Anchor = new r.VersionedStruct<typeof anchorFields, GPOSTable.Anchor>(
+const Anchor = new r.VersionedStruct<GPOSTable.Anchor>(
 	r.uint16,
 	anchorFields,
 );
@@ -390,18 +389,15 @@ const entryExitRecordFields = {
 	entryAnchor: new r.Pointer(r.uint16, Anchor, { type: 'parent' }),
 	exitAnchor: new r.Pointer(r.uint16, Anchor, { type: 'parent' }),
 };
-const EntryExitRecord = new r.Struct<
-	typeof entryExitRecordFields,
-	GPOSTable.EntryExitRecord
->(entryExitRecordFields);
+const EntryExitRecord = new r.Struct<GPOSTable.EntryExitRecord>(
+	entryExitRecordFields,
+);
 
 const markRecordFields = {
 	class: r.uint16,
 	markAnchor: new r.Pointer(r.uint16, Anchor, { type: 'parent' }),
 };
-const MarkRecord = new r.Struct<typeof markRecordFields, GPOSTable.MarkRecord>(
-	markRecordFields,
-);
+const MarkRecord = new r.Struct<GPOSTable.MarkRecord>(markRecordFields);
 
 const MarkArray = new r.Array(MarkRecord, r.uint16);
 
@@ -465,12 +461,12 @@ const gposLookupFieldsV2 = {
 };
 
 const gposLookupFields = {
-	1: new r.VersionedStruct<typeof gposLookupFieldsV1, GPOSTable.LookupSingle>(
+	1: new r.VersionedStruct<GPOSTable.LookupSingle>(
 		r.uint16,
 		gposLookupFieldsV1,
 	),
 
-	2: new r.VersionedStruct<typeof gposLookupFieldsV2, GPOSTable.LookupPair>(
+	2: new r.VersionedStruct<GPOSTable.LookupPair>(
 		r.uint16,
 		gposLookupFieldsV2,
 	),
@@ -524,7 +520,6 @@ const gposLookupFields = {
 	},
 };
 const GPOSLookup = new r.VersionedStruct<
-	typeof gposLookupFields,
 	GPOSTable.LookupTable
 >('lookupType', gposLookupFields);
 
@@ -545,7 +540,6 @@ const gposStructFields = {
 };
 /** @internal */
 export const GPOS = new r.VersionedStruct<
-	typeof gposStructFields,
 	GPOSTable.GPOS
 >(r.uint32, gposStructFields);
 

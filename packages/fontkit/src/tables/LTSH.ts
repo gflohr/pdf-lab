@@ -19,4 +19,4 @@ const ltshFields = {
 	yPels: new r.Array(r.uint8, 'numGlyphs'),
 };
 /** @internal */
-export const LTSH = new r.Struct<typeof ltshFields, LTSHTable.LTSH>(ltshFields);
+export const LTSH = new r.Struct<LTSHTable.LTSH>(ltshFields);

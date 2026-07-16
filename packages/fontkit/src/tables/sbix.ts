@@ -32,9 +32,7 @@ const imageTableFields = {
 		(t) => t.parent.parent.maxp.numGlyphs + 1,
 	),
 };
-const ImageTable = new r.Struct<typeof imageTableFields, sbixTable.ImageTable>(
-	imageTableFields,
-);
+const ImageTable = new r.Struct<sbixTable.ImageTable>(imageTableFields);
 
 const sbixFields = {
 	version: r.uint16,
@@ -44,4 +42,4 @@ const sbixFields = {
 };
 
 /** @internal */
-export const sbix = new r.Struct<typeof sbixFields, sbixTable.sbix>(sbixFields);
+export const sbix = new r.Struct<sbixTable.sbix>(sbixFields);

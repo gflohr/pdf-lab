@@ -47,7 +47,7 @@ const axisFields = {
 	nameID: r.uint16,
 	name: (t: FvarContext) => t.parent.parent.name.records.fontFeatures[t.nameID],
 };
-const axis = new r.Struct<typeof axisFields, fvarTable.Axis>(axisFields);
+const axis = new r.Struct<fvarTable.Axis>(axisFields);
 
 const instanceFields = {
 	nameID: r.uint16,
@@ -59,9 +59,7 @@ const instanceFields = {
 		(t) => t.parent.instanceSize - t._currentOffset > 0,
 	),
 };
-const instance = new r.Struct<typeof instanceFields, fvarTable.Instance>(
-	instanceFields,
-);
+const instance = new r.Struct<fvarTable.Instance>(instanceFields);
 
 const fvarStructFields = {
 	version: r.fixed32,
@@ -75,6 +73,4 @@ const fvarStructFields = {
 	instance: new r.Array(instance, 'instanceCount'),
 };
 /** @internal */
-export const fvar = new r.Struct<typeof fvarStructFields, fvarTable.fvar>(
-	fvarStructFields,
-);
+export const fvar = new r.Struct<fvarTable.fvar>(fvarStructFields);

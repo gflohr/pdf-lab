@@ -91,7 +91,7 @@ const postFields = {
 };
 
 /** @internal */
-export const post = new r.VersionedStruct<typeof postFields, postTable.post>(
+export const post = new r.VersionedStruct<postTable.post>(
 	r.fixed32,
 	postFields,
 );

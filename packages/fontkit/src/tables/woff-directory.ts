@@ -76,7 +76,6 @@ const woffDirectoryEntryFields = {
 };
 
 const woffDirectoryEntryStruct = new r.Struct<
-	typeof woffDirectoryEntryFields,
 	WOFFTableEntryBinary
 >(woffDirectoryEntryFields);
 
@@ -97,7 +96,7 @@ const fields = {
 	tables: new r.Array(woffDirectoryEntryStruct, 'numTables'),
 };
 
-export const woffDirectoryStruct = new r.Struct<typeof fields, WOFFDirectory>(
+export const woffDirectoryStruct = new r.Struct<WOFFDirectory>(
 	fields,
 );
 

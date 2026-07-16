@@ -14,9 +14,7 @@ const hmtxEntryFields = {
 	advance: r.uint16,
 	bearing: r.int16,
 };
-const hmtxEntry = new r.Struct<typeof hmtxEntryFields, hmtxTable.Entry>(
-	hmtxEntryFields,
-);
+const hmtxEntry = new r.Struct<hmtxTable.Entry>(hmtxEntryFields);
 
 const hmtxStructFields = {
 	metrics: new r.LazyArray(hmtxEntry, (t) => t.parent.hhea.numberOfMetrics),
@@ -27,6 +25,4 @@ const hmtxStructFields = {
 };
 
 /** @internal */
-export const hmtx = new r.Struct<typeof hmtxStructFields, hmtxTable.hmtx>(
-	hmtxStructFields,
-);
+export const hmtx = new r.Struct<hmtxTable.hmtx>(hmtxStructFields);

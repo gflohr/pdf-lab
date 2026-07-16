@@ -108,10 +108,7 @@ const ligatureFields = {
 	compCount: r.uint16,
 	components: new r.Array(r.uint16, (t) => t.compCount - 1),
 };
-const Ligature = new r.Struct<
-	typeof ligatureFields,
-	GSUBTable.LookupLigatureSet
->(ligatureFields);
+const Ligature = new r.Struct<GSUBTable.LookupLigatureSet>(ligatureFields);
 
 const LigatureSet = new r.Array(new r.Pointer(r.uint16, Ligature), r.uint16);
 
@@ -130,7 +127,6 @@ const gsubLookupSingleFields = {
 };
 const gsubLookupFields = {
 	1: new r.VersionedStruct<
-		typeof gsubLookupSingleFields,
 		GSUBTable.LookupSingle
 	>(r.uint16, gsubLookupSingleFields),
 
@@ -187,7 +183,6 @@ const gsubLookupFields = {
 	},
 };
 const GSUBLookup = new r.VersionedStruct<
-	typeof gsubLookupFields,
 	GSUBTable.LookupTable
 >('lookupType', gsubLookupFields);
 
@@ -208,7 +203,7 @@ const fields = {
 };
 
 /** @internal */
-export const GSUB = new r.VersionedStruct<typeof fields, GSUBTable.GSUB>(
+export const GSUB = new r.VersionedStruct<GSUBTable.GSUB>(
 	r.uint32,
 	fields,
 );

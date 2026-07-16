@@ -70,7 +70,6 @@ const bslnSubtableFields = {
 	},
 };
 const bslnSubtable = new r.VersionedStruct<
-	typeof bslnSubtableFields,
 	bslnTable.Subtable
 >('format', bslnSubtableFields);
 
@@ -81,6 +80,4 @@ const bslnStructFields = {
 	subtable: bslnSubtable,
 };
 /** @internal */
-export const bsln = new r.Struct<typeof bslnStructFields, bslnTable.bsln>(
-	bslnStructFields,
-);
+export const bsln = new r.Struct<bslnTable.bsln>(bslnStructFields);

@@ -19,7 +19,7 @@ const refFields = {
 	dataOffset: r.uint24,
 	handle: r.uint32,
 };
-const ref = new r.Struct<typeof refFields, Ref>(refFields);
+const ref = new r.Struct<Ref>(refFields);
 
 interface ResourceTypeEntry {
 	name: string;
@@ -35,10 +35,9 @@ const resourceTypeEntryFields = {
 		{ type: 'parent' },
 	),
 };
-const resourceTypeEntry = new r.Struct<
-	typeof resourceTypeEntryFields,
-	ResourceTypeEntry
->(resourceTypeEntryFields);
+const resourceTypeEntry = new r.Struct<ResourceTypeEntry>(
+	resourceTypeEntryFields,
+);
 
 interface ResourceTypeList {
 	length: number;
@@ -49,10 +48,7 @@ const resourceTypeListFields = {
 	length: r.uint16,
 	types: new r.Array(resourceTypeEntry, (t) => t.length + 1),
 };
-const resourceTypeList = new r.Struct<
-	typeof resourceTypeListFields,
-	ResourceTypeList
->(resourceTypeListFields);
+const resourceTypeList = new r.Struct<ResourceTypeList>(resourceTypeListFields);
 
 interface DFontMap {
 	typeList: ResourceTypeList;
@@ -64,7 +60,7 @@ const dFontMapFields = {
 	typeList: new r.Pointer(r.uint16, resourceTypeList),
 	nameListOffset: new r.Pointer(r.uint16, 'void'),
 };
-const dFontMap = new r.Struct<typeof dFontMapFields, DFontMap>(dFontMapFields);
+const dFontMap = new r.Struct<DFontMap>(dFontMapFields);
 
 interface DFontHeader {
 	dataOffset: number;
@@ -79,9 +75,7 @@ const dfontHeaderFields = {
 	dataLength: r.uint32,
 	mapLength: r.uint32,
 };
-const dFontHeader = new r.Struct<typeof dfontHeaderFields, DFontHeader>(
-	dfontHeaderFields,
-);
+const dFontHeader = new r.Struct<DFontHeader>(dfontHeaderFields);
 
 export class DFont {
 	private readonly stream: r.DecodeStream;

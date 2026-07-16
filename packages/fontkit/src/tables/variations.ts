@@ -80,10 +80,10 @@ const regionAxisCoordinatesFields = {
 	peakCoord: f2DOT14,
 	endCoord: f2DOT14,
 };
-const regionAxisCoordinates = new r.Struct<
-	typeof regionAxisCoordinatesFields,
-	OpenTypeVariation.RegionAxisCoordinates
->(regionAxisCoordinatesFields);
+const regionAxisCoordinates =
+	new r.Struct<OpenTypeVariation.RegionAxisCoordinates>(
+		regionAxisCoordinatesFields,
+	);
 
 const variationRegionListFields = {
 	axisCount: r.uint16,
@@ -93,10 +93,9 @@ const variationRegionListFields = {
 		'regionCount',
 	),
 };
-const variationRegionList = new r.Struct<
-	typeof variationRegionListFields,
-	OpenTypeVariation.VariationRegionList
->(variationRegionListFields);
+const variationRegionList = new r.Struct<OpenTypeVariation.VariationRegionList>(
+	variationRegionListFields,
+);
 
 export type DeltaSetParentContext = {
 	shortDeltaCount: number;
@@ -122,10 +121,7 @@ const deltaSetFields = {
 	deltas: (t: DeltaSetContext): number[] =>
 		t.shortDeltas.concat(t.regionDeltas),
 };
-const deltaSet = new r.Struct<
-	typeof deltaSetFields,
-	OpenTypeVariation.DeltaSet
->(deltaSetFields);
+const deltaSet = new r.Struct<OpenTypeVariation.DeltaSet>(deltaSetFields);
 
 const itemVariationDataFields = {
 	itemCount: r.uint16,
@@ -134,10 +130,9 @@ const itemVariationDataFields = {
 	regionIndexes: new r.Array(r.uint16, 'regionIndexCount'),
 	deltaSets: new r.Array(deltaSet, 'itemCount'),
 };
-const itemVariationData = new r.Struct<
-	typeof itemVariationDataFields,
-	OpenTypeVariation.ItemVariationData
->(itemVariationDataFields);
+const itemVariationData = new r.Struct<OpenTypeVariation.ItemVariationData>(
+	itemVariationDataFields,
+);
 
 const variationStoreFields = {
 	format: r.uint16,
@@ -149,10 +144,8 @@ const variationStoreFields = {
 	),
 };
 
-export const itemVariationStore = new r.Struct<
-	typeof variationStoreFields,
-	OpenTypeVariation.ItemVariationStore
->(variationStoreFields);
+export const itemVariationStore =
+	new r.Struct<OpenTypeVariation.ItemVariationStore>(variationStoreFields);
 
 const conditionTableFields = {
 	1: {
@@ -162,7 +155,6 @@ const conditionTableFields = {
 	},
 };
 const conditionTable = new r.VersionedStruct<
-	typeof conditionTableFields,
 	OpenTypeVariation.Condition
 >(r.uint16, conditionTableFields);
 
@@ -173,10 +165,9 @@ const conditionSetFields = {
 		'conditionCount',
 	),
 };
-const conditionSet = new r.Struct<
-	typeof conditionSetFields,
-	OpenTypeVariation.ConditionSet
->(conditionSetFields);
+const conditionSet = new r.Struct<OpenTypeVariation.ConditionSet>(
+	conditionSetFields,
+);
 
 const featureTableSubstitutionRecordFields = {
 	featureIndex: r.uint16,
@@ -184,10 +175,10 @@ const featureTableSubstitutionRecordFields = {
 		type: 'parent',
 	}),
 };
-const featureTableSubstitutionRecord = new r.Struct<
-	typeof featureTableSubstitutionRecordFields,
-	OpenTypeVariation.FeatureTableSubstitutionRecord
->(featureTableSubstitutionRecordFields);
+const featureTableSubstitutionRecord =
+	new r.Struct<OpenTypeVariation.FeatureTableSubstitutionRecord>(
+		featureTableSubstitutionRecordFields,
+	);
 
 const featureTableSubstitutionFields = {
 	version: r.fixed32,
@@ -197,10 +188,10 @@ const featureTableSubstitutionFields = {
 		'substitutionCount',
 	),
 };
-const featureTableSubstitution = new r.Struct<
-	typeof featureTableSubstitutionFields,
-	OpenTypeVariation.FeatureTableSubstitution
->(featureTableSubstitutionFields);
+const featureTableSubstitution =
+	new r.Struct<OpenTypeVariation.FeatureTableSubstitution>(
+		featureTableSubstitutionFields,
+	);
 
 const featureVariationRecordFields = {
 	conditionSet: new r.Pointer(r.uint32, conditionSet, { type: 'parent' }),
@@ -208,10 +199,10 @@ const featureVariationRecordFields = {
 		type: 'parent',
 	}),
 };
-const featureVariationRecord = new r.Struct<
-	typeof featureVariationRecordFields,
-	OpenTypeVariation.FeatureVariationRecord
->(featureVariationRecordFields);
+const featureVariationRecord =
+	new r.Struct<OpenTypeVariation.FeatureVariationRecord>(
+		featureVariationRecordFields,
+	);
 
 const featureVariationsFields = {
 	majorVersion: r.uint16,
@@ -224,7 +215,5 @@ const featureVariationsFields = {
 };
 
 /** @internal */
-export const featureVariations = new r.Struct<
-	typeof featureVariationsFields,
-	OpenTypeVariation.FeatureVariations
->(featureVariationsFields);
+export const featureVariations =
+	new r.Struct<OpenTypeVariation.FeatureVariations>(featureVariationsFields);

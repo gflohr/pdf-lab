@@ -31,7 +31,10 @@ export class HangulShaper extends DefaultShaper {
 		plan.add(['ljmo', 'vjmo', 'tjmo'], false);
 	}
 
-	static assignFeatures<T = null>(plan: ShapingPlan<T>, glyphs: GlyphInfo<T>[]) {
+	static assignFeatures<T = null>(
+		plan: ShapingPlan<T>,
+		glyphs: GlyphInfo<T>[],
+	) {
 		let state = 0;
 		let i = 0;
 		while (i < glyphs.length) {

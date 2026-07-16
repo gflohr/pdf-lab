@@ -192,7 +192,6 @@ const woff2DirectoryEntryFields = {
 };
 
 const woff2DirectoryEntryStruct = new r.Struct<
-	typeof woff2DirectoryEntryFields,
 	WOFF2TableEntryBinary
 >(woff2DirectoryEntryFields);
 
@@ -214,7 +213,7 @@ const fields = {
 	tables: new r.Array(woff2DirectoryEntryStruct, 'numTables'),
 };
 
-export const woff2DirectoryStruct = new r.Struct<typeof fields, WOFF2Directory>(
+export const woff2DirectoryStruct = new r.Struct<WOFF2Directory>(
 	fields,
 );
 

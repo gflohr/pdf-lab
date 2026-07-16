@@ -104,6 +104,4 @@ const headStructFields = {
 	glyphDataFormat: r.int16, // 0 for current format
 };
 /** @internal */
-export const head = new r.Struct<typeof headStructFields, headTable.head>(
-	headStructFields,
-);
+export const head = new r.Struct<headTable.head>(headStructFields);

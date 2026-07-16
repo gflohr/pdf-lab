@@ -21,7 +21,7 @@ const fields = {
 	xMax: r.int16,
 	yMax: r.int16,
 };
-const GlyphHeader = new r.Struct<typeof fields, GlyphHeaderData>(fields);
+const GlyphHeader = new r.Struct<GlyphHeaderData>(fields);
 
 // Flags for simple glyphs.
 export const ON_CURVE = 1 << 0; /** @internal */

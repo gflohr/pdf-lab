@@ -132,7 +132,6 @@ const baseCoordFields = {
 	},
 };
 const baseCoord = new r.VersionedStruct<
-	typeof baseCoordFields,
 	BASETable.Coord
 >(r.uint16, baseCoordFields);
 
@@ -141,19 +140,16 @@ const baseValuesFields = {
 	baseCoordCount: r.uint16,
 	baseCoords: new r.Array(new r.Pointer(r.uint16, baseCoord), 'baseCoordCount'),
 };
-const baseValues = new r.Struct<typeof baseValuesFields, BASETable.Values>(
-	baseValuesFields,
-);
+const baseValues = new r.Struct<BASETable.Values>(baseValuesFields);
 
 const featMinMaxRecordFields = {
 	tag: new r.String(4), // 4-byte feature identification tag-must match FeatureTag in FeatureList
 	minCoord: new r.Pointer(r.uint16, baseCoord, { type: 'parent' }), // May be NULL
 	maxCoord: new r.Pointer(r.uint16, baseCoord, { type: 'parent' }), // May be NULL
 };
-const featMinMaxRecord = new r.Struct<
-	typeof featMinMaxRecordFields,
-	BASETable.FeatMinMaxRecord
->(featMinMaxRecordFields);
+const featMinMaxRecord = new r.Struct<BASETable.FeatMinMaxRecord>(
+	featMinMaxRecordFields,
+);
 
 const minMaxFields = {
 	minCoord: new r.Pointer(r.uint16, baseCoord), // May be NULL
@@ -161,18 +157,15 @@ const minMaxFields = {
 	featMinMaxCount: r.uint16, // May be 0
 	featMinMaxRecords: new r.Array(featMinMaxRecord, 'featMinMaxCount'), // In alphabetical order
 };
-const minMax = new r.Struct<typeof minMaxFields, BASETable.MinMax>(
-	minMaxFields,
-);
+const minMax = new r.Struct<BASETable.MinMax>(minMaxFields);
 
 const baseLangSysRecordFields = {
 	tag: new r.String(4), // 4-byte language system identification tag
 	minMax: new r.Pointer(r.uint16, minMax, { type: 'parent' }),
 };
-const baseLangSysRecord = new r.Struct<
-	typeof baseLangSysRecordFields,
-	BASETable.LangSysRecord
->(baseLangSysRecordFields);
+const baseLangSysRecord = new r.Struct<BASETable.LangSysRecord>(
+	baseLangSysRecordFields,
+);
 
 const baseScriptFields = {
 	baseValues: new r.Pointer(r.uint16, baseValues), // May be NULL
@@ -180,18 +173,15 @@ const baseScriptFields = {
 	baseLangSysCount: r.uint16, // May be 0
 	baseLangSysRecords: new r.Array(baseLangSysRecord, 'baseLangSysCount'), // in alphabetical order by BaseLangSysTag
 };
-const baseScript = new r.Struct<typeof baseScriptFields, BASETable.Script>(
-	baseScriptFields,
-);
+const baseScript = new r.Struct<BASETable.Script>(baseScriptFields);
 
 const baseScriptRecordFields = {
 	tag: new r.String(4), // 4-byte script identification tag
 	script: new r.Pointer(r.uint16, baseScript, { type: 'parent' }),
 };
-const baseScriptRecord = new r.Struct<
-	typeof baseScriptRecordFields,
-	BASETable.ScriptRecord
->(baseScriptRecordFields);
+const baseScriptRecord = new r.Struct<BASETable.ScriptRecord>(
+	baseScriptRecordFields,
+);
 
 const baseScriptList = new r.Array(baseScriptRecord, r.uint16);
 
@@ -202,7 +192,7 @@ const axisFields = {
 	baseTagList: new r.Pointer(r.uint16, baseTagList), // May be NULL
 	baseScriptList: new r.Pointer(r.uint16, baseScriptList),
 };
-const axis = new r.Struct<typeof axisFields, BASETable.Axis>(axisFields);
+const axis = new r.Struct<BASETable.Axis>(axisFields);
 
 const baseStructFields = {
 	header: {
@@ -217,6 +207,5 @@ const baseStructFields = {
 };
 /** @internal */
 export const BASE = new r.VersionedStruct<
-	typeof baseStructFields,
 	BASETable.BASE
 >(r.uint32, baseStructFields);

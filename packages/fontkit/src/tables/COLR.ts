@@ -72,20 +72,16 @@ const layerRecordFields = {
 	gid: r.uint16,
 	paletteIndex: r.uint16,
 };
-const layerRecord = new r.Struct<
-	typeof layerRecordFields,
-	COLRTable.LayerRecordType
->(layerRecordFields);
+const layerRecord = new r.Struct<COLRTable.LayerRecordType>(layerRecordFields);
 
 const baseGlyphRecordFields = {
 	gid: r.uint16,
 	firstLayerIndex: r.uint16,
 	numLayers: r.uint16,
 };
-const baseGlyphRecord = new r.Struct<
-	typeof baseGlyphRecordFields,
-	COLRTable.BaseGlyphRecord
->(baseGlyphRecordFields);
+const baseGlyphRecord = new r.Struct<COLRTable.BaseGlyphRecord>(
+	baseGlyphRecordFields,
+);
 
 const colrStructFields = {
 	version: r.uint16,
@@ -103,6 +99,4 @@ const colrStructFields = {
 };
 
 /** @internal */
-export const COLR = new r.Struct<typeof colrStructFields, COLRTable.COLR>(
-	colrStructFields,
-);
+export const COLR = new r.Struct<COLRTable.COLR>(colrStructFields);

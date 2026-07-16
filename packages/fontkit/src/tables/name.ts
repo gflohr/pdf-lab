@@ -90,9 +90,7 @@ const nameRecordFields = {
 		},
 	),
 };
-const NameRecord = new r.Struct<typeof nameRecordFields, nameTable.NameRecord>(
-	nameRecordFields,
-);
+const NameRecord = new r.Struct<nameTable.NameRecord>(nameRecordFields);
 
 const langTagRecordFields = {
 	length: r.uint16,
@@ -101,10 +99,9 @@ const langTagRecordFields = {
 		relativeTo: (ctx) => ctx.stringOffset,
 	}),
 };
-const LangTagRecord = new r.Struct<
-	typeof langTagRecordFields,
-	nameTable.LangTagRecord
->(langTagRecordFields);
+const LangTagRecord = new r.Struct<nameTable.LangTagRecord>(
+	langTagRecordFields,
+);
 
 const nameFields = {
 	0: {
@@ -124,7 +121,7 @@ const nameFields = {
 // We explicitly cast the base generic here to pass the runtime array format checks
 // internally inside restructure, but map it gracefully to the finalized nameTable.name shape.
 /** @internal */
-export const name = new r.VersionedStruct<typeof nameFields, nameTable.name>(
+export const name = new r.VersionedStruct<nameTable.name>(
 	r.uint16,
 	nameFields,
 );

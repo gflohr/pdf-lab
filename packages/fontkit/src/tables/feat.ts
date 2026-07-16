@@ -39,9 +39,7 @@ const settingFields = {
 	name: (t: FeatureContext) =>
 		t.parent.parent.parent.name.records.fontFeatures[t.nameIndex],
 };
-const setting = new r.Struct<typeof settingFields, featTable.Setting>(
-	settingFields,
-);
+const setting = new r.Struct<featTable.Setting>(settingFields);
 
 const featureNameFields = {
 	feature: r.uint16,
@@ -64,10 +62,7 @@ const featureNameFields = {
 	name: (t: FeatureContext) =>
 		t.parent.parent.name.records.fontFeatures[t.nameIndex],
 };
-const featureName = new r.Struct<
-	typeof featureNameFields,
-	featTable.FeatureName
->(featureNameFields);
+const featureName = new r.Struct<featTable.FeatureName>(featureNameFields);
 
 const featStructFields = {
 	version: r.fixed32,
@@ -77,6 +72,4 @@ const featStructFields = {
 	featureNames: new r.Array(featureName, 'featureNameCount'),
 };
 /** @internal */
-export const feat = new r.Struct<typeof featStructFields, featTable.feat>(
-	featStructFields,
-);
+export const feat = new r.Struct<featTable.feat>(featStructFields);

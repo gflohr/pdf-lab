@@ -103,9 +103,7 @@ const classTableFields = {
 	subFeatureFlags: r.uint32,
 	stateTable: aatStateTable1(),
 };
-const ClassTable = new r.Struct<typeof classTableFields, justTable.ClassTable>(
-	classTableFields,
-);
+const ClassTable = new r.Struct<justTable.ClassTable>(classTableFields);
 
 const widthDeltaRecordFields = {
 	justClass: r.uint32,
@@ -116,10 +114,9 @@ const widthDeltaRecordFields = {
 	growFlags: r.uint16,
 	shrinkFlags: r.uint16,
 };
-const WidthDeltaRecord = new r.Struct<
-	typeof widthDeltaRecordFields,
-	justTable.WidthDeltaRecord
->(widthDeltaRecordFields);
+const WidthDeltaRecord = new r.Struct<justTable.WidthDeltaRecord>(
+	widthDeltaRecordFields,
+);
 const WidthDeltaCluster = new r.Array(WidthDeltaRecord, r.uint32);
 
 const actionDataFields = {
@@ -149,7 +146,6 @@ const actionDataFields = {
 };
 
 const ActionData = new r.VersionedStruct<
-	typeof actionDataFields,
 	justTable.ActionData
 >('actionType', actionDataFields);
 
@@ -167,19 +163,16 @@ const actionFields = {
 			t.actionLength - t.currentOffset,
 	),
 };
-const Action = new r.Struct<typeof actionFields, justTable.justAction>(
-	actionFields,
-);
+const Action = new r.Struct<justTable.justAction>(actionFields);
 
 const PostcompensationAction = new r.Array(Action, r.uint32);
 
 const postCompensationTableFields = {
 	lookupTable: aatLookupTable(new r.Pointer(r.uint16, PostcompensationAction)),
 };
-const PostCompensationTable = new r.Struct<
-	typeof postCompensationTableFields,
-	justTable.PostCompensationTable
->(postCompensationTableFields);
+const PostCompensationTable = new r.Struct<justTable.PostCompensationTable>(
+	postCompensationTableFields,
+);
 
 const justificationTableFields = {
 	classTable: new r.Pointer(r.uint16, ClassTable, { type: 'parent' }),
@@ -194,10 +187,9 @@ const justificationTableFields = {
 		}),
 	),
 };
-const JustificationTable = new r.Struct<
-	typeof justificationTableFields,
-	justTable.JustificationTable
->(justificationTableFields);
+const JustificationTable = new r.Struct<justTable.JustificationTable>(
+	justificationTableFields,
+);
 
 const justFields = {
 	version: r.uint32,
@@ -207,4 +199,4 @@ const justFields = {
 };
 
 /** @internal */
-export const just = new r.Struct<typeof justFields, justTable.just>(justFields);
+export const just = new r.Struct<justTable.just>(justFields);

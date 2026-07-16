@@ -63,4 +63,4 @@ const vheaFields = {
 };
 
 /** @internal */
-export const vhea = new r.Struct<typeof vheaFields, vheaTable.vhea>(vheaFields);
+export const vhea = new r.Struct<vheaTable.vhea>(vheaFields);

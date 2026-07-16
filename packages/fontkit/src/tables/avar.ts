@@ -24,18 +24,15 @@ const correspondenceFields = {
 	fromCoord: shortFrac,
 	toCoord: shortFrac,
 };
-const Correspondence = new r.Struct<
-	typeof correspondenceFields,
-	avarTable.Correspondence
->(correspondenceFields);
+const Correspondence = new r.Struct<avarTable.Correspondence>(
+	correspondenceFields,
+);
 
 const segmentFields = {
 	pairCount: r.uint16,
 	correspondence: new r.Array(Correspondence, 'pairCount'),
 };
-const Segment = new r.Struct<typeof segmentFields, avarTable.Segment>(
-	segmentFields,
-);
+const Segment = new r.Struct<avarTable.Segment>(segmentFields);
 
 const avarStructFields = {
 	version: r.fixed32,
@@ -43,6 +40,4 @@ const avarStructFields = {
 	segment: new r.Array(Segment, 'axisCount'),
 };
 /** @internal */
-export const avar = new r.Struct<typeof avarStructFields, avarTable.avar>(
-	avarStructFields,
-);
+export const avar = new r.Struct<avarTable.avar>(avarStructFields);

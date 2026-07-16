@@ -106,19 +106,17 @@ const sBitLineMetricsFields = {
 	minAfterBL: r.int8,
 	pad: new r.Reserved(r.int8, 2),
 };
-const sBitLineMetrics = new r.Struct<
-	typeof sBitLineMetricsFields,
-	EBLCTable.SBitLineMetrics
->(sBitLineMetricsFields);
+const sBitLineMetrics = new r.Struct<EBLCTable.SBitLineMetrics>(
+	sBitLineMetricsFields,
+);
 
 const codeOffsetPairFields = {
 	glyphCode: r.uint16,
 	offset: r.uint16,
 };
-const codeOffsetPair = new r.Struct<
-	typeof codeOffsetPairFields,
-	EBLCTable.CodeOffsetPair
->(codeOffsetPairFields);
+const codeOffsetPair = new r.Struct<EBLCTable.CodeOffsetPair>(
+	codeOffsetPairFields,
+);
 
 const indexSubtableFields = {
 	header: {
@@ -158,7 +156,6 @@ const indexSubtableFields = {
 	},
 };
 const indexSubtable = new r.VersionedStruct<
-	typeof indexSubtableFields,
 	EBLCTable.IndexSubtable
 >(r.uint16, indexSubtableFields);
 
@@ -167,10 +164,9 @@ const indexSubTableArrayFields = {
 	lastGlyphIndex: r.uint16,
 	subtable: new r.Pointer(r.uint32, indexSubtable),
 };
-const indexSubtableArray = new r.Struct<
-	typeof indexSubTableArrayFields,
-	EBLCTable.IndexSubtable
->(indexSubTableArrayFields);
+const indexSubtableArray = new r.Struct<EBLCTable.IndexSubtable>(
+	indexSubTableArrayFields,
+);
 
 const bitmapSizeTableFields = {
 	indexSubTableArray: new r.Pointer(
@@ -190,10 +186,9 @@ const bitmapSizeTableFields = {
 	bitDepth: r.uint8,
 	flags: new r.Bitfield(r.uint8, ['horizontal', 'vertical']),
 };
-const bitmapSizeTable = new r.Struct<
-	typeof bitmapSizeTableFields,
-	EBLCTable.BitmapSizeTable
->(bitmapSizeTableFields);
+const bitmapSizeTable = new r.Struct<EBLCTable.BitmapSizeTable>(
+	bitmapSizeTableFields,
+);
 
 const eblcStructFields = {
 	version: r.uint32, // 0x00020000
@@ -201,6 +196,4 @@ const eblcStructFields = {
 	sizes: new r.Array(bitmapSizeTable, 'numSizes'),
 };
 /** @internal */
-export const EBLC = new r.Struct<typeof eblcStructFields, EBLCTable.EBLC>(
-	eblcStructFields,
-);
+export const EBLC = new r.Struct<EBLCTable.EBLC>(eblcStructFields);

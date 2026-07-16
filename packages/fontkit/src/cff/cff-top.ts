@@ -90,17 +90,13 @@ const range1Fields = {
 	first: r.uint16,
 	nLeft: r.uint8,
 };
-const range1 = new r.Struct<typeof range1Fields, CFFTable.RangeRecord>(
-	range1Fields,
-);
+const range1 = new r.Struct<CFFTable.RangeRecord>(range1Fields);
 
 const range2Fields = {
 	first: r.uint16,
 	nLeft: r.uint16,
 };
-const range2 = new r.Struct<typeof range2Fields, CFFTable.RangeRecord>(
-	range2Fields,
-);
+const range2 = new r.Struct<CFFTable.RangeRecord>(range2Fields);
 
 const cffCustomEncodingFields = {
 	0: {
@@ -115,10 +111,10 @@ const cffCustomEncodingFields = {
 
 	// TODO: supplement?
 };
-const cffCustomEncoding = new r.VersionedStruct<
-	typeof cffCustomEncodingFields,
-	CFFTable.CustomEncodingData
->(new CFFEncodingVersion(), cffCustomEncodingFields);
+const cffCustomEncoding = new r.VersionedStruct<CFFTable.CustomEncodingData>(
+	new CFFEncodingVersion(),
+	cffCustomEncodingFields,
+);
 
 const cffEncoding = new PredefinedOp<CFFTable.CustomEncodingData>(
 	[standardEncoding, expertEncoding],
@@ -161,10 +157,10 @@ const cffCustomCharsetFields = {
 		ranges: new RangeArray(range2, (t) => t.parent.CharStrings.length - 1),
 	},
 };
-const cffCustomCharset = new r.VersionedStruct<
-	typeof cffCustomCharsetFields,
-	CFFTable.CustomCharsetData
->(r.uint8, cffCustomCharsetFields);
+const cffCustomCharset = new r.VersionedStruct<CFFTable.CustomCharsetData>(
+	r.uint8,
+	cffCustomCharsetFields,
+);
 
 const cffCharset = new PredefinedOp<CFFTable.CustomCharsetData>(
 	[isoAdobeCharset, expertCharset, expertSubsetCharset],
@@ -175,17 +171,13 @@ const fdRange3Fields = {
 	first: r.uint16,
 	fd: r.uint8,
 };
-const fdRange3 = new r.Struct<typeof fdRange3Fields, CFFTable.FDRange>(
-	fdRange3Fields,
-);
+const fdRange3 = new r.Struct<CFFTable.FDRange>(fdRange3Fields);
 
 const fdRange4Fields = {
 	first: r.uint32,
 	fd: r.uint16,
 };
-const fdRange4 = new r.Struct<typeof fdRange4Fields, CFFTable.FDRange>(
-	fdRange4Fields,
-);
+const fdRange4 = new r.Struct<CFFTable.FDRange>(fdRange4Fields);
 
 const fdSelectFields = {
 	0: {
@@ -205,10 +197,10 @@ const fdSelectFields = {
 	},
 };
 
-const fdSelect = new r.VersionedStruct<
-	typeof fdSelectFields,
-	CFFTable.FDSelect
->(r.uint8, fdSelectFields);
+const fdSelect = new r.VersionedStruct<CFFTable.FDSelect>(
+	r.uint8,
+	fdSelectFields,
+);
 
 const ptr = new CFFPointer(cffPrivateDict);
 export class CFFPrivateOp {
@@ -298,10 +290,9 @@ const variationStoreFields = {
 	itemVariationStore: itemVariationStore,
 };
 
-const variationStore = new r.Struct<
-	typeof variationStoreFields,
-	CFFTable.VariationStore
->(variationStoreFields);
+const variationStore = new r.Struct<CFFTable.VariationStore>(
+	variationStoreFields,
+);
 
 const cff2TopDict = new CFFDict<CFFTable.TopDictDataV2>([
 	[[12, 7], 'FontMatrix', 'array', [0.001, 0, 0, 0.001, 0, 0]],
@@ -331,7 +322,7 @@ const fields = {
 };
 
 /** @internal */
-export const cffTop = new r.VersionedStruct<typeof fields, CFFTable.TopData>(
+export const cffTop = new r.VersionedStruct<CFFTable.TopData>(
 	r.fixed16,
 	fields,
 );

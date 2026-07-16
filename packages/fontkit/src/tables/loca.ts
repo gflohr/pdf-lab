@@ -27,7 +27,7 @@ const locaFields = {
 	},
 };
 /** @internal */
-export const loca = new r.VersionedStruct<typeof locaFields, locaTable.loca>(
+export const loca = new r.VersionedStruct<locaTable.loca>(
 	'head.indexToLocFormat',
 	locaFields,
 );

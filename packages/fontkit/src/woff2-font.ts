@@ -211,7 +211,7 @@ const fields = {
 	bboxes: new Substream('bboxStreamSize'),
 	instructions: new Substream('instructionStreamSize'),
 };
-const GlyfTable = new r.Struct<typeof fields, GlyfTableData>(fields);
+const GlyfTable = new r.Struct<GlyfTableData>(fields);
 
 const WORD_CODE = 253;
 const ONE_MORE_BYTE_CODE2 = 254;

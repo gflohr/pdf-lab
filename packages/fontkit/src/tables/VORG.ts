@@ -20,7 +20,6 @@ const verticalOriginFields = {
 	vertOriginY: r.int16,
 };
 const VerticalOriginStruct = new r.Struct<
-	typeof verticalOriginFields,
 	VORGTable.VerticalOrigin
 >(verticalOriginFields);
 
@@ -33,4 +32,4 @@ const VORGFields = {
 };
 
 /** @internal */
-export const VORG = new r.Struct<typeof VORGFields, VORGTable.VORG>(VORGFields);
+export const VORG = new r.Struct<VORGTable.VORG>(VORGFields);

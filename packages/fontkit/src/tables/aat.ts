@@ -148,12 +148,9 @@ export namespace AAT {
 		entryTable: UnboundedArrayAccessor<StateEntry1<TEntry>>;
 	}
 
-	export type StateTable = r.StructT<Record<string, unknown>, AAT.StateHeader>;
+	export type StateTable = r.StructT<AAT.StateHeader>;
 
-	export type StateTable1<TEntryData> = r.StructT<
-		TEntryData,
-		StateHeader1<TEntryData>
-	>;
+	export type StateTable1<TEntryData> = r.StructT<StateHeader1<TEntryData>>;
 
 	export type TypeFeatures = Record<string, Record<string, boolean>>;
 }
@@ -165,7 +162,11 @@ export class UnboundedArrayAccessor<TItem> {
 	private base: number;
 	private items: TItem[];
 
-	constructor(type: r.FieldT<TItem>, stream: r.DecodeStream, parent?: r.ParsingContext) {
+	constructor(
+		type: r.FieldT<TItem>,
+		stream: r.DecodeStream,
+		parent?: r.ParsingContext,
+	) {
 		this.type = type;
 		this.stream = stream;
 		this.parent = parent;
@@ -270,10 +271,9 @@ export const aatLookupTable = <TField extends r.FieldT<any> = typeof r.uint16>(
 		entrySelector: r.uint16,
 		rangeShift: r.uint16,
 	};
-	const BinarySearchHeader = new r.Struct<
-		typeof binarySearchHeaderFields,
-		AAT.BinarySearchHeader
-	>(binarySearchHeaderFields);
+	const BinarySearchHeader = new r.Struct<AAT.BinarySearchHeader>(
+		binarySearchHeaderFields,
+	);
 
 	const lookupSegmentSingleFields = {
 		lastGlyph: r.uint16,
@@ -281,7 +281,6 @@ export const aatLookupTable = <TField extends r.FieldT<any> = typeof r.uint16>(
 		value: ValueType,
 	};
 	const LookupSegmentSingle = new r.Struct<
-		typeof lookupSegmentSingleFields,
 		AAT.LookupSegmentSingle<r.InferField<TField>>
 	>(lookupSegmentSingleFields);
 
@@ -295,7 +294,6 @@ export const aatLookupTable = <TField extends r.FieldT<any> = typeof r.uint16>(
 		),
 	};
 	const LookupSegmentArray = new r.Struct<
-		typeof lookupSegmentArrayFields,
 		AAT.LookupSegmentArray<r.InferField<TField>>
 	>(lookupSegmentArrayFields);
 
@@ -303,10 +301,9 @@ export const aatLookupTable = <TField extends r.FieldT<any> = typeof r.uint16>(
 		glyph: r.uint16,
 		value: ValueType,
 	};
-	const LookupSingle = new r.Struct<
-		typeof lookupSingleFields,
-		AAT.LookupSingle<r.InferField<TField>>
-	>(lookupSingleFields);
+	const LookupSingle = new r.Struct<AAT.LookupSingle<r.InferField<TField>>>(
+		lookupSingleFields,
+	);
 
 	const lookupTableFields = {
 		0: {
@@ -337,10 +334,10 @@ export const aatLookupTable = <TField extends r.FieldT<any> = typeof r.uint16>(
 		},
 	};
 
-	return new r.VersionedStruct<
-		typeof lookupTableFields,
-		AAT.LookupTable<r.InferField<TField>>
-	>(r.uint16, lookupTableFields);
+	return new r.VersionedStruct<AAT.LookupTable<r.InferField<TField>>>(
+		r.uint16,
+		lookupTableFields,
+	);
 };
 
 export function aatStateTable<
@@ -358,7 +355,7 @@ export function aatStateTable<
 		entryData,
 	);
 
-	const Entry = new r.Struct<typeof entry, any>(entry);
+	const Entry = new r.Struct<any>(entry);
 	const StateArray = new AATUnboundedArray(
 		new r.Array(r.uint16, (t) => t.nClasses),
 	);
@@ -369,9 +366,7 @@ export function aatStateTable<
 		stateArray: new r.Pointer(r.uint32, StateArray),
 		entryTable: new r.Pointer(r.uint32, new AATUnboundedArray(Entry)),
 	};
-	const stateHeader = new r.Struct<typeof stateHeaderFields, AAT.StateHeader>(
-		stateHeaderFields,
-	);
+	const stateHeader = new r.Struct<AAT.StateHeader>(stateHeaderFields);
 
 	return stateHeader;
 }
@@ -389,7 +384,6 @@ export function aatStateTable1<
 	};
 
 	const ClassLookupTable = new r.Struct<
-		typeof classLookupTableFields,
 		Omit<AAT.LookupTableV8<number>, 'count'>
 	>(classLookupTableFields);
 
@@ -406,7 +400,7 @@ export function aatStateTable1<
 		entryData,
 	);
 
-	const Entry = new r.Struct<typeof entry, AAT.StateEntry1<TEntryData>>(entry);
+	const Entry = new r.Struct<AAT.StateEntry1<TEntryData>>(entry);
 	const StateArray = new AATUnboundedArray(
 		new r.Array(r.uint8, (t) => t.nClasses),
 	);
@@ -418,10 +412,9 @@ export function aatStateTable1<
 		entryTable: new r.Pointer(r.uint16, new AATUnboundedArray(Entry)),
 	};
 
-	const stateHeader1 = new r.Struct<
-		typeof stateHeader1Fields,
-		AAT.StateHeader1<TEntryData>
-	>(stateHeader1Fields);
+	const stateHeader1 = new r.Struct<AAT.StateHeader1<TEntryData>>(
+		stateHeader1Fields,
+	);
 
 	return stateHeader1;
 }

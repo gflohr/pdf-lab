@@ -66,7 +66,7 @@ import { opbd } from './opbd.js';
 /** @internal */
 export type FontTable = Record<
 	string,
-	StructT<Record<string, unknown>, unknown> | typeof CFF1Font | typeof CFF2Font
+	StructT<unknown> | typeof CFF1Font | typeof CFF2Font
 >;
 
 export const tables = {

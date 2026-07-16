@@ -36,10 +36,7 @@ const colorRecordFields = {
 	red: r.uint8,
 	alpha: r.uint8,
 };
-const colorRecord = new r.Struct<
-	typeof colorRecordFields,
-	CPALTable.ColorRecord
->(colorRecordFields);
+const colorRecord = new r.Struct<CPALTable.ColorRecord>(colorRecordFields);
 
 const cpalStructFields = {
 	header: {
@@ -70,6 +67,5 @@ const cpalStructFields = {
 };
 /** @internal */
 export const CPAL = new r.VersionedStruct<
-	typeof cpalStructFields,
 	CPALTable.CPAL
 >(r.uint16, cpalStructFields);

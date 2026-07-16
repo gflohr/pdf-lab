@@ -77,9 +77,7 @@ const attachListFields = {
 	glyphCount: r.uint16,
 	attachPoints: new r.Array(new r.Pointer(r.uint16, attachPoint), 'glyphCount'),
 };
-const attachList = new r.Struct<typeof attachListFields, GDEFTable.AttachList>(
-	attachListFields,
-);
+const attachList = new r.Struct<GDEFTable.AttachList>(attachListFields);
 
 const caretValueFields = {
 	1: {
@@ -98,10 +96,10 @@ const caretValueFields = {
 		deviceTable: new r.Pointer(r.uint16, openTypeDevice),
 	},
 };
-const caretValue = new r.VersionedStruct<
-	typeof caretValueFields,
-	GDEFTable.CaretValue
->(r.uint16, caretValueFields);
+const caretValue = new r.VersionedStruct<GDEFTable.CaretValue>(
+	r.uint16,
+	caretValueFields,
+);
 
 const ligGlyph = new r.Array(new r.Pointer(r.uint16, caretValue), r.uint16);
 
@@ -110,10 +108,7 @@ const ligCaretListFields = {
 	ligGlyphCount: r.uint16,
 	ligGlyphs: new r.Array(new r.Pointer(r.uint16, ligGlyph), 'ligGlyphCount'),
 };
-const ligCaretList = new r.Struct<
-	typeof ligCaretListFields,
-	GDEFTable.LigCaretList
->(ligCaretListFields);
+const ligCaretList = new r.Struct<GDEFTable.LigCaretList>(ligCaretListFields);
 
 const markGlyphSetsDefFields = {
 	markSetTableFormat: r.uint16,
@@ -123,10 +118,9 @@ const markGlyphSetsDefFields = {
 		'markSetCount',
 	),
 };
-const markGlyphSetsDef = new r.Struct<
-	typeof markGlyphSetsDefFields,
-	GDEFTable.MarkGlyphSetsDef
->(markGlyphSetsDefFields);
+const markGlyphSetsDef = new r.Struct<GDEFTable.MarkGlyphSetsDef>(
+	markGlyphSetsDefFields,
+);
 
 const gdefStructFields = {
 	header: {
@@ -146,7 +140,7 @@ const gdefStructFields = {
 	},
 };
 /** @internal */
-export const GDEF = new r.VersionedStruct<
-	typeof gdefStructFields,
-	GDEFTable.GDEF
->(r.uint32, gdefStructFields);
+export const GDEF = new r.VersionedStruct<GDEFTable.GDEF>(
+	r.uint32,
+	gdefStructFields,
+);
