@@ -1,5 +1,5 @@
 import type { DecodeStream } from 'restructure';
-import { CFFFontBase, type CFFTable } from './cff-font';
+import { CFFFontBase, type CFFTable } from './cff-font.js';
 
 export interface CFF2Font extends CFFFontBase {
 	version: 2;
