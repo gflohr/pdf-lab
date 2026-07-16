@@ -232,7 +232,7 @@ export class AATUnboundedArray<TItem = unknown> {
 /**
  * Builds an AAT lookup-table parser for the provided value field type.
  */
-export const aatLookupTable = <TField extends r.FieldT<any> = typeof r.uint16>(
+export const aatLookupTable = <TField extends r.FieldT<unknown> = typeof r.uint16>(
 	ValueType: TField = r.uint16 as unknown as TField,
 ) => {
 	interface Nested {
@@ -351,8 +351,8 @@ export const aatLookupTable = <TField extends r.FieldT<any> = typeof r.uint16>(
 };
 
 export function aatStateTable<
-	TLookupField extends r.FieldT<any> = typeof r.uint16,
-	TEntryData extends Record<string, any> = Record<string, never>,
+	TLookupField extends r.FieldT<unknown> = typeof r.uint16,
+	TEntryData extends Record<string, unknown> = Record<string, never>,
 >(
 	entryData: TEntryData = {} as TEntryData,
 	lookupType: TLookupField = r.uint16 as unknown as TLookupField,
@@ -365,7 +365,7 @@ export function aatStateTable<
 		entryData,
 	);
 
-	const Entry = new r.Struct<any>(entry);
+	const Entry = new r.Struct<unknown>(entry);
 	const StateArray = new AATUnboundedArray(
 		new r.Array(r.uint16, (t) => t.nClasses),
 	);
@@ -383,7 +383,7 @@ export function aatStateTable<
 
 // This is the old version of the StateTable structure.
 export function aatStateTable1<
-	TEntryData extends Record<string, any> = Record<string, never>,
+	TEntryData extends Record<string, unknown> = Record<string, never>,
 >(entryData: TEntryData = {} as TEntryData) {
 	const classLookupTableFields = {
 		version() {
@@ -397,11 +397,21 @@ export function aatStateTable1<
 		Omit<AAT.LookupTableV8<number>, 'count'>
 	>(classLookupTableFields);
 
+	interface ArrayIndexerContext {
+		parent: {
+			stateArray: {
+				base: number;
+			},
+			_startOffset: number;
+			nClasses: number;
+		}
+	}
+
 	const entry = Object.assign(
 		{
 			newStateOffset: r.uint16,
 			// convert offset to stateArray index
-			newState: (t: any) =>
+			newState: (t: AAT.StateEntry<ArrayIndexerContext>) =>
 				(t.newStateOffset -
 					(t.parent.stateArray.base - t.parent._startOffset)) /
 				t.parent.nClasses,
