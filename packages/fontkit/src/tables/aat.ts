@@ -1,4 +1,5 @@
 import * as r from 'restructure';
+import type { morxTable } from './morx';
 
 export namespace AAT {
 	/**
@@ -128,7 +129,13 @@ export namespace AAT {
 		[additionalKeys: string]: unknown;
 	} & TEntry;
 
-	export interface StateHeader<TLookup = number, TEntry = Record<string, any>> {
+	export interface StateHeader<
+		TLookup = number,
+		TEntry =
+			| morxTable.ContextualData
+			| morxTable.LigatureData
+			| morxTable.InsertionData,
+	> {
 		nClasses: number;
 		classTable: LookupTable<TLookup>;
 		stateArray: UnboundedArrayAccessor<number[]>;

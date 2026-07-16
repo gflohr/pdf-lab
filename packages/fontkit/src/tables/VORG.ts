@@ -19,9 +19,9 @@ const verticalOriginFields = {
 	glyphIndex: r.uint16,
 	vertOriginY: r.int16,
 };
-const VerticalOriginStruct = new r.Struct<
-	VORGTable.VerticalOrigin
->(verticalOriginFields);
+const VerticalOriginStruct = new r.Struct<VORGTable.VerticalOrigin>(
+	verticalOriginFields,
+);
 
 const VORGFields = {
 	majorVersion: r.uint16,

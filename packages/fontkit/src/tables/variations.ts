@@ -154,9 +154,10 @@ const conditionTableFields = {
 		filterRangeMaxValue: f2DOT14,
 	},
 };
-const conditionTable = new r.VersionedStruct<
-	OpenTypeVariation.Condition
->(r.uint16, conditionTableFields);
+const conditionTable = new r.VersionedStruct<OpenTypeVariation.Condition>(
+	r.uint16,
+	conditionTableFields,
+);
 
 const conditionSetFields = {
 	conditionCount: r.uint16,

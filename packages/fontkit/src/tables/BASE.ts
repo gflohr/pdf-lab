@@ -131,9 +131,10 @@ const baseCoordFields = {
 		deviceTable: new r.Pointer(r.uint16, openTypeDevice), // Device table for X or Y value
 	},
 };
-const baseCoord = new r.VersionedStruct<
-	BASETable.Coord
->(r.uint16, baseCoordFields);
+const baseCoord = new r.VersionedStruct<BASETable.Coord>(
+	r.uint16,
+	baseCoordFields,
+);
 
 const baseValuesFields = {
 	defaultIndex: r.uint16, // Index of default baseline for this script-same index in the BaseTagList
@@ -206,6 +207,7 @@ const baseStructFields = {
 	},
 };
 /** @internal */
-export const BASE = new r.VersionedStruct<
-	BASETable.BASE
->(r.uint32, baseStructFields);
+export const BASE = new r.VersionedStruct<BASETable.BASE>(
+	r.uint32,
+	baseStructFields,
+);

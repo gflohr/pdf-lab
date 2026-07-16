@@ -380,10 +380,7 @@ const anchorFields = {
 		yDeviceTable: new r.Pointer(r.uint16, openTypeDevice),
 	},
 };
-const Anchor = new r.VersionedStruct<GPOSTable.Anchor>(
-	r.uint16,
-	anchorFields,
-);
+const Anchor = new r.VersionedStruct<GPOSTable.Anchor>(r.uint16, anchorFields);
 
 const entryExitRecordFields = {
 	entryAnchor: new r.Pointer(r.uint16, Anchor, { type: 'parent' }),
@@ -466,10 +463,7 @@ const gposLookupFields = {
 		gposLookupFieldsV1,
 	),
 
-	2: new r.VersionedStruct<GPOSTable.LookupPair>(
-		r.uint16,
-		gposLookupFieldsV2,
-	),
+	2: new r.VersionedStruct<GPOSTable.LookupPair>(r.uint16, gposLookupFieldsV2),
 
 	3: {
 		// Cursive Attachment Positioning.
@@ -519,9 +513,10 @@ const gposLookupFields = {
 		extension: selfPointer,
 	},
 };
-const GPOSLookup = new r.VersionedStruct<
-	GPOSTable.LookupTable
->('lookupType', gposLookupFields);
+const GPOSLookup = new r.VersionedStruct<GPOSTable.LookupTable>(
+	'lookupType',
+	gposLookupFields,
+);
 
 // Fix circular reference
 selfPointer.type = GPOSLookup;
@@ -539,9 +534,10 @@ const gposStructFields = {
 	},
 };
 /** @internal */
-export const GPOS = new r.VersionedStruct<
-	GPOSTable.GPOS
->(r.uint32, gposStructFields);
+export const GPOS = new r.VersionedStruct<GPOSTable.GPOS>(
+	r.uint32,
+	gposStructFields,
+);
 
 /** @internal */
 export { GPOSLookup };

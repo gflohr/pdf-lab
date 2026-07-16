@@ -191,9 +191,9 @@ const woff2DirectoryEntryFields = {
 	transformLength: new r.Optional(Base128, (t) => t.transformed),
 };
 
-const woff2DirectoryEntryStruct = new r.Struct<
-	WOFF2TableEntryBinary
->(woff2DirectoryEntryFields);
+const woff2DirectoryEntryStruct = new r.Struct<WOFF2TableEntryBinary>(
+	woff2DirectoryEntryFields,
+);
 
 const fields = {
 	tag: new r.String(4),
@@ -213,9 +213,7 @@ const fields = {
 	tables: new r.Array(woff2DirectoryEntryStruct, 'numTables'),
 };
 
-export const woff2DirectoryStruct = new r.Struct<WOFF2Directory>(
-	fields,
-);
+export const woff2DirectoryStruct = new r.Struct<WOFF2Directory>(fields);
 
 /* ========================================================================== */
 /* Restructure Lifecycle Hooks                                                */

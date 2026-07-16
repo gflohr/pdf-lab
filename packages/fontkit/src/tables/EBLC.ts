@@ -155,9 +155,10 @@ const indexSubtableFields = {
 		glyphCodeArray: new r.Array(r.uint16, 'numGlyphs'),
 	},
 };
-const indexSubtable = new r.VersionedStruct<
-	EBLCTable.IndexSubtable
->(r.uint16, indexSubtableFields);
+const indexSubtable = new r.VersionedStruct<EBLCTable.IndexSubtable>(
+	r.uint16,
+	indexSubtableFields,
+);
 
 const indexSubTableArrayFields = {
 	firstGlyphIndex: r.uint16,

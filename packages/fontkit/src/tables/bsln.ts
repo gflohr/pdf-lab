@@ -69,9 +69,10 @@ const bslnSubtableFields = {
 		mappingData: aatLookupTable(r.uint16),
 	},
 };
-const bslnSubtable = new r.VersionedStruct<
-	bslnTable.Subtable
->('format', bslnSubtableFields);
+const bslnSubtable = new r.VersionedStruct<bslnTable.Subtable>(
+	'format',
+	bslnSubtableFields,
+);
 
 const bslnStructFields = {
 	version: r.fixed32,

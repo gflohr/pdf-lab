@@ -145,9 +145,10 @@ const actionDataFields = {
 	},
 };
 
-const ActionData = new r.VersionedStruct<
-	justTable.ActionData
->('actionType', actionDataFields);
+const ActionData = new r.VersionedStruct<justTable.ActionData>(
+	'actionType',
+	actionDataFields,
+);
 
 const actionFields = {
 	actionClass: r.uint16,

@@ -75,9 +75,9 @@ const woffDirectoryEntryFields = {
 	origChecksum: r.uint32,
 };
 
-const woffDirectoryEntryStruct = new r.Struct<
-	WOFFTableEntryBinary
->(woffDirectoryEntryFields);
+const woffDirectoryEntryStruct = new r.Struct<WOFFTableEntryBinary>(
+	woffDirectoryEntryFields,
+);
 
 const fields = {
 	tag: new r.String(4), // Should be 'wOFF'
@@ -96,9 +96,7 @@ const fields = {
 	tables: new r.Array(woffDirectoryEntryStruct, 'numTables'),
 };
 
-export const woffDirectoryStruct = new r.Struct<WOFFDirectory>(
-	fields,
-);
+export const woffDirectoryStruct = new r.Struct<WOFFDirectory>(fields);
 
 /* ========================================================================== */
 /* Restructure Lifecycle Hooks                                                */

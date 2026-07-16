@@ -22,9 +22,7 @@ const VmtxEntryFields = {
 	bearing: r.int16, // The top sidebearing of the glyph
 };
 
-const VmtxEntryStruct = new r.Struct<GlyphAxisMetrics>(
-	VmtxEntryFields,
-);
+const VmtxEntryStruct = new r.Struct<GlyphAxisMetrics>(VmtxEntryFields);
 
 // Vertical Metrics Table
 const vmtxFields = {

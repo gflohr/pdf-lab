@@ -66,6 +66,7 @@ const cpalStructFields = {
 	},
 };
 /** @internal */
-export const CPAL = new r.VersionedStruct<
-	CPALTable.CPAL
->(r.uint16, cpalStructFields);
+export const CPAL = new r.VersionedStruct<CPALTable.CPAL>(
+	r.uint16,
+	cpalStructFields,
+);

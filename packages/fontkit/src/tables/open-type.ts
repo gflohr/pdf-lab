@@ -570,9 +570,10 @@ const coverageFields = {
 		rangeRecords: new r.Array(rangeRecord, 'rangeCount'),
 	},
 };
-export const openTypeCoverage = new r.VersionedStruct<
-	OpenType.Coverage
->(r.uint16, coverageFields);
+export const openTypeCoverage = new r.VersionedStruct<OpenType.Coverage>(
+	r.uint16,
+	coverageFields,
+);
 
 const classRangeRecordFields = {
 	start: r.uint16,
@@ -594,9 +595,10 @@ const classDefFields = {
 		classRangeRecord: new r.Array(classRangeRecord, 'classRangeCount'),
 	},
 };
-export const openTypeClassDef = new r.VersionedStruct<
-	OpenType.ClassDef
->(r.uint16, classDefFields);
+export const openTypeClassDef = new r.VersionedStruct<OpenType.ClassDef>(
+	r.uint16,
+	classDefFields,
+);
 
 const deviceFields = {
 	a: r.uint16,
@@ -656,9 +658,10 @@ const contextFields = {
 		lookupRecords: new r.Array(lookupRecord, 'lookupCount'),
 	},
 };
-export const openTypeContext = new r.VersionedStruct<
-	OpenType.Context
->(r.uint16, contextFields);
+export const openTypeContext = new r.VersionedStruct<OpenType.Context>(
+	r.uint16,
+	contextFields,
+);
 
 const chainRuleFields = {
 	backtrackGlyphCount: r.uint16,
@@ -718,6 +721,8 @@ const chainingContextFields = {
 	},
 };
 /** @internal */
-export const openTypeChainingContext = new r.VersionedStruct<
-	OpenType.ChainingContext
->(r.uint16, chainingContextFields);
+export const openTypeChainingContext =
+	new r.VersionedStruct<OpenType.ChainingContext>(
+		r.uint16,
+		chainingContextFields,
+	);

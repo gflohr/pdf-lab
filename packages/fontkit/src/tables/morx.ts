@@ -154,9 +154,10 @@ const subtableDataFields = {
 		insertionActions: new r.Pointer(r.uint32, new AATUnboundedArray(r.uint16)),
 	},
 };
-const subtableData = new r.VersionedStruct<
-	morxTable.SubtableData
->('type', subtableDataFields);
+const subtableData = new r.VersionedStruct<morxTable.SubtableData>(
+	'type',
+	subtableDataFields,
+);
 
 const subtableFields = {
 	length: r.uint32,

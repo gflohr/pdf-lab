@@ -212,9 +212,10 @@ const kernSubtableFields = {
 		),
 	},
 };
-const KernSubtable = new r.VersionedStruct<
-	kernTable.Subtable
->('format', kernSubtableFields);
+const KernSubtable = new r.VersionedStruct<kernTable.Subtable>(
+	'format',
+	kernSubtableFields,
+);
 
 const kernTableFields = {
 	0: {
@@ -250,9 +251,10 @@ const kernTableFields = {
 		padding: new r.Reserved(r.uint8, (t) => t.length - t._currentOffset),
 	},
 };
-const KernTable = new r.VersionedStruct<
-	kernTable.Table
->('version', kernTableFields);
+const KernTable = new r.VersionedStruct<kernTable.Table>(
+	'version',
+	kernTableFields,
+);
 
 const kernFields = {
 	0: {
@@ -269,7 +271,4 @@ const kernFields = {
 	},
 };
 /** @internal */
-export const kern = new r.VersionedStruct<kernTable.kern>(
-	r.uint16,
-	kernFields,
-);
+export const kern = new r.VersionedStruct<kernTable.kern>(r.uint16, kernFields);
