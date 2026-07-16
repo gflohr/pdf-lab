@@ -159,7 +159,7 @@ describe('font subsetting', () => {
 			const glyph = new CFFGlyph(1, [], {
 				outlines: 'PostScript',
 				stream,
-				'CFF ': cff as unknown as CFFFont, // FIXME!
+				'CFF ': cff,
 			} as OpenTypePostScriptFont);
 
 			expect(glyph.path.toSVG()).toBe(

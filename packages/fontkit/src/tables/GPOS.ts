@@ -23,8 +23,7 @@ interface DecodedValueFormat {
 	yAdvDevice: boolean;
 }
 
-// FIXME! Rename this to valueFormat!
-const ValueFormat = new r.Bitfield<string[]>(r.uint16, [
+const valueFormat = new r.Bitfield<string[]>(r.uint16, [
 	'xPlacement',
 	'yPlacement',
 	'xAdvance',
@@ -419,12 +418,12 @@ const gposLookupFieldsV1 = {
 	1: {
 		// Single positioning value
 		coverage: new r.Pointer(r.uint16, openTypeCoverage),
-		valueFormat: ValueFormat,
+		valueFormat: valueFormat,
 		value: new ValueRecord(),
 	},
 	2: {
 		coverage: new r.Pointer(r.uint16, openTypeCoverage),
-		valueFormat: ValueFormat,
+		valueFormat: valueFormat,
 		valueCount: r.uint16,
 		values: new r.LazyArray(new ValueRecord(), 'valueCount'),
 	},
@@ -434,8 +433,8 @@ const gposLookupFieldsV2 = {
 	1: {
 		// Adjustments for glyph pairs
 		coverage: new r.Pointer(r.uint16, openTypeCoverage),
-		valueFormat1: ValueFormat,
-		valueFormat2: ValueFormat,
+		valueFormat1: valueFormat,
+		valueFormat2: valueFormat,
 		pairSetCount: r.uint16,
 		pairSets: new r.LazyArray(new r.Pointer(r.uint16, PairSet), 'pairSetCount'),
 	},
@@ -443,8 +442,8 @@ const gposLookupFieldsV2 = {
 	2: {
 		// Class pair adjustment
 		coverage: new r.Pointer(r.uint16, openTypeCoverage),
-		valueFormat1: ValueFormat,
-		valueFormat2: ValueFormat,
+		valueFormat1: valueFormat,
+		valueFormat2: valueFormat,
 		classDef1: new r.Pointer(r.uint16, openTypeClassDef),
 		classDef2: new r.Pointer(r.uint16, openTypeClassDef),
 		class1Count: r.uint16,
