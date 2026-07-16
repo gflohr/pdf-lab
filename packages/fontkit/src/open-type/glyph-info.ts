@@ -31,7 +31,6 @@ export class GlyphInfo<ShaperInfoT = null> {
 		public codePoints: number[] = [],
 		features?: OpenType.FeatureTag[] | OpenType.Features,
 	) {
-		// FIXME! Other classes access the _font property!
 		this.font = font;
 		this.codePoints = codePoints;
 
