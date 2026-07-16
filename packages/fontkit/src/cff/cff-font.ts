@@ -260,7 +260,7 @@ export abstract class CFFFontBase {
 					}
 				}
 				throw new Error(
-					`Unknown FDSelect version: ${this.topDict.FDSelect.version}`,
+					`No matching FDSelect range found for glyph ${gid}`
 				);
 			default:
 				throw new Error(
