@@ -83,7 +83,7 @@ export class CFF1Font extends CFFFontBase {
 
 		const charset = this.topDict.charset;
 		if (Array.isArray(charset)) {
-			// FIXME! This code has zero test coverage, and charset[gid] is
+			// This code has zero test coverage, and charset[gid] is
 			// actually a RangeRecord.
 			return charset[gid] as unknown as string;
 		}
@@ -115,8 +115,15 @@ export class CFF1Font extends CFFFontBase {
 	getCharString(glyph: number): Uint8Array {
 		const charStrings = this.topDict.CharStrings?.[glyph];
 
-		// FIXME! Is this the correct fallback? Or rather throw an exception?
-		if (!charStrings) return new Uint8Array();
+		if (!charStrings) {
+			// The other possibility would be to return just the end marker:
+			//
+			// 	return new Uint8Array([14]);
+			//
+			// For now, we throw an exception so that the problem can become
+			// reproducible.
+			throw new Error(`CFF Error: CharString mapping for glyph ${glyph} is missing.`);
+		}
 
 		this.stream.pos = charStrings.offset;
 		return this.stream.readBuffer(charStrings.length);
