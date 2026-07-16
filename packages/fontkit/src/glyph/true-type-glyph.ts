@@ -101,8 +101,6 @@ export type DecodedGlyph =
 
 /**
  * Represents a TrueType glyph.
- *
- * // FIXME! Rename that to TrueTypeGlyph!
  */
 export class TrueTypeGlyph extends Glyph {
 	// Legacys Hack: Properties injected via base Glyph constructor mutations.
