@@ -18,7 +18,7 @@ export const requiredOpenTypeTables = [
 ] as const;
 
 /**
- * Union type for the items in the {@link requiredOpentTypeTables} list.
+ * Union type for the items in the {@link requiredOpenTypeTables} list.
  */
 export type RequiredOpenTypeTableTag = (typeof requiredOpenTypeTables)[number];
 
@@ -139,7 +139,7 @@ export interface OpenTypeCFF1Font
 	readonly outlineVersion: 1;
 
 	/**
-	 * Alias for the structural {@link OpenTypePostScriptFont#CFF } table.
+	 * Alias for the structural {@link OpenTypePostScriptFont } `CFF` table.
 	 */
 	readonly cff: NonNullable<SFNTTableMap['CFF ']>;
 
