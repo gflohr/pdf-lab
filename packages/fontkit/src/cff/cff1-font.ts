@@ -1,6 +1,6 @@
 import type { DecodeStream } from 'restructure';
-import { CFFFontBase, type CFFTable } from './cff-font';
-import { type StandardString, standardStrings } from './cff-standard-strings';
+import { CFFFontBase, type CFFTable } from './cff-font.js';
+import { type StandardString, standardStrings } from './cff-standard-strings.js';
 
 export interface CFF1Font extends CFFFontBase {
 	readonly version: 1 | undefined;
