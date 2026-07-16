@@ -603,7 +603,7 @@ export interface SFNTFont<
 	 * @see {@link postscriptName}
 	 * @see {@link fullName}
 	 * @see {@link familyName}
-	 * @see {@link subFamilyName}
+	 * @see {@link subfamilyName}
 	 * @see {@link copyright}
 	 * @see {@link version}
 	 */

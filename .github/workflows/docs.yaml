@@ -1,0 +1,58 @@
+name: Deploy Documentation
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: # Allow manual trigger.
+  pull_request:
+    branches:
+      - '**'
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v5
+        with:
+          version: 11
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      # The project has to be build, because some files are generated.
+      - name: Build Project
+        run: pnpm build
+
+      - name: Create API documentation
+        run: pnpm run typedoc
+
+      - name: Build Vitepress site
+        run: pnpm run docs:build
+
+      - name: Deploy
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: 'packages/docs/.vitepress/dist'
+
+deploy:
+    # Only run this job on pushes to the 'main' branch, skipping on PRs
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -41,7 +41,9 @@
 		"gen": "pnpm run gen:agl && pnpm run gen:pdfs && pnpm run gen:fonts",
 		"gen:agl": "tsx scripts/gen-tables.ts agl>packages/pdf-lab-core/src/agl.ts",
 		"gen:pdfs": "tsx scripts/gen-pdfs.ts",
-		"postgen:agl": "biome check --write packages/pdf-lab-core/src/agl.ts"
+		"postgen:agl": "biome check --write packages/pdf-lab-core/src/agl.ts",
+		"typedoc": "pnpm -r --parallel run typedoc",
+		"docs:build": "pnpm -r --parallel run docs:build"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.5.0",

@@ -1,0 +1,14 @@
+{
+	"root": false,
+	"files": {
+		"includes": ["./.vitepress/config.ts"]
+	},
+	"extends": ["../../biome.json"],
+	"linter": {
+		"rules": {
+			"correctness": {
+				"useImportExtensions": "off"
+			}
+		}
+	}
+}
