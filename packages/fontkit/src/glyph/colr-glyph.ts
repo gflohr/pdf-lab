@@ -39,12 +39,12 @@ export class COLRGlyph extends Glyph {
 	 * each layer in the composite color glyph.
 	 */
 	private get layers(): COLRLayer[] {
-		const cpal = this._font.CPAL;
+		const cpal = this.font.CPAL;
 
 		// If the color palette table is missing, fall back directly to the
 		// standard monochrome base glyph representation in flat black.
 		if (!cpal) {
-			const g = this._font.getBaseGlyph(this.id);
+			const g = this.font.getBaseGlyph(this.id);
 			if (!g) {
 				return [];
 			}
@@ -53,7 +53,7 @@ export class COLRGlyph extends Glyph {
 			return [new COLRLayer(g, color)];
 		}
 
-		const colr = this._font.COLR!;
+		const colr = this.font.COLR!;
 		let low = 0;
 		let high = colr.baseGlyphRecord.length - 1;
 
@@ -74,7 +74,7 @@ export class COLRGlyph extends Glyph {
 		}
 
 		if (baseLayer === undefined) {
-			const g = this._font.getBaseGlyph(this.id);
+			const g = this.font.getBaseGlyph(this.id);
 			if (!g) {
 				return [];
 			}
@@ -96,7 +96,7 @@ export class COLRGlyph extends Glyph {
 		) {
 			const rec = colr.layerRecords[i];
 			const color = cpal.colorRecords[rec.paletteIndex];
-			const g = this._font.getBaseGlyph(rec.gid);
+			const g = this.font.getBaseGlyph(rec.gid);
 			if (g) {
 				layers.push(new COLRLayer(g, color));
 			}
