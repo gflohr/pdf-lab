@@ -7,8 +7,8 @@ hero:
   text: "High-quality PDF tools for Node and the Browser"
   actions:
     - theme: alt
-      text: fontkit
-      link: https://github.com/gflohr/pdf-lab
+      text: '@pdf-lab/fontkit'
+      link: ./fontkit/introduction/what-is-fontkit
 
 features:
   - title: Universal Environment Support

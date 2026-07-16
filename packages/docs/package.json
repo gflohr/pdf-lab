@@ -17,5 +17,8 @@
 	"type": "module",
 	"devDependencies": {
 		"vitepress": "^1.6.4"
+	},
+	"dependencies": {
+		"vitepress-plugin-tabs": "^0.9.1"
 	}
 }
