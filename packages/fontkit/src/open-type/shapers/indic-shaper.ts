@@ -230,7 +230,7 @@ function wouldSubstitute(
 
 	const engine = glyphs[0].font.layoutEngine.engine;
 	const gsubProcessor = (engine as OpenTypeLayoutEngine<unknown>)
-		?.GSUBProcessor;
+		?.gsubProcessor;
 	if (!gsubProcessor) return false;
 
 	for (const glyph of glyphs) {
@@ -274,7 +274,7 @@ function initialReordering(
 	plan: ShapingPlan<IndicInfo>,
 ) {
 	const engine = font.layoutEngine.engine;
-	const features = (engine as OpenTypeLayoutEngine<unknown>)?.GSUBProcessor
+	const features = (engine as OpenTypeLayoutEngine<unknown>)?.gsubProcessor
 		?.features;
 
 	const indicConfig = plan.indicConfig!;
@@ -747,7 +747,7 @@ function finalReordering(
 ) {
 	const indicConfig = plan.indicConfig!;
 	const engine = font.layoutEngine.engine;
-	const features = (engine as OpenTypeLayoutEngine<unknown>)?.GSUBProcessor
+	const features = (engine as OpenTypeLayoutEngine<unknown>)?.gsubProcessor
 		?.features;
 
 	for (
