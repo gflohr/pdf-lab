@@ -39,7 +39,8 @@ export class CFFGlyph extends Glyph {
 		}
 	}
 
-	protected getPath(): Path {
+	/** @internal */
+	public decodePath(): Path {
 		const cff =
 			this.font.outlineVersion === 2 ? this.font.CFF2 : this.font['CFF '];
 		const stream = cff.stream;

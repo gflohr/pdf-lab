@@ -39,11 +39,8 @@ export class CFFSubset extends Subset {
 
 			const glyph = this.getGlyph(gid);
 
-			// FIXME! The getter must have a side-effect.
-			glyph.path; // this causes the glyph to be parsed
+			glyph.decodePath(); // This causes the glyph to be parsed.
 
-			// FIXME! Actually, subr is a number. But converting it to a
-			// number breaks things.
 			for (const subr in glyph.usedGsubrs) {
 				gsubrs[subr] = true;
 			}

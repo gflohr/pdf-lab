@@ -281,9 +281,6 @@ export class OpenTypeProcessor<T> {
 		}
 	}
 
-	// FIXME! Instead of receiving the lookupType, the method should receive
-	// the entire LookupTable, so that the type can be inferred in the
-	// subclasses.
 	public applyLookup(
 		_lookupType: number,
 		_table: GPOSTable.LookupTable | GSUBTable.LookupTable,
