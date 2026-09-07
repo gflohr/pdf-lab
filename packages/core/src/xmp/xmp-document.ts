@@ -322,8 +322,9 @@ ${output}</x:xmpmeta>
 	 * * `xmpRights`
 	 * * `xmpTPg`
 	 *
+	 * @param prefix - the prefix to register (must be non-empty)
 	 * @param namespace
-	 * @param url
+	 * @param schema
 	 * @see {@link XMPDocument.NS_IPTC4XMPCORE}, {@link XMPDocument.NS_CRS}, {@link XMPDocument.NS_DC}, {@link XMPDocument.NS_EXIF}, {@link XMPDocument.NS_PDF}, {@link XMPDocument.NS_PHOTOSHOP}, {@link XMPDocument.NS_TIFF}, {@link XMPDocument.NS_XMP}, {@link XMPDocument.NS_XMPBJ}, {@link XMPDocument.NS_XMPDM}, {@link XMPDocument.NS_XMPRIGHTS}, {@link XMPDocument.NS_XMPTPG}.
 	 */
 	public registerNamespace(
@@ -331,11 +332,11 @@ ${output}</x:xmpmeta>
 		namespace: string,
 		schema: XMPNamespaceSchema,
 	) {
-		if (!prefix) {
+		if (!prefix?.length) {
 			throw new Error('Missing or empty namespace argument!');
 		}
 
-		if (!namespace) {
+		if (!namespace?.length) {
 			throw new Error('Missing or empty namespace argument!');
 		}
 
@@ -343,7 +344,16 @@ ${output}</x:xmpmeta>
 			throw new Error('The schema argument must be a valibot object schema!');
 		}
 
+		if (this.namespaces[prefix]) {
+			throw new Error(`Prefix '${prefix}' is already registered for URL '${this.namespaces[prefix]}'!`)
+		}
+
 		this.namespaces[prefix] = namespace;
+
+		if (!schema.entries) {
+			throw new Error('Schema must be an object based schema!');
+		}
+
 		this.schemas[prefix] = schema;
 	}
 
