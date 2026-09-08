@@ -13,8 +13,8 @@ import * as v from 'valibot';
  * values for closed choice types when the set of allowed values can be
  * expected to grow over time.
  */
-const schema = v.picklist(['True', 'False']);
+export function xmpClosedChoice(choices: string[]) {
+	const schema = v.picklist(choices);
 
-export const xmpBoolean = Object.assign(schema, {
-	xmpContainer: 'Literal' as const,
-});
+	return Object.assign(schema, { xmpContainer: 'Literal' as const });
+}

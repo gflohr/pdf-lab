@@ -1,13 +1,9 @@
 import * as v from 'valibot';
-import { XMPAgentName } from '../data-types/agent-name.js';
-import { XMPDate } from '../data-types/date.js';
-import { XMPProperName } from '../data-types/proper-name.js';
-import { XMPText } from '../data-types/text.js';
-import {
-	type XMPNamespaceSchema,
-	xmpBag,
-	xmpLiteral,
-} from '../xmp-namespace.js';
+import { xmpAgentName } from '../data-types/agent-name.js';
+import { xmpDate } from '../data-types/date.js';
+import { xmpProperName } from '../data-types/proper-name.js';
+import { xmpText } from '../data-types/text.js';
+import { type XmpNamespaceSchema, xmpBag } from '../xmp-namespace.js';
 
 /**
  * XMP Namespace
@@ -29,10 +25,10 @@ export const xmpNamespace = v.strictObject({
 	 *
 	 * @deprecated see XMP specification!
 	 */
-	Advisory: xmpBag(XMPText),
+	Advisory: xmpBag(xmpText),
 
 	/**
-	 * Type: {@link XMPDate}.
+	 * Type: {@link xmpDate}.
 	 *
 	 * The date and time the resource was created. For a digital file, this
 	 * need not match a file-system creation time. For a freshly created
@@ -40,17 +36,17 @@ export const xmpNamespace = v.strictObject({
 	 * write the file. Later file transfer, copying, and so on, can make the
 	 * file-system time arbitrarily different.
 	 */
-	CreateDate: xmpLiteral(XMPDate),
+	CreateDate: xmpDate,
 
 	/**
-	 * Type: {@link XMPAgentName}.
+	 * Type: {@link xmpAgentName}.
 	 *
 	 * The name of the first known tool used to create the resource.
 	 */
-	CreatorTool: xmpLiteral(XMPAgentName),
+	CreatorTool: xmpAgentName,
 
 	/**
-	 * Type: Undordered array of {@link XMPText}.
+	 * Type: Undordered array of {@link xmpText}.
 	 *
 	 * An unordered array of text strings that unambiguously identify the
 	 * resource within a given context. An array item may be qualified with
@@ -62,10 +58,10 @@ export const xmpNamespace = v.strictObject({
 	 * single identifier instead of as an array, and changing `dc:identifier`
 	 * to an array would break compatibility with existing XMP processors.
 	 */
-	Identifier: xmpBag(XMPProperName),
+	Identifier: xmpBag(xmpProperName),
 
 	/**
-	 * Type: {@link XMPText}
+	 * Type: {@link xmpText}
 	 *
 	 * A word or short phrase that identifies a resource as a member of a
 	 * user-defined collection.
@@ -73,18 +69,18 @@ export const xmpNamespace = v.strictObject({
 	 * **NOTE:** One anticipated usage is to organize resources in a file
 	 * browser.
 	 */
-	Label: xmpLiteral(XMPText),
+	Label: xmpText,
 
 	/**
-	 * Type: {@link XMPText}
+	 * Type: {@link xmpText}
 	 *
 	 * The date and time that any metadata for this resource was last changed.
 	 * It should be the same as or more recent than `xmp:ModifyDate`.
 	 */
-	MetadataDate: xmpLiteral(XMPDate),
+	MetadataDate: xmpDate,
 
 	/**
-	 * Type: {@link XMPText}
+	 * Type: {@link xmpText}
 	 *
 	 * The date and time the resource was last modified.
 	 *
@@ -92,7 +88,7 @@ export const xmpNamespace = v.strictObject({
 	 * file’s system modification date because it is typically set before the
 	 * file is saved.
 	 */
-	ModifyDate: xmpLiteral(XMPDate),
-}) satisfies XMPNamespaceSchema;
+	ModifyDate: xmpDate,
+}) satisfies XmpNamespaceSchema;
 
-export type XMPSchema = v.InferOutput<typeof xmpNamespace>;
+export type XmpSchema = v.InferOutput<typeof xmpNamespace>;

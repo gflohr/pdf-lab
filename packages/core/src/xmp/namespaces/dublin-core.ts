@@ -1,14 +1,13 @@
 import * as v from 'valibot';
-import { XMPDate } from '../data-types/date.js';
-import { XMPLocale } from '../data-types/locale.js';
-import { XMPMIMEType } from '../data-types/mime-type.js';
-import { XMPProperName } from '../data-types/proper-name.js';
-import { XMPText } from '../data-types/text.js';
+import { xmpDate } from '../data-types/date.js';
+import { xmpLocale } from '../data-types/locale.js';
+import { xmpMIMEType } from '../data-types/mime-type.js';
+import { xmpProperName } from '../data-types/proper-name.js';
+import { xmpText } from '../data-types/text.js';
 import {
-	type XMPNamespaceSchema,
+	type XmpNamespaceSchema,
 	xmpAlt,
 	xmpBag,
-	xmpLiteral,
 	xmpSeq,
 } from '../xmp-namespace.js';
 
@@ -47,7 +46,7 @@ import {
  */
 export const dublinCoreNamespace = v.strictObject({
 	/**
-	 * Type: Unordered array of {@link XMPProperName}.
+	 * Type: Unordered array of {@link xmpProperName}.
 	 *
 	 * **DCMI definition**: An entity responsible for making contributions to
 	 * the resource. **DCMI comment**: Examples of a contributor include a
@@ -56,20 +55,20 @@ export const dublinCoreNamespace = v.strictObject({
 	 * XMP usage is a list of contributors. These contributors should not
 	 * include those listed in dc:creator.
 	 */
-	contributor: xmpBag(XMPProperName),
+	contributor: xmpBag(xmpProperName),
 
 	/**
-	 * Type: {@link XMPText}.
+	 * Type: {@link xmpText}.
 	 *
 	 * **DCMI definition**: The spatial or temporal topic of the resource, the
 	 * spatial applicability of the resource, or the jurisdiction under which
 	 * the resource is relevant. **XMP addition**: XMP usage is the extent or
 	 * scope of the resource.
 	 */
-	coverage: xmpLiteral(XMPText),
+	coverage: xmpText,
 
 	/**
-	 * Type: Ordered array of {@link XMPProperName}.
+	 * Type: Ordered array of {@link xmpProperName}.
 	 *
 	 * **DCMI definition**: An entity primarily responsible for making the
 	 * resource. **DCMI comment**: Examples of a creator include a person, an
@@ -78,7 +77,7 @@ export const dublinCoreNamespace = v.strictObject({
 	 * creators. Entities should be listed in order of decreasing precedence,
 	 * if such order is significant.
 	 */
-	creator: xmpSeq(XMPProperName),
+	creator: xmpSeq(xmpProperName),
 
 	/**
 	 * Type: Ordered array of `Date` ({@link date}).
@@ -86,10 +85,10 @@ export const dublinCoreNamespace = v.strictObject({
 	 * **DCMI definition**: A point or period of time associated with an event
 	 * in the life cycle of the resource.
 	 */
-	date: xmpSeq(v.pipe(v.string(), XMPDate)),
+	date: xmpSeq(v.pipe(xmpDate)),
 
 	/**
-	 * Type: Language alternative of {@link XMPText}.
+	 * Type: Language alternative of {@link xmpText}.
 	 *
 	 * **DCMI definition**: An account of the resource. **XMP addition**: XMP
 	 * usage is a list of textual descriptions of the content of the resource,
@@ -98,7 +97,7 @@ export const dublinCoreNamespace = v.strictObject({
 	description: xmpAlt(),
 
 	/**
-	 * Type: {@link XMPMIMEType}.
+	 * Type: {@link xmpMIMEType}.
 	 *
 	 * **DCMI definition**: The file format, physical medium, or dimensions of
 	 * the resource. **DCMI comment**: Examples of dimensions include size and
@@ -107,28 +106,28 @@ export const dublinCoreNamespace = v.strictObject({
 	 * XMP usage is a MIME type. Dimensions would be stored using a
 	 * media-specific property, beyond the scope of this document.
 	 */
-	format: xmpLiteral(XMPMIMEType),
+	format: xmpMIMEType,
 
 	/**
-	 * Type: {@link XMPText}.
+	 * Type: {@link xmpText}.
 	 *
 	 * **DCMI definition**: An unambiguous reference to the resource within a
 	 * given context. **DCMI comment**: Recommended best practice is to
 	 * identify the resource by means of a string conforming to a formal
 	 * identification system.
 	 */
-	identifier: xmpLiteral(XMPText),
+	identifier: xmpText,
 
 	/**
-	 * Type: Unordered array of {@link XMPLocale}.
+	 * Type: Unordered array of {@link xmpLocale}.
 	 *
 	 * **DCMI definition**: A language of the resource. **XMP addition**: XMP
 	 * usage is a list of languages used in the content of the resource.
 	 */
-	language: xmpSeq(v.pipe(v.string(), XMPLocale)),
+	language: xmpSeq(v.pipe(xmpLocale)),
 
 	/**
-	 * Type: Unordered array of {@link XMPProperName}.
+	 * Type: Unordered array of {@link xmpProperName}.
 	 *
 	 * **DCMI definition**: An entity responsible for making the resource
 	 * available. **DCMI comment**: Examples of a publisher include a person,
@@ -136,20 +135,20 @@ export const dublinCoreNamespace = v.strictObject({
 	 * be used to indicate the entity. XMP addition: XMP usage is a list of
 	 * publishers.
 	 */
-	publisher: xmpBag(XMPProperName),
+	publisher: xmpBag(xmpProperName),
 
 	/**
-	 * Type: Unordered array of {@link XMPText}.
+	 * Type: Unordered array of {@link xmpText}.
 	 *
 	 * **DCMI definition**: A related resource. **DCMI comment**: Recommended
 	 * best practice is to identify the related resource by means of a string
 	 * conforming to a formal identification system. **XMP addition**: XMP
 	 * usage is a list of related resources.
 	 */
-	relation: xmpSeq(XMPText),
+	relation: xmpSeq(xmpText),
 
 	/**
-	 * Type: Language alternative of {@link XMPText}.
+	 * Type: Language alternative of {@link xmpText}.
 	 *
 	 * **DCMI definition**: Information about rights held in and over the
 	 * resource. **DCMI comment**: Typically, rights information includes a
@@ -160,7 +159,7 @@ export const dublinCoreNamespace = v.strictObject({
 	rights: xmpAlt(),
 
 	/**
-	 * Type: {@link XMPText}.
+	 * Type: {@link xmpText}.
 	 *
 	 * **DCMI definition**: A related resource from which the described resource
 	 * is derived. **DCMI comment**: The described resource may be derived
@@ -168,10 +167,10 @@ export const dublinCoreNamespace = v.strictObject({
 	 * is to identify the related resource by means of a string conforming to a
 	 * formal identification system.
 	 */
-	source: xmpLiteral(XMPText),
+	source: xmpText,
 
 	/**
-	 * Type: Unordered array of {@link XMPText}.
+	 * Type: Unordered array of {@link xmpText}.
 	 *
 	 * **DCMI definition**: The topic of the resource. **DCMI comment**:
 	 * Typically, the subject will be represented using keywords, key phrases,
@@ -181,10 +180,10 @@ export const dublinCoreNamespace = v.strictObject({
 	 * list of descriptive phrases or keywords that specify the content of the
 	 * resource.
 	 */
-	subject: xmpSeq(XMPText),
+	subject: xmpSeq(xmpText),
 
 	/**
-	 * Type: Language alternative of {@link XMPText}.
+	 * Type: Language alternative of {@link xmpText}.
 	 *
 	 * **DCMI definition**: A name given to the resource. **DCMI comment**:
 	 * Typically, a title will be a name by which the resource is formally
@@ -194,7 +193,7 @@ export const dublinCoreNamespace = v.strictObject({
 	title: xmpAlt(),
 
 	/**
-	 * Type: Unordered array of {@link XMPText}.
+	 * Type: Unordered array of {@link xmpText}.
 	 *
 	 * **DCMI definition: The nature or genre of the resource. **DCMI
 	 * comment**: Recommended best practice is to use a controlled vocabulary
@@ -203,7 +202,7 @@ export const dublinCoreNamespace = v.strictObject({
 	 * `dc:format` element. **XMP addition**: See the `dc:format` entry for
 	 * clarification of the XMP usage of that element.
 	 */
-	type: xmpSeq(XMPText),
-}) satisfies XMPNamespaceSchema;
+	type: xmpSeq(xmpText),
+}) satisfies XmpNamespaceSchema;
 
 export type DublinCoreSchema = v.InferOutput<typeof dublinCoreNamespace>;

@@ -10,7 +10,7 @@ import type { PredicateType, SubjectType } from 'rdflib/lib/types.js';
 import { dublinCoreNamespace } from './namespaces/dublin-core.js';
 import { xmpNamespace } from './namespaces/xmp.js';
 import { parsePath } from './util/parse-path.js';
-import type { XMPNamespaceSchema, XmpSchema } from './xmp-namespace.js';
+import type { XmpNamespaceSchema, XmpSchema } from './xmp-namespace.js';
 
 /**
  * Default base IRI.
@@ -98,7 +98,7 @@ const bom = '\uFEFF';
 /** @internal */
 export class XmpDocument {
 	/** @internal */
-	private static readonly NS_X = 'adobe:ns:meta/';
+	public static readonly NS_X = 'adobe:ns:meta/';
 
 	/** @internal */
 	private static readonly NS_RDF =
@@ -148,7 +148,7 @@ export class XmpDocument {
 	private doc: Document;
 	private kb = rdflib.graph();
 	private namespaces: Record<string, string> = {};
-	private schemas: Record<string, XMPNamespaceSchema> = {};
+	private schemas: Record<string, XmpNamespaceSchema> = {};
 
 	constructor(
 		xmlString?: string,
@@ -318,12 +318,12 @@ ${output}</x:xmpmeta>
 	 * @param prefix - the prefix to register (must be non-empty)
 	 * @param namespace
 	 * @param schema
-	 * @see {@link XMPDocument.NS_IPTC4XMPCORE}, {@link XMPDocument.NS_CRS}, {@link XMPDocument.NS_DC}, {@link XMPDocument.NS_EXIF}, {@link XMPDocument.NS_PDF}, {@link XMPDocument.NS_PHOTOSHOP}, {@link XMPDocument.NS_TIFF}, {@link XMPDocument.NS_XMP}, {@link XMPDocument.NS_XMPBJ}, {@link XMPDocument.NS_XMPDM}, {@link XMPDocument.NS_XMPRIGHTS}, {@link XMPDocument.NS_XMPTPG}.
+	 * @see {@link XMPDocument.NS_IPTC4XMPCORE}, {@link XmpDocument.NS_CRS}, {@link XmpDocument.NS_DC}, {@link XMPDocument.NS_EXIF}, {@link XMPDocument.NS_PDF}, {@link XMPDocument.NS_PHOTOSHOP}, {@link XMPDocument.NS_TIFF}, {@link XMPDocument.NS_XMP}, {@link XMPDocument.NS_XMPBJ}, {@link XMPDocument.NS_XMPDM}, {@link XMPDocument.NS_XMPRIGHTS}, {@link XMPDocument.NS_XMPTPG}.
 	 */
 	public registerNamespace(
 		prefix: string,
 		namespace: string,
-		schema: XMPNamespaceSchema,
+		schema: XmpNamespaceSchema,
 	) {
 		if (!prefix?.length) {
 			throw new Error('Missing or empty namespace argument!');

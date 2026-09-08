@@ -1,4 +1,8 @@
 import * as v from 'valibot';
+import { xmpLiteral } from '../xmp-namespace.js';
+
+const dateRegex =
+	/^\d{4}(?:-(?:0[1-9]|1[0-2])(?:-(?:0[1-9]|[12]\d|3[01])(?:T(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|[+-](?:[01]\d|2[0-3]):[0-5]\d)?)?)?)?$/;
 
 /**
  * A date-time value is represented using a subset of the formats as defined in
@@ -31,4 +35,4 @@ import * as v from 'valibot';
  * NOTE : If a file was saved at noon on October 23, a timestamp of
  * 2004-10-23T12:00:00-06:00 conveys more information than 2004-10-23T18:00:00Z.
  */
-export const XMPDate = v.string();
+export const xmpDate = xmpLiteral(v.regex(dateRegex));

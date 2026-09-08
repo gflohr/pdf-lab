@@ -1,4 +1,5 @@
 import * as v from 'valibot';
+import { xmpLiteral } from '../xmp-namespace.js';
 
 /**
  * A simple text value denoting a floating-point numeric value, written using=
@@ -16,4 +17,9 @@ import * as v from 'valibot';
  * of the Real type may specify a required range or precision, such as
  * nonnegative or microsecond resolution (for a duration in seconds).
  */
-export const XMPReal = v.string();
+export const xmpReal = xmpLiteral(
+	v.regex(
+		/^[+-]?(?:\d+(?:\.\d+)?|\.\d+)$/,
+		'Invalid XMP Real: must be a valid floating-point number string',
+	),
+);

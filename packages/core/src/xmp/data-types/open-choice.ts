@@ -1,4 +1,4 @@
-import * as v from 'valibot';
+import { xmpLiteral } from '../xmp-namespace.js';
 
 /**
  * A value chosen from a vocabulary of values. Vocabularies provide a means of
@@ -13,4 +13,4 @@ import * as v from 'valibot';
  * values for closed choice types when the set of allowed values can be
  * expected to grow over time.
  */
-export const XMPChoice = v.string();
+export const xmpOpenChoice = xmpLiteral();

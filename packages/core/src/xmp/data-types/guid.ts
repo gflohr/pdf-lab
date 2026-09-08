@@ -1,4 +1,4 @@
-import * as v from 'valibot';
+import { xmpLiteral } from '../xmp-namespace.js';
 
 /**
  * A string representing a "**g**lobally **u**nique **i**dentifier”. A GUID
@@ -10,4 +10,4 @@ import * as v from 'valibot';
  * them for equality. This comparison shall use the Unicode string value as-is,
  * using a direct byte-for-byte check for equality.
  */
-export const XMPGUID = v.string();
+export const xmpGUID = xmpLiteral();

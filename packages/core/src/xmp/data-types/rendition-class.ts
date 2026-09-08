@@ -1,4 +1,5 @@
 import * as v from 'valibot';
+import { xmpLiteral } from '../xmp-namespace.js';
 
 /**
  * A simple text Open Choice value denoting the form or intended usage of a
@@ -22,4 +23,9 @@ import * as v from 'valibot';
  * |             | EXAMPLE:                                                   |
  * |             | `thumbnail:jpeg, thumbnail:16x16, thumbnail:gif:8x8:bw`    |
  */
-export const XMPRenditionClass = v.string();
+export const xmpRenditionClass = xmpLiteral(
+	v.regex(
+		/^(?:default|(?!default:)[^:\s]+(?::[^:\s]+)*)$/,
+		'Invalid XMP RenditionClass: must be "default" or a colon-separated series of tokens',
+	),
+);

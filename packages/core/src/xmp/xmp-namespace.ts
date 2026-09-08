@@ -106,7 +106,7 @@ export function xmpSeq<
 	});
 }
 
-export type XMPNamespaceSchema =
+export type XmpNamespaceSchema =
 	| v.ObjectSchema<v.ObjectEntries, any>
 	| v.StrictObjectSchema<v.ObjectEntries, any>
 	| v.ObjectSchemaAsync<v.ObjectEntries, any>

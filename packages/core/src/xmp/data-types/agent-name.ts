@@ -1,7 +1,8 @@
 import * as v from 'valibot';
+import { xmpLiteral } from '../xmp-namespace.js';
 
 /**
- * The name of an XMP processor, a {@link XMPText} value.
+ * The name of an XMP processor, a {@link XmpText} value.
  *
  * It is recommended that the value use this format convention:
  *
@@ -14,4 +15,6 @@ import * as v from 'valibot';
  *
  * EXAMPLE "Adobe Acrobat 9.0 (Mac OS X 10.5)"
  */
-export const XMPAgentName = v.string();
+export const xmpAgentName = xmpLiteral(
+	v.regex(/^[^ \t]+[ \t]+[^ \t]+[ \t]+[^ \t]+[ \t]*\(.+\)$/),
+);
