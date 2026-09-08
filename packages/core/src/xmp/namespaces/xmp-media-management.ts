@@ -187,7 +187,7 @@ export const xmpMediaManagementNamespace = v.strictObject({
 	 * pantry. Nested pantry items shall be removed from the individual pantry
 	 * item and promoted to the top level of the pantry.
 	 */
-	Versions: xmpBag(xmpVersion),
+	Versions: xmpSeq(xmpVersion),
 
 	/**
 	 * Type: {@link xmpURL}.
