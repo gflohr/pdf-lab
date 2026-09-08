@@ -5,7 +5,6 @@ import { fontkit } from '@pdfa-lab/fontkit';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { SingleByteEncodingMapper } from './encoding/mappers/single-byte-encoding-mapper.js';
 import * as collectFont from './font/collect-fonts.js';
-import { fcMatch } from './font/fc-match.js';
 import type { FontInfo, FontMap } from './font/types.js';
 import { type PDFAConversionOptions, PDFALab } from './pdfa-lab.js';
 
@@ -190,9 +189,6 @@ describe('PDFALab', () => {
 				source: path.resolve(notoDir, 'NotoSans-Regular.ttf'),
 			},
 		};
-		const options: PDFAConversionOptions = {
-			fontEmbedOptions: { fontMap },
-		};
 
 		beforeAll(async () => {
 			const pdfBytes = await fs.readFile(pdfFilename);
@@ -230,6 +226,87 @@ describe('PDFALab', () => {
 				compress: true,
 				fcMatch: 'fc-match',
 				fontMap,
+			});
+		});
+	});
+
+	describe('XMP Metadata', () => {
+		describe('Extract XMP Metadata', () => {
+			it('should extract existing metadata', async () => {
+				// This should
+				const pdfFilename = path.resolve(pdfDir, 'factur-x.pdf');
+				const pdfBytes = await fs.readFile(pdfFilename);
+				const lab = await PDFALab.from(pdfBytes);
+				const rdf = lab.extractXmp();
+
+				expect(rdf).toMatchSnapshot();
+			});
+		});
+
+		describe('Set XMP Metadata Packet', () => {
+			it('should set new metadata', async () => {
+				const pdfFilename = path.resolve(pdfDir, 'standard-fonts.pdf');
+				const pdfBytes = await fs.readFile(pdfFilename);
+				const rdf = `
+	<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+		<rdf:Description xmlns:dc="http://purl.org/dc/elements/1.1/" rdf:about="">
+			<dc:format>application/pdf</dc:format>
+		</rdf:Description>
+		<rdf:Description xmlns:pdf="http://ns.adobe.com/pdf/1.3/" rdf:about="">
+			<pdf:Producer>@pdfa-lab/core unit tests</pdf:Producer>
+			<pdf:PDFVersion>1.7</pdf:PDFVersion>
+		</rdf:Description>
+	</rdf:RDF>`;
+				const lab = await PDFALab.from(pdfBytes);
+				lab.setXmpMetadataPacket(rdf);
+
+				const newPdfBytes = await lab.save();
+				const newLab = await PDFALab.from(newPdfBytes);
+				const xmp = newLab.extractXmp();
+				expect(xmp).toBe(`<rdf:RDF
+ xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+ xmlns:pdf="http://ns.adobe.com/pdf/1.3/"
+ xmlns:dc="http://purl.org/dc/elements/1.1/">
+    <rdf:Description rdf:about="">
+        <pdf:PDFVersion>1.7</pdf:PDFVersion>
+        <pdf:Producer>@pdfa-lab/core unit tests</pdf:Producer>
+        <dc:format>application/pdf</dc:format>
+    </rdf:Description>
+</rdf:RDF>
+`);
+			});
+
+			it('should overwrite existing metadata', async () => {
+				// This should
+				const pdfFilename = path.resolve(pdfDir, 'factur-x.pdf');
+				const pdfBytes = await fs.readFile(pdfFilename);
+				const rdf = `
+	<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+		<rdf:Description xmlns:dc="http://purl.org/dc/elements/1.1/" rdf:about="">
+			<dc:format>application/pdf</dc:format>
+		</rdf:Description>
+		<rdf:Description xmlns:pdf="http://ns.adobe.com/pdf/1.3/" rdf:about="">
+			<pdf:Producer>@pdfa-lab/core unit tests</pdf:Producer>
+			<pdf:PDFVersion>1.7</pdf:PDFVersion>
+		</rdf:Description>
+	</rdf:RDF>`;
+				const lab = await PDFALab.from(pdfBytes);
+				lab.setXmpMetadataPacket(rdf);
+
+				const newPdfBytes = await lab.save();
+				const newLab = await PDFALab.from(newPdfBytes);
+				const xmp = newLab.extractXmp();
+				expect(xmp).toBe(`<rdf:RDF
+ xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+ xmlns:pdf="http://ns.adobe.com/pdf/1.3/"
+ xmlns:dc="http://purl.org/dc/elements/1.1/">
+    <rdf:Description rdf:about="">
+        <pdf:PDFVersion>1.7</pdf:PDFVersion>
+        <pdf:Producer>@pdfa-lab/core unit tests</pdf:Producer>
+        <dc:format>application/pdf</dc:format>
+    </rdf:Description>
+</rdf:RDF>
+`);
 			});
 		});
 	});

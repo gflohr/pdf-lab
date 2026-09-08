@@ -51,6 +51,11 @@ export default defineConfig({
 						collapsed: true,
 						link: '/cli/extract-text',
 					},
+					{
+						text: 'Extract XMP Meta Information',
+						collapsed: true,
+						link: '/cli/extract-xmp',
+					}
 				],
 			},
 			{
@@ -85,7 +90,11 @@ export default defineConfig({
 							},
 							{
 								text: 'Extracting Text',
-								link: '/pdfa-lab-core/examples/extracting-text',
+								link: '/pdfa-lab-core/examples/extract-text',
+							},
+							{
+								text: 'Extracting XMP Meta Information',
+								link: '/pdfa-lab-core/examples/extract-xmp',
 							},
 							{
 								text: 'Listing Fonts',

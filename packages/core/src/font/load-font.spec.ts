@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { OsType } from './load-font.js';
 import { loadFontFromPath } from './load-font.js';
 
 vi.mock('node:fs/promises', () => {

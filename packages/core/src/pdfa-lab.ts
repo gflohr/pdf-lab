@@ -19,6 +19,7 @@ import {
 	DEFAULT_BASE_IRI,
 	type RdfSerialisationFormat,
 	type RdfSerialisationFormatAlias,
+	type RdfSerialisationOptions,
 	rdfSerialisationFormatAlias,
 	XmpDocument,
 } from './xmp/xmp-document.js';
@@ -382,11 +383,15 @@ export class PDFALab {
 	 *
 	 * @param format the desired serialisation format (default: application/rdf+xml)
 	 * @param baseIRI the base IRI (default: urn:xmp:doc)
+	 * @param options serialisation options for certain formats, see {@link RdfSerialisationOptions}
 	 * @returns the serialised XMP or `null` if no meta information available
 	 */
-	public extractXMP(
-		format: RdfSerialisationFormat | RdfSerialisationFormatAlias = 'application/rdf+xml',
+	public extractXmp(
+		format:
+			| RdfSerialisationFormat
+			| RdfSerialisationFormatAlias = 'application/rdf+xml',
 		baseIRI = DEFAULT_BASE_IRI,
+		options: RdfSerialisationOptions = {},
 	): string | null {
 		format = format.toLowerCase();
 		if (
@@ -418,6 +423,22 @@ export class PDFALab {
 		const xmlString = new TextDecoder().decode(bytes);
 		const xmpDocument = new XmpDocument(xmlString, baseIRI);
 
-		return xmpDocument.serialise(format as RdfSerialisationFormat);
+		return xmpDocument.serialise(format as RdfSerialisationFormat, options);
+	}
+
+	public setXmpMetadataPacket(rdfxml: string) {
+		const bom = '\uFEFF';
+
+		const xml = `<?xpacket begin="${bom}" id="W5M0MpCehiHzreSzNTczkc9d"?>
+<x:xmpmeta xmlns:x="${XmpDocument.NS_X}">${rdfxml}</x:xmpmeta>
+<?xpacket end="w"?>`;
+
+		const xmlBytes = new TextEncoder().encode(xml);
+		const metadataStream = this.pdfDocument.context.stream(xmlBytes, {
+			Type: PDFName.of('Metadata'),
+			Subtype: PDFName.of('XML'),
+		});
+		const metadataStreamRef = this.pdfDocument.context.register(metadataStream);
+		this.pdfDocument.catalog.set(PDFName.of('Metadata'), metadataStreamRef);
 	}
 }

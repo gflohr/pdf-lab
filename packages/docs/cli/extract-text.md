@@ -6,8 +6,8 @@ You can extract textual information contained in a PDF.
 
 ```shell
 pdfa-lab text FILENAME.pdf
-pdfa-lab -i FILENAME.pdf
-pdfa-lab --input FILENAME.pdf
+pdfa-lab text -i FILENAME.pdf
+pdfa-lab text --input FILENAME.pdf
 ```
 
 These commands are all equivalent.

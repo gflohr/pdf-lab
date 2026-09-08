@@ -22,6 +22,9 @@ const formatAliases: Record<string, RdfSerialisationFormat> = {
 	'json-ld': 'application/ld+json',
 	'ld+json': 'application/ld+json',
 	'json': 'application/ld+json',
+	'application/x-turtle': 'text/turtle',
+	'application/n3': 'text/n3',
+	'application/n-quads': 'application/nquads',
 }
 type RdfSerialisationFormatKey = keyof typeof formatAliases;
 
@@ -44,6 +47,7 @@ for (const s in formatAliases) {
 const options: {
 	'base-iri': OptSpec;
 	format: OptSpec;
+	flags: OptSpec;
 } = {
 	'base-iri': {
 		group: gtx._('Mode of Operation'),
@@ -59,6 +63,11 @@ const options: {
 		choices: formatChoices,
 		default: 'xml',
 		describe: gtx._('the output format'),
+	},
+	flags: {
+		group: gtx._('Output format'),
+		type: 'string',
+		describe: gtx._('the serialiser flags'),
 	},
 };
 
@@ -87,9 +96,10 @@ export class XMPCommand implements Command {
 	}
 
 	private serialise(lab: PDFALab, configOptions: ConfigOptions) {
-		const serialised = lab.extractXMP(
+		const serialised = lab.extractXmp(
 			this.resolveFormatAlias((configOptions.format as string).toLowerCase()),
 			configOptions['base-iri'] as string,
+			{ flags: configOptions.flags as string },
 		);
 
 		if (!serialised) {

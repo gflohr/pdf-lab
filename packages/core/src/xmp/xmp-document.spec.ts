@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { type RdfSerialisationFormat, XmpDocument } from './xmp-document.js';
+import { XmpDocument } from './xmp-document.js';
 
 const bom = '\uFEFF';
 const defaultPacket = `<?xpacket begin="${bom}" id="W5M0MpCehiHzreSzNTczkc9d"?>
@@ -74,6 +74,218 @@ describe('XMP document', () => {
 			const xmpDoc = new XmpDocument(defaultPacket);
 
 			const xmp = xmpDoc.serialise('application/nquads');
+			expect(xmp).toMatchSnapshot();
+		});
+	});
+
+	describe('setMetaInfo', () => {
+		it('should add a new property to a fresh document', () => {
+			const xmpDoc = new XmpDocument();
+			xmpDoc.setMetaInfo('dc:format', 'text/plain');
+
+			const xmp = xmpDoc.serialiseXmp();
+			expect(xmp).toContain('<dc:format>text/plain</dc:format>');
+			expect(xmp).toMatchSnapshot();
+		});
+
+		it('should honour the `noOverwrite` option', () => {
+			const xmpDoc = new XmpDocument(defaultPacket);
+			xmpDoc.setMetaInfo('dc:format', 'text/plain', { noOverwrite: true });
+
+			const xmp = xmpDoc.serialiseXmp();
+			expect(xmp).not.toContain('<dc:format>text/plain</dc:format>');
+			expect(xmp).toMatchSnapshot();
+		});
+
+		it('should set Seq items', () => {
+			const xmpDoc = new XmpDocument();
+
+			xmpDoc.setMetaInfo('dc:creator', 'John Doe');
+
+			const xmp = xmpDoc.serialiseXmp();
+
+			expect(xmp).toContain('<rdf:Seq><rdf:li>John Doe</rdf:li></rdf:Seq>');
+			expect(xmp).toMatchSnapshot();
+		});
+
+		it('should overwrite Seq items by default', () => {
+			const xmpDoc = new XmpDocument();
+
+			xmpDoc.setMetaInfo('dc:creator', 'John Doe');
+			xmpDoc.setMetaInfo('dc:creator', 'Jane Doe');
+
+			const xmp = xmpDoc.serialiseXmp();
+
+			expect(xmp).toContain('<rdf:Seq><rdf:li>Jane Doe</rdf:li></rdf:Seq>');
+			expect(xmp).toMatchSnapshot();
+		});
+
+		it('should append Seq items if requested', () => {
+			const xmpDoc = new XmpDocument();
+
+			xmpDoc.setMetaInfo('dc:creator', 'John Doe');
+			xmpDoc.setMetaInfo('dc:creator', 'Jane Doe', { append: true });
+
+			const xmp = xmpDoc.serialiseXmp();
+
+			expect(xmp).toContain(
+				'<rdf:Seq><rdf:li>John Doe</rdf:li><rdf:li>Jane Doe</rdf:li></rdf:Seq>',
+			);
+			expect(xmp).toMatchSnapshot();
+		});
+
+		it('should set language alternatives', () => {
+			const xmpDoc = new XmpDocument();
+
+			const title = 'Internet For Dummies, Remedial Edition';
+			xmpDoc.setMetaInfo('dc:title', title);
+
+			const xmp = xmpDoc.serialiseXmp();
+
+			expect(xmp).toContain(`<rdf:li xml:lang="x-default">${title}</rdf:li>`);
+			expect(xmp).toMatchSnapshot();
+		});
+
+		it('should append localised language alternative values', () => {
+			const xmpDoc = new XmpDocument();
+
+			const title = 'Les Misérables';
+			xmpDoc.setMetaInfo('dc:title', title);
+
+			const titleDe = 'Die Elenden';
+			xmpDoc.setMetaInfo('dc:title@de', titleDe);
+
+			const xmp = xmpDoc.serialiseXmp();
+
+			expect(xmp).toContain(`<rdf:li xml:lang="x-default">${title}</rdf:li>`);
+			expect(xmp).toContain(`<rdf:li xml:lang="de">${titleDe}</rdf:li>`);
+			expect(xmp).toMatchSnapshot();
+		});
+
+		it('should wipe out all other language alternatives, when setting the default', () => {
+			const xmpDoc = new XmpDocument();
+
+			const oldTitleFr = 'Les Misérables';
+			xmpDoc.setMetaInfo('dc:title', oldTitleFr);
+
+			const oldTitleDe = 'Die Elenden';
+			xmpDoc.setMetaInfo('dc:title@de-DE', oldTitleDe);
+
+			const newTitle = '1000 Classic Pranks';
+			xmpDoc.setMetaInfo('dc:title', newTitle);
+
+			const xmp = xmpDoc.serialiseXmp();
+
+			expect(xmp).not.toContain('de-DE');
+			expect(xmp).toContain(
+				`<rdf:li xml:lang="x-default">${newTitle}</rdf:li>`,
+			);
+			expect(xmp).toMatchSnapshot();
+		});
+
+		it('should honour the noOverwrite option, when setting the default', () => {
+			const xmpDoc = new XmpDocument();
+
+			const oldTitle = 'Les Misérables';
+			xmpDoc.setMetaInfo('dc:title', oldTitle);
+
+			const newTitle = '1000 Classic Pranks';
+			xmpDoc.setMetaInfo('dc:title', newTitle, { noOverwrite: true });
+
+			const xmp = xmpDoc.serialiseXmp();
+
+			expect(xmp).not.toContain('de-DE');
+			expect(xmp).toContain(
+				`<rdf:li xml:lang="x-default">${oldTitle}</rdf:li>`,
+			);
+			expect(xmp).toMatchSnapshot();
+		});
+
+		it('should overwrite language alternative values by default', () => {
+			const xmpDoc = new XmpDocument();
+
+			const title = 'Les Misérables';
+			xmpDoc.setMetaInfo('dc:title', title);
+
+			const titleDe = 'Die Elenden';
+			xmpDoc.setMetaInfo('dc:title@de', titleDe);
+			const fallbackTitleDe = 'Die Pest';
+			xmpDoc.setMetaInfo('dc:title@de', fallbackTitleDe);
+
+			const xmp = xmpDoc.serialiseXmp();
+
+			expect(xmp).toContain(`<rdf:li xml:lang="x-default">${title}</rdf:li>`);
+			expect(xmp).not.toContain(`<rdf:li xml:lang="de">${titleDe}</rdf:li>`);
+			expect(xmp).toContain(
+				`<rdf:li xml:lang="de">${fallbackTitleDe}</rdf:li>`,
+			);
+			expect(xmp).toMatchSnapshot();
+		});
+	});
+
+	describe('getMetaInfo', () => {
+		it('should get an existing property', () => {
+			const xmpDoc = new XmpDocument(defaultPacket);
+
+			expect(xmpDoc.getMetaInfo('dc:format')).toBe('application/pdf');
+		});
+
+		it('should return null for non-existing properties', () => {
+			const xmpDoc = new XmpDocument(defaultPacket);
+
+			expect(xmpDoc.getMetaInfo('dc:identifier')).toBeNull();
+		});
+	});
+
+	describe('Odd prefixes', () => {
+		it('should accept and repair y as the xmpmeta prefix', () => {
+			// Fixed by rdflib itself.
+			const xmpPacket = `<?xpacket begin="${bom}" id="W5M0MpCehiHzreSzNTczkc9d"?>
+<y:xmpmeta xmlns:y="adobe:ns:meta/">
+	<fdr:RDF xmlns:fdr="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+		<fdr:Description xmlns:dc="http://purl.org/dc/elements/1.1/" fdr:about="">
+			<dc:format>application/pdf</dc:format>
+		</fdr:Description>
+	</fdr:RDF>
+</y:xmpmeta>
+<?xpacket end="w"?>
+`;
+			const xmpDoc = new XmpDocument(xmpPacket);
+			const xmp = xmpDoc.serialiseXmp();
+			expect(xmp).toMatchSnapshot();
+		});
+
+		it('should accept and repair fdr as the rdf prefix', () => {
+			// Fixed by rdflib itself.
+			const xmpPacket = `<?xpacket begin="${bom}" id="W5M0MpCehiHzreSzNTczkc9d"?>
+<x:xmpmeta xmlns:x="adobe:ns:meta/">
+	<fdr:RDF xmlns:fdr="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+		<fdr:Description xmlns:dc="http://purl.org/dc/elements/1.1/" fdr:about="">
+			<dc:format>application/pdf</dc:format>
+		</fdr:Description>
+	</fdr:RDF>
+</x:xmpmeta>
+<?xpacket end="w"?>
+`;
+			const xmpDoc = new XmpDocument(xmpPacket);
+			const xmp = xmpDoc.serialiseXmp();
+			expect(xmp).toMatchSnapshot();
+		});
+
+		it('should accept and repair cd as the Dublin Core prefix', () => {
+			// Fixed by rdflib itself.
+			const xmpPacket = `<?xpacket begin="${bom}" id="W5M0MpCehiHzreSzNTczkc9d"?>
+<x:xmpmeta xmlns:x="adobe:ns:meta/">
+	<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+		<rdf:Description xmlns:cd="http://purl.org/dc/elements/1.1/" rdf:about="">
+			<cd:format>application/pdf</cd:format>
+		</rdf:Description>
+	</rdf:RDF>
+</x:xmpmeta>
+<?xpacket end="w"?>
+`;
+			const xmpDoc = new XmpDocument(xmpPacket);
+			const xmp = xmpDoc.serialiseXmp();
 			expect(xmp).toMatchSnapshot();
 		});
 	});
