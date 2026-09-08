@@ -10,6 +10,7 @@ import { xmpURI } from '../data-types/uri.js';
 import { xmpURL } from '../data-types/url.js';
 import { xmpVersion } from '../data-types/version.js';
 import { xmpBag, xmpSeq } from '../xmp-namespace.js';
+import { xmpAgentName } from '../data-types/agent-name.js';
 
 /**
  * The XMP Media Management namespace
@@ -93,7 +94,7 @@ export const xmpMediaManagementNamespace = v.strictObject({
 	 * Along with `xmpMM:ManagerVariant`, it tells applications which asset
 	 * management system to contact concerning this document.
 	 */
-	Manager: xmpGUID,
+	Manager: xmpAgentName,
 
 	/**
 	 * Type: {@link xmpURI}.
