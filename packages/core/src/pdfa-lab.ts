@@ -383,7 +383,7 @@ export class PDFALab {
 	 *
 	 * @param format the desired serialisation format (default: application/rdf+xml)
 	 * @param baseIRI the base IRI (default: urn:xmp:doc)
-	 * @param options serialisation options for certain formats, see {@link TODO}
+	 * @param options serialisation options for certain formats, see {@link RdfSerialisationOptions}
 	 * @returns the serialised XMP or `null` if no meta information available
 	 */
 	public extractXmp(
