@@ -481,16 +481,15 @@ ${output}</x:xmpmeta>
 			return;
 		}
 
-		// FIXME! Do this only, when not appending.
 		if (!options.append) {
 			this.clearContainerItems(container);
 		} else {
 			existing = [];
 		}
 
-		const highest = existing.length ? Math.max(...existing) : 0;
+		const highest = existing.length ? Math.max(...existing) : -1;
 
-		const rdfIndex = highest + 1;
+		const rdfIndex = highest + 2;
 		this.kb.add(
 			container,
 			rdflib.sym(`${XmpDocument.NS_RDF}_${rdfIndex}`),
