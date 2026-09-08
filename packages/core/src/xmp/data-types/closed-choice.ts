@@ -15,7 +15,7 @@ import * as v from 'valibot';
  */
 // @__NO_SIDE_EFFECTS__
 export function xmpClosedChoice(choices: string[]) {
-	const schema = v.picklist(choices);
+	const schema = v.optional(v.picklist(choices));
 
 	return Object.assign(schema, { xmpContainer: 'Literal' as const });
 }
