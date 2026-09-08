@@ -22,6 +22,9 @@ const formatAliases: Record<string, RdfSerialisationFormat> = {
 	'json-ld': 'application/ld+json',
 	'ld+json': 'application/ld+json',
 	'json': 'application/ld+json',
+	'application/x-turtle': 'text/turtle',
+	'application/n3': 'text/n3',
+	'application/n-quads': 'application/nquads',
 }
 type RdfSerialisationFormatKey = keyof typeof formatAliases;
 

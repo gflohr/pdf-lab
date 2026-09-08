@@ -38,11 +38,11 @@ By default, the XMP meta information is printed to the console.
 | Format                  | Aliases           | Description                |
 |-------------------------|-------------------|----------------------------|
 | `application/rdf+xml`   | `xml`, `rdf+xml`  | The default output format, which is also the format embedded into a PDF document. |
-| `text/turtle`           | `turtle`, `application/x-turtle` |                            |
+| `text/turtle`           | `turtle`, `application/x-turtle` |             |
 | `application/n-triples` | `n-triples`       |                            |
-| `application/ld+json`   | `json-ld`, `ld+json`, `json` | |
-| `text/n3`               | `n3`, `notation3`, `application/n3` | |
-| `application/nquads`    | `nquads`, `application/n-quads` | |
+| `application/ld+json`   | `json-ld`, `ld+json`, `json` |                 |
+| `text/n3`               | `n3`, `notation3`, `application/n3` |          |
+| `application/nquads`    | `nquads`, `application/n-quads` |              |
 
 Formats identifiers and their aliases are case-insensitive.
 
