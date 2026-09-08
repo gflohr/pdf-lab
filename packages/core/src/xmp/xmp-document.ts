@@ -609,33 +609,4 @@ ${output}</x:xmpmeta>
 
 		return statements;
 	}
-
-	private getLanguageMapping(
-		container: rdflib.NamedNode | rdflib.BlankNode,
-	): Record<string, LangMapEntry> {
-		const langMap: Record<string, LangMapEntry> = {};
-		const statements = this.kb.statementsMatching(container, null, null);
-
-		const ORDINAL_REGEX =
-			/^http:\/\/www\.w3\.org\/1999\/02\/22-rdf-syntax-ns#_(\d+)$/;
-
-		for (const stmt of statements) {
-			const match = stmt.predicate.value.match(ORDINAL_REGEX);
-
-			// Ensure predicate is an ordinal (_1, _2, etc.) and object is a
-			// Literal with a lang attribute.
-			if (match && stmt.object.termType === 'Literal') {
-				const index = parseInt(match[1]!, 10);
-				const lang = stmt.object.lang || 'x-default';
-
-				langMap[lang] = {
-					index,
-					predicate: stmt.predicate as rdflib.NamedNode,
-					statement: stmt,
-				};
-			}
-		}
-
-		return langMap;
-	}
 }
