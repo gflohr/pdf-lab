@@ -124,7 +124,7 @@ export const dublinCoreNamespace = v.strictObject({
 	 * **DCMI definition**: A language of the resource. **XMP addition**: XMP
 	 * usage is a list of languages used in the content of the resource.
 	 */
-	language: xmpSeq(v.pipe(xmpLocale)),
+	language: xmpBag(v.pipe(xmpLocale)),
 
 	/**
 	 * Type: Unordered array of {@link xmpProperName}.
@@ -145,7 +145,7 @@ export const dublinCoreNamespace = v.strictObject({
 	 * conforming to a formal identification system. **XMP addition**: XMP
 	 * usage is a list of related resources.
 	 */
-	relation: xmpSeq(xmpText),
+	relation: xmpBag(xmpText),
 
 	/**
 	 * Type: Language alternative of {@link xmpText}.
@@ -180,7 +180,7 @@ export const dublinCoreNamespace = v.strictObject({
 	 * list of descriptive phrases or keywords that specify the content of the
 	 * resource.
 	 */
-	subject: xmpSeq(xmpText),
+	subject: xmpBag(xmpText),
 
 	/**
 	 * Type: Language alternative of {@link xmpText}.
@@ -202,7 +202,7 @@ export const dublinCoreNamespace = v.strictObject({
 	 * `dc:format` element. **XMP addition**: See the `dc:format` entry for
 	 * clarification of the XMP usage of that element.
 	 */
-	type: xmpSeq(xmpText),
+	type: xmpBag(xmpText),
 }) satisfies XmpNamespaceSchema;
 
 export type DublinCoreSchema = v.InferOutput<typeof dublinCoreNamespace>;
