@@ -78,7 +78,8 @@ export function parsePath(path: string): PathToken[] {
 		throw new Error('Empty paths are not allowed!');
 	}
 
-	if (tokens[tokens.length - 1]!.index) {
+	const lastToken = tokens[tokens.length - 1];
+	if (typeof lastToken?.index !== 'undefined') {
 		throw new Error(
 			`Index [${tokens[tokens.length - 1]!.index}] is not allowed for leaf nodes.`,
 		);
