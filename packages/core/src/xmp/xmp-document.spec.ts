@@ -216,7 +216,9 @@ describe('XMP document', () => {
 
 			expect(xmp).toContain(`<rdf:li xml:lang="x-default">${title}</rdf:li>`);
 			expect(xmp).not.toContain(`<rdf:li xml:lang="de">${titleDe}</rdf:li>`);
-			expect(xmp).toContain(`<rdf:li xml:lang="de">${fallbackTitleDe}</rdf:li>`);
+			expect(xmp).toContain(
+				`<rdf:li xml:lang="de">${fallbackTitleDe}</rdf:li>`,
+			);
 			expect(xmp).toMatchSnapshot();
 		});
 	});

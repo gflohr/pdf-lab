@@ -6,12 +6,10 @@ import {
 	XMLSerializer,
 } from '@xmldom/xmldom';
 import * as rdflib from 'rdflib';
-import * as v from 'valibot';
+import type { PredicateType, SubjectType } from 'rdflib/lib/types.js';
 import { dublinCoreNamespace } from './namespaces/dublin-core.js';
 import { parsePath } from './util/parse-path.js';
 import type { XMPNamespaceSchema, XmpSchema } from './xmp-namespace.js';
-import { GraphType, ObjectType, PredicateType, SubjectType } from 'rdflib/lib/types.js';
-import { stat } from 'node:fs';
 
 /**
  * Default base IRI.
@@ -95,12 +93,6 @@ export interface XMPSetMetaInfoOptions {
 }
 
 const bom = '\uFEFF';
-
-interface LangMapEntry {
-	index: number; // e.g., 1
-	predicate: rdflib.NamedNode; // e.g., rdflib.sym('...#_1')
-	statement: rdflib.Statement;
-}
 
 /** @internal */
 export class XmpDocument {
@@ -347,7 +339,9 @@ ${output}</x:xmpmeta>
 		}
 
 		if (this.namespaces[prefix]) {
-			throw new Error(`Prefix '${prefix}' is already registered for URL '${this.namespaces[prefix]}'!`)
+			throw new Error(
+				`Prefix '${prefix}' is already registered for URL '${this.namespaces[prefix]}'!`,
+			);
 		}
 
 		this.namespaces[prefix] = namespace;
@@ -372,10 +366,7 @@ ${output}</x:xmpmeta>
 		return this.getMetaInfoLeaf(token.prefix, token.name);
 	}
 
-	private getMetaInfoLeaf(
-		prefix: string,
-		name: string,
-	): string | null {
+	private getMetaInfoLeaf(prefix: string, name: string): string | null {
 		const namespaceUri = this.namespaces[prefix];
 		if (!namespaceUri) {
 			throw new Error(`Unknown prefix: '${prefix}'`);
@@ -532,10 +523,12 @@ ${output}</x:xmpmeta>
 				for (let i = 0; i < statements.length; ++i) {
 					const statement = statements[i];
 
-					if (statement && (statement.object.lang === ''
-						|| statement.object.lang === 'x-default'
-						|| !statement.object.lang
-					)) {
+					if (
+						statement &&
+						(statement.object.lang === '' ||
+							statement.object.lang === 'x-default' ||
+							!statement.object.lang)
+					) {
 						return;
 					}
 				}
@@ -587,13 +580,19 @@ ${output}</x:xmpmeta>
 		this.kb.remove(itemStatements);
 	}
 
-	private getLanguageStatements(container: rdflib.NamedNode | rdflib.BlankNode) {
+	private getLanguageStatements(
+		container: rdflib.NamedNode | rdflib.BlankNode,
+	) {
 		const allStatements = this.kb.statementsMatching(container, null, null);
 
 		const ORDINAL_REGEX =
 			/^http:\/\/www\.w3\.org\/1999\/02\/22-rdf-syntax-ns#_(\d+)$/;
 
-		const statements: rdflib.Statement<SubjectType, PredicateType, rdflib.Literal>[] = [];
+		const statements: rdflib.Statement<
+			SubjectType,
+			PredicateType,
+			rdflib.Literal
+		>[] = [];
 		for (const stmt of allStatements) {
 			const match = stmt.predicate.value.match(ORDINAL_REGEX);
 
@@ -602,7 +601,11 @@ ${output}</x:xmpmeta>
 			if (match && stmt.object.termType === 'Literal') {
 				const index = parseInt(match[1]!, 10);
 				if (index) {
-					statements[index - 1] = stmt as rdflib.Statement<SubjectType, PredicateType, rdflib.Literal>;
+					statements[index - 1] = stmt as rdflib.Statement<
+						SubjectType,
+						PredicateType,
+						rdflib.Literal
+					>;
 				}
 			}
 		}

@@ -189,9 +189,6 @@ describe('PDFALab', () => {
 				source: path.resolve(notoDir, 'NotoSans-Regular.ttf'),
 			},
 		};
-		const options: PDFAConversionOptions = {
-			fontEmbedOptions: { fontMap },
-		};
 
 		beforeAll(async () => {
 			const pdfBytes = await fs.readFile(pdfFilename);
