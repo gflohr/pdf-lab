@@ -234,4 +234,57 @@ describe('XMP document', () => {
 			expect(xmpDoc.getMetaInfo('dc:identifier')).toBeNull();
 		});
 	});
+
+	describe('Odd prefixes', () => {
+		it('should accept and repair y as the xmpmeta prefix', () => {
+			// Fixed by rdflib itself.
+			const xmpPacket = `<?xpacket begin="${bom}" id="W5M0MpCehiHzreSzNTczkc9d"?>
+<y:xmpmeta xmlns:y="adobe:ns:meta/">
+	<fdr:RDF xmlns:fdr="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+		<fdr:Description xmlns:dc="http://purl.org/dc/elements/1.1/" fdr:about="">
+			<dc:format>application/pdf</dc:format>
+		</fdr:Description>
+	</fdr:RDF>
+</y:xmpmeta>
+<?xpacket end="w"?>
+`;
+			const xmpDoc = new XmpDocument(xmpPacket);
+			const xmp = xmpDoc.serialiseXmp();
+			expect(xmp).toMatchSnapshot();
+		});
+
+		it('should accept and repair fdr as the rdf prefix', () => {
+			// Fixed by rdflib itself.
+			const xmpPacket = `<?xpacket begin="${bom}" id="W5M0MpCehiHzreSzNTczkc9d"?>
+<x:xmpmeta xmlns:x="adobe:ns:meta/">
+	<fdr:RDF xmlns:fdr="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+		<fdr:Description xmlns:dc="http://purl.org/dc/elements/1.1/" fdr:about="">
+			<dc:format>application/pdf</dc:format>
+		</fdr:Description>
+	</fdr:RDF>
+</x:xmpmeta>
+<?xpacket end="w"?>
+`;
+			const xmpDoc = new XmpDocument(xmpPacket);
+			const xmp = xmpDoc.serialiseXmp();
+			expect(xmp).toMatchSnapshot();
+		});
+
+		it('should accept and repair cd as the Dublin Core prefix', () => {
+			// Fixed by rdflib itself.
+			const xmpPacket = `<?xpacket begin="${bom}" id="W5M0MpCehiHzreSzNTczkc9d"?>
+<x:xmpmeta xmlns:x="adobe:ns:meta/">
+	<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+		<rdf:Description xmlns:cd="http://purl.org/dc/elements/1.1/" rdf:about="">
+			<cd:format>application/pdf</cd:format>
+		</rdf:Description>
+	</rdf:RDF>
+</x:xmpmeta>
+<?xpacket end="w"?>
+`;
+			const xmpDoc = new XmpDocument(xmpPacket);
+			const xmp = xmpDoc.serialiseXmp();
+			expect(xmp).toMatchSnapshot();
+		});
+	});
 });

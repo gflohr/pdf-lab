@@ -1,5 +1,70 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`XMP document > Odd prefixes > should accept and repair cd as the Dublin Core prefix 1`] = `
+"<?xpacket begin="﻿" id="W5M0MpCehiHzreSzNTczkc9d"?>
+<x:xmpmeta xmlns:x="adobe:ns:meta/">
+	<rdf:RDF
+	 xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	 xmlns:dc="http://purl.org/dc/elements/1.1/">
+		<rdf:Description rdf:about="">
+		   <dc:format>application/pdf</dc:format>
+		</rdf:Description>
+	</rdf:RDF></x:xmpmeta>
+<?xpacket end="w"?>"
+`;
+
+exports[`XMP document > Odd prefixes > should accept and repair fdr as the rdf prefix 1`] = `
+"<?xpacket begin="﻿" id="W5M0MpCehiHzreSzNTczkc9d"?>
+<x:xmpmeta xmlns:x="adobe:ns:meta/">
+	<rdf:RDF
+	 xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	 xmlns:dc="http://purl.org/dc/elements/1.1/">
+		<rdf:Description rdf:about="">
+		   <dc:format>application/pdf</dc:format>
+		</rdf:Description>
+	</rdf:RDF></x:xmpmeta>
+<?xpacket end="w"?>"
+`;
+
+exports[`XMP document > Odd prefixes > should accept and repair y as the xmpmeta prefix 1`] = `
+"<?xpacket begin="﻿" id="W5M0MpCehiHzreSzNTczkc9d"?>
+<x:xmpmeta xmlns:x="adobe:ns:meta/">
+	<rdf:RDF
+	 xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	 xmlns:dc="http://purl.org/dc/elements/1.1/">
+		<rdf:Description rdf:about="">
+		   <dc:format>application/pdf</dc:format>
+		</rdf:Description>
+	</rdf:RDF></x:xmpmeta>
+<?xpacket end="w"?>"
+`;
+
+exports[`XMP document > Odd prefixes > should accept fdr as the rdf prefix 1`] = `
+"<?xpacket begin="﻿" id="W5M0MpCehiHzreSzNTczkc9d"?>
+<x:xmpmeta xmlns:x="adobe:ns:meta/">
+	<rdf:RDF
+	 xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	 xmlns:dc="http://purl.org/dc/elements/1.1/">
+		<rdf:Description rdf:about="">
+		   <dc:format>application/pdf</dc:format>
+		</rdf:Description>
+	</rdf:RDF></x:xmpmeta>
+<?xpacket end="w"?>"
+`;
+
+exports[`XMP document > Odd prefixes > should accept y as the xmpmeta prefix 1`] = `
+"<?xpacket begin="﻿" id="W5M0MpCehiHzreSzNTczkc9d"?>
+<x:xmpmeta xmlns:x="adobe:ns:meta/">
+	<rdf:RDF
+	 xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	 xmlns:dc="http://purl.org/dc/elements/1.1/">
+		<rdf:Description rdf:about="">
+		   <dc:format>application/pdf</dc:format>
+		</rdf:Description>
+	</rdf:RDF></x:xmpmeta>
+<?xpacket end="w"?>"
+`;
+
 exports[`XMP document > Serialisation Formats > should serialise to application/nquads 1`] = `
 "<urn:xmp:doc> <http://ns.adobe.com/pdf/1.3/PDFVersion> "1.7" <urn:xmp:doc> .
 <urn:xmp:doc> <http://ns.adobe.com/pdf/1.3/Producer> "@pdfa-lab/core" <urn:xmp:doc> .

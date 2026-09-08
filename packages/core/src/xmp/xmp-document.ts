@@ -202,6 +202,8 @@ export class XmpDocument {
 
 		rdflib.parse(xmlString, this.kb, baseIRI, 'application/rdf+xml');
 
+		// FIXME! Get existing namespaces from document!
+
 		//this.registerNamespace('Iptc4xmpCore', XmpDocument.NS_IPTC4XMPCORE);
 		//this.registerNamespace('crs', XmpDocument.NS_CRS);
 		this.registerNamespace('dc', XmpDocument.NS_DC, dublinCoreNamespace);
