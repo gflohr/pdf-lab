@@ -1,4 +1,4 @@
-import { xmpLiteral } from '../xmp-namespace.js';
+import { xmpLiteral, xmpRequiredLiteral } from '../xmp-namespace.js';
 
 /**
  * A value chosen from a vocabulary of values. Vocabularies provide a means of
@@ -14,3 +14,8 @@ import { xmpLiteral } from '../xmp-namespace.js';
  * expected to grow over time.
  */
 export const xmpOpenChoice = xmpLiteral();
+
+/**
+ * Like {@link xmpOpenChoice} but required.
+ */
+export const xmpRequiredOpenChoice = xmpRequiredLiteral();

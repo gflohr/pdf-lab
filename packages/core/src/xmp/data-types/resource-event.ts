@@ -1,7 +1,7 @@
 import * as v from 'valibot';
 import { xmpAgentName } from './agent-name.js';
-import { xmpDate } from './date.js';
-import { xmpOpenChoice } from './open-choice.js';
+import { xmpRequiredDate } from './date.js';
+import { xmpOpenChoice, xmpRequiredOpenChoice } from './open-choice.js';
 import { xmpText } from './text.js';
 
 /**
@@ -24,7 +24,7 @@ export const xmpResourceEvent = v.strictObject({
 	 * The referenced resource’s fallback file paths or URLs. The sequence
 	 * order is the recommended order in attempting to locate the resource.
 	 */
-	action: xmpOpenChoice,
+	action: xmpRequiredOpenChoice,
 
 	/**
 	 * Type: {@link xmpText}.
@@ -68,7 +68,7 @@ export const xmpResourceEvent = v.strictObject({
 	 * For events that create or write to a file, this should be the
 	 * approximate modification time of the file.
 	 */
-	when: xmpDate,
+	when: xmpRequiredDate,
 });
 
 export type XmpResourceEvent = v.InferOutput<typeof xmpResourceEvent>;

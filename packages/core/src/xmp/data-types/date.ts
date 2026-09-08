@@ -1,5 +1,5 @@
 import * as v from 'valibot';
-import { xmpLiteral } from '../xmp-namespace.js';
+import { xmpLiteral, xmpRequiredLiteral } from '../xmp-namespace.js';
 
 const dateRegex =
 	/^\d{4}(?:-(?:0[1-9]|1[0-2])(?:-(?:0[1-9]|[12]\d|3[01])(?:T(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|[+-](?:[01]\d|2[0-3]):[0-5]\d)?)?)?)?$/;
@@ -36,3 +36,8 @@ const dateRegex =
  * 2004-10-23T12:00:00-06:00 conveys more information than 2004-10-23T18:00:00Z.
  */
 export const xmpDate = xmpLiteral(v.regex(dateRegex));
+
+/**
+ * Like {@link xmpDate} but required.
+ */
+export const xmpRequiredDate = xmpRequiredLiteral(v.regex(dateRegex));
