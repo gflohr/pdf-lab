@@ -13,6 +13,7 @@ import * as v from 'valibot';
  * values for closed choice types when the set of allowed values can be
  * expected to grow over time.
  */
+// @__NO_SIDE_EFFECTS__
 export function xmpClosedChoice(choices: string[]) {
 	const schema = v.picklist(choices);
 
