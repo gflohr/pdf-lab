@@ -10,6 +10,7 @@ import type { PredicateType, SubjectType } from 'rdflib/lib/types.js';
 import { dublinCoreNamespace } from './namespaces/dublin-core.js';
 import { parsePath } from './util/parse-path.js';
 import type { XMPNamespaceSchema, XmpSchema } from './xmp-namespace.js';
+import { xmpNamespace } from './namespaces/xmp.js';
 
 /**
  * Default base IRI.
@@ -194,8 +195,6 @@ export class XmpDocument {
 
 		rdflib.parse(xmlString, this.kb, baseIRI, 'application/rdf+xml');
 
-		// FIXME! Get existing namespaces from document!
-
 		//this.registerNamespace('Iptc4xmpCore', XmpDocument.NS_IPTC4XMPCORE);
 		//this.registerNamespace('crs', XmpDocument.NS_CRS);
 		this.registerNamespace('dc', XmpDocument.NS_DC, dublinCoreNamespace);
@@ -203,7 +202,7 @@ export class XmpDocument {
 		//this.registerNamespace('pdf', XmpDocument.NS_PDF);
 		//this.registerNamespace('photoshop', XmpDocument.NS_PHOTOSHOP);
 		//this.registerNamespace('tiff', XmpDocument.NS_TIFF);
-		//this.registerNamespace('xmp', XmpDocument.NS_XMP);
+		this.registerNamespace('xmp', XmpDocument.NS_XMP, xmpNamespace);
 		//this.registerNamespace('xmpBJ', XmpDocument.NS_XMPBJ);
 		//this.registerNamespace('xmpMM', XmpDocument.NS_XMPMM);
 		//this.registerNamespace('xmpRights', XmpDocument.NS_XMPRIGHTS);

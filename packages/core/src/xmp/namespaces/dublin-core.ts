@@ -178,4 +178,4 @@ export const dublinCoreNamespace = v.strictObject({
 	type: xmpSeq(XMPText),
 }) satisfies XMPNamespaceSchema;
 
-export type DublinCore = v.InferOutput<typeof dublinCoreNamespace>;
+export type DublinCoreSchema = v.InferOutput<typeof dublinCoreNamespace>;
