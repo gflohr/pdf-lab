@@ -1,6 +1,6 @@
-# Extract Text
+# Extract XMP Meta Information
 
-You can extract textual information contained in a PDF.
+You can extract the XMP meta information contained in a PDF.
 
 ## Usage
 
@@ -48,7 +48,7 @@ Formats identifiers and their aliases are case-insensitive.
 
 ### Serialiser Flags
 
-You can further control the output with the option `--flags` or `-f`. Flags
+You can further control the output with the option `--flags`. Flags
 can be combined (for example `o k`):
 
 
