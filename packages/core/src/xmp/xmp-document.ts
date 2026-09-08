@@ -9,6 +9,7 @@ import * as rdflib from 'rdflib';
 import type { PredicateType, SubjectType } from 'rdflib/lib/types.js';
 import { dublinCoreNamespace } from './namespaces/dublin-core.js';
 import { xmpNamespace } from './namespaces/xmp.js';
+import { xmpMediaManagementNamespace } from './namespaces/xmp-media-management.js';
 import { parsePath } from './util/parse-path.js';
 import type { XmpNamespaceSchema, XmpSchema } from './xmp-namespace.js';
 
@@ -158,18 +159,13 @@ export class XmpDocument {
 
 		rdflib.parse(xmlString, this.kb, baseIRI, 'application/rdf+xml');
 
-		//this.registerNamespace('Iptc4xmpCore', XmpDocument.NS_IPTC4XMPCORE);
-		//this.registerNamespace('crs', XmpDocument.NS_CRS);
 		this.registerNamespace('dc', XmpDocument.NS_DC, dublinCoreNamespace);
-		//this.registerNamespace('exif', XmpDocument.NS_EXIF);
-		//this.registerNamespace('pdf', XmpDocument.NS_PDF);
-		//this.registerNamespace('photoshop', XmpDocument.NS_PHOTOSHOP);
-		//this.registerNamespace('tiff', XmpDocument.NS_TIFF);
 		this.registerNamespace('xmp', XmpDocument.NS_XMP, xmpNamespace);
-		//this.registerNamespace('xmpBJ', XmpDocument.NS_XMPBJ);
-		//this.registerNamespace('xmpMM', XmpDocument.NS_XMPMM);
-		//this.registerNamespace('xmpRights', XmpDocument.NS_XMPRIGHTS);
-		//this.registerNamespace('xmpTPg', XmpDocument.NS_XMPTPG);
+		this.registerNamespace(
+			'xmpMM',
+			XmpDocument.NS_XMPMM,
+			xmpMediaManagementNamespace,
+		);
 	}
 
 	private static createEmptyXmpMeta(): string {
@@ -306,12 +302,11 @@ ${output}</x:xmpmeta>
 			);
 		}
 
-		this.namespaces[prefix] = namespace;
-
 		if (!schema.entries) {
 			throw new Error('Schema must be an object based schema!');
 		}
 
+		this.namespaces[prefix] = namespace;
 		this.schemas[prefix] = schema;
 	}
 
