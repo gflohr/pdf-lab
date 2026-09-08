@@ -177,15 +177,17 @@ export const xmpMediaManagementNamespace = v.strictObject({
 	/**
 	 * Type: Ordered array of {@link xmpVersion}.
 	 *
-	 * Each array item has a structure value with a potentially unique set of
-	 * fields, containing extracted XMP from a component. Each field is a
-	 * property from the XMP of a contained resource component, with all
-	 * substructure preserved.
+	 * The version history associated with this resource. Entry [1] is the
+	 * oldest known version for this document, entry [last()] is the most
+	 * recent version.
 	 *
-	 * Each pantry entry shall contain an `xmpMM:InstanceID`. Only one copy of
-	 * the pantry entry for any given xmpMM:InstanceID shall be retained in the
-	 * pantry. Nested pantry items shall be removed from the individual pantry
-	 * item and promoted to the top level of the pantry.
+	 * Typically, a media management system would fill in the version
+	 * information in the metadata on check-in.
+	 *
+	 * It is not guaranteed that a complete history of versions from the first
+	 * to this one will be present in the `xmpMM:Versions` property. Interior
+	 * version information can be compressed or eliminated and the version
+	 * history can be truncated at some point.
 	 */
 	Versions: xmpSeq(xmpVersion),
 
