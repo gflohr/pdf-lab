@@ -1,4 +1,5 @@
 import * as v from 'valibot';
+import { xmpAgentName } from '../data-types/agent-name.js';
 import { xmpGUID } from '../data-types/guid.js';
 import { xmpInteger } from '../data-types/integer.js';
 import { xmpPantry } from '../data-types/pantry.js';
@@ -10,7 +11,6 @@ import { xmpURI } from '../data-types/uri.js';
 import { xmpURL } from '../data-types/url.js';
 import { xmpVersion } from '../data-types/version.js';
 import { xmpBag, xmpSeq } from '../xmp-namespace.js';
-import { xmpAgentName } from '../data-types/agent-name.js';
 
 /**
  * The XMP Media Management namespace

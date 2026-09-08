@@ -1,7 +1,8 @@
 import * as v from 'valibot';
 import { xmpAgentName } from './agent-name.js';
 import { xmpRequiredDate } from './date.js';
-import { xmpOpenChoice, xmpRequiredOpenChoice } from './open-choice.js';
+import { xmpGUID } from './guid.js';
+import { xmpRequiredOpenChoice } from './open-choice.js';
 import { xmpText } from './text.js';
 
 /**
@@ -21,8 +22,12 @@ export const xmpResourceEvent = v.strictObject({
 	/**
 	 * Type: Open choice of {@link xmpText}.
 	 *
-	 * The referenced resource’s fallback file paths or URLs. The sequence
-	 * order is the recommended order in attempting to locate the resource.
+	 * The action that occurred. Defined values are: `converted`, `copied`,
+	 * `created`, `cropped`, `edited`, `filtered`, `formatted`,
+	 * `version_updated`, `printed`, `published`, `managed`, `produced`,
+	 * `resized`, `saved`.
+	 *
+	 * New values should be verbs in the past tense.
 	 */
 	action: xmpRequiredOpenChoice,
 
@@ -44,7 +49,7 @@ export const xmpResourceEvent = v.strictObject({
 	 * The value of the `xmpMM:InstanceID` property for the modified (output)
 	 * resource.
 	 */
-	instanceID: xmpText,
+	instanceID: xmpGUID,
 
 	/**
 	 * Type: {@link xmpText}.
@@ -56,7 +61,7 @@ export const xmpResourceEvent = v.strictObject({
 	/**
 	 * Type: {@link xmpAgentName}.
 	 *
-	 * Additional description of the action.
+	 * The software agent that performed the action.
 	 */
 	softwareAgent: xmpAgentName,
 
