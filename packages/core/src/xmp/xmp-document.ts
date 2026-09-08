@@ -332,7 +332,44 @@ ${output}</x:xmpmeta>
 		const subject = rdflib.sym(this.baseIRI);
 		const predicate = rdflib.sym(namespaceUri + name);
 
-		return this.kb.anyValue(subject, predicate, null) ?? null;
+		const node = this.kb.any(subject, predicate) as
+			| rdflib.NamedNode
+			| rdflib.BlankNode
+			| null;
+		if (!node) {
+			return null;
+		}
+
+		// Direct scalar literal value
+		if ((node.termType as unknown) === 'Literal') {
+			return node.value;
+		}
+
+		// RDF Container (Bag, Seq, Alt) or Struct node
+		if (node.termType === 'BlankNode' || node.termType === 'NamedNode') {
+			const rdfNs = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
+			const typeValue = this.kb.anyValue(node, rdflib.sym(`${rdfNs}type`));
+			const firstItemNode = this.kb.any(node, rdflib.sym(`${rdfNs}_1`));
+
+			const isContainer =
+				typeValue === `${rdfNs}Bag` ||
+				typeValue === `${rdfNs}Seq` ||
+				typeValue === `${rdfNs}Alt` ||
+				firstItemNode !== undefined;
+
+			if (isContainer) {
+				if (!firstItemNode) {
+					return null; // Empty container
+				}
+				return firstItemNode.value ?? null;
+			}
+
+			throw new Error(
+				`Unsupported container or structure for property '${prefix}:${name}'`,
+			);
+		}
+
+		return null;
 	}
 
 	public setMetaInfo(
