@@ -46,7 +46,7 @@ export const xmpNamespace = v.strictObject({
 	CreatorTool: xmpAgentName,
 
 	/**
-	 * Type: Undordered array of {@link xmpText}.
+	 * Type: Unordered array of {@link xmpText}.
 	 *
 	 * An unordered array of text strings that unambiguously identify the
 	 * resource within a given context. An array item may be qualified with
@@ -72,7 +72,7 @@ export const xmpNamespace = v.strictObject({
 	Label: xmpText,
 
 	/**
-	 * Type: {@link xmpText}
+	 * Type: {@link xmpDate}
 	 *
 	 * The date and time that any metadata for this resource was last changed.
 	 * It should be the same as or more recent than `xmp:ModifyDate`.
@@ -80,7 +80,7 @@ export const xmpNamespace = v.strictObject({
 	MetadataDate: xmpDate,
 
 	/**
-	 * Type: {@link xmpText}
+	 * Type: {@link xmpDate}
 	 *
 	 * The date and time the resource was last modified.
 	 *

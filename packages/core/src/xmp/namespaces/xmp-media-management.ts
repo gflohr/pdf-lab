@@ -1,15 +1,15 @@
 import * as v from 'valibot';
 import { xmpGUID } from '../data-types/guid.js';
+import { xmpInteger } from '../data-types/integer.js';
 import { xmpPantry } from '../data-types/pantry.js';
 import { xmpRenditionClass } from '../data-types/rendition-class.js';
 import { xmpResourceEvent } from '../data-types/resource-event.js';
 import { xmpResourceRef } from '../data-types/resource-ref.js';
 import { xmpText } from '../data-types/text.js';
 import { xmpURI } from '../data-types/uri.js';
-import { xmpBag, xmpSeq } from '../xmp-namespace.js';
-import { xmpVersion } from '../data-types/version.js';
 import { xmpURL } from '../data-types/url.js';
-import { xmpInteger } from '../data-types/integer.js';
+import { xmpVersion } from '../data-types/version.js';
+import { xmpBag, xmpSeq } from '../xmp-namespace.js';
 
 /**
  * The XMP Media Management namespace
