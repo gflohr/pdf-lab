@@ -78,11 +78,6 @@ export type XmpValue =
  */
 export interface XMPSetMetaInfoOptions {
 	/**
-	 * Skip validation? Default `false`.
-	 */
-	noValidate?: boolean;
-
-	/**
 	 * Keep existing value? Default `false`.
 	 */
 	noOverwrite?: boolean;
@@ -326,7 +321,7 @@ ${output}</x:xmpmeta>
 		schema: XmpNamespaceSchema,
 	) {
 		if (!prefix?.length) {
-			throw new Error('Missing or empty namespace argument!');
+			throw new Error('Missing or empty prefix argument!');
 		}
 
 		if (!namespace?.length) {
