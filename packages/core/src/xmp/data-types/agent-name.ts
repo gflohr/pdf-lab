@@ -14,4 +14,4 @@ import * as v from 'valibot';
  *
  * EXAMPLE "Adobe Acrobat 9.0 (Mac OS X 10.5)"
  */
-export const XMPAgentName = v.string()
+export const XMPAgentName = v.string();

@@ -13,9 +13,37 @@ import {
 } from '../xmp-namespace.js';
 
 /**
- * The Dublin Core namespace.
+ * Dublin Core namespace.
  *
- *  @see {@link https://developer.adobe.com/xmp/docs/xmp-namespaces/dc/}!
+ * The Dublin Core namespace provides a set of commonly used properties. The
+ * names and usage shall be as defined in the Dublin Core Metadata Element Set,
+ * created by the Dublin Core Metadata Initiative (DCMI).
+ *
+ * The namespace URI shall be "http://purl.org/dc/elements/1.1/".
+ * The preferred namespace prefix is `dc`.
+ *
+ * **NOTE 1:** The Dublin Core elements as defined by DCMI all have URIs of the
+ * form "http://purl.org/dc/elements/1.1/<name>" where the <name> part differs.
+ *
+ * The Dublin Core elements are defined in XMP as properties using the
+ * namespace URI "http://purl.org/dc/elements/1.1/"; the local names are the
+ * leaf part of the DCMI URI.
+ *
+ * The XMP data modelling of these is consistent with the apparent Dublin Core
+ * intent, but specific to XMP.
+ * As a corollary of the data modelling, the RDF serialization of Dublin Core
+ * in XMP might not exactly match other RDF usage of the Dublin Core element
+ * set.
+ *
+ * XMP does not "include Dublin Core" in any fuller sense.
+ *
+ * The listed properties, if used, shall be of the specified types. The
+ * property content should be as described.
+ *
+ * In the listed properties, the property content has subsections for the DCMI
+ * definition and comment, plus an XMP addition. The DCMI definition and
+ * comment text come directly from the Dublin Core Metadata Element Set. The
+ * XMP addition is specific to the XMP specification.
  */
 export const dublinCoreNamespace = v.strictObject({
 	/**

@@ -2,19 +2,35 @@ import * as v from 'valibot';
 import { XMPAgentName } from '../data-types/agent-name.js';
 import { XMPDate } from '../data-types/date.js';
 import { XMPProperName } from '../data-types/proper-name.js';
+import { XMPText } from '../data-types/text.js';
 import {
 	type XMPNamespaceSchema,
+	xmpBag,
 	xmpLiteral,
-	xmpSeq,
 } from '../xmp-namespace.js';
-import { XMPText } from '../data-types/text.js';
 
 /**
- * The XMP Core namespace.
+ * XMP Namespace
  *
- *  @see {@link https://developer.adobe.com/xmp/docs/xmp-namespaces/xmp/}!
+ * The XMP basic namespace contains properties that provide basic descriptive
+ * information.
+ * * The namespace URI is http://ns.adobe.com/xap/1.0/
+ * * The preferred namespace prefix is `xmp`
  */
 export const xmpNamespace = v.strictObject({
+	/**
+	 * Type: Unordered array of XPath.
+	 *
+	 * An unordered array specifying properties that were edited outside the
+	 * authoring application.
+	 *
+	 * Each item should contain a single namespace and XPath separated by one
+	 * ASCII space (U+0020).
+	 *
+	 * @deprecated see XMP specification!
+	 */
+	Advisory: xmpBag(XMPText),
+
 	/**
 	 * Type: {@link XMPDate}.
 	 *
@@ -46,7 +62,7 @@ export const xmpNamespace = v.strictObject({
 	 * single identifier instead of as an array, and changing `dc:identifier`
 	 * to an array would break compatibility with existing XMP processors.
 	 */
-	Identifier: xmpSeq(XMPProperName),
+	Identifier: xmpBag(XMPProperName),
 
 	/**
 	 * Type: {@link XMPText}

@@ -8,9 +8,9 @@ import {
 import * as rdflib from 'rdflib';
 import type { PredicateType, SubjectType } from 'rdflib/lib/types.js';
 import { dublinCoreNamespace } from './namespaces/dublin-core.js';
+import { xmpNamespace } from './namespaces/xmp.js';
 import { parsePath } from './util/parse-path.js';
 import type { XMPNamespaceSchema, XmpSchema } from './xmp-namespace.js';
-import { xmpNamespace } from './namespaces/xmp.js';
 
 /**
  * Default base IRI.

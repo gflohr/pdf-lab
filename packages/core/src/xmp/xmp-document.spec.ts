@@ -286,7 +286,7 @@ describe('XMP document', () => {
 `;
 			const xmpDoc = new XmpDocument(xmpPacket);
 			const xmp = xmpDoc.serialiseXmp();
-console.log(xmp);
+			console.log(xmp);
 			expect(xmp).toMatchSnapshot();
 		});
 	});
