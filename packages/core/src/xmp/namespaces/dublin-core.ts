@@ -80,7 +80,7 @@ export const dublinCoreNamespace = v.strictObject({
 	creator: xmpSeq(xmpProperName),
 
 	/**
-	 * Type: Ordered array of `Date` ({@link date}).
+	 * Type: Ordered array of ({@link xmpDate}).
 	 *
 	 * **DCMI definition**: A point or period of time associated with an event
 	 * in the life cycle of the resource.
