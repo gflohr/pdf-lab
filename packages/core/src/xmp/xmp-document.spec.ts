@@ -221,6 +221,39 @@ describe('XMP document', () => {
 			);
 			expect(xmp).toMatchSnapshot();
 		});
+
+		it('should set individual indices', () => {
+			const xmpDoc = new XmpDocument();
+
+			xmpDoc.setMetaInfo('dc:subject[1]', 'one');
+			xmpDoc.setMetaInfo('dc:subject[2]', 'two');
+
+			const xmp = xmpDoc.serialiseXmp();
+			expect(xmp).toContain('<rdf:li>one</rdf:li><rdf:li>two</rdf:li>');
+			expect(xmp).toMatchSnapshot();
+		});
+
+		it('should overwrite existing indices', () => {
+			const xmpDoc = new XmpDocument();
+
+			xmpDoc.setMetaInfo('dc:subject[1]', 'one');
+			xmpDoc.setMetaInfo('dc:subject[2]', 'two');
+			xmpDoc.setMetaInfo('dc:subject[1]', 'yksi');
+			xmpDoc.setMetaInfo('dc:subject[2]', 'kaksi');
+
+			const xmp = xmpDoc.serialiseXmp();
+			expect(xmp).not.toContain('<rdf:li>one</rdf:li><rdf:li>two</rdf:li>');
+			expect(xmp).toContain('<rdf:li>yksi</rdf:li><rdf:li>kaksi</rdf:li>');
+			expect(xmp).toMatchSnapshot();
+		});
+
+		it('should not allow gaps', () => {
+			const xmpDoc = new XmpDocument();
+
+			expect(() => xmpDoc.setMetaInfo('dc:subject[2]', 'two')).toThrow("Index '2' out of range!");
+			xmpDoc.setMetaInfo('dc:subject[1]', 'one');
+			expect(() => xmpDoc.setMetaInfo('dc:subject[3]', 'three')).toThrow("Index '3' out of range!");
+		});
 	});
 
 	describe('getMetaInfo', () => {

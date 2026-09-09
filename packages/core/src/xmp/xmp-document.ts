@@ -406,7 +406,11 @@ ${output}</x:xmpmeta>
 				(schema as XmpSchema).xmpContainer === 'Seq' ? 'Seq' : 'Bag';
 			const container = this.getContainer(subject, node, token.name, listType);
 
-			this.setListItem(container, value, options);
+			if (!token.index) {
+				this.setListItem(container, value, options);
+			} else {
+				this.setIndexedListItem(container, token.index, value, options);
+			}
 		} else if ((schema as XmpSchema).xmpContainer === 'Alt') {
 			const node = rdflib.sym(`${namespaceUri}${token.name}`);
 			const container = this.getContainer(subject, node, token.name, 'Alt');
@@ -467,7 +471,7 @@ ${output}</x:xmpmeta>
 
 		return this.kb.statementsMatching(container, null, null).flatMap((stmt) => {
 			const match = stmt.predicate.value.match(RDF_LI_REGEX);
-			return match ? [parseInt(match[1]!, 10) - 1] : [];
+			return match ? [parseInt(match[1]!, 10)] : [];
 		});
 	}
 
@@ -493,6 +497,38 @@ ${output}</x:xmpmeta>
 		this.kb.add(
 			container,
 			rdflib.sym(`${XmpDocument.NS_RDF}_${rdfIndex}`),
+			rdflib.literal(value),
+		);
+	}
+
+	private setIndexedListItem(
+		container: rdflib.NamedNode | rdflib.BlankNode,
+		rdfIndex: number,
+		value: string,
+		options: XMPSetMetaInfoOptions,
+	) {
+		const existing = this.getListItemIndices(container);
+		const highest = existing.length ? Math.max(...existing) : 0;
+		if (rdfIndex - highest > 1) {
+			throw new RangeError(`Index '${rdfIndex}' out of range!`)
+		}
+
+		const predicate = rdflib.sym(`${XmpDocument.NS_RDF}_${rdfIndex}`);
+
+		if (rdfIndex <= highest) {
+			if (options.noOverwrite) {
+				return;
+			}
+
+			const statement = this.kb.anyStatementMatching(container, predicate, null);
+			if (statement) {
+				this.kb.remove(statement);
+			}
+		}
+
+		this.kb.add(
+			container,
+			predicate,
 			rdflib.literal(value),
 		);
 	}

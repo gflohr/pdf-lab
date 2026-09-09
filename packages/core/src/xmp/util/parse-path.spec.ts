@@ -73,7 +73,7 @@ describe('XMP Path Parser', () => {
 			{
 				prefix: 'xy',
 				name: 'person',
-				index: 0,
+				index: 1,
 			},
 			{
 				prefix: 'xy',

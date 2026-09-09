@@ -220,6 +220,21 @@ exports[`XMP document > setMetaInfo > should overwrite Seq items by default 1`] 
 <?xpacket end="w"?>"
 `;
 
+exports[`XMP document > setMetaInfo > should overwrite existing indices 1`] = `
+"<?xpacket begin="﻿" id="W5M0MpCehiHzreSzNTczkc9d"?>
+<x:xmpmeta xmlns:x="adobe:ns:meta/">
+	<rdf:RDF
+	 xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	 xmlns:dc="http://purl.org/dc/elements/1.1/">
+		<rdf:Description rdf:about="">
+			<dc:subject rdf:parseType="Resource">
+			   <rdf:Bag><rdf:li>yksi</rdf:li><rdf:li>kaksi</rdf:li></rdf:Bag>
+			</dc:subject>
+		</rdf:Description>
+	</rdf:RDF></x:xmpmeta>
+<?xpacket end="w"?>"
+`;
+
 exports[`XMP document > setMetaInfo > should overwrite language alternative values by default 1`] = `
 "<?xpacket begin="﻿" id="W5M0MpCehiHzreSzNTczkc9d"?>
 <x:xmpmeta xmlns:x="adobe:ns:meta/">
@@ -248,6 +263,21 @@ exports[`XMP document > setMetaInfo > should set Seq items 1`] = `
 			<dc:creator rdf:parseType="Resource">
 			   <rdf:Seq><rdf:li>John Doe</rdf:li></rdf:Seq>
 			</dc:creator>
+		</rdf:Description>
+	</rdf:RDF></x:xmpmeta>
+<?xpacket end="w"?>"
+`;
+
+exports[`XMP document > setMetaInfo > should set individual indices 1`] = `
+"<?xpacket begin="﻿" id="W5M0MpCehiHzreSzNTczkc9d"?>
+<x:xmpmeta xmlns:x="adobe:ns:meta/">
+	<rdf:RDF
+	 xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	 xmlns:dc="http://purl.org/dc/elements/1.1/">
+		<rdf:Description rdf:about="">
+			<dc:subject rdf:parseType="Resource">
+			   <rdf:Bag><rdf:li>one</rdf:li><rdf:li>two</rdf:li></rdf:Bag>
+			</dc:subject>
 		</rdf:Description>
 	</rdf:RDF></x:xmpmeta>
 <?xpacket end="w"?>"
