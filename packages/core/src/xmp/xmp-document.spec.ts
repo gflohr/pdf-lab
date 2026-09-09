@@ -250,9 +250,13 @@ describe('XMP document', () => {
 		it('should not allow gaps', () => {
 			const xmpDoc = new XmpDocument();
 
-			expect(() => xmpDoc.setMetaInfo('dc:subject[2]', 'two')).toThrow("Index '2' out of range!");
+			expect(() => xmpDoc.setMetaInfo('dc:subject[2]', 'two')).toThrow(
+				"Index '2' out of range!",
+			);
 			xmpDoc.setMetaInfo('dc:subject[1]', 'one');
-			expect(() => xmpDoc.setMetaInfo('dc:subject[3]', 'three')).toThrow("Index '3' out of range!");
+			expect(() => xmpDoc.setMetaInfo('dc:subject[3]', 'three')).toThrow(
+				"Index '3' out of range!",
+			);
 		});
 	});
 
@@ -267,6 +271,46 @@ describe('XMP document', () => {
 			const xmpDoc = new XmpDocument(defaultPacket);
 
 			expect(xmpDoc.getMetaInfo('dc:identifier')).toBeNull();
+		});
+
+		it('should get a list of values from a bag', () => {
+			const xmpDoc = new XmpDocument();
+
+			xmpDoc.setMetaInfo('dc:subject', 'Homer');
+			xmpDoc.setMetaInfo('dc:subject', 'Marge', { append: true });
+
+			expect(xmpDoc.getMetaInfo('dc:subject')).toStrictEqual([
+				'Homer',
+				'Marge',
+			]);
+		});
+
+		it('should get a list of values from a sequence', () => {
+			const xmpDoc = new XmpDocument();
+
+			xmpDoc.setMetaInfo('dc:creator', 'one');
+			xmpDoc.setMetaInfo('dc:creator', 'two', { append: true });
+			xmpDoc.setMetaInfo('dc:creator', 'three', { append: true });
+			xmpDoc.setMetaInfo('dc:creator', 'four', { append: true });
+			xmpDoc.setMetaInfo('dc:creator', 'five', { append: true });
+
+			expect(xmpDoc.getMetaInfo('dc:creator')).toStrictEqual([
+				'one',
+				'two',
+				'three',
+				'four',
+				'five',
+			]);
+		});
+
+		it('should get values from language alternatives', () => {
+			const xmpDoc = new XmpDocument();
+
+			xmpDoc.setMetaInfo('dc:title', 'Les Misérables');
+			xmpDoc.setMetaInfo('dc:title@de', 'Die Elenden');
+
+			expect(xmpDoc.getMetaInfo('dc:title')).toBe('Les Misérables');
+			expect(xmpDoc.getMetaInfo('dc:title@de')).toBe('Die Elenden');
 		});
 	});
 

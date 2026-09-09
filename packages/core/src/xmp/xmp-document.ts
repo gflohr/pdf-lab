@@ -310,7 +310,7 @@ ${output}</x:xmpmeta>
 		this.schemas[prefix] = schema;
 	}
 
-	public getMetaInfo(path: string): string | null {
+	public getMetaInfo(path: string): string | string[] | null {
 		const tokens = parsePath(path);
 		if (!tokens.length) {
 			throw new Error('Path must not be empty!');
@@ -320,10 +320,15 @@ ${output}</x:xmpmeta>
 
 		const token = tokens[0]!;
 
-		return this.getMetaInfoLeaf(token.prefix, token.name);
+		return this.getMetaInfoLeaf(token.prefix, token.name, token.lang, token.index);
 	}
 
-	private getMetaInfoLeaf(prefix: string, name: string): string | null {
+	private getMetaInfoLeaf(
+		prefix: string,
+		name: string,
+		lang?: string,
+		rdfIndex?: number,
+	): string | string[] | null {
 		const namespaceUri = this.namespaces[prefix];
 		if (!namespaceUri) {
 			throw new Error(`Unknown prefix: '${prefix}'`);
@@ -340,36 +345,87 @@ ${output}</x:xmpmeta>
 			return null;
 		}
 
-		// Direct scalar literal value
+		// Direct scalar literal value.
 		if ((node.termType as unknown) === 'Literal') {
 			return node.value;
 		}
 
-		// RDF Container (Bag, Seq, Alt) or Struct node
+		// RDF Container (Bag, Seq, Alt) or Struct node.
 		if (node.termType === 'BlankNode' || node.termType === 'NamedNode') {
-			const rdfNs = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
-			const typeValue = this.kb.anyValue(node, rdflib.sym(`${rdfNs}type`));
-			const firstItemNode = this.kb.any(node, rdflib.sym(`${rdfNs}_1`));
-
-			const isContainer =
-				typeValue === `${rdfNs}Bag` ||
-				typeValue === `${rdfNs}Seq` ||
-				typeValue === `${rdfNs}Alt` ||
-				firstItemNode !== undefined;
-
-			if (isContainer) {
-				if (!firstItemNode) {
-					return null; // Empty container
-				}
-				return firstItemNode.value ?? null;
-			}
-
-			throw new Error(
-				`Unsupported container or structure for property '${prefix}:${name}'`,
+			const typeValue = this.kb.anyValue(
+				node,
+				rdflib.sym(`${XmpDocument.NS_RDF}type`),
 			);
+
+			switch (typeValue) {
+				case `${XmpDocument.NS_RDF}Bag`:
+				case `${XmpDocument.NS_RDF}Seq`:
+					return this.getItemsFromList(node, rdfIndex);
+
+				case `${XmpDocument.NS_RDF}Alt`:
+					return this.getLanguageAlternative(node, lang);
+
+				default:
+					throw new Error(`Nested objects (type: ${typeValue}) not yet supported!`);
+			}
 		}
 
 		return null;
+	}
+
+
+	private getLanguageAlternative(
+		container: rdflib.NamedNode | rdflib.BlankNode,
+		lang: string | undefined,
+	): string | null {
+		const statements = this.getLanguageStatements(container);
+		if (!lang || lang === '') {
+			lang = 'x-default';
+		}
+
+		const hits = statements.filter(stmt => stmt.object.termType === 'Literal'
+			&& stmt.object.language === lang
+		);
+
+		return hits[0]?.object.value ?? null;
+	}
+
+	private getItemsFromList(
+		container: rdflib.NamedNode | rdflib.BlankNode,
+		rdfIndex: number | undefined,
+	) {
+		if (rdfIndex) {
+			const itemNode = this.kb.any(
+				container,
+				rdflib.sym(`${XmpDocument.NS_RDF}_${rdfIndex}`),
+			);
+
+			return itemNode?.value ?? null;
+		}
+
+		// Get all values.
+		const RDF_LI_PREFIX = `${XmpDocument.NS_RDF}_`;
+
+		// Extract items, parse their numeric index, sort by index, and map to values
+		return this.kb
+			.statementsMatching(container, null, null)
+			.map((stmt) => {
+				if (!stmt.predicate.value.startsWith(RDF_LI_PREFIX)) {
+					return null;
+				}
+
+				const indexStr = stmt.predicate.value.slice(RDF_LI_PREFIX.length);
+				const index = parseInt(indexStr, 10);
+
+				if (Number.isNaN(index)) {
+					return null;
+				}
+
+				return { index, value: stmt.object.value };
+			})
+			.filter((item): item is { index: number; value: string } => item !== null)
+			.sort((a, b) => a.index - b.index)
+			.map((item) => item.value);
 	}
 
 	public setMetaInfo(
@@ -510,7 +566,7 @@ ${output}</x:xmpmeta>
 		const existing = this.getListItemIndices(container);
 		const highest = existing.length ? Math.max(...existing) : 0;
 		if (rdfIndex - highest > 1) {
-			throw new RangeError(`Index '${rdfIndex}' out of range!`)
+			throw new RangeError(`Index '${rdfIndex}' out of range!`);
 		}
 
 		const predicate = rdflib.sym(`${XmpDocument.NS_RDF}_${rdfIndex}`);
@@ -520,17 +576,17 @@ ${output}</x:xmpmeta>
 				return;
 			}
 
-			const statement = this.kb.anyStatementMatching(container, predicate, null);
+			const statement = this.kb.anyStatementMatching(
+				container,
+				predicate,
+				null,
+			);
 			if (statement) {
 				this.kb.remove(statement);
 			}
 		}
 
-		this.kb.add(
-			container,
-			predicate,
-			rdflib.literal(value),
-		);
+		this.kb.add(container, predicate, rdflib.literal(value));
 	}
 
 	private setLanguageAlternative(
