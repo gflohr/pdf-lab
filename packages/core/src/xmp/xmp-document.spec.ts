@@ -411,4 +411,12 @@ describe('XMP document', () => {
 			expect(xmp).toMatchSnapshot();
 		});
 	});
+
+	describe('Nested schemas', () => {
+		it('should create nested data', () => {
+			const xmpDoc = new XmpDocument();
+
+			xmpDoc.tryOut();
+		});
+	});
 });

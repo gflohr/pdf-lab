@@ -12,6 +12,7 @@ import { xmpNamespace } from './namespaces/xmp.js';
 import { xmpMediaManagementNamespace } from './namespaces/xmp-media-management.js';
 import { parsePath } from './util/parse-path.js';
 import type { XmpNamespaceSchema, XmpSchema } from './xmp-namespace.js';
+import { pdfaExtensionNamespace } from './namespaces/pdfa-extension.js';
 
 /**
  * Default base IRI.
@@ -109,6 +110,9 @@ export class XmpDocument {
 	/** The XMP Media Management namespace. Preferred prefix: `xmpMM`. */
 	public static readonly NS_XMPMM = 'http://ns.adobe.com/xap/1.0/mm/';
 
+	/** The PDF/A Extension Schema Namespace. Preferred prefix: `pdfaExtension` */
+	public static readonly NS_PDFA_EXTENSION = 'http://www.aiim.org/pdfa/ns/extension/';
+
 	private doc: Document;
 	private kb = rdflib.graph();
 	private namespaces: Record<string, string> = {};
@@ -160,12 +164,18 @@ export class XmpDocument {
 		rdflib.parse(xmlString, this.kb, baseIRI, 'application/rdf+xml');
 
 		this.registerNamespace('dc', XmpDocument.NS_DC, dublinCoreNamespace);
+		this.kb.setPrefixForURI('dc', XmpDocument.NS_DC);
 		this.registerNamespace('xmp', XmpDocument.NS_XMP, xmpNamespace);
+		this.kb.setPrefixForURI('xmp', XmpDocument.NS_XMP);
 		this.registerNamespace(
 			'xmpMM',
 			XmpDocument.NS_XMPMM,
 			xmpMediaManagementNamespace,
 		);
+		this.kb.setPrefixForURI('xmpMM', XmpDocument.NS_XMPMM);
+
+		this.registerNamespace('pdfaExtension', XmpDocument.NS_PDFA_EXTENSION, pdfaExtensionNamespace);
+		this.kb.setPrefixForURI('pdfaExtension', XmpDocument.NS_PDFA_EXTENSION);
 	}
 
 	private static createEmptyXmpMeta(): string {
@@ -816,5 +826,30 @@ ${output}</x:xmpmeta>
 		}
 
 		return statements;
+	}
+
+	/**
+	 * Create or retrieve a nested
+	 */
+	public getList(parent: rdflib.NamedNode, prefix: string, name: string, termType: 'Bag' | 'Seq') {
+
+	}
+
+	public tryOut() {
+		const root = rdflib.sym(this.baseIRI);
+		const schemasPredicate = rdflib.sym(`${XmpDocument.NS_PDFA_EXTENSION}schemas`)
+		const rdfType = rdflib.sym(`${XmpDocument.NS_RDF}type`);
+		const rdfBag = rdflib.sym(`${XmpDocument.NS_RDF}Bag`);
+
+		const existing = this.kb.any(root, schemasPredicate);
+		if (existing) {
+			return;
+		}
+
+		const containerNode = this.kb.bnode();
+		this.kb.add(root, schemasPredicate, containerNode);
+		this.kb.add(containerNode, rdfType, rdfBag);
+
+		console.log(this.serialiseXmp());
 	}
 }
