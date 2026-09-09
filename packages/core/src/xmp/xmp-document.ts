@@ -373,22 +373,142 @@ ${output}</x:xmpmeta>
 		return null;
 	}
 
-
 	private getLanguageAlternative(
 		container: rdflib.NamedNode | rdflib.BlankNode,
 		lang: string | undefined,
 	): string | null {
 		const statements = this.getLanguageStatements(container);
-		if (!lang || lang === '') {
-			lang = 'x-default';
+		if (!statements.length) {
+			return null;
 		}
 
-		const hits = statements.filter(stmt => stmt.object.termType === 'Literal'
-			&& stmt.object.language === lang
+		const literals = statements.filter(
+			(stmt): stmt is rdflib.Statement & { object: rdflib.Literal } =>
+				stmt.object.termType === 'Literal',
 		);
 
-		return hits[0]?.object.value ?? null;
+		const targetLang = (lang && lang.trim() !== '')
+			? lang.toLowerCase()
+			: 'x-default';
+
+		const matchLang = (stmtLang: string, target: string) => {
+			const normalized = stmtLang.toLowerCase();
+			if (target === 'x-default') {
+				return normalized === 'x-default' || normalized === '';
+			}
+
+			return normalized === target;
+		};
+
+		const exact = literals.find((s) => matchLang(s.object.language, targetLang));
+		if (exact) {
+			return exact.object.value;
+		}
+
+		// Subtag fallback (e.g., 'de-DE' -> 'de').
+		if (targetLang.includes('-')) {
+			const primaryLang = targetLang.split('-')[0]!;
+			const primary = literals.find(
+				(s) => s.object.language.toLowerCase() === primaryLang,
+			);
+			if (primary) {
+				return primary.object.value;
+			}
+		}
+
+		// Fallback to 'x-default' or untagged ('').
+		if (targetLang !== 'x-default') {
+			const defaultEntry = literals.find(
+				(s) => matchLang(s.object.language, 'x-default'),
+			);
+			if (defaultEntry) {
+				return defaultEntry.object.value;
+			}
+		}
+
+		return null;
 	}
+
+	/**
+	 * Get all language alternatives for a field.
+	 *
+	 * The field identified by `path` must exist and be of type `Alt`.
+	 *
+	 * An untagged value (`xml:lang=""`) is interpreted as `x-default`, but
+	 * only if `x-default` is not explicitely set. If neither an value
+	 *
+	 * All language tags are normalised to lowercase.
+	 *
+	 * @param path the path, for example `dc:title`
+	 * @returns a dictionary of language alternative values or `null`
+	 */
+	public getLanguageAlternatives(
+		path: string,
+	): Record<string, string> | null {
+		const tokens = parsePath(path);
+		if (!tokens.length) {
+			throw new Error('Path must not be empty!');
+		} else if (tokens.length > 1) {
+			throw new Error('Nested meta information is not yet implemented!');
+		}
+
+		const token = tokens[0]!;
+
+		const namespaceUri = this.namespaces[token.prefix];
+		if (!namespaceUri) {
+			throw new Error(`Unknown prefix: '${token.prefix}'`);
+		}
+
+		const subject = rdflib.sym(this.baseIRI);
+		const predicate = rdflib.sym(namespaceUri + token.name);
+
+		const node = this.kb.any(subject, predicate) as
+			| rdflib.NamedNode
+			| rdflib.BlankNode
+			| null;
+		if (!node) {
+			return null;
+		}
+
+		if (node.termType !== 'BlankNode' && node.termType !== 'NamedNode') {
+			return null;
+		}
+
+		const typeValue = this.kb.anyValue(
+			node,
+			rdflib.sym(`${XmpDocument.NS_RDF}type`),
+		);
+
+		if (typeValue !== `${XmpDocument.NS_RDF}Alt`) {
+			return null;
+		}
+
+		const statements = this.getLanguageStatements(node);
+		const values: Record<string, string> = {};
+		let firstLang: string | undefined;
+		for (let i = 0; i < statements.length; ++i) {
+			const stmt = statements[i]!;
+			if (stmt.object.termType === 'Literal') {
+				values[stmt.object.language.toLowerCase()] = stmt.object.value;
+				if (typeof firstLang === 'undefined') {
+					firstLang = stmt.object.language.toLowerCase();
+				}
+			}
+		};
+
+		if (typeof firstLang === 'undefined') return null;
+
+		if (typeof values['x-default'] === 'undefined') {
+			if (typeof values[''] !== 'undefined') {
+				values['x-default'] = values[''];
+			} else {
+				values['x-default'] = values[firstLang]!;
+			}
+		}
+
+		return values;
+	}
+
 
 	private getItemsFromList(
 		container: rdflib.NamedNode | rdflib.BlankNode,

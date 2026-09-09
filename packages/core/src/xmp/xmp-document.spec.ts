@@ -310,7 +310,52 @@ describe('XMP document', () => {
 			xmpDoc.setMetaInfo('dc:title@de', 'Die Elenden');
 
 			expect(xmpDoc.getMetaInfo('dc:title')).toBe('Les Misérables');
+			expect(xmpDoc.getMetaInfo('dc:title@x-default')).toBe('Les Misérables');
 			expect(xmpDoc.getMetaInfo('dc:title@de')).toBe('Die Elenden');
+		});
+	});
+
+	describe('get all language alternatives', () => {
+		it('should return all values', () => {
+			const xmpDoc = new XmpDocument();
+
+			xmpDoc.setMetaInfo('dc:title@x-default', 'Les Misérables');
+			xmpDoc.setMetaInfo('dc:title@de', 'Die Elenden');
+
+			expect(xmpDoc.getLanguageAlternatives('dc:title')).toStrictEqual({
+				'x-default': 'Les Misérables',
+				'de': 'Die Elenden',
+			});
+		});
+
+		it('should normalize all language tags', () => {
+			const xmpDoc = new XmpDocument();
+
+			xmpDoc.setMetaInfo('dc:title', 'Les Misérables');
+			xmpDoc.setMetaInfo('dc:title@de-DE', 'Die Elenden');
+
+			expect(xmpDoc.getLanguageAlternatives('dc:title')).toStrictEqual({
+				'x-default': 'Les Misérables',
+				'de-de': 'Die Elenden',
+			});
+		});
+
+		it('should fallback to the first language found', () => {
+			const xmpDoc = new XmpDocument();
+
+			xmpDoc.setMetaInfo('dc:title@fr-FR', 'Overwrite me!');
+			xmpDoc.setMetaInfo('dc:title@de-DE', 'Die Elenden');
+			xmpDoc.setMetaInfo('dc:title@fi-FI', 'Kurjat');
+			xmpDoc.setMetaInfo('dc:title@bg-BG', 'Клетниците');
+			xmpDoc.setMetaInfo('dc:title@fr-FR', 'Les Misérables');
+
+			expect(xmpDoc.getLanguageAlternatives('dc:title')).toStrictEqual({
+				'x-default': 'Les Misérables',
+				'de-de': 'Die Elenden',
+				'fr-fr': 'Les Misérables',
+				'fi-fi': 'Kurjat',
+				'bg-bg': 'Клетниците',
+			});
 		});
 	});
 
