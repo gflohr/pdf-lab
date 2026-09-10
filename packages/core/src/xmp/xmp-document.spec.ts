@@ -324,7 +324,7 @@ describe('XMP document', () => {
 
 			expect(xmpDoc.getLanguageAlternatives('dc:title')).toStrictEqual({
 				'x-default': 'Les Misérables',
-				'de': 'Die Elenden',
+				de: 'Die Elenden',
 			});
 		});
 

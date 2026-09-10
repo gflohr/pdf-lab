@@ -8,11 +8,11 @@ import {
 import * as rdflib from 'rdflib';
 import type { PredicateType, SubjectType } from 'rdflib/lib/types.js';
 import { dublinCoreNamespace } from './namespaces/dublin-core.js';
+import { pdfaExtensionNamespace } from './namespaces/pdfa-extension.js';
 import { xmpNamespace } from './namespaces/xmp.js';
 import { xmpMediaManagementNamespace } from './namespaces/xmp-media-management.js';
 import { parsePath } from './util/parse-path.js';
 import type { XmpNamespaceSchema, XmpSchema } from './xmp-namespace.js';
-import { pdfaExtensionNamespace } from './namespaces/pdfa-extension.js';
 
 /**
  * Default base IRI.
@@ -111,7 +111,8 @@ export class XmpDocument {
 	public static readonly NS_XMPMM = 'http://ns.adobe.com/xap/1.0/mm/';
 
 	/** The PDF/A Extension Schema Namespace. Preferred prefix: `pdfaExtension` */
-	public static readonly NS_PDFA_EXTENSION = 'http://www.aiim.org/pdfa/ns/extension/';
+	public static readonly NS_PDFA_EXTENSION =
+		'http://www.aiim.org/pdfa/ns/extension/';
 
 	private doc: Document;
 	private kb = rdflib.graph();
@@ -174,7 +175,11 @@ export class XmpDocument {
 		);
 		this.kb.setPrefixForURI('xmpMM', XmpDocument.NS_XMPMM);
 
-		this.registerNamespace('pdfaExtension', XmpDocument.NS_PDFA_EXTENSION, pdfaExtensionNamespace);
+		this.registerNamespace(
+			'pdfaExtension',
+			XmpDocument.NS_PDFA_EXTENSION,
+			pdfaExtensionNamespace,
+		);
 		this.kb.setPrefixForURI('pdfaExtension', XmpDocument.NS_PDFA_EXTENSION);
 	}
 
@@ -330,7 +335,12 @@ ${output}</x:xmpmeta>
 
 		const token = tokens[0]!;
 
-		return this.getMetaInfoLeaf(token.prefix, token.name, token.lang, token.index);
+		return this.getMetaInfoLeaf(
+			token.prefix,
+			token.name,
+			token.lang,
+			token.index,
+		);
 	}
 
 	private getMetaInfoLeaf(
@@ -376,7 +386,9 @@ ${output}</x:xmpmeta>
 					return this.getLanguageAlternative(node, lang);
 
 				default:
-					throw new Error(`Nested objects (type: ${typeValue}) not yet supported!`);
+					throw new Error(
+						`Nested objects (type: ${typeValue}) not yet supported!`,
+					);
 			}
 		}
 
@@ -397,9 +409,8 @@ ${output}</x:xmpmeta>
 				stmt.object.termType === 'Literal',
 		);
 
-		const targetLang = (lang && lang.trim() !== '')
-			? lang.toLowerCase()
-			: 'x-default';
+		const targetLang =
+			lang && lang.trim() !== '' ? lang.toLowerCase() : 'x-default';
 
 		const matchLang = (stmtLang: string, target: string) => {
 			const normalized = stmtLang.toLowerCase();
@@ -410,7 +421,9 @@ ${output}</x:xmpmeta>
 			return normalized === target;
 		};
 
-		const exact = literals.find((s) => matchLang(s.object.language, targetLang));
+		const exact = literals.find((s) =>
+			matchLang(s.object.language, targetLang),
+		);
 		if (exact) {
 			return exact.object.value;
 		}
@@ -428,8 +441,8 @@ ${output}</x:xmpmeta>
 
 		// Fallback to 'x-default' or untagged ('').
 		if (targetLang !== 'x-default') {
-			const defaultEntry = literals.find(
-				(s) => matchLang(s.object.language, 'x-default'),
+			const defaultEntry = literals.find((s) =>
+				matchLang(s.object.language, 'x-default'),
 			);
 			if (defaultEntry) {
 				return defaultEntry.object.value;
@@ -452,9 +465,7 @@ ${output}</x:xmpmeta>
 	 * @param path the path, for example `dc:title`
 	 * @returns a dictionary of language alternative values or `null`
 	 */
-	public getLanguageAlternatives(
-		path: string,
-	): Record<string, string> | null {
+	public getLanguageAlternatives(path: string): Record<string, string> | null {
 		const tokens = parsePath(path);
 		if (!tokens.length) {
 			throw new Error('Path must not be empty!');
@@ -504,7 +515,7 @@ ${output}</x:xmpmeta>
 					firstLang = stmt.object.language.toLowerCase();
 				}
 			}
-		};
+		}
 
 		if (typeof firstLang === 'undefined') return null;
 
@@ -518,7 +529,6 @@ ${output}</x:xmpmeta>
 
 		return values;
 	}
-
 
 	private getItemsFromList(
 		container: rdflib.NamedNode | rdflib.BlankNode,
@@ -831,13 +841,18 @@ ${output}</x:xmpmeta>
 	/**
 	 * Create or retrieve a nested
 	 */
-	public getList(parent: rdflib.NamedNode, prefix: string, name: string, termType: 'Bag' | 'Seq') {
-
-	}
+	public getList(
+		parent: rdflib.NamedNode,
+		prefix: string,
+		name: string,
+		termType: 'Bag' | 'Seq',
+	) {}
 
 	public tryOut() {
 		const root = rdflib.sym(this.baseIRI);
-		const schemasPredicate = rdflib.sym(`${XmpDocument.NS_PDFA_EXTENSION}schemas`)
+		const schemasPredicate = rdflib.sym(
+			`${XmpDocument.NS_PDFA_EXTENSION}schemas`,
+		);
 		const rdfType = rdflib.sym(`${XmpDocument.NS_RDF}type`);
 		const rdfBag = rdflib.sym(`${XmpDocument.NS_RDF}Bag`);
 
