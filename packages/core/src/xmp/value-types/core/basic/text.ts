@@ -1,8 +1,6 @@
-import type { XmpValueType } from '../../xmp-schema';
+import { xmpLiteral } from '../../../xmp-schema.js';
 
 /**
  * A possibly empty Unicode string.
  */
-export const xmpText: XmpValueType = {
-	name: 'Text',
-};
+export const xmpText = xmpLiteral('Text');

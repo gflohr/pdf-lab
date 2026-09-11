@@ -838,16 +838,6 @@ ${output}</x:xmpmeta>
 		return statements;
 	}
 
-	/**
-	 * Create or retrieve a nested
-	 */
-	public getList(
-		parent: rdflib.NamedNode,
-		prefix: string,
-		name: string,
-		termType: 'Bag' | 'Seq',
-	) {}
-
 	public tryOut() {
 		const root = rdflib.sym(this.baseIRI);
 		const schemasPredicate = rdflib.sym(

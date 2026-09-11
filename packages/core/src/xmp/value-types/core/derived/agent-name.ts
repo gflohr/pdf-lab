@@ -1,5 +1,5 @@
 import * as v from 'valibot';
-import type { XmpValueType } from '../../../xmp-schema.js';
+import { xmpLiteral } from '../../../xmp-schema.js';
 
 /**
  * The name of an XMP processor, a {@link XmpText} value.
@@ -15,9 +15,6 @@ import type { XmpValueType } from '../../../xmp-schema.js';
  *
  * EXAMPLE "Adobe Acrobat 9.0 (Mac OS X 10.5)"
  */
-export const xmpAgentName: XmpValueType = {
-	name: 'AgentName',
-	validationActions: [
-		v.regex(/^[^ \t]+[ \t]+[^ \t]+[ \t]+[^ \t]+[ \t]*\(.+\)$/),
-	],
-};
+export const xmpAgentName = xmpLiteral('AgentName', [
+	v.regex(/^[^ \t]+[ \t]+[^ \t]+[ \t]+[^ \t]+[ \t]*\(.+\)$/),
+]);

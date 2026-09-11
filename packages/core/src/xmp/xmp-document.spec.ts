@@ -356,6 +356,7 @@ describe('XMP document', () => {
 				'fi-fi': 'Kurjat',
 				'bg-bg': 'Клетниците',
 			});
+			console.log(xmpDoc.serialiseXmp());
 		});
 	});
 
