@@ -14,6 +14,7 @@ import { xmpRenditionClass } from './value-types/core/derived/rendition-class.js
 import { xmpResourceRef } from './value-types/core/derived/resource-ref.js';
 import { xmpURI } from './value-types/core/derived/uri.js';
 import { xmpURL } from './value-types/core/derived/url.js';
+import { xmpDimensions } from './value-types/complex/dimensions.js';
 
 export interface XmpBaseValueType {
 	termType: string;
@@ -160,29 +161,21 @@ export const xmpCoreDerivedTypes = {
 	ResourceRef: xmpResourceRef,
 	URI: xmpURI,
 	URL: xmpURL,
+	// Dimensions: ?
+	// Lang Alt: ?
+	// Thumbnail: ?
+	// XPath: ?
 } as const;
-
 export type XmpCoreDerivedType = keyof typeof xmpCoreDerivedTypes;
+
+export const xmpComplexTypes = {
+	Dimensions: xmpDimensions,
+};
+export type XmpComplexType = keyof typeof xmpComplexTypes;
 
 export type XmpCoreType = XmpCoreBaseType | XmpCoreDerivedType;
 
-const ArticleNumber: XmpStruct = {
-	name: 'ArticleNumber',
-	termType: 'Struct',
-	description: 'article number',
-	namespaceURI: 'http://www.foobar.com/ns/articlenumber/1/',
-	prefix: 'artnum',
-	properties: {
-		series: {
-			description: 'machine series',
-			valueType: xmpText,
-		},
-		model: {
-			description: 'machine model',
-			valueType: xmpText,
-		},
-	},
-};
+export type XmpPredefinedType = XmpCoreType | XmpComplexType;
 
 export interface XmpProperty {
 	description?: string;
@@ -202,138 +195,3 @@ export interface XmpSchema {
 	prefix: string;
 	properties: Record<string, XmpProperty>;
 }
-
-const schema: XmpSchema = {
-	name: 'Foo Machines Schema',
-	namespaceURI: 'http://www.foobar.com/ns/machines/2/',
-	prefix: 'fm',
-	properties: {
-		YearOfManufacture: {
-			description: 'year of manufacture',
-			valueType: xmpDate,
-		},
-		MachineName: {
-			description: 'machine name',
-			valueType: xmpText,
-		},
-		MachineNumber: {
-			description: 'product number',
-			valueType: ArticleNumber,
-		},
-	},
-};
-
-// Try to write a PDF/A extension schema from it fooMachinesSchema.
-console.log(`<rdf:RDF>`);
-console.log(`  <rdf:Description>`);
-console.log(`    <pdfaExtension:schemas>`);
-console.log(`      <rdf:Bag>`);
-console.log(`        <rdf:li rdf:parseType="Resource">`);
-if (typeof schema.name !== 'undefined') {
-	console.log(
-		`          <pdfaSchema:schema>${schema.name}</pdfaSchema:schema>`,
-	);
-}
-console.log(
-	`          <pdfaSchema:namespaceURI>${schema.namespaceURI}</pdfaSchema:namespaceURI>`,
-);
-console.log(
-	`          <pdfaSchema:prefix>${schema.prefix}</pdfaSchema:prefix>`,
-);
-console.log(`          <pdfaSchema:property>`);
-console.log(`            <rdf:Seq>`);
-const customValueTypes: Record<string, XmpValueType> = {};
-for (const name in schema.properties) {
-	console.log(`              <rdf:li rdf:parseType="Resource">`);
-	const property = schema.properties[name]!;
-	console.log(`                <pdfaProperty:name>${name}</pdfaProperty:name>`);
-	if (property.valueType.termType === 'Literal') {
-		const name = property.valueType.name;
-		if (
-			!xmpCoreBaseTypes[name as XmpCoreBaseType] &&
-			!xmpCoreDerivedTypes[name as XmpCoreDerivedType]
-		) {
-			customValueTypes[name] = property.valueType;
-		}
-		console.log(
-			`                <pdfaProperty:name>${property.valueType.name}</pdfaProperty:name>`,
-		);
-	} else if (property.valueType.termType === 'Struct') {
-		const name = property.valueType.name;
-		if (
-			!xmpCoreBaseTypes[name as XmpCoreBaseType] &&
-			!xmpCoreDerivedTypes[name as XmpCoreDerivedType]
-		) {
-			customValueTypes[name] = property.valueType;
-		}
-		console.log(
-			`                <pdfaProperty:name>${property.valueType.name}</pdfaProperty:name>`,
-		);
-	} else {
-		throw new Error('How to?');
-	}
-	const category = property.internal ? 'internal' : 'external';
-	console.log(
-		`                <pdfaProperty:category>${category}</pdfaProperty:category>`,
-	);
-	console.log(
-		`                <pdfaProperty:description>${property.description}</pdfaProperty:description>`,
-	);
-	console.log(`              </rdf:li>`);
-}
-
-console.log(`            </rdf:Seq>`);
-console.log(`          </pdfaSchema:property>`);
-
-if (Object.keys(customValueTypes).length) {
-	console.log(`          <pdfaSchema:valueType>`);
-	console.log(`            <rdf:Seq>`);
-
-	for (const typeName in customValueTypes) {
-		const valueType = customValueTypes[typeName] as XmpStruct;
-		console.log(`              <rdf:li rdf:parseType="Resource">`);
-		console.log(`                <pdfaType:type>${typeName}</pdfaType:type>`);
-		// FIXME! What if this is another value type? Where to get the
-		// Namespace URI?
-		console.log(
-			`                <pdfaType:namespaceURI>${valueType.namespaceURI}</pdfaType:namespaceURI>`,
-		);
-		console.log(
-			`                <pdfaType:prefix>${valueType.prefix}</pdfaType:prefix>`,
-		);
-		console.log(
-			`                <pdfaType:description>${valueType.description}</pdfaType:prefix>`,
-		);
-		if (Object.keys(valueType.properties).length) {
-			console.log(`                <pdfaType:field>`);
-			console.log(`                  <rdf:Seq>`);
-			for (const fieldName in valueType.properties) {
-				const property = valueType.properties[fieldName]!;
-				const vt = property.valueType as XmpLiteral; // FIXME!
-				console.log(`                    <rdf:li rdf:parseType="Resource">`);
-				console.log(
-					`                      <pdfaField:name>${fieldName}</pdfaField:name>`,
-				);
-				console.log(
-					`                      <pdfaField:valueType>${vt.name}</pdfaField:name>`,
-				);
-				console.log(
-					`                      <pdfaField:description>${vt.description}</pdfaField:description>`,
-				);
-				console.log(`                    </rdf:li>`);
-			}
-			console.log(`                  </rdf:Seq>`);
-			console.log(`                </pdfaType:field>`);
-		}
-		console.log(`              </rdf:li>`);
-	}
-
-	console.log(`            </rdf:Seq>`);
-	console.log(`          </pdfaSchema:valueType>`);
-}
-
-console.log(`        </rdf:li>`);
-console.log(`      </rdf:Bag>`);
-console.log(`   </pdfaExtension:schemas>`);
-console.log(`  </rdf:Description>`);
-console.log(`</rdf:RDF>`);
