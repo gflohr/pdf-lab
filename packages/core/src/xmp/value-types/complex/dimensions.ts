@@ -12,8 +12,7 @@ import { xmpChoice } from '../core/derived/choice.js';
  */
 export const xmpDimensions: XmpStruct = {
 	name: 'Dimensions',
-	description:
-		'A structure containing dimensions for a drawn object.',
+	description: 'A structure containing dimensions for a drawn object.',
 	termType: 'Struct',
 	namespaceURI: 'http://ns.adobe.com/xap/1.0/sType/Dimensions#',
 	prefix: 'stDim',

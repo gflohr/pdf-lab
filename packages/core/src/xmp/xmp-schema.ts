@@ -1,6 +1,7 @@
 import type * as v from 'valibot';
 import { xmpBoolean } from './data-types/boolean.js';
 import { xmpInteger } from './data-types/integer.js';
+import { xmpDimensions } from './value-types/complex/dimensions.js';
 import { xmpDate } from './value-types/core/basic/date.js';
 import { xmpReal } from './value-types/core/basic/real.js';
 import { xmpText } from './value-types/core/basic/text.js';
@@ -14,7 +15,6 @@ import { xmpRenditionClass } from './value-types/core/derived/rendition-class.js
 import { xmpResourceRef } from './value-types/core/derived/resource-ref.js';
 import { xmpURI } from './value-types/core/derived/uri.js';
 import { xmpURL } from './value-types/core/derived/url.js';
-import { xmpDimensions } from './value-types/complex/dimensions.js';
 
 export interface XmpBaseValueType {
 	termType: string;
@@ -161,7 +161,6 @@ export const xmpCoreDerivedTypes = {
 	ResourceRef: xmpResourceRef,
 	URI: xmpURI,
 	URL: xmpURL,
-	// Dimensions: ?
 	// Lang Alt: ?
 	// Thumbnail: ?
 	// XPath: ?
@@ -181,6 +180,11 @@ export interface XmpProperty {
 	description?: string;
 
 	valueType: XmpValueType;
+
+	/*
+	 * Does the property have to be present? Default: `false`.
+	 */
+	required?: boolean;
 
 	/**
 	 * The opposite of external. Default: `false`. That means that properties

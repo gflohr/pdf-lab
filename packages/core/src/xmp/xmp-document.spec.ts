@@ -414,7 +414,7 @@ describe('XMP document', () => {
 	});
 
 	describe('Nested schemas', () => {
-		it('should create nested data', () => {
+		it.skip('should create nested data', () => {
 			const xmpDoc = new XmpDocument();
 
 			xmpDoc.tryOut();

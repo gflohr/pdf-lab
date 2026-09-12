@@ -12,7 +12,7 @@ import { type XmpSchema, xmpBag, xmpLangAlt, xmpSeq } from '../xmp-schema.js';
  * names and usage shall be as defined in the Dublin Core Metadata Element Set,
  * created by the Dublin Core Metadata Initiative (DCMI).
  *
- * The namespace URI shall be "http://purl.org/dc/elements/1.1/".
+ * The namespace URI shall be `http://purl.org/dc/elements/1.1/`.
  * The preferred namespace prefix is `dc`.
  *
  * **NOTE 1:** The Dublin Core elements as defined by DCMI all have URIs of the
